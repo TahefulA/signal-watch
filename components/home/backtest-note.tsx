@@ -7,6 +7,10 @@ function pct(value: number | null): string {
   return `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
 }
 
+function share(value: number | null): string {
+  return value === null ? "n/a" : `${Math.round(value * 100)}%`;
+}
+
 export function BacktestNote({ result }: { result: BacktestReport }) {
   const rows = result.thresholds;
   const primary = [...rows].reverse().find((r) => r.signals >= 10) ?? rows[0];
@@ -21,7 +25,7 @@ export function BacktestNote({ result }: { result: BacktestReport }) {
             Across {primary.signals} times a company crossed a score of {primary.threshold}, the stock returned{" "}
             <span className="font-mono">{pct(primary.average_alpha)}</span> against its sector ETF over the next{" "}
             {result.horizon_days} days on average, and lagged its sector{" "}
-            <span className="font-mono">{pct(primary.hit_rate)}</span> of the time.
+            <span className="font-mono">{share(primary.hit_rate)}</span> of the time.
           </p>
         ) : (
           <p className="text-sm text-zinc-200">No scores crossed the tested thresholds in this window.</p>
@@ -41,7 +45,7 @@ export function BacktestNote({ result }: { result: BacktestReport }) {
                 <td className="py-1.5">{r.threshold}</td>
                 <td className="py-1.5 text-right">{r.signals}</td>
                 <td className="py-1.5 text-right">{pct(r.average_alpha)}</td>
-                <td className="py-1.5 text-right">{pct(r.hit_rate)}</td>
+                <td className="py-1.5 text-right">{share(r.hit_rate)}</td>
               </tr>
             ))}
           </tbody>
