@@ -1,1 +1,73 @@
-{}
+{
+  "generated_at": "2026-10-09T21:22:18.222Z",
+  "window_start": "2026-01-13",
+  "window_end": "2026-09-09",
+  "horizon_days": 30,
+  "tickers": [
+    "WULF",
+    "F",
+    "T",
+    "GM",
+    "RIVN",
+    "LCID",
+    "VZ",
+    "CHTR",
+    "WBD",
+    "AAL",
+    "BA",
+    "CCL",
+    "NCLH",
+    "M",
+    "KSS",
+    "INTC",
+    "PLUG",
+    "CVNA",
+    "UPST",
+    "CIFR"
+  ],
+  "ticker_days": 4800,
+  "thresholds": [
+    {
+      "threshold": 10,
+      "signals": 144,
+      "average_alpha": -0.0025645144757877286,
+      "median_alpha": -0.011778731361636041,
+      "hit_rate": 0.5416666666666666
+    },
+    {
+      "threshold": 15,
+      "signals": 47,
+      "average_alpha": 0.007900350452672199,
+      "median_alpha": 0.02702782732358422,
+      "hit_rate": 0.425531914893617
+    },
+    {
+      "threshold": 20,
+      "signals": 23,
+      "average_alpha": 0.015190754449761836,
+      "median_alpha": 0.02702782732358422,
+      "hit_rate": 0.391304347826087
+    },
+    {
+      "threshold": 30,
+      "signals": 3,
+      "average_alpha": -0.17139555850875787,
+      "median_alpha": -0.15658471492772652,
+      "hit_rate": 1
+    },
+    {
+      "threshold": 50,
+      "signals": 0,
+      "average_alpha": null,
+      "median_alpha": null,
+      "hit_rate": null
+    },
+    {
+      "threshold": 70,
+      "signals": 0,
+      "average_alpha": null,
+      "median_alpha": null,
+      "hit_rate": null
+    }
+  ]
+}

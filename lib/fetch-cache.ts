@@ -47,9 +47,16 @@ export async function cachedFetchText(
     // Cache miss.
   }
 
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 5; attempt++) {
     await throttle(options.throttleKey, options.minIntervalMs);
-    const response = await fetch(url, { headers: options.headers });
+    let response: Response;
+    try {
+      response = await fetch(url, { headers: options.headers, signal: AbortSignal.timeout(30_000) });
+    } catch {
+      // Dropped connection or timeout: back off and retry.
+      await new Promise((resolve) => setTimeout(resolve, 3000 * (attempt + 1)));
+      continue;
+    }
     if (response.ok) {
       const body = await response.text();
       await mkdir(CACHE_DIR, { recursive: true });
