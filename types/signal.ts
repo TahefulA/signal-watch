@@ -47,12 +47,23 @@ export interface TickerSummary {
   sparkline: number[];
 }
 
-export interface BacktestResult {
-  total_signals: number;
-  tickers_tested: number;
+export interface BacktestThresholdResult {
   threshold: number;
-  horizon_days: number;
-  average_alpha: number;
-  hit_rate: number;
+  /** Entry signals: the first day a ticker crosses the threshold after being below it. */
+  signals: number;
+  /** Mean of stock return minus sector ETF return over the horizon. */
+  average_alpha: number | null;
+  median_alpha: number | null;
+  /** Share of signals where the stock underperformed its sector, the outcome a risk flag predicts. */
+  hit_rate: number | null;
+}
+
+export interface BacktestReport {
   generated_at: string;
+  window_start: string;
+  window_end: string;
+  horizon_days: number;
+  tickers: string[];
+  ticker_days: number;
+  thresholds: BacktestThresholdResult[];
 }

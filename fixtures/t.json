@@ -1,7 +1,7 @@
 {
  "profile": {
   "ticker": "T",
-  "name": "At&T Inc.",
+  "name": "AT&T Inc.",
   "cik": "732717",
   "sector": "Telecommunications",
   "sector_etf": "XLC"
@@ -2563,7 +2563,7 @@
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
     "sentiment_divergence": "Management tone 60 against news tone 63 across 88 headlines.",
-    "market_divergence": "T -8.9% vs XLC +0.2% over 5 sessions; HYG/LQD -0.1%."
+    "market_divergence": "T -9.2% vs XLC +0.1% over 5 sessions; HYG/LQD -0.1%."
    }
   }
  ],
@@ -3508,5 +3508,5 @@
   }
  ],
  "reason": "No active risk signals across filings, insiders, news or market data.",
- "generated_at": "2026-10-09T19:00:42.342Z"
+ "generated_at": "2026-10-09T19:09:24.137Z"
 }

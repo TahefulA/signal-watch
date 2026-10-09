@@ -8,8 +8,15 @@ import type { ComponentKey, SignalEvent, SignalScore, TickerDataset, TickerProfi
 
 let pool: Pool | null = null;
 
+/** True when a connection string with credentials is configured. */
 export function tigerEnabled(): boolean {
-  return Boolean(process.env.DATABASE_URL);
+  const url = process.env.DATABASE_URL;
+  if (!url) return false;
+  try {
+    return new URL(url).password.length > 0;
+  } catch {
+    return false;
+  }
 }
 
 function getPool(): Pool {
@@ -18,6 +25,8 @@ function getPool(): Pool {
       connectionString: process.env.DATABASE_URL,
       ssl: process.env.DATABASE_URL?.includes("sslmode=disable") ? false : { rejectUnauthorized: false },
       max: 3,
+      connectionTimeoutMillis: 5_000,
+      query_timeout: 10_000,
     });
   }
   return pool;

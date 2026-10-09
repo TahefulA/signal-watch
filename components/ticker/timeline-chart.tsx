@@ -93,7 +93,7 @@ export function TimelineChart({ data, events, activeCategories, selectedDate, on
     if (cx === undefined || cy === undefined || !payload?.lead) return <g key={`empty-${payload?.date}`} />;
     const selected = payload.date === selectedDate;
     return (
-      <g key={payload.date} className="cursor-pointer" onClick={() => onSelect(payload.date)}>
+      <g key={payload.date} className="cursor-pointer" data-date={payload.date}>
         <circle cx={cx} cy={cy} r={12} fill="transparent" />
         <circle
           cx={cx}
@@ -130,6 +130,7 @@ export function TimelineChart({ data, events, activeCategories, selectedDate, on
           />
           <YAxis
             domain={[0, yMax]}
+            ticks={Array.from({ length: 6 }, (_, i) => (yMax / 5) * i)}
             tick={{ fill: "#71717A", fontSize: 11, fontFamily: "var(--font-geist-mono)" }}
             axisLine={false}
             tickLine={false}
@@ -142,7 +143,7 @@ export function TimelineChart({ data, events, activeCategories, selectedDate, on
             isAnimationActive={false}
           />
           <Line
-            type="monotone"
+            type="linear"
             dataKey="score"
             stroke="#E4E4E7"
             strokeWidth={2}

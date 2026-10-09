@@ -28,7 +28,7 @@ function companyName(raw: string): string {
     .replace(/\b([a-z])/g, (c) => c.toUpperCase())
     .replace(/\bInc\b\.?/i, "Inc.")
     .replace(/\bCo\b\.?$/i, "Co.")
-    .replace(/&t\b/i, "&T");
+    .replace(/\b(\w+)&(\w+)\b/g, (m) => m.toUpperCase());
 }
 
 async function scoreHeadlines(headlines: string[]): Promise<(-1 | 0 | 1)[]> {
@@ -56,7 +56,9 @@ function reasonTemplate(dataset: Omit<TickerDataset, "reason" | "generated_at">)
     .filter((e): e is SignalEvent => e !== undefined)
     .sort((a, b) => Math.abs(b.score_impact) - Math.abs(a.score_impact))[0];
   const text = driver
-    ? `${top.c.label} leads: ${driver.title.charAt(0).toLowerCase()}${driver.title.slice(1)} (${formatDate(driver.date)}).`
+    ? `${top.c.label} leads: ${driver.title.charAt(0).toLowerCase()}${driver.title.slice(1)}${
+        driver.title.includes(formatDate(driver.date)) ? "" : ` (${formatDate(driver.date)})`
+      }.`
     : `${top.c.label} leads: ${latest.notes[top.c.key]}`;
   const facts = [
     `Ticker: ${dataset.profile.ticker} (${dataset.profile.name})`,
@@ -78,7 +80,7 @@ export async function buildDataset(entry: UniverseEntry, options: BuildOptions):
   const submissions = await getSubmissions(company.cik);
   const profile = {
     ticker: entry.ticker,
-    name: companyName(submissions.name),
+    name: entry.display_name ?? companyName(submissions.name),
     cik: company.cik,
     sector: entry.sector,
     sector_etf: entry.sector_etf,

@@ -1,7 +1,7 @@
 {
  "profile": {
   "ticker": "WULF",
-  "name": "Terawulf Inc.",
+  "name": "TeraWulf Inc.",
   "cik": "1083301",
   "sector": "Digital infrastructure",
   "sector_etf": "XLK"
@@ -2694,14 +2694,14 @@
      "wulf-04829ad7bca8"
     ],
     "market_divergence": [
-     "wulf-12e92d3eb7bf"
+     "wulf-38af434bb717"
     ]
    },
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
     "sentiment_divergence": "Management tone 61 against news tone 51 across 47 headlines.",
-    "market_divergence": "WULF -11.8% vs XLK -0.5% over 5 sessions; HYG/LQD -0.1%."
+    "market_divergence": "WULF -11.7% vs XLK -0.5% over 5 sessions; HYG/LQD -0.1%."
    }
   }
  ],
@@ -3421,7 +3421,7 @@
    "score_impact": 6.5
   },
   {
-   "id": "wulf-12e92d3eb7bf",
+   "id": "wulf-38af434bb717",
    "ticker": "WULF",
    "date": "2026-10-09",
    "event_type": "market",
@@ -3430,11 +3430,11 @@
    "quote_kind": "reported",
    "source_url": "https://finance.yahoo.com/quote/WULF/history/",
    "title": "Underperformed XLK by more than 10 points in a week",
-   "quote": "WULF returned -11.8% over the 5 sessions to Oct 9, 2026, while XLK returned -0.5%.",
+   "quote": "WULF returned -11.7% over the 5 sessions to Oct 9, 2026, while XLK returned -0.5%.",
    "source_label": "Yahoo Finance daily closes, WULF and XLK",
    "score_impact": 50
   }
  ],
  "reason": "Market divergence leads: underperformed XLK by more than 10 points in a week (Oct 9, 2026).",
- "generated_at": "2026-10-09T18:58:44.517Z"
+ "generated_at": "2026-10-09T19:09:22.798Z"
 }

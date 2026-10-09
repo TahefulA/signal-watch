@@ -2674,7 +2674,7 @@
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
     "sentiment_divergence": "Management tone 39 against news tone 47 across 49 headlines.",
-    "market_divergence": "F +0.6% vs XLY +2.6% over 5 sessions; HYG/LQD -0.1%."
+    "market_divergence": "F +0.7% vs XLY +2.6% over 5 sessions; HYG/LQD -0.1%."
    }
   }
  ],
@@ -3310,6 +3310,6 @@
    "score_impact": -8.5
   }
  ],
- "reason": "Filing anomaly leads: new covenant language in 10-Q filed Jul 29, 2026 (Jul 29, 2026).",
- "generated_at": "2026-10-09T18:59:16.823Z"
+ "reason": "Filing anomaly leads: new covenant language in 10-Q filed Jul 29, 2026.",
+ "generated_at": "2026-10-09T19:09:23.624Z"
 }

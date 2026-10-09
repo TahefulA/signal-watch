@@ -3,13 +3,15 @@ import type { TickerProfile } from "@/types";
 export interface UniverseEntry extends Omit<TickerProfile, "cik" | "name"> {
   /** Search phrase for news, usually the company name plus ticker. */
   news_query: string;
+  /** Display name when the EDGAR conformed name reads poorly. */
+  display_name?: string;
 }
 
 /** Featured tickers shown on the homepage and stored as fixtures. */
 export const FEATURED: UniverseEntry[] = [
-  { ticker: "WULF", sector: "Digital infrastructure", sector_etf: "XLK", news_query: "TeraWulf WULF" },
-  { ticker: "F", sector: "Automobiles", sector_etf: "XLY", news_query: "\"Ford Motor\" stock" },
-  { ticker: "T", sector: "Telecommunications", sector_etf: "XLC", news_query: "\"AT&T\" stock" },
+  { ticker: "WULF", display_name: "TeraWulf Inc.", sector: "Digital infrastructure", sector_etf: "XLK", news_query: "TeraWulf WULF" },
+  { ticker: "F", display_name: "Ford Motor Co.", sector: "Automobiles", sector_etf: "XLY", news_query: "\"Ford Motor\" stock" },
+  { ticker: "T", display_name: "AT&T Inc.", sector: "Telecommunications", sector_etf: "XLC", news_query: "\"AT&T\" stock" },
 ];
 
 /** Wider set used only for the backtest. */

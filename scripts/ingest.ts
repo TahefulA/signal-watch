@@ -30,8 +30,9 @@ async function main(): Promise<void> {
     await writeFile(file, `${JSON.stringify(dataset, null, 1)}\n`);
     const latest = dataset.scores.at(-1);
     console.log(`${entry.ticker}: ${dataset.scores.length} days, ${dataset.events.length} events, latest ${latest?.total_score} -> ${file}`);
-    if (process.env.DATABASE_URL) {
-      const { saveDataset } = await import("@/lib/tiger");
+    const tiger = await import("@/lib/tiger");
+    if (tiger.tigerEnabled()) {
+      const { saveDataset } = tiger;
       await saveDataset(dataset);
       console.log(`${entry.ticker}: stored in Tiger Data`);
     }
