@@ -93,8 +93,13 @@ export function TimelineChart({ data, events, activeCategories, selectedDate, on
     if (cx === undefined || cy === undefined || !payload?.lead) return <g key={`empty-${payload?.date}`} />;
     const selected = payload.date === selectedDate;
     return (
-      <g key={payload.date} className="cursor-pointer" data-date={payload.date}>
-        <circle cx={cx} cy={cy} r={12} fill="transparent" />
+      <g
+        key={payload.date}
+        className="cursor-pointer"
+        data-date={payload.date}
+        onClick={() => onSelect(payload.date)}
+      >
+        <circle cx={cx} cy={cy} r={7} fill="transparent" />
         <circle
           cx={cx}
           cy={cy}
@@ -113,10 +118,6 @@ export function TimelineChart({ data, events, activeCategories, selectedDate, on
         <LineChart
           data={rows}
           margin={{ top: 12, right: 8, bottom: 4, left: -16 }}
-          onClick={(state) => {
-            const label = state?.activeLabel;
-            if (typeof label === "string") onSelect(label);
-          }}
           className="cursor-crosshair"
         >
           <CartesianGrid vertical={false} stroke="#27272A" strokeDasharray="0" />
@@ -148,7 +149,19 @@ export function TimelineChart({ data, events, activeCategories, selectedDate, on
             stroke="#E4E4E7"
             strokeWidth={2}
             dot={renderDot}
-            activeDot={{ r: 4, fill: "#FAFAFA", stroke: SURFACE, strokeWidth: 2 }}
+            activeDot={(props: DotProps) => (
+              <circle
+                key={`active-${props.payload?.date}`}
+                cx={props.cx}
+                cy={props.cy}
+                r={5}
+                fill="#FAFAFA"
+                stroke={SURFACE}
+                strokeWidth={2}
+                className="cursor-pointer"
+                onClick={() => props.payload && onSelect(props.payload.date)}
+              />
+            )}
             isAnimationActive={false}
           />
           <Brush
