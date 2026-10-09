@@ -8,5 +8,7 @@ export interface TickerDataset {
   profile: TickerProfile;
   scores: SignalScore[];
   events: SignalEvent[];
+  /** One-line explanation of the latest score. */
+  reason: string;
   generated_at: string;
 }

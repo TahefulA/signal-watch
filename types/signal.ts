@@ -17,6 +17,10 @@ export interface SignalScore extends ComponentScores {
   /** ISO date, YYYY-MM-DD */
   date: string;
   total_score: number;
+  /** Event ids that contributed to each component on this date. */
+  drivers: Record<ComponentKey, string[]>;
+  /** One-line explanation of each component value on this date. */
+  notes: Record<ComponentKey, string>;
 }
 
 export interface ComponentDefinition {

@@ -1,5 +1,8 @@
 import type { ComponentKey } from "./signal";
 
+/** Verbatim text, or a restatement of reported figures. */
+export type QuoteKind = "verbatim" | "reported";
+
 export type EventType = "filing" | "news" | "insider" | "market";
 
 /** Display category on the timeline, finer than EventType. */
@@ -19,8 +22,12 @@ export interface SignalEvent {
   category: EventCategory;
   component: ComponentKey;
   title: string;
-  /** Verbatim text from the source document. */
+  /**
+   * Text from the source. For filings and news this is verbatim; for insider
+   * trades and market moves it restates the reported figures.
+   */
   quote: string;
+  quote_kind: QuoteKind;
   /** Where in the source the quote lives, e.g. "10-Q, Item 1A. Risk Factors". */
   source_label: string;
   source_url: string;
