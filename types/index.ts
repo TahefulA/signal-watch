@@ -1,14 +1,24 @@
-export type * from "./signal";
-export type * from "./event";
+export type * from "./entity";
+export type * from "./graph";
+export type * from "./memo";
 
-import type { SignalScore, TickerProfile } from "./signal";
-import type { SignalEvent } from "./event";
+import type { EntityGraph, MarketSnapshot, SourceDocument } from "./graph";
+import type { Memo } from "./memo";
 
-export interface TickerDataset {
-  profile: TickerProfile;
-  scores: SignalScore[];
-  events: SignalEvent[];
-  /** One-line explanation of the latest score. */
-  reason: string;
-  generated_at: string;
+export interface Report {
+  id: string;
+  generatedAt: string;
+  graph: EntityGraph;
+  memo: Memo;
+  market: MarketSnapshot | null;
+  sources: SourceDocument[];
+  filingsAnalyzed: number;
+  newsAnalyzed: number;
+  /** Shown above the map, e.g. when few entities were found. */
+  notes: string[];
 }
+
+export type AnalyzeEvent =
+  | { type: "step"; step: string }
+  | { type: "result"; report: Report; cached: boolean }
+  | { type: "error"; message: string };

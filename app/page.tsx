@@ -1,42 +1,27 @@
-import { Footer } from "@/components/layout/footer";
+"use client";
+
+import { useState } from "react";
+import type { Entity } from "@/types";
 import { Header } from "@/components/layout/header";
-import { BacktestNote } from "@/components/home/backtest-note";
-import { MethodNotes } from "@/components/home/method-notes";
-import { SignalList } from "@/components/home/signal-list";
-import { getSummaries } from "@/lib/data";
-import { getBacktest } from "@/lib/backtest-store";
+import { EntityMap } from "@/components/map/entity-map";
+import { Legend } from "@/components/map/legend";
+import { WULF_SAMPLE } from "@/lib/dev/wulf-sample";
 
-export const revalidate = 3600;
-
-const COUNT_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
-
-export default async function HomePage() {
-  const summaries = await getSummaries();
-  const backtest = getBacktest();
-  const count = COUNT_WORDS[summaries.length] ?? String(summaries.length);
+export default function HomePage() {
+  const [selected, setSelected] = useState<Entity | null>(null);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen">
       <Header />
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-6 py-8 md:px-12">
-        <div className="max-w-3xl space-y-3">
-          <h1 className="font-display text-3xl font-bold tracking-tight text-zinc-50 sm:text-4xl">
-            {count} companies are on the watchlist, ranked by where their filings, insiders and markets disagree.
-          </h1>
-          <p className="text-sm leading-relaxed text-zinc-400">
-            Open a company to see its risk score for the last 90 days. Select any day to see what moved it, then open
-            the sentence in the filing that caused it.
-          </p>
+      <section className="px-6 py-8">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+          <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Entity map</h2>
+          <Legend />
         </div>
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <SignalList summaries={summaries} />
-          <div className="space-y-8">
-            {backtest ? <BacktestNote result={backtest} /> : null}
-            <MethodNotes />
-          </div>
+        <div className="h-[70vh] min-h-[480px] border border-zinc-800">
+          <EntityMap graph={WULF_SAMPLE} selectedId={selected?.id ?? null} focusRequest={0} onSelect={setSelected} />
         </div>
-      </main>
-      <Footer />
+      </section>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+@import "@xyflow/react/dist/style.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,10 +10,46 @@
   }
 
   body {
-    @apply bg-zinc-950 font-sans text-zinc-50 antialiased;
+    @apply bg-zinc-950 font-sans text-zinc-100 antialiased;
   }
 
   ::selection {
     @apply bg-zinc-700 text-zinc-50;
   }
+}
+
+.react-flow__attribution {
+  display: none;
+}
+
+.react-flow__controls {
+  background-color: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+.react-flow__controls-button {
+  background-color: #18181b;
+  border-bottom: 1px solid #27272a;
+  color: #a1a1aa;
+  fill: #a1a1aa;
+}
+
+.react-flow__controls-button:hover {
+  background-color: #27272a;
+}
+
+.react-flow__edge-text {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+}
+
+.react-flow__handle {
+  opacity: 0;
+}
+
+.react-flow__node.selected .entity-box {
+  outline: 1px solid #fafafa;
+  outline-offset: 2px;
 }

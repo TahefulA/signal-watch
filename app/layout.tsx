@@ -17,14 +17,14 @@ const geistMono = localFont({
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["700"],
+  weight: ["500", "700"],
   variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
   title: "Signal Watch",
   description:
-    "Risk signals from SEC filings, insider trades, news, and market data, with every point traced to its source.",
+    "Maps the entities and risks in a company's SEC filings and news, with every box traced to its source, and drafts a credit memo.",
 };
 
 export const viewport: Viewport = {
@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable}`}
+        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} min-h-screen bg-zinc-950 font-sans text-zinc-100 antialiased`}
       >
         {children}
       </body>
