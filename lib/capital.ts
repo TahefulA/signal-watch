@@ -29,7 +29,7 @@ For each instrument:
 - outstanding_text: the principal outstanding at the balance sheet date, written exactly as the text writes it. Prefer the principal amount column of a table dated at the balance sheet date, for example "$ 500,000" from a table in thousands; otherwise a sentence such as "$ 3,200.0 million". For instruments issued after the balance sheet date, the amount issued. Null if the text gives no such amount.
 - outstanding_scale: "thousands" or "millions" when outstanding_text comes from a table whose heading says amounts are in thousands or millions; "as_written" when the text itself includes the word million or billion.
 - commitment_text: for revolvers and delayed-draw facilities, the total commitment, written exactly as the text writes it. Otherwise null.
-- maturity: YYYY-MM-DD if the text gives a day, otherwise YYYY. Null if not stated.
+- maturity: YYYY-MM-DD if the text gives a day, YYYY-MM if it gives a month, otherwise YYYY. Null if not stated.
 - coupon: the stated interest rate exactly as written, for example "7.75 %" or "SOFR plus 2.75 %". Null if not stated.
 - recent_change: if the text describes an issuance, amendment, repayment, exchange or refinancing of this instrument in the twelve months before the filing date, describe it in at most 20 words, with its date. Otherwise null.
 - quotes: one to three sentences or table rows copied exactly from the text that together state the amounts, maturity and coupon. When outstanding_text comes from a table, include that table row, for example "2030 Convertible notes $ 500,000 $ ( 9,054 ) $ 490,946". Each has the bracketed id of its block in doc.
@@ -130,7 +130,9 @@ function scaleAbove(text: string, quote: string): Scale | null {
  * Kept only when the rows add up to the stated total.
  */
 export function parseMaturitySchedule(doc: CorpusDoc): MaturitySchedule | null {
-  const heading = doc.text.match(/[^\n]*maturities[^\n]{0,200}\((?:dollars )?in (thousands|millions)\)[^\n]*/i);
+  const heading = doc.text.match(
+    /[^\n]*(?:maturities|principal payments|scheduled payments|payments based on)[^\n]{0,200}\n?\s*\((?:dollars )?in (thousands|millions)\)[^\n]*/i,
+  );
   if (!heading || heading.index === undefined) return null;
   const scale = SCALE[heading[1].toLowerCase() as Scale];
   const after = doc.text.slice(heading.index + heading[0].length, heading.index + heading[0].length + 1500);
@@ -138,7 +140,7 @@ export function parseMaturitySchedule(doc: CorpusDoc): MaturitySchedule | null {
   if (totalAt < 0) return null;
   const body = after.slice(0, totalAt);
   const rows: MaturityRow[] = [];
-  for (const m of body.matchAll(/(Remainder of (?:fiscal )?\d{4}|\b(?:19|20)\d{2}\b|Thereafter)\s*\$?\s*([\d,]+(?:\.\d+)?)/gi)) {
+  for (const m of body.matchAll(/(Remainder of (?:fiscal )?\d{4}|\b(?:19|20)\d{2}\b|Thereafter)\s*(?:\(\d\)\s*)?\$?\s*([\d,]+(?:\.\d+)?)/gi)) {
     rows.push({ period: m[1].replace(/\s+/g, " "), amount: Number(m[2].replace(/,/g, "")) * scale });
   }
   const totalMatch = after.slice(totalAt).match(/\$?\s*([\d,]+(?:\.\d+)?)/);
@@ -187,15 +189,23 @@ function parseInstrument(raw: RawInstrument, byId: Map<string, CorpusDoc>): Debt
   const quotes = citations.map((c) => c.quote);
 
   const outstandingText = supported(str(raw.outstanding_text), quotes);
-  // A bare table figure counts only if the quote holding it sits under a table heading with the claimed scale.
+  // A bare table figure counts only if the quote holding it sits under a table heading with the claimed
+  // scale, or if a sentence about the same instrument states the same amount in words.
   let outstandingScale: Scale | null = null;
-  if (outstandingText && (raw.outstanding_scale === "thousands" || raw.outstanding_scale === "millions")) {
+  if (outstandingText && parseAmount(outstandingText) === null) {
     const i = citations.findIndex((c) => figuresSupported(outstandingText, [c.quote]));
-    if (i >= 0 && scaleAbove(citedDocs[i].text, citations[i].quote) === raw.outstanding_scale) outstandingScale = raw.outstanding_scale;
+    const local = i >= 0 ? scaleAbove(citedDocs[i].text, citations[i].quote) : null;
+    const worded = quotes.map((q) => parseAmount(q)).filter((v): v is number => v !== null);
+    const bare = Number(outstandingText.replace(/[^\d.]/g, ""));
+    const consistent = (["thousands", "millions"] as const).find((scale) =>
+      worded.some((w) => Math.abs(w - bare * SCALE[scale]) <= w * 0.005),
+    );
+    outstandingScale = local ?? consistent ?? null;
+    if (local && consistent && local !== consistent) outstandingScale = null;
   }
   const commitmentText = supported(str(raw.commitment_text), quotes);
   const maturityRaw = str(raw.maturity);
-  const maturity = maturityRaw && /^\d{4}(-\d{2}-\d{2})?$/.test(maturityRaw) && quotes.some((q) => q.includes(maturityRaw.slice(0, 4))) ? maturityRaw : null;
+  const maturity = maturityRaw && /^\d{4}(-\d{2}(-\d{2})?)?$/.test(maturityRaw) && quotes.some((q) => q.includes(maturityRaw.slice(0, 4))) ? maturityRaw : null;
   const recentChange = str(raw.recent_change);
 
   return {
@@ -245,7 +255,12 @@ export function computeMetrics(
   schedule: MaturitySchedule | null,
 ): { metrics: CapitalMetric[]; financials: XbrlValue[] } {
   const counted = instruments.filter((i) => i.outstanding !== null);
-  const totalDebt = counted.reduce((sum, i) => sum + (i.outstanding ?? 0), 0);
+  const listedTotal = counted.reduce((sum, i) => sum + (i.outstanding ?? 0), 0);
+  // The filing's own maturities table is the better total when Gemini missed an instrument.
+  // A table smaller than the listed instruments probably leaves something out, so the larger figure wins.
+  const reconciles = !schedule || Math.abs(schedule.total - listedTotal) <= schedule.total * 0.005;
+  const totalDebt = schedule ? Math.max(schedule.total, listedTotal) : listedTotal;
+  const hasDebt = counted.length > 0 || schedule !== null;
   const secured = counted.filter((i) => i.seniority === "senior_secured").reduce((sum, i) => sum + (i.outstanding ?? 0), 0);
 
   const date = book ? (asOf && instantAt(book, cik, CASH, asOf) ? asOf : latestInstantDate(book, CASH)) : null;
@@ -257,39 +272,39 @@ export function computeMetrics(
   const ebitdaInputs = [operating, depreciation].filter((v): v is XbrlValue => v !== null);
   const financials = [cash, operating, depreciation, interest].filter((v): v is XbrlValue => v !== null);
 
-  const debtNote = `Principal of the ${counted.length} instruments below. Excludes leases.`;
+  const debtNote = !schedule
+    ? `Principal of the ${counted.length} instruments below. Excludes leases.`
+    : reconciles
+      ? `Matches the filing's maturities table and the ${counted.length} instruments below.`
+      : totalDebt === schedule.total
+        ? `From the filing's maturities table. The instruments matched to quotes below account for ${money(listedTotal)}.`
+        : `Principal of the instruments below. The filing's maturities table totals ${money(schedule.total)}.`;
 
   const ratio = (numerator: number | null, label: string): { display: string; note: string } => {
-    if (numerator === null || counted.length === 0) return { display: "Not available", note: "No outstanding principal was found in the debt note." };
+    if (numerator === null || !hasDebt) return { display: "Not available", note: "No outstanding principal was found in the debt note." };
     if (ebitda === null) return { display: "Not available", note: "EBITDA could not be built from the company's XBRL data." };
     if (ebitda <= 0) return { display: "n/m", note: "Not meaningful: EBITDA was negative." };
     return { display: multiple(numerator / ebitda), note: label };
   };
 
   const metrics: CapitalMetric[] = [];
-  const scheduleNote =
-    schedule && counted.length
-      ? Math.abs(schedule.total - totalDebt) < 1e6
-        ? " Matches the filing's maturities table."
-        : ` The filing's principal maturities table totals ${money(schedule.total)}.`
-      : "";
   metrics.push({
     key: "total_debt",
     label: "Total debt",
-    display: counted.length ? money(totalDebt) : "Not available",
-    note: debtNote + scheduleNote,
+    display: hasDebt ? money(totalDebt) : "Not available",
+    note: debtNote,
     inputs: [],
   });
   metrics.push({
     key: "net_debt",
     label: "Net debt",
-    display: counted.length && cash ? money(totalDebt - cash.value) : "Not available",
+    display: hasDebt && cash ? money(totalDebt - cash.value) : "Not available",
     note: cash ? `Less cash of ${money(cash.value)} as of ${date}.` : "Cash was not found in the company's XBRL data.",
     inputs: cash ? [cash] : [],
   });
-  const lev = ratio(counted.length ? totalDebt : null, "Total debt over last-12-month EBITDA.");
+  const lev = ratio(hasDebt ? totalDebt : null, "Total debt over last-12-month EBITDA.");
   metrics.push({ key: "debt_to_ebitda", label: "Total debt / EBITDA", ...lev, inputs: ebitdaInputs });
-  const netLev = ratio(counted.length && cash ? totalDebt - cash.value : null, "Net debt over last-12-month EBITDA.");
+  const netLev = ratio(hasDebt && cash ? totalDebt - cash.value : null, "Net debt over last-12-month EBITDA.");
   metrics.push({ key: "net_debt_to_ebitda", label: "Net debt / EBITDA", ...netLev, inputs: cash ? [cash, ...ebitdaInputs] : ebitdaInputs });
 
   metrics.push({
@@ -319,8 +334,8 @@ export function computeMetrics(
   metrics.push({
     key: "secured_share",
     label: "Secured / total debt",
-    display: totalDebt > 0 ? `${Math.round((secured / totalDebt) * 100)}%` : "Not available",
-    note: "Senior secured share of principal.",
+    display: listedTotal > 0 && reconciles ? `${Math.round((secured / listedTotal) * 100)}%` : "Not available",
+    note: reconciles ? "Senior secured share of principal." : "The instruments matched to quotes do not account for all of the debt.",
     inputs: [],
   });
 

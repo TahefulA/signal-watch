@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { AnalyzeEvent, Entity, Report } from "@/types";
+import type { AnalyzeEvent, Entity, PeerComparison, Report } from "@/types";
 import { CapitalStructurePanel } from "@/components/capital/capital-structure-panel";
 import { ChangePanel } from "@/components/changes/change-panel";
 import { TickerInput } from "@/components/input/ticker-input";
@@ -11,8 +11,10 @@ import { EntityMap } from "@/components/map/entity-map";
 import { Legend } from "@/components/map/legend";
 import { MemoContainer } from "@/components/memo/memo-container";
 import { EntityPanel } from "@/components/panel/entity-panel";
+import { PeerPanel } from "@/components/peers/peer-panel";
 import { Toast } from "@/components/ui/toast";
 import { type EntityLink, viewGraph } from "@/lib/graph-view";
+import { peerContextFor } from "@/lib/peer-view";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
@@ -64,6 +66,11 @@ export default function HomePage() {
   const [comparing, setComparing] = useState(false);
   const [compareStep, setCompareStep] = useState<string | null>(null);
   const [compareError, setCompareError] = useState<string | null>(null);
+  const [peerComparison, setPeerComparison] = useState<PeerComparison | null>(null);
+  const [peerReports, setPeerReports] = useState<Report[]>([]);
+  const [peerBusy, setPeerBusy] = useState(false);
+  const [peerStep, setPeerStep] = useState<string | null>(null);
+  const [peerError, setPeerError] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
   const capitalRef = useRef<HTMLElement>(null);
 
@@ -74,9 +81,29 @@ export default function HomePage() {
     window.history.replaceState(null, "", `?report=${next.id}`);
   }, []);
 
+  /** Builds the comparison from saved report ids and records the peers in the URL. */
+  const loadPeerComparison = useCallback(async (subjectId: string, peerIds: string[]) => {
+    const response = await fetch("/api/peers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reportId: subjectId, peerReportIds: peerIds }),
+    });
+    const body: unknown = await response.json();
+    if (!response.ok || typeof body !== "object" || body === null || !("comparison" in body)) {
+      const message = typeof body === "object" && body !== null && "error" in body ? String((body as { error: unknown }).error) : null;
+      throw new Error(message ?? "The comparison could not be built. Please try again.");
+    }
+    const { comparison, peers } = body as { comparison: PeerComparison; peers: Report[] };
+    setPeerComparison(comparison);
+    setPeerReports(peers);
+    window.history.replaceState(null, "", `?report=${subjectId}&peers=${peers.map((p) => p.id).join(",")}`);
+  }, []);
+
   // Reopen a saved report from a shared link, e.g. ?report=<id>.
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("report");
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("report");
+    const peerIds = (params.get("peers") ?? "").split(",").filter((p) => /^[0-9a-f-]{36}$/i.test(p));
     if (!id) return;
     setStatus("loading");
     setStep(PIPELINE_STEPS[0]);
@@ -86,6 +113,9 @@ export default function HomePage() {
         const body: unknown = await response.json();
         if (response.ok && typeof body === "object" && body !== null && "report" in body) {
           showReport((body as { report: Report }).report, true);
+          if (peerIds.length > 0) {
+            loadPeerComparison(id, peerIds).catch(() => setPeerError("The saved peer comparison could not be loaded. Compare again below."));
+          }
         } else {
           throw new Error("missing");
         }
@@ -95,7 +125,7 @@ export default function HomePage() {
         setStatus("error");
         window.history.replaceState(null, "", window.location.pathname);
       });
-  }, [showReport]);
+  }, [showReport, loadPeerComparison]);
 
   const analyze = useCallback(async (ticker: string, fresh = false) => {
     setStatus("loading");
@@ -104,6 +134,9 @@ export default function HomePage() {
     setError(null);
     setSelected(null);
     setCompareError(null);
+    setPeerComparison(null);
+    setPeerReports([]);
+    setPeerError(null);
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -162,6 +195,48 @@ export default function HomePage() {
       setComparing(false);
     }
   }, [report]);
+
+  const comparePeerTickers = useCallback(
+    async (tickers: string[]) => {
+      if (!report) return;
+      setPeerBusy(true);
+      setPeerError(null);
+      try {
+        const ids: string[] = [];
+        for (const ticker of tickers) {
+          setPeerStep(`${ticker}: starting...`);
+          let failure: string | null = null;
+          const response = await fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ticker }),
+          });
+          await readEvents(response, (event) => {
+            if (event.type === "step") setPeerStep(`${ticker}: ${event.step}`);
+            if (event.type === "result") ids.push(event.report.id);
+            if (event.type === "error") failure = `${ticker}: ${event.message}`;
+          });
+          if (failure) throw new Error(failure);
+        }
+        setPeerStep("Matching entities and searching each company's filings...");
+        await loadPeerComparison(report.id, ids);
+      } catch (error) {
+        setPeerError(error instanceof Error ? error.message : "The comparison could not be built. Please try again.");
+      } finally {
+        setPeerBusy(false);
+        setPeerStep(null);
+      }
+    },
+    [report, loadPeerComparison],
+  );
+
+  const peerContext = useMemo(
+    () =>
+      selected && peerComparison && report?.graph.nodes.some((n) => n.id === selected.id)
+        ? peerContextFor(selected, peerComparison, peerReports)
+        : null,
+    [selected, peerComparison, peerReports, report],
+  );
 
   const showCapital = useCallback(() => {
     setSelected(null);
@@ -260,6 +335,17 @@ export default function HomePage() {
             sourceCount={report.sources.length}
             onEntityClick={focusEntity}
           />
+          <PeerPanel
+            subject={report}
+            comparison={peerComparison}
+            peers={peerReports}
+            busy={peerBusy}
+            step={peerStep}
+            error={peerError}
+            onCompare={(tickers) => void comparePeerTickers(tickers)}
+            onSelectEntity={focusEntity}
+            onSelectPeerEntity={setSelected}
+          />
         </>
       ) : null}
 
@@ -269,6 +355,7 @@ export default function HomePage() {
         links={selected ? (links.get(selected.id) ?? []) : []}
         nodes={graph?.nodes ?? []}
         capital={report?.capital}
+        peerContext={peerContext}
         onSelectEntity={focusEntity}
         onShowCapital={showCapital}
         onClose={() => setSelected(null)}

@@ -1,6 +1,6 @@
 import { Pool, type PoolConfig } from "pg";
 import { TIMESCALE_CA } from "./certs/timescale-ca";
-import type { Report } from "@/types";
+import type { PeerComparison, Report } from "@/types";
 
 /**
  * Tiger Data (PostgreSQL) storage for analysis reports. Each analyzed ticker
@@ -93,6 +93,19 @@ CREATE TABLE IF NOT EXISTS changes (
   detected_at timestamptz NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS changes_report ON changes (report_id);
+
+CREATE TABLE IF NOT EXISTS peer_comparisons (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  comparison_id uuid NOT NULL,
+  report_id_1 uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  report_id_2 uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  shared_entities jsonb NOT NULL,
+  unique_entities_1 jsonb NOT NULL,
+  unique_entities_2 jsonb NOT NULL,
+  comparison_json jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS peer_comparisons_report ON peer_comparisons (report_id_1);
 `;
 
 export async function migrate(): Promise<void> {
@@ -188,5 +201,27 @@ export async function saveChanges(report: Report): Promise<void> {
     throw error;
   } finally {
     client.release();
+  }
+}
+
+/** Stores a comparison as one row per subject-peer pair. */
+export async function savePeerComparison(comparison: PeerComparison): Promise<void> {
+  const [subject, ...peers] = comparison.companies;
+  if (!subject) return;
+  for (const peer of peers) {
+    const shared = comparison.shared.filter((s) => s.members.some((m) => m.ticker === peer.ticker));
+    await getPool().query(
+      `INSERT INTO peer_comparisons (comparison_id, report_id_1, report_id_2, shared_entities, unique_entities_1, unique_entities_2, comparison_json)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        comparison.id,
+        subject.reportId,
+        peer.reportId,
+        JSON.stringify(shared),
+        JSON.stringify(comparison.unique[subject.ticker] ?? []),
+        JSON.stringify(comparison.unique[peer.ticker] ?? []),
+        JSON.stringify(comparison),
+      ],
+    );
   }
 }

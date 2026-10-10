@@ -70,19 +70,51 @@ function isDescriptive(e: Entity): boolean {
   return e.type === "risk" || e.type === "macro";
 }
 
-async function filingSentences(cik: string, sources: SourceDocument[]): Promise<FilingWords> {
+export interface FilingDoc {
+  sourceType: "10-K" | "10-Q" | "8-K";
+  date: string;
+  url: string;
+  text: string;
+}
+
+/** The full text of the filings a report read, fetched again from EDGAR (or the local cache). */
+export async function loadFilingDocs(cik: string, sources: SourceDocument[]): Promise<FilingDoc[]> {
   const submissions = await getSubmissions(cik);
   const refs = sources
     .filter((s) => s.sourceType !== "News")
     .map((s) => submissions.filings.find((f) => f.accession === s.id))
     .filter((f): f is FilingRef => f !== undefined);
-  const sentences: string[][] = [];
-  const all: string[] = [];
+  const docs: FilingDoc[] = [];
   for (const ref of refs) {
     for (const doc of await fetchFilingText(ref)) {
-      for (const s of doc.text.split(/\n|(?<=[.!?])\s+/)) if (s.length > 20) sentences.push(words(s));
-      all.push(words(doc.text).join(" "));
+      docs.push({ sourceType: ref.form as FilingDoc["sourceType"], date: ref.filingDate, url: doc.url, text: doc.text });
     }
+  }
+  return docs;
+}
+
+/** A sentence from the filings that names the entity, as a citation, or null when none does. */
+export function findMention(docs: FilingDoc[], name: string): Citation | null {
+  const key = keyWords(name);
+  if (key.length === 0) return null;
+  for (const doc of docs) {
+    for (const sentence of doc.text.split(/\n|(?<=[.!?])\s+(?=[A-Z“"(])/)) {
+      if (sentence.length < 40 || sentence.length > 400) continue;
+      const w = words(sentence);
+      if (key.every((k) => w.includes(k))) {
+        return { quote: sentence.trim(), sourceType: doc.sourceType, sourceDate: doc.date, sourceUrl: doc.url, sourceLabel: "Filing text", page: null };
+      }
+    }
+  }
+  return null;
+}
+
+async function filingSentences(cik: string, sources: SourceDocument[]): Promise<FilingWords> {
+  const sentences: string[][] = [];
+  const all: string[] = [];
+  for (const doc of await loadFilingDocs(cik, sources)) {
+    for (const s of doc.text.split(/\n|(?<=[.!?])\s+/)) if (s.length > 20) sentences.push(words(s));
+    all.push(words(doc.text).join(" "));
   }
   return { sentences, joined: all.join(" | ") };
 }

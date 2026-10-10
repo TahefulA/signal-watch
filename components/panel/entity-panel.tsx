@@ -5,6 +5,7 @@ import { Bookmark, Copy, ExternalLink, X } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 import type { CapitalStructure, Entity, EntityChange, MagnitudeKind, RelationType, Trend } from "@/types";
 import type { EntityLink } from "@/lib/graph-view";
+import type { PeerContext } from "@/lib/peer-view";
 import { SEVERITY_LABELS, SEVERITY_STRIP, TYPE_BORDER, TYPE_LABELS } from "@/lib/entity-style";
 import { Button } from "@/components/ui/button";
 import { CitationBlock, citationLine } from "@/components/ui/citation";
@@ -15,6 +16,7 @@ interface EntityPanelProps {
   links: EntityLink[];
   nodes: Entity[];
   capital: CapitalStructure | null | undefined;
+  peerContext: PeerContext | null;
   onSelectEntity: (id: string) => void;
   onShowCapital: () => void;
   onClose: () => void;
@@ -213,22 +215,34 @@ function StrategicSection({ entity }: { entity: Entity }) {
   );
 }
 
-function ComparisonSection() {
+function ComparisonSection({ context }: { context: PeerContext | null }) {
+  if (context) {
+    return (
+      <Section title="Comparison">
+        <dl>
+          <Row label="Peer exposure">{context.exposure}</Row>
+          <Row label="Sector norm">{context.norm}</Row>
+          <Row label="Differentiation">{context.differentiation}</Row>
+        </dl>
+        <p className="mt-2 text-xs leading-relaxed text-zinc-500">From the loaded peers&rsquo; reports and filings only. A few peers are not a full sector.</p>
+      </Section>
+    );
+  }
   return (
     <Section title="Comparison">
       <dl>
         <Row label="Peer exposure">
-          <Missing>No peer reports loaded</Missing>
+          <Missing>No peer comparison loaded</Missing>
         </Row>
         <Row label="Sector norm">
-          <Missing>No peer reports loaded</Missing>
+          <Missing>No peer comparison loaded</Missing>
         </Row>
         <Row label="Differentiation">
-          <Missing>No peer reports loaded</Missing>
+          <Missing>No peer comparison loaded</Missing>
         </Row>
       </dl>
       <p className="mt-2 text-xs leading-relaxed text-zinc-500">
-        Comparison is filled from other companies&rsquo; reports, never from general knowledge.
+        Use Peer comparison below the memo. Comparison comes from other companies&rsquo; filings, never from general knowledge.
       </p>
     </Section>
   );
@@ -322,6 +336,7 @@ export function EntityPanel({
   links,
   nodes,
   capital,
+  peerContext,
   onSelectEntity,
   onShowCapital,
   onClose,
@@ -446,7 +461,7 @@ export function EntityPanel({
               <>
                 <MagnitudeSection entity={entity} />
                 <StrategicSection entity={entity} />
-                <ComparisonSection />
+                <ComparisonSection context={peerContext} />
                 <RelatedSection entity={entity} links={links} nodes={nodes} onSelectEntity={onSelectEntity} />
               </>
             )}
