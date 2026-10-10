@@ -1,31 +1,65 @@
 # Signal Watch
 
 Enter a ticker. Signal Watch reads the company's latest 10-K, 10-Q and 8-K from SEC EDGAR, its recent headlines and
-90 days of market data, extracts the entities that matter to its credit with Gemini, and draws them as a
-box-and-line map. Every box opens the exact sentence it came from. A five-part credit memo sits underneath, with each
-named entity linking back to its box.
+90 days of market data, and builds a sourced map of the entities that matter to its credit. Every box opens the exact
+sentence it came from. Around the map:
+
+- **Capital structure**: every debt instrument from the debt note, leverage, coverage and liquidity from XBRL, and the
+  maturity profile from the filing's own table.
+- **Change detection**: what the newest 10-Q or 10-K added or dropped compared with the previous quarter's filings.
+- **Peer comparison**: shared and unique counterparties, common risk themes, side-by-side metrics and divergences.
+- **Meeting prep**: a one-page brief with three things to know, the numbers, questions to ask and risks to watch.
+- **Dashboard**: a watchlist with an alert when a company files after its last report.
 
 ## How it works
 
 ```
 POST /api/analyze { ticker }            (streams newline-delimited JSON progress events)
-  1. SEC EDGAR     latest 10-K, 10-Q, 8-K; Business, Risk Factors and MD&A sections (40k chars each)
+  1. SEC EDGAR     latest 10-K, 10-Q, 8-K; Business, Risk Factors and MD&A sections; the debt notes
   2. Google News   10 recent headlines, ranked by publisher
   3. Yahoo Finance 90-day change vs the S&P 500, 52-week range, market cap
-  4. Gemini        entities, relationships, severity, and a supporting quote per entity
-  5. Verification  each quote must be found in the document it cites, or the entity is dropped
-  6. Layout        two-sided dagre layout: counterparties and capital left, risks and policy right
-  7. Gemini        five-section memo; sentences with figures not in the source facts are removed
-  8. Tiger Data    report and entities saved; repeat requests within 12 hours are served from the database
+  4. SEC XBRL      cash, operating income, D&A and interest expense, trailing twelve months
+  5. Gemini        entities with magnitude, trend, strategic context and a quote for each claim;
+                   debt instruments from the debt notes (two calls in parallel)
+  6. Verification  quotes must be found in the cited document; figures must appear in their quote
+  7. Gemini        five-section memo; sentences with figures not in the facts are removed
+  8. Tiger Data    report, entity nodes, typed relationship edges and debt instruments saved
+POST /api/changes { reportId }          baseline from the filings before the newest 10-Q/10-K, then a diff
+POST /api/peers   { reportId, peerReportIds }
+POST /api/brief   { reportId, peerReportIds? }   printable at /brief/<id>
+GET  /api/watchlist                     dashboard cards with new-filing alerts
 ```
 
-Gemini classifies and drafts; it never supplies a number or a quote that is not in the source text.
+### What keeps it honest
+
+Gemini reads and classifies; it never supplies a number or a quote that is not in the source text.
+
+- An entity, magnitude, trend, protection or debt instrument is kept only if its quote is found in the filing.
+- A magnitude label survives only if every figure in it appears in its quote. Table amounts need a nearby
+  "(in thousands)" heading, or a sentence stating the same amount in words.
+- Analysis lines ("why it matters", the downside) are labeled as Gemini's reading; lines that add numbers or rank an
+  entity ("largest", "primary") without a quote saying so are dropped.
+- Change detection calls an entity new only if the earlier filings never mention it, and removed only if the current
+  filings no longer do. Changes in Gemini's own ratings are listed separately and not marked on the map.
+- Peer comparison searches the other company's filing text before calling an entity unique.
+- Ratios are shown as "n/m" with the reason when EBITDA is negative.
+
+## Data model
+
+Tiger Data stores a labeled property graph: `entities` is the node store (`node_label`, `properties` jsonb and flat
+context columns) and `relationships` is the edge store with typed edges such as `CUSTOMER_OF`, `LENDS_TO`,
+`GUARANTEES` and `REGULATES`, aligned with FIBO relationship terms. Also `reports`, `debt_instruments`, `changes`,
+`peer_comparisons` and `watchlist`.
+
+```bash
+npx tsx --env-file=.env.local scripts/graph-query.ts CUSTOMER_OF   # customers across every company's latest report
+```
 
 ## Running it
 
 ```bash
 npm install
-cp .env.example .env.local     # GEMINI_API_KEY is required; DATABASE_URL enables caching
+cp .env.example .env.local     # GEMINI_API_KEY is required; DATABASE_URL enables storage
 npx tsx --env-file=.env.local scripts/migrate.ts
 npm run dev
 ```
@@ -34,10 +68,11 @@ Command-line run: `npx tsx --env-file=.env.local scripts/analyze.ts WULF`
 
 ## Layout
 
-- `app/api/analyze/route.ts` streaming endpoint
-- `lib/analyze.ts` pipeline; `lib/edgar.ts`, `lib/news.ts`, `lib/market.ts` sources
-- `lib/extraction.ts`, `lib/quotes.ts`, `lib/graph.ts` extraction, receipt verification, graph
-- `lib/memo.ts` memo drafting and figure checks; `lib/layout.ts` map layout
-- `components/map`, `components/panel`, `components/memo` the three parts of the page
+- `app/api/*` streaming analysis, changes, peers, brief and watchlist endpoints; `app/brief/[id]` printable brief;
+  `app/dashboard` watchlist
+- `lib/analyze.ts` pipeline; `lib/edgar.ts`, `lib/xbrl.ts`, `lib/news.ts`, `lib/market.ts` sources
+- `lib/extraction.ts`, `lib/quotes.ts`, `lib/citations.ts`, `lib/graph.ts` extraction and verification
+- `lib/capital.ts`, `lib/changes.ts`, `lib/peers.ts`, `lib/brief.ts`, `lib/dashboard.ts` the analysis features
+- `lib/memo.ts` memo drafting; `lib/layout.ts` map layout; `lib/tiger.ts` storage
 
 The previous risk-score timeline version is tagged `v1-risk-timeline`.
