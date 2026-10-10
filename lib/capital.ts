@@ -114,12 +114,18 @@ export function parseAmount(text: string | null, tableScale: Scale | null = null
   return bare && tableScale ? Number(bare[1]) * SCALE[tableScale] : null;
 }
 
+/**
+ * A table scale label: "(in thousands)", "(dollars in millions)", "(in USD thousands)".
+ * Other currencies are not matched, since their amounts would need converting.
+ */
+const SCALE_LABEL = /\((?:dollars |amounts )?in (?:USD |US\$ |U\.S\. dollars? )?(thousands|millions)\b/gi;
+
 /** The scale stated in the nearest table heading above a passage, e.g. "(in thousands)". */
 function scaleAbove(text: string, quote: string): Scale | null {
   const found = locateQuote(quote, text);
   if (!found) return null;
   const window = text.slice(Math.max(0, found.start - 2500), found.start);
-  const matches = Array.from(window.matchAll(/\((?:dollars |amounts )?in (thousands|millions)\b/gi));
+  const matches = Array.from(window.matchAll(SCALE_LABEL));
   const last = matches[matches.length - 1];
   return last ? (last[1].toLowerCase() as Scale) : null;
 }
@@ -131,7 +137,7 @@ function scaleAbove(text: string, quote: string): Scale | null {
  */
 export function parseMaturitySchedule(doc: CorpusDoc): MaturitySchedule | null {
   const heading = doc.text.match(
-    /[^\n]*(?:maturities|principal payments|scheduled payments|payments based on)[^\n]{0,200}\n?\s*\((?:dollars )?in (thousands|millions)\)[^\n]*/i,
+    new RegExp(`[^\\n]*(?:maturities|principal payments|scheduled payments|payments based on)[^\\n]{0,200}\\n?\\s*${SCALE_LABEL.source}[^\\n]*`, "i"),
   );
   if (!heading || heading.index === undefined) return null;
   const scale = SCALE[heading[1].toLowerCase() as Scale];
