@@ -359,7 +359,9 @@ export function applyChanges(
   const central = report.graph.nodes.find((n) => n.isCentral);
   const withTrends = report.graph.nodes.map((n) => {
     const t = trends.get(n.id);
-    return t ? { ...n, trend: t.trend, trendBasis: t.basis } : n;
+    if (t) return { ...n, trend: t.trend, trendBasis: t.basis };
+    // A trend from an earlier comparison is cleared; one stated in the filing (trendCitation) stays.
+    return n.trendBasis ? { ...n, trend: n.trendCitation ? n.trend : ("unknown" as const), trendBasis: null } : n;
   });
   const nodes = withTrends.map((n) => {
     // Only changes in the filings' facts mark a box; changes in Gemini's ratings are listed in the change panel.
