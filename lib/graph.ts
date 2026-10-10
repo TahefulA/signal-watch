@@ -31,7 +31,7 @@ function docFor(byId: Map<string, CorpusDoc>, ref: string | null): CorpusDoc | u
 const RANKING = /\b(largest|sole|only|main|biggest|primary|majority|principal)\b/gi;
 
 /** True when the analysis ranks the entity with a word none of its quotes use. */
-function unsupportedRanking(text: string, passages: string[]): boolean {
+export function unsupportedRanking(text: string, passages: string[]): boolean {
   const quoted = passages.join(" ").toLowerCase();
   return Array.from(text.matchAll(RANKING)).some((m) => !new RegExp(`\\b${m[1].toLowerCase()}\\b`).test(quoted));
 }

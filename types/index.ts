@@ -4,11 +4,13 @@ export type * from "./memo";
 export type * from "./capital";
 export type * from "./changes";
 export type * from "./peers";
+export type * from "./brief";
 
 import type { EntityGraph, MarketSnapshot, SourceDocument } from "./graph";
 import type { Memo } from "./memo";
 import type { CapitalStructure } from "./capital";
 import type { ChangeReport } from "./changes";
+import type { MeetingBrief } from "./brief";
 
 export interface Report {
   id: string;
@@ -17,6 +19,8 @@ export interface Report {
   memo: Memo;
   /** Missing on reports generated before the capital structure panel existed. */
   capital?: CapitalStructure | null;
+  /** One-page meeting brief, once requested. */
+  brief?: MeetingBrief | null;
   /** Comparison with the previous quarter's filings, once requested. */
   changes?: ChangeReport | null;
   /** Set on baseline reports built from filings available on this date; they are never served as current. */

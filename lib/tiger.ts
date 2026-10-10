@@ -225,3 +225,12 @@ export async function savePeerComparison(comparison: PeerComparison): Promise<vo
     );
   }
 }
+
+/** Replaces a saved report's JSON, e.g. after a brief is added. */
+export async function updateReport(report: Report): Promise<void> {
+  await getPool().query("UPDATE reports SET report_json = $2, graph_json = $3 WHERE id = $1", [
+    report.id,
+    JSON.stringify(report),
+    JSON.stringify(report.graph),
+  ]);
+}

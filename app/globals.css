@@ -53,3 +53,32 @@
   outline: 1px solid #fafafa;
   outline-offset: 2px;
 }
+
+/* The meeting brief prints on one page in black on white. */
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  .print-brief {
+    zoom: 0.58;
+  }
+
+  .print-brief,
+  .print-brief * {
+    color: #18181b !important;
+    background: transparent !important;
+    border-color: #d4d4d8 !important;
+  }
+
+  .print-brief .print-muted,
+  .print-brief .print-muted * {
+    color: #52525b !important;
+  }
+
+  @page {
+    size: letter;
+    margin: 0.4in;
+  }
+}

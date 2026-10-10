@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { AnalyzeEvent, Entity, PeerComparison, Report } from "@/types";
+import type { AnalyzeEvent, Entity, MeetingBrief, PeerComparison, Report } from "@/types";
+import { MeetingPrepPanel } from "@/components/brief/meeting-prep-panel";
 import { CapitalStructurePanel } from "@/components/capital/capital-structure-panel";
 import { ChangePanel } from "@/components/changes/change-panel";
 import { TickerInput } from "@/components/input/ticker-input";
@@ -71,6 +72,8 @@ export default function HomePage() {
   const [peerBusy, setPeerBusy] = useState(false);
   const [peerStep, setPeerStep] = useState<string | null>(null);
   const [peerError, setPeerError] = useState<string | null>(null);
+  const [briefBusy, setBriefBusy] = useState(false);
+  const [briefError, setBriefError] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
   const capitalRef = useRef<HTMLElement>(null);
 
@@ -238,6 +241,29 @@ export default function HomePage() {
     [selected, peerComparison, peerReports, report],
   );
 
+  const prepareBrief = useCallback(async () => {
+    if (!report) return;
+    setBriefBusy(true);
+    setBriefError(null);
+    try {
+      const response = await fetch("/api/brief", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reportId: report.id, peerReportIds: peerReports.map((p) => p.id) }),
+      });
+      const body: unknown = await response.json();
+      if (!response.ok || typeof body !== "object" || body === null || !("brief" in body)) {
+        throw new Error(typeof body === "object" && body !== null && "error" in body ? String((body as { error: unknown }).error) : "");
+      }
+      const { brief } = body as { brief: MeetingBrief };
+      setReport((current) => (current ? { ...current, brief } : current));
+    } catch (error) {
+      setBriefError(error instanceof Error && error.message ? error.message : "The brief could not be prepared. Please try again.");
+    } finally {
+      setBriefBusy(false);
+    }
+  }, [report, peerReports]);
+
   const showCapital = useCallback(() => {
     setSelected(null);
     capitalRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -345,6 +371,13 @@ export default function HomePage() {
             onCompare={(tickers) => void comparePeerTickers(tickers)}
             onSelectEntity={focusEntity}
             onSelectPeerEntity={setSelected}
+          />
+          <MeetingPrepPanel
+            report={report}
+            busy={briefBusy}
+            error={briefError}
+            hasPeers={peerReports.length > 0}
+            onPrepare={() => void prepareBrief()}
           />
         </>
       ) : null}

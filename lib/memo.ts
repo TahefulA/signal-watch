@@ -52,7 +52,7 @@ export function marketFacts(market: MarketSnapshot | null, ticker: string): stri
   return `Market data for ${ticker}:\n${lines.join("\n")}`;
 }
 
-function entityFacts(nodes: Entity[]): string {
+export function entityFacts(nodes: Entity[]): string {
   return nodes
     .filter((n) => !n.isCentral)
     .map((n) => `- id: ${n.id} | ${n.name} | type: ${n.type} | ${n.relationship} | severity: ${n.severity} | ${n.sourceType} ${n.sourceDate}: "${n.sourceQuote}"`)
@@ -60,7 +60,7 @@ function entityFacts(nodes: Entity[]): string {
 }
 
 /** Splits {{id|text}} markers into linked spans, keeping only ids on the map. */
-function toSpans(text: string, ids: Set<string>, names: Map<string, string>): MemoSpan[] {
+export function toSpans(text: string, ids: Set<string>, names: Map<string, string>): MemoSpan[] {
   return text
     .split(/(\{\{[^}]+\}\})/)
     .filter(Boolean)
@@ -74,7 +74,7 @@ function toSpans(text: string, ids: Set<string>, names: Map<string, string>): Me
 }
 
 /** Removes sentences containing a figure that is not in the facts. Returns the cleaned text and how many were removed. */
-function dropUnsupported(text: string, allowed: Set<string>): { text: string; removed: number } {
+export function dropUnsupported(text: string, allowed: Set<string>): { text: string; removed: number } {
   // Split only at sentence ends, so decimals such as 34.1% stay intact.
   const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z{"\u201c])/);
   let removed = 0;
