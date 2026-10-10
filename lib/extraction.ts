@@ -55,6 +55,7 @@ Context for each entity. Leave a field null when the text does not support it; n
 - trend: increasing, decreasing or stable only when the text compares this entity's figure across periods; otherwise unknown. trend_quote is the sentence making that comparison.
 - why_it_matters: one sentence on why this entity matters to the company's credit. Do not include numbers.
 - if_it_disappeared: one sentence on what the text implies would happen to the company if this relationship ended or this risk materialized. Do not include numbers.
+- In why_it_matters and if_it_disappeared, never rank or compare entities (largest, sole, only, main, biggest, primary, majority) unless a quote you return says so in those words. Prefer plain, specific statements over emphasis such as massive or huge.
 - protection: a contract term, guarantee, collateral, insurance or similar protection the text describes for this relationship, at most 12 words. protection_quote is the sentence describing it.
 
 - edges: use "COMPANY" for the main company. Add an edge between two entities only when the text links them directly (for example a guarantor behind a tenant's lease).

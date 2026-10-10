@@ -257,21 +257,20 @@ export function computeMetrics(
   const ebitdaInputs = [operating, depreciation].filter((v): v is XbrlValue => v !== null);
   const financials = [cash, operating, depreciation, interest].filter((v): v is XbrlValue => v !== null);
 
-  const debtNote = `Sum of the outstanding principal of the ${counted.length} instruments listed, as stated in the filing. Excludes leases.`;
-  const ebitdaBasis = `operating income plus depreciation and amortization for the 12 months ended ${date}`;
+  const debtNote = `Principal of the ${counted.length} instruments below. Excludes leases.`;
 
   const ratio = (numerator: number | null, label: string): { display: string; note: string } => {
     if (numerator === null || counted.length === 0) return { display: "Not available", note: "No outstanding principal was found in the debt note." };
     if (ebitda === null) return { display: "Not available", note: "EBITDA could not be built from the company's XBRL data." };
-    if (ebitda <= 0) return { display: "n/m", note: `Not meaningful because EBITDA (${ebitdaBasis}) was negative.` };
-    return { display: multiple(numerator / ebitda), note: `${label} EBITDA is ${ebitdaBasis}.` };
+    if (ebitda <= 0) return { display: "n/m", note: "Not meaningful: EBITDA was negative." };
+    return { display: multiple(numerator / ebitda), note: label };
   };
 
   const metrics: CapitalMetric[] = [];
   const scheduleNote =
     schedule && counted.length
       ? Math.abs(schedule.total - totalDebt) < 1e6
-        ? " Matches the total of the filing's principal maturities table."
+        ? " Matches the filing's maturities table."
         : ` The filing's principal maturities table totals ${money(schedule.total)}.`
       : "";
   metrics.push({
@@ -285,19 +284,19 @@ export function computeMetrics(
     key: "net_debt",
     label: "Net debt",
     display: counted.length && cash ? money(totalDebt - cash.value) : "Not available",
-    note: cash ? `Total debt less cash and cash equivalents of ${money(cash.value)} as of ${date}.` : "Cash was not found in the company's XBRL data.",
+    note: cash ? `Less cash of ${money(cash.value)} as of ${date}.` : "Cash was not found in the company's XBRL data.",
     inputs: cash ? [cash] : [],
   });
-  const lev = ratio(counted.length ? totalDebt : null, "Total debt divided by EBITDA.");
+  const lev = ratio(counted.length ? totalDebt : null, "Total debt over last-12-month EBITDA.");
   metrics.push({ key: "debt_to_ebitda", label: "Total debt / EBITDA", ...lev, inputs: ebitdaInputs });
-  const netLev = ratio(counted.length && cash ? totalDebt - cash.value : null, "Net debt divided by EBITDA.");
+  const netLev = ratio(counted.length && cash ? totalDebt - cash.value : null, "Net debt over last-12-month EBITDA.");
   metrics.push({ key: "net_debt_to_ebitda", label: "Net debt / EBITDA", ...netLev, inputs: cash ? [cash, ...ebitdaInputs] : ebitdaInputs });
 
   metrics.push({
     key: "ebitda",
     label: "EBITDA, last 12 months",
     display: ebitda === null ? "Not available" : money(ebitda),
-    note: ebitda === null ? "Operating income or depreciation was not found in the company's XBRL data." : `Operating income plus depreciation and amortization for the 12 months ended ${date}.`,
+    note: ebitda === null ? "Operating income or depreciation was not found in the company's XBRL data." : `Operating income plus D&A, 12 months ended ${date}.`,
     inputs: ebitdaInputs,
   });
 
@@ -308,11 +307,11 @@ export function computeMetrics(
       note: interest ? "EBITDA could not be built from the company's XBRL data." : "Interest expense was not found in the company's XBRL data.",
     };
   } else if (ebitda <= 0) {
-    coverage = { display: "n/m", note: `Not meaningful because EBITDA (${ebitdaBasis}) was negative. Interest expense over the same period was ${money(interest.value)}.` };
+    coverage = { display: "n/m", note: `Not meaningful: EBITDA was negative. Interest expense was ${money(interest.value)}.` };
   } else {
     coverage = {
       display: multiple(ebitda / interest.value),
-      note: `EBITDA divided by interest expense of ${money(interest.value)} for the 12 months ended ${date}. Capitalized interest is not included.`,
+      note: `Interest expense of ${money(interest.value)}, excluding capitalized interest.`,
     };
   }
   metrics.push({ key: "interest_coverage", label: "EBITDA / interest", ...coverage, inputs: interest ? [interest, ...ebitdaInputs] : ebitdaInputs });
@@ -321,7 +320,7 @@ export function computeMetrics(
     key: "secured_share",
     label: "Secured / total debt",
     display: totalDebt > 0 ? `${Math.round((secured / totalDebt) * 100)}%` : "Not available",
-    note: "Senior secured principal as a share of the instruments listed.",
+    note: "Senior secured share of principal.",
     inputs: [],
   });
 
@@ -333,9 +332,8 @@ export function computeMetrics(
     label: "Cash + revolver availability",
     display: cash ? money(cash.value + undrawn) : "Not available",
     note: cash
-      ? `Cash of ${money(cash.value)} as of ${date} plus ${money(undrawn)} of undrawn revolver commitments.` +
-        (assumedUndrawn.length ? ` No drawn amount was disclosed for ${assumedUndrawn.join(", ")}, so it is counted as undrawn.` : "") +
-        " Availability can be limited by covenants and letters of credit."
+      ? `Cash plus ${money(undrawn)} of undrawn revolver commitments.` +
+        (assumedUndrawn.length ? ` No drawn amount disclosed for ${assumedUndrawn.join(", ")}; counted as undrawn.` : "")
       : "Cash was not found in the company's XBRL data.",
     inputs: cash ? [cash] : [],
   });
