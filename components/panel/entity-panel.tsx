@@ -4,12 +4,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Copy, ExternalLink, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Entity } from "@/types";
+import type { EntityLink } from "@/lib/graph-view";
 import { SEVERITY_LABELS, SEVERITY_STRIP, TYPE_BORDER, TYPE_LABELS } from "@/lib/entity-style";
 import { Button } from "@/components/ui/button";
 
 interface EntityPanelProps {
   entity: Entity | null;
   companyName: string;
+  links: EntityLink[];
+  nodes: Entity[];
+  onSelectEntity: (id: string) => void;
   onClose: () => void;
   onToast: (message: string) => void;
 }
@@ -34,7 +38,7 @@ function readWatchlist(): WatchlistItem[] {
   }
 }
 
-export function EntityPanel({ entity, companyName, onClose, onToast }: EntityPanelProps) {
+export function EntityPanel({ entity, companyName, links, nodes, onSelectEntity, onClose, onToast }: EntityPanelProps) {
   const [watched, setWatched] = useState(false);
 
   useEffect(() => {
@@ -117,6 +121,35 @@ export function EntityPanel({ entity, companyName, onClose, onToast }: EntityPan
                 </p>
               </section>
             )}
+
+            {links.length > 0 ? (
+              <section>
+                <h3 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Linked on the map</h3>
+                <ul className="mt-2 space-y-1.5">
+                  {links.map((link) => {
+                    const other = nodes.find((n) => n.id === link.entityId);
+                    if (!other) return null;
+                    return (
+                      <li key={`${link.direction}-${link.entityId}`} className="text-sm text-zinc-300">
+                        {link.direction === "out" ? (
+                          <>
+                            {link.relationship}{" "}
+                          </>
+                        ) : null}
+                        <button
+                          type="button"
+                          onClick={() => onSelectEntity(other.id)}
+                          className="text-zinc-100 underline decoration-zinc-600 underline-offset-4 hover:decoration-zinc-300"
+                        >
+                          {other.name}
+                        </button>
+                        {link.direction === "in" ? <span className="text-zinc-400"> {link.relationship.toLowerCase()} this</span> : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ) : null}
 
             <section>
               <h3 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Source</h3>

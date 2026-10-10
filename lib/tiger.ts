@@ -129,3 +129,10 @@ export async function findRecentReport(ticker: string, maxAgeHours: number): Pro
   );
   return result.rows[0]?.report_json ?? null;
 }
+
+/** A specific saved report, regardless of age. */
+export async function findReportById(id: string): Promise<Report | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const result = await getPool().query<{ report_json: Report }>("SELECT report_json FROM reports WHERE id = $1", [id]);
+  return result.rows[0]?.report_json ?? null;
+}

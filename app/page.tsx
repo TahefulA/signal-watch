@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AnalyzeEvent, Entity, Report } from "@/types";
 import { TickerInput } from "@/components/input/ticker-input";
 import { Header } from "@/components/layout/header";
@@ -10,6 +10,7 @@ import { Legend } from "@/components/map/legend";
 import { MemoContainer } from "@/components/memo/memo-container";
 import { EntityPanel } from "@/components/panel/entity-panel";
 import { Toast } from "@/components/ui/toast";
+import { type EntityLink, viewGraph } from "@/lib/graph-view";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
@@ -35,6 +36,36 @@ export default function HomePage() {
   const [focusRequest, setFocusRequest] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
+
+  const showReport = useCallback((next: Report, wasCached: boolean) => {
+    setReport(next);
+    setCached(wasCached);
+    setStatus("ready");
+    window.history.replaceState(null, "", `?report=${next.id}`);
+  }, []);
+
+  // Reopen a saved report from a shared link, e.g. ?report=<id>.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("report");
+    if (!id) return;
+    setStatus("loading");
+    setStep(PIPELINE_STEPS[0]);
+    setStartedAt(Date.now());
+    fetch(`/api/report/${encodeURIComponent(id)}`)
+      .then(async (response) => {
+        const body: unknown = await response.json();
+        if (response.ok && typeof body === "object" && body !== null && "report" in body) {
+          showReport((body as { report: Report }).report, true);
+        } else {
+          throw new Error("missing");
+        }
+      })
+      .catch(() => {
+        setError("This report link is no longer available. Enter a ticker to run a new analysis.");
+        setStatus("error");
+        window.history.replaceState(null, "", window.location.pathname);
+      });
+  }, [showReport]);
 
   const analyze = useCallback(async (ticker: string, fresh = false) => {
     setStatus("loading");
@@ -65,9 +96,7 @@ export default function HomePage() {
           if (!isEvent(event)) continue;
           if (event.type === "step") setStep(event.step);
           if (event.type === "result") {
-            setReport(event.report);
-            setCached(event.cached);
-            setStatus("ready");
+            showReport(event.report, event.cached);
             finished = true;
           }
           if (event.type === "error") {
@@ -82,7 +111,7 @@ export default function HomePage() {
       setError("The analysis stopped before it finished. Please try again.");
       setStatus("error");
     }
-  }, []);
+  }, [showReport]);
 
   const focusEntity = useCallback(
     (id: string) => {
@@ -96,6 +125,7 @@ export default function HomePage() {
   );
 
   const graph = report?.graph ?? null;
+  const links = useMemo(() => (graph ? viewGraph(graph).links : new Map<string, EntityLink[]>()), [graph]);
 
   return (
     <div className="min-h-screen">
@@ -170,6 +200,9 @@ export default function HomePage() {
       <EntityPanel
         entity={selected}
         companyName={graph?.company.name ?? ""}
+        links={selected ? (links.get(selected.id) ?? []) : []}
+        nodes={graph?.nodes ?? []}
+        onSelectEntity={focusEntity}
         onClose={() => setSelected(null)}
         onToast={setToast}
       />

@@ -12,6 +12,7 @@ import {
 } from "@xyflow/react";
 import { useEffect, useMemo } from "react";
 import type { Entity, EntityGraph } from "@/types";
+import { viewGraph } from "@/lib/graph-view";
 import { CENTRAL_WIDTH, NODE_HEIGHT, NODE_WIDTH, type Positioned, layoutGraph } from "@/lib/layout";
 import { EntityNode, type EntityFlowNode } from "./entity-node";
 
@@ -52,9 +53,9 @@ function toFlowNodes(graph: EntityGraph, positions: Map<string, Positioned>): En
 }
 
 function Canvas({ graph, selectedId, focusRequest, onSelect }: EntityMapProps) {
-  const positions = useMemo(() => layoutGraph(graph.nodes, graph.edges), [graph]);
+  const spokes = useMemo(() => viewGraph(graph).spokes, [graph]);
+  const positions = useMemo(() => layoutGraph(graph.nodes, spokes), [graph.nodes, spokes]);
   const initialNodes = useMemo(() => toFlowNodes(graph, positions), [graph, positions]);
-  const centralId = graph.nodes.find((n) => n.isCentral)?.id;
   const [nodes, setNodes, onNodesChange] = useNodesState<EntityFlowNode>(initialNodes);
   const { setCenter, getNode } = useReactFlow<EntityFlowNode>();
 
@@ -75,11 +76,11 @@ function Canvas({ graph, selectedId, focusRequest, onSelect }: EntityMapProps) {
     void setCenter(node.position.x + width / 2 + panelOffset, node.position.y + NODE_HEIGHT / 2, { zoom, duration: 300 });
   }, [focusRequest, selectedId, getNode, setCenter]);
 
-  // Edges leave the parent on the side facing the child. Edges from the subject
-  // company carry no label because each box already states its relationship.
+  // Spokes leave the company on the side facing the box. They carry no label
+  // because each box already states its relationship.
   const edges = useMemo<Edge[]>(
     () =>
-      graph.edges.map((e) => {
+      spokes.map((e) => {
         const side = positions.get(e.target)?.side ?? "right";
         return {
           id: e.id,
@@ -87,10 +88,9 @@ function Canvas({ graph, selectedId, focusRequest, onSelect }: EntityMapProps) {
           target: e.target,
           sourceHandle: side === "right" ? "right-out" : "left-out",
           targetHandle: side === "right" ? "left-in" : "right-in",
-          label: e.source === centralId ? undefined : e.relationship,
         };
       }),
-    [graph.edges, positions, centralId],
+    [spokes, positions],
   );
 
   return (
