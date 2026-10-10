@@ -4,7 +4,6 @@ import { extractCapitalStructure } from "./capital";
 import { type CorpusDoc, makeDoc } from "./corpus";
 import { toIsoDate } from "./dates";
 import {
-  type FilingRef,
   excerptFiling,
   extractDebtNotes,
   fetchFilingText,
