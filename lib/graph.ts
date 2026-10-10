@@ -28,6 +28,14 @@ function docFor(byId: Map<string, CorpusDoc>, ref: string | null): CorpusDoc | u
   return ref ? byId.get(ref.replace(/[[\]]/g, "").trim()) : undefined;
 }
 
+const RANKING = /\b(largest|sole|only|main|biggest|primary|majority|principal)\b/gi;
+
+/** True when the analysis ranks the entity with a word none of its quotes use. */
+function unsupportedRanking(text: string, passages: string[]): boolean {
+  const quoted = passages.join(" ").toLowerCase();
+  return Array.from(text.matchAll(RANKING)).some((m) => !new RegExp(`\\b${m[1].toLowerCase()}\\b`).test(quoted));
+}
+
 interface Context {
   magnitude: Magnitude | null;
   trend: Trend;
@@ -51,7 +59,7 @@ function verifiedContext(raw: RawEntity, byId: Map<string, CorpusDoc>, mainQuote
   const protectionCitation = raw.protection ? cite(docFor(byId, raw.protection_doc), raw.protection_quote) : null;
 
   const passages = [mainQuote, magCitation?.quote ?? "", protectionCitation?.quote ?? ""];
-  const analysis = (text: string | null) => (text && figuresSupported(text, passages) ? text : null);
+  const analysis = (text: string | null) => (text && figuresSupported(text, passages) && !unsupportedRanking(text, passages) ? text : null);
 
   return {
     magnitude,

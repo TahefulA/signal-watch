@@ -187,7 +187,9 @@ function StrategicSection({ entity }: { entity: Entity }) {
     <Section title="Strategic context">
       <dl>
         <Row label="Why it matters">{s.whyItMatters ?? <Missing />}</Row>
-        <Row label="If it disappeared">{s.ifItDisappeared ?? <Missing />}</Row>
+        <Row label={entity.type === "risk" || entity.type === "macro" || entity.type === "regulatory" ? "If it materializes" : "If it disappeared"}>
+          {s.ifItDisappeared ?? <Missing />}
+        </Row>
         <Row label="Structural protection">{s.protection ? s.protection.text : <Missing />}</Row>
       </dl>
       {s.protection ? <CitationBlock citation={s.protection.citation} compact /> : null}

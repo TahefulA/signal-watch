@@ -54,7 +54,7 @@ Context for each entity. Leave a field null when the text does not support it; n
 - magnitude_label: the single most useful disclosed figure for this entity, at most 6 words, using the number exactly as the text writes it, for example "$3,200.0 million principal", "378 MW contracted", "41% of revenue". magnitude_kind says what it measures. magnitude_quote is the sentence containing that figure.
 - trend: increasing, decreasing or stable only when the text compares this entity's figure across periods; otherwise unknown. trend_quote is the sentence making that comparison.
 - why_it_matters: one sentence on why this entity matters to the company's credit. Do not include numbers.
-- if_it_disappeared: one sentence on what the text implies would happen to the company if this relationship ended or this risk materialized. Do not include numbers.
+- if_it_disappeared: one sentence. For counterparties, financing, sites and people: what the text implies would happen to the company if the relationship ended. For risks, macro factors, regulators and rules (types risk, macro, regulatory): what the text says would happen if the risk materializes or the rule bites. Do not include numbers.
 - In why_it_matters and if_it_disappeared, never rank or compare entities (largest, sole, only, main, biggest, primary, majority) unless a quote you return says so in those words. Prefer plain, specific statements over emphasis such as massive or huge.
 - protection: a contract term, guarantee, collateral, insurance or similar protection the text describes for this relationship, at most 12 words. protection_quote is the sentence describing it.
 
