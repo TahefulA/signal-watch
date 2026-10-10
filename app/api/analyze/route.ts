@@ -4,7 +4,7 @@ import { findRecentReport, saveReport, tigerEnabled } from "@/lib/tiger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 /** Reports are reused for this long before the filings are read again. */
 const CACHE_HOURS = 12;
