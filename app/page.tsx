@@ -368,7 +368,7 @@ export default function HomePage() {
                 {note}
               </p>
             ))}
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
               <div className="h-[70vh] min-h-[480px] border border-zinc-800">
                 <EntityMap
                   graph={graph}

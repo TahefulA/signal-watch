@@ -65,7 +65,7 @@ export function BriefView({ brief, report }: BriefViewProps) {
         </ol>
       </section>
 
-      <div className="grid gap-7 md:grid-cols-2 print:grid-cols-2">
+      <div className="grid grid-cols-1 gap-7 md:grid-cols-2 print:grid-cols-2">
         <section>
           <Heading>The numbers</Heading>
           <dl className="mt-3 divide-y divide-zinc-800 text-sm print:divide-zinc-200">

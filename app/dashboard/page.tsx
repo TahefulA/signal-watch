@@ -65,12 +65,12 @@ function Card({ card, onRemove }: { card: WatchCard; onRemove: (ticker: string) 
             {card.entityCount} entities{card.highSeverity.length > 0 ? `; high severity: ${card.highSeverity.slice(0, 3).join(", ")}${card.highSeverity.length > 3 ? "…" : ""}` : ""}
           </p>
           {card.changeCounts ? (
-            <p className="mt-1 flex items-center gap-3 text-xs text-zinc-400">
-              <span className="inline-flex items-center gap-1.5">
+            <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-400">
+              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
                 {card.changeCounts.new} new
               </span>
-              <span className="inline-flex items-center gap-1.5">
+              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap">
                 <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />
                 {card.changeCounts.changed} changed
               </span>
@@ -188,7 +188,7 @@ export default function DashboardPage() {
             {error}
           </p>
         ) : null}
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {(cards ?? []).map((card) => (
             <Card key={card.ticker} card={card} onRemove={(t) => void update(t, "remove")} />
           ))}

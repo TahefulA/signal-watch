@@ -82,7 +82,7 @@ export function PeerPanel({ subject, comparison, peers, busy, step, error, onCom
             means the entity is named in that company&rsquo;s filings but was not on its map.
           </p>
 
-          <div className="grid gap-8 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
             <div>
               <Heading>Shared entities</Heading>
               {comparison.shared.length === 0 ? (

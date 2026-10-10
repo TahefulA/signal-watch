@@ -95,7 +95,7 @@ export function ChangePanel({ changes, busy, step, error, onCompare, onSelectEnt
       {facts.length === 0 ? (
         <p className="px-4 py-3 text-sm text-zinc-400">The newer filings add or remove no entity on the map.</p>
       ) : (
-        <div className="grid gap-x-8 px-4 py-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-x-8 px-4 py-2 lg:grid-cols-3">
           {GROUPS.map((g) => {
             const items = facts.filter((c) => g.kinds.includes(c.kind));
             return (

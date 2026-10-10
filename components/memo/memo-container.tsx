@@ -12,7 +12,7 @@ interface MemoContainerProps {
 export function MemoContainer({ memo, company, generatedAt, sourceCount, onEntityClick }: MemoContainerProps) {
   return (
     <section aria-labelledby="memo-title" className="border-t border-zinc-800 px-6 py-8">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,16rem)_minmax(0,48rem)]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,16rem)_minmax(0,48rem)]">
         <div className="space-y-2">
           <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Credit memo</h2>
           <p id="memo-title" className="font-display text-2xl font-bold tracking-tight text-zinc-100">
