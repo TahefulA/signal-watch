@@ -10,6 +10,10 @@ sentence it came from. Around the map:
 - **Peer comparison**: shared and unique counterparties, common risk themes, side-by-side metrics and divergences.
 - **Meeting prep**: a one-page brief with three things to know, the numbers, questions to ask and risks to watch.
 - **Dashboard**: a watchlist with an alert when a company files after its last report.
+- **Above the map**: a signal summary, a question bar that answers only from the report with clickable citations,
+  the last-updated line and the validation record (how many proposed entities were verified, rejected or merged).
+- **Beside the map**: a financial snapshot from XBRL (revenue, EBITDA and margin, free cash flow, current ratio, debt,
+  liquidity, next final maturity) and the debt stack with its maturity wall.
 
 ## How it works
 
@@ -42,7 +46,15 @@ Gemini reads and classifies; it never supplies a number or a quote that is not i
 - Change detection calls an entity new only if the earlier filings never mention it, and removed only if the current
   filings no longer do. Changes in Gemini's own ratings are listed separately and not marked on the map.
 - Peer comparison searches the other company's filing text before calling an entity unique.
-- Ratios are shown as "n/m" with the reason when EBITDA is negative.
+- Ratios are shown as "n/m" with the reason when EBITDA is negative. Total debt must reconcile with the filing's
+  maturities table or the company's tagged XBRL debt; otherwise it reads "Not reconciled" and leverage is withheld.
+- Qualified relationships (SOLE_SUPPLIER_OF, ANCHOR_TENANT_OF, MAJOR_CUSTOMER_OF, GUARANTEES) fall back to the plain
+  label unless the quote uses the word; a competitor with no sentence saying it competes is rejected.
+- Confidence is a label (high, medium, low) from the source type, whether the relationship is stated or inferred, and
+  whether the quote names the entity. Duplicates merge within a type by key words or acronym, and merges are logged.
+- Generated text (signal, memo, brief, answers) loses any sentence with a figure not in the report, or a ranking word
+  such as largest, earliest or sole that the report's quotes do not use.
+- Credit ratings appear only when a filing or headline states them. There is no bond price feed, and the UI says so.
 
 ## Data model
 

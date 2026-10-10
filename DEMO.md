@@ -1,84 +1,83 @@
 # Demo
 
 **Demo link (fixed WULF report with CIFR as peer):**
-https://signal-watch-phi.vercel.app/?report=170630ab-e2ce-4167-8802-18916fa99196&peers=e4b96626-37b1-4c6d-8589-1cf3300882b7
+https://signal-watch-phi.vercel.app/?report=36e359a9-052f-4e17-8afc-b29d2403f4c1&peers=4a0a2c45-8add-4d9c-8ccf-70624b486754
 
 **Dashboard:** https://signal-watch-phi.vercel.app/dashboard
-**Printable brief:** https://signal-watch-phi.vercel.app/brief/170630ab-e2ce-4167-8802-18916fa99196
+**Printable brief:** https://signal-watch-phi.vercel.app/brief/36e359a9-052f-4e17-8afc-b29d2403f4c1
 
-The demo report reads TeraWulf's 10-Q (filed Aug 5, 2026), 10-K (Feb 27, 2026) and 8-K (Oct 5, 2026). Its change
-comparison was built from the filings available on Aug 4, 2026: the 10-Q filed May 8, the 10-K and the 8-K filed Jul 6.
-Every line below is on screen in that report.
+The demo report reads TeraWulf's 10-Q for Q2 2026 (filed Aug 5, 2026), its FY 2025 10-K and its Oct 5, 2026 8-K. The
+change comparison uses the filings available on Aug 4, 2026. Every line below is on screen in that report.
 
 ## Before you go on
 
-1. Open the dashboard in tab 1 and the demo link in tab 2. Wait for the peer section in tab 2 to fill in (a few seconds).
-2. Zoom the browser to 80-90% so the map and the capital structure panel sit side by side.
-3. Open the printable brief in tab 3 in case printing is asked about.
+1. Open the demo link and wait for the peer section to fill in (a few seconds). Zoom the browser to 80-90%.
+2. Open the dashboard and the printable brief in other tabs.
+3. The demo link is saved, so nothing needs Gemini except the question bar. If the Wi-Fi is bad, skip step 3 below.
 
-Everything in the demo link is saved, so it needs no Gemini call. If the Wi-Fi is bad, it still loads in a few seconds.
-
-## The walkthrough (about 2 minutes)
+## The walkthrough (about 2.5 minutes)
 
 | # | Do | Say |
 |---|----|-----|
-| 1 | Tab 1, the dashboard. | "This is the morning screen. Each company on the watchlist shows its debt, liquidity and EBITDA, and the card turns amber when the company files something we haven't read yet. We check EDGAR directly." |
-| 2 | Click **Open map** on TeraWulf (or switch to tab 2). | "This is TeraWulf. Every box is an entity from its filings, and every box carries the page it came from." |
-| 3 | Point at the change panel above the map. | "First, what changed since last quarter. Kentucky Power, the Kentucky Public Service Commission and New York's data center moratorium appear in these filings and nowhere in the previous quarter's. We only call something new after searching the earlier filings for it." |
-| 4 | Click **Anthropic** on the map. | "Click any box. Anthropic: a lease for approximately 401 megawatts of critical IT load at the Justified campus, page 54 of the 10-Q. Evidence, magnitude, strategic context, and related nodes: Fluidstack and Core42 are the other tenants." |
-| 5 | Click **Fluidstack** under Related nodes, scroll to *Comparison*. | "Fluidstack, 378 megawatts at Lake Mariner. And it is also Cipher Mining's tenant, at Barber Lake. That comes from Cipher's own filings." |
-| 6 | Close the panel; point at **Capital structure** on the right. | "The full debt stack from the debt note: $5.72 billion of principal, matching the filing's own maturities table, 56% secured. EBITDA over the last twelve months was negative $309.6 million, so we show leverage as not meaningful rather than a misleading multiple. $2.86 billion comes due in 2030." |
-| 7 | Scroll to **Peer comparison**. | "Side by side with Cipher. They share Fluidstack. Google backs Fluidstack's leases at TeraWulf, and Cipher's 10-Q carries a $544.5 million asset for the value of Google agreeing to make lease payments there too. Click Evidence to see that sentence. Morgan Stanley is the agent on both revolvers." |
-| 8 | Scroll to **Meeting prep**. | "And the meeting brief, on one printable page. Three things to know, the numbers, risks with their filing lines, and questions to ask, like what's drawn on the revolver and how the New York permit pause affects the timeline." |
-| 9 | Close. | "Signal Watch. Paste a ticker, get the map, the debt, what changed, the peers and the meeting brief, and every claim links to the filing line it came from." |
+| 1 | Point at the **Signal** box at the top. | "Ten-second read. TeraWulf's story: about 401 megawatts leased to Anthropic and 378 to Fluidstack, Google's credit enhancement behind Fluidstack, $5.72 billion of debt against $2.62 billion of cash. Watch the Kentucky regulator's approvals." |
+| 2 | Click **Who provides credit support for the leases?** under the question bar. | "Ask in plain English. It answers only from this report. Google, behind Fluidstack's leases. Each chip opens the filing line, page 54 of the 10-Q." Click the **Google** chip. |
+| 3 | Close the panel. Point at the line under the legend, open **Details**. | "Seventeen of twenty entities Gemini proposed were verified against the filings. Three were rejected: Core Scientific, IREN and Cipher were called competitors, but the sentences cited only list stock moves. We don't trust the AI, we check it." |
+| 4 | Point at the change panel. | "What changed since last quarter: Kentucky Power, the Kentucky Public Service Commission and Governor Hochul's Executive Order 62 appear in these filings and nowhere in the previous quarter's. The bridge facility is described as repaid." |
+| 5 | Scroll to the map. Click **Anthropic**. | "Every box: type, the specific relationship, a figure, a confidence mark, and the filing with its fiscal period and page. Anthropic: a lease for approximately 401 megawatts. Revenue share: not disclosed, and we say so rather than guess." |
+| 6 | Scroll the panel to *Connections*. Close it. | "Connections show who else sits next to it: Fluidstack and Core42 are the other tenants." |
+| 7 | Point at **Financial snapshot** on the right. | "The numbers, from TeraWulf's own XBRL data: $165.2 million of revenue, EBITDA of negative $309.6 million, free cash flow of negative $2.50 billion. Leverage reads n/m, not a fake multiple. Ratings: not stated in the filings, and no bond price feed, so we don't invent them." |
+| 8 | Scroll the right column to **Maturity wall**. | "The maturity wall, from the 10-Q's own table: $2.86 billion due in 2030." |
+| 9 | Scroll to **Peer comparison**. | "Against Cipher Mining: both lease to Fluidstack, both have Google credit support, and both buy from Bitmain. Each match is checked against the other company's filing text." |
+| 10 | Scroll to **Meeting prep**. | "And the one-page brief: three things to know, the numbers, risks with their filing lines, and questions such as what is drawn on the revolver and how Executive Order 62 affects the timeline." |
+| 11 | Close. | "Signal Watch. Every box has a receipt, every number has a source, and where a number would mislead, it says so." |
 
-If there is time for a live run: type a ticker such as `IREN` in the Analyze page. It takes 20 to 40 seconds and
-returns a new map, capital structure and memo. Then press **Compare with previous quarter**.
+Live run if time allows: type `IREN` or `CIFR` and press Analyze (20 to 40 seconds).
 
 ## The 60-second pitch
 
-Credit analysts start every name the same way: pull the 10-K, the 10-Q and the latest 8-K, work out who the company
-depends on, what it owes, what changed since last quarter and how it compares with peers, then write it up before the
-meeting. Most of that is reading.
+Credit analysts at funds like Diameter start every name the same way: pull the 10-K, the 10-Q and the latest 8-K, work
+out who the company depends on, what it owes, what changed since last quarter and how it compares with peers.
 
-Signal Watch does the reading. It pulls the filings from SEC EDGAR, has Gemini extract every counterparty, lender,
-regulator and risk, and keeps an entity only if its quote is found in the filing. It reads the debt note into a
-capital structure, takes the company's own XBRL figures for leverage and coverage, compares the filings with last
-quarter's, matches peers counterparty by counterparty, and writes a one-page meeting brief.
+Signal Watch does the reading. Paste a ticker. Gemini proposes every counterparty, regulator, risk and debt instrument;
+we keep one only if its quote is in the filing, and only call something a sole supplier, an anchor tenant or a
+competitor if the sentence says so. Each box carries a confidence label and the filing's page and fiscal period.
 
-For TeraWulf, that surfaces a new Kentucky power agreement that needs state approval, New York's data center permit
-pause, Google's credit support behind Fluidstack's leases, and the fact that Cipher Mining shares the same tenant.
+Around the map: a signal summary, a financial snapshot from the company's own XBRL data, the debt stack and maturity
+wall from the debt note, what changed since last quarter, peers matched counterparty by counterparty, a one-page
+meeting brief, and a question bar that answers only from the report.
 
-Every number has a source. Where a number would mislead, such as leverage on negative EBITDA, we say so.
+For TeraWulf that surfaces Google's credit support behind Fluidstack, a new Kentucky power agreement awaiting state
+approval, New York's data center permit pause, and the fact that Cipher Mining shares the same tenant. Every claim has a
+receipt.
 
 ## Questions you may get
 
-**How do you stop the AI from making things up?**
-Gemini only proposes. Every entity, figure, protection and debt instrument must come with a quote, and we find that
-quote in the filing before it is shown. A figure must appear in its own quote. Analysis sentences that add numbers, or
-call something "the largest" without a quote saying so, are removed.
+**How do you prevent hallucination?**
+Every quote is searched for in the cited filing; if it isn't there, the entity is rejected and listed under Details.
+Every figure on a box must appear in its own quote. Generated sentences that use a number not in the report, or call
+something the largest, earliest or sole without a quote saying so, are removed. Qualified relationships fall back to
+the plain label unless the sentence uses the word.
+
+**What does the confidence mark mean?**
+A label, not a score. High: stated in a filing sentence that names the entity. Medium: stated in a filing but inferred,
+or only in a headline. Low: inferred from a headline.
 
 **How do you know something is new since last quarter?**
-We rebuild the map from the filings available the day before the newest 10-Q, then search the earlier filings' text
-for each entity. If the name appears anywhere before, it is not called new, even if it was not on the earlier map.
-Changes in Gemini's own ratings are listed separately and never marked on the map.
+We rebuild the map from the filings available before the newest 10-Q and search the earlier filings' text. A name that
+appears anywhere before is not called new. Figures are compared only when both quotes describe the same named thing.
 
-**Where do the leverage numbers come from?**
-Debt from the debt note, checked against the filing's maturities table. Cash, operating income, depreciation and
-interest from the company's XBRL data on EDGAR, as trailing twelve months. The capital structure panel lists every
-input with a link to the filing.
+**Where is the credit rating?**
+We show a rating only when a filing or headline states it, with that sentence. We don't license rating agency data, and
+we don't make one up.
 
-**Why is revenue concentration "Not disclosed"?**
-Because neither filing states a tenant's share of revenue. We show a percentage only when the filing does.
+**Why does Ford show total debt as "Not reconciled"?**
+Ford tags its debt with custom XBRL names and has no maturities table we can read, so we can't confirm the instruments
+we found are complete. Leverage on a partial list would mislead, so it is withheld.
 
 **What's the data model?**
 A labeled property graph in Tiger Data: entities are nodes with labels and properties, relationships are typed edges
-such as CUSTOMER_OF, LENDS_TO, GUARANTEES and REGULATES, aligned with FIBO terms. One query lists every company's
-customers across all reports.
-
-**Does it work for other companies?**
-Any company with recent 10-K and 10-Q filings. Results vary somewhat between runs because extraction is done fresh;
-saved reports keep a given map fixed.
+(CUSTOMER_OF, PROVIDES_CREDIT_SUPPORT_TO, REGULATED_BY...) aligned with FIBO terms. Rejected entities, merges, changes,
+peer comparisons and financial snapshots are stored too.
 
 **What would you build next?**
-Bond prices and spreads for real relative value, and earnings call transcripts.
+A bond price and spread feed for relative value, licensed ratings, and earnings call transcripts.
