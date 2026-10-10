@@ -38,9 +38,13 @@ function member(report: Report, e: Entity): PeerMember {
   };
 }
 
-/** Entities that can be matched across companies. Debt boxes are company-specific instruments, compared in the metrics instead. */
+/**
+ * Entities that can be matched across companies. Debt and other financial items are
+ * company-specific ("Senior Secured Notes due 2030" at two companies are different
+ * bonds), so they are compared in the metrics instead.
+ */
 function entities(report: Report): Entity[] {
-  return report.graph.nodes.filter((n) => !n.isCentral && n.change?.kind !== "removed" && !n.id.startsWith("debt-"));
+  return report.graph.nodes.filter((n) => !n.isCentral && n.change?.kind !== "removed" && !n.id.startsWith("debt-") && n.type !== "financial");
 }
 
 function isDescriptive(e: Entity): boolean {

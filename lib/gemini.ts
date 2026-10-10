@@ -101,6 +101,7 @@ async function callModel(model: string, system: string, prompt: string, schema: 
     throw new GeminiError(timedOut ? "Gemini timed out" : `Gemini request failed: ${String(error)}`, timedOut ? "timeout" : "http");
   }
   if (!response.ok) {
+    console.warn(`Gemini ${model}: HTTP ${response.status} after ${Date.now() - started} ms`);
     throw new GeminiError(`Gemini ${response.status}: ${(await response.text()).slice(0, 300)}`, "http", response.status);
   }
   const body = (await response.json()) as GeminiResponse;
