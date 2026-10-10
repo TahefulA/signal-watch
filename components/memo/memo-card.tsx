@@ -12,14 +12,17 @@ export function MemoCard({ section, onEntityClick }: MemoCardProps) {
       <p className="text-base leading-relaxed text-zinc-300">
         {section.spans.map((span, i) =>
           span.entityId ? (
-            <button
+            <a
               key={i}
-              type="button"
-              onClick={() => onEntityClick(span.entityId as string)}
+              href={`#entity-${span.entityId}`}
+              onClick={(event) => {
+                event.preventDefault();
+                onEntityClick(span.entityId as string);
+              }}
               className="text-zinc-100 underline decoration-zinc-600 underline-offset-4 hover:decoration-zinc-300"
             >
               {span.text}
-            </button>
+            </a>
           ) : (
             <span key={i}>{span.text}</span>
           ),

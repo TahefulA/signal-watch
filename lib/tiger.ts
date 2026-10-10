@@ -11,7 +11,7 @@ let pool: Pool | null = null;
 
 /** True when a connection string with credentials is configured. */
 export function tigerEnabled(): boolean {
-  const url = process.env.DATABASE_URL;
+  const url = (process.env.TIGER_DATABASE_URL ?? process.env.DATABASE_URL);
   if (!url) return false;
   try {
     return new URL(url).password.length > 0;
@@ -26,7 +26,7 @@ export function tigerEnabled(): boolean {
  * The sslmode parameter is removed because pg would otherwise override this config.
  */
 function connectionConfig(): PoolConfig {
-  const url = new URL(process.env.DATABASE_URL ?? "");
+  const url = new URL((process.env.TIGER_DATABASE_URL ?? process.env.DATABASE_URL) ?? "");
   const sslDisabled = url.searchParams.get("sslmode") === "disable";
   url.searchParams.delete("sslmode");
   const isTigerCloud = url.hostname.endsWith(".tsdb.cloud.timescale.com");
