@@ -250,6 +250,28 @@ const DEPRECIATION = [
   "DepreciationAmortizationAndAccretionNet",
   "Depreciation",
 ];
+const REVENUE = [
+  "Revenues",
+  "RevenueFromContractWithCustomerExcludingAssessedTax",
+  "RevenueFromContractWithCustomerIncludingAssessedTax",
+  "SalesRevenueNet",
+];
+const OPERATING_CASH = ["NetCashProvidedByUsedInOperatingActivities", "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"];
+const CAPEX = ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets"];
+
+/** The first instrument maturing after a date: days away when the day is known, otherwise the month or year. */
+function nextMaturity(instruments: DebtInstrument[], from: string | null): { name: string; maturity: string; display: string } | null {
+  if (!from) return null;
+  const upcoming = instruments
+    .filter((i) => i.maturity !== null && i.maturity > from)
+    .sort((a, b) => (a.maturity ?? "").localeCompare(b.maturity ?? ""))[0];
+  if (!upcoming?.maturity) return null;
+  const display = /^\d{4}-\d{2}-\d{2}$/.test(upcoming.maturity)
+    ? `${Math.round((Date.parse(upcoming.maturity) - Date.parse(from)) / 86_400_000)} days`
+    : upcoming.maturity;
+  return { name: upcoming.name, maturity: upcoming.maturity, display };
+}
+
 const INTEREST = ["InterestExpenseNonoperating", "InterestExpense", "InterestExpenseDebt", "InterestAndDebtExpense"];
 
 /** Ratios built from the instruments and the company's XBRL figures. Any input that is missing shows as not available. */
@@ -276,7 +298,14 @@ export function computeMetrics(
   const interest = book && date ? trailingTwelveMonths(book, cik, INTEREST, date) : null;
   const ebitda = operating && depreciation ? operating.value + depreciation.value : null;
   const ebitdaInputs = [operating, depreciation].filter((v): v is XbrlValue => v !== null);
-  const financials = [cash, operating, depreciation, interest].filter((v): v is XbrlValue => v !== null);
+  const revenue = book && date ? trailingTwelveMonths(book, cik, REVENUE, date) : null;
+  const operatingCash = book && date ? trailingTwelveMonths(book, cik, OPERATING_CASH, date) : null;
+  const capex = book && date ? trailingTwelveMonths(book, cik, CAPEX, date) : null;
+  const currentAssets = book && date ? instantAt(book, cik, ["AssetsCurrent"], date) : null;
+  const currentLiabilities = book && date ? instantAt(book, cik, ["LiabilitiesCurrent"], date) : null;
+  const financials = [revenue, cash, operating, depreciation, interest, operatingCash, capex, currentAssets, currentLiabilities].filter(
+    (v): v is XbrlValue => v !== null,
+  );
 
   const debtNote = !schedule
     ? `Principal of the ${counted.length} instruments below. Excludes leases.`
@@ -345,6 +374,53 @@ export function computeMetrics(
     inputs: [],
   });
 
+  metrics.push({
+    key: "revenue",
+    label: "Revenue, last 12 months",
+    display: revenue ? money(revenue.value) : "Not available",
+    note: revenue ? `Reported revenue, 12 months ended ${date}.` : "Revenue was not found in the company's XBRL data.",
+    inputs: revenue ? [revenue] : [],
+  });
+  metrics.push({
+    key: "ebitda_margin",
+    label: "EBITDA margin",
+    display: ebitda !== null && revenue && revenue.value > 0 ? `${((ebitda / revenue.value) * 100).toFixed(1)}%` : "Not available",
+    note: ebitda !== null && revenue && revenue.value > 0 ? "EBITDA over revenue, last 12 months." : "Needs both EBITDA and revenue.",
+    inputs: [...ebitdaInputs, ...(revenue ? [revenue] : [])],
+  });
+  metrics.push({
+    key: "cash",
+    label: "Cash and equivalents",
+    display: cash ? money(cash.value) : "Not available",
+    note: cash ? `As of ${date}. Excludes restricted cash.` : "Cash was not found in the company's XBRL data.",
+    inputs: cash ? [cash] : [],
+  });
+  metrics.push({
+    key: "current_ratio",
+    label: "Current ratio",
+    display: currentAssets && currentLiabilities && currentLiabilities.value > 0 ? multiple(currentAssets.value / currentLiabilities.value) : "Not available",
+    note: currentAssets && currentLiabilities ? `Current assets over current liabilities, as of ${date}.` : "Current assets or liabilities were not found in XBRL.",
+    inputs: [currentAssets, currentLiabilities].filter((v): v is XbrlValue => v !== null),
+  });
+  const fcf = operatingCash && capex ? operatingCash.value - capex.value : null;
+  metrics.push({
+    key: "fcf",
+    label: "Free cash flow, last 12 months",
+    display: fcf !== null ? money(fcf) : "Not available",
+    note: fcf !== null ? `Operating cash flow ${money(operatingCash?.value ?? 0)} less capital expenditure ${money(capex?.value ?? 0)}.` : "Operating cash flow or capital expenditure was not found in XBRL.",
+    inputs: [operatingCash, capex].filter((v): v is XbrlValue => v !== null),
+  });
+  const next = nextMaturity(instruments, date ?? asOf);
+  metrics.push({
+    key: "next_maturity",
+    label: "Next final maturity",
+    display: next ? next.display : "Not disclosed",
+    note: next
+      ? `${next.name}, maturing ${next.maturity}.${schedule && schedule.rows[0] && /remainder|\b20\d\d\b/i.test(schedule.rows[0].period) && schedule.rows[0].amount > 0 ? ` Scheduled principal payments start sooner: ${money(schedule.rows[0].amount)} in ${schedule.rows[0].period.toLowerCase()}.` : ""}`
+      : "No instrument with a stated maturity after the balance sheet date.",
+    inputs: [],
+  });
+
   const revolvers = instruments.filter((i) => i.kind === "revolver" && i.commitment !== null);
   const undrawn = revolvers.reduce((sum, i) => sum + Math.max(0, (i.commitment ?? 0) - (i.outstanding ?? 0)), 0);
   const assumedUndrawn = revolvers.filter((i) => i.outstanding === null).map((i) => i.name);
@@ -359,6 +435,15 @@ export function computeMetrics(
     inputs: cash ? [cash] : [],
   });
 
+  metrics.push({
+    key: "revolver_availability",
+    label: "Revolver availability",
+    display: revolvers.length ? money(undrawn) : "No revolver",
+    note: revolvers.length
+      ? `Undrawn commitments on ${revolvers.map((r) => r.name).join(", ")}.${assumedUndrawn.length ? " No drawn amount was disclosed, so it is counted as undrawn." : ""}`
+      : "No revolving facility in the debt note.",
+    inputs: [],
+  });
   return { metrics, financials };
 }
 

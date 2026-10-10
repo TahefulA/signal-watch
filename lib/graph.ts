@@ -396,7 +396,7 @@ export function addDebtNodes(graph: EntityGraph, capital: CapitalStructure | nul
       parent: null,
     });
     edges.push({ id: `${central.id}->${id}`, source: central.id, target: id, relationship: "Debt instrument" });
+    validation.debtAdded = (validation.debtAdded ?? 0) + 1;
   }
-  validation.kept = nodes.length - 1;
   return { ...graph, nodes, edges };
 }

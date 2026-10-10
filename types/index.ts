@@ -8,7 +8,7 @@ export type * from "./brief";
 export type * from "./dashboard";
 
 import type { EntityGraph, MarketSnapshot, SourceDocument } from "./graph";
-import type { Memo } from "./memo";
+import type { Memo, MemoSpan } from "./memo";
 import type { CapitalStructure } from "./capital";
 import type { ChangeReport } from "./changes";
 import type { MeetingBrief } from "./brief";
@@ -19,6 +19,8 @@ export interface Validation {
   kept: number;
   rejected: { name: string; reason: string; quote: string }[];
   merges: { kept: string; merged: string; reason: string }[];
+  /** Boxes added from the verified debt note, outside Gemini's entity proposals. */
+  debtAdded?: number;
   /** True when the first extraction kept too few entities and a second one was used. */
   retried?: boolean;
 }
@@ -45,6 +47,8 @@ export interface Report {
   /** Shown above the map, e.g. when few entities were found. */
   notes: string[];
   validation?: Validation;
+  /** Three or four sentences above the map; entity names link to their boxes. */
+  signal?: MemoSpan[] | null;
 }
 
 export type AnalyzeEvent =

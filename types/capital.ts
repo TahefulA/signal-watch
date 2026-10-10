@@ -35,7 +35,18 @@ export interface XbrlValue {
 }
 
 export interface CapitalMetric {
-  key: "total_debt" | "net_debt" | "ebitda" | "debt_to_ebitda" | "net_debt_to_ebitda" | "interest_coverage" | "secured_share" | "liquidity";
+  key:
+    | "revenue"
+    | "ebitda_margin"
+    | "cash"
+    | "current_ratio"
+    | "fcf"
+    | "next_maturity"
+    | "revolver_availability"
+    | "total_debt"
+    | "net_debt"
+    | "ebitda"
+    | "debt_to_ebitda" | "net_debt_to_ebitda" | "interest_coverage" | "secured_share" | "liquidity";
   label: string;
   /** Display text, e.g. "4.2x", "n/m" or "$2.62 billion". */
   display: string;

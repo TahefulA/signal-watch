@@ -54,8 +54,12 @@ export function marketFacts(market: MarketSnapshot | null, ticker: string): stri
 
 export function entityFacts(nodes: Entity[]): string {
   return nodes
-    .filter((n) => !n.isCentral)
-    .map((n) => `- id: ${n.id} | ${n.name} | type: ${n.type} | ${n.relationship} | severity: ${n.severity} | ${n.sourceType} ${n.sourceDate}: "${n.sourceQuote}"`)
+    .filter((n) => !n.isCentral && n.change?.kind !== "removed")
+    .map(
+      (n) =>
+        `- id: ${n.id} | ${n.name} | type: ${n.type} | ${n.relationDetail ?? n.relationship} | severity: ${n.severity}` +
+        `${n.magnitude ? ` | figure: ${n.magnitude.label}` : ""} | ${n.sourceType} ${n.sourceDate}: "${n.sourceQuote}"`,
+    )
     .join("\n");
 }
 

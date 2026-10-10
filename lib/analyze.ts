@@ -17,6 +17,7 @@ import { GeminiError, geminiEnabled } from "./gemini";
 import { addDebtNodes, buildGraph } from "./graph";
 import { fetchMarketSnapshot } from "./market";
 import { generateMemo } from "./memo";
+import { generateSignal } from "./signal";
 import { fetchRecentNews } from "./news";
 import { type FactBook, fetchFacts, fiscalPeriodOf } from "./xbrl";
 
@@ -198,14 +199,19 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
   if (capital && periodic && facts) capital.fiscalPeriod = fiscalPeriodOf(facts, periodic.accession);
   const { validation } = built;
   const graph = addDebtNodes(built.graph, capital, validation);
-  console.info(`${ticker}: ${validation.kept} of ${validation.proposed} entities kept, ${validation.rejected.length} rejected, ${validation.merges.length} merged`);
+  console.info(
+    `${ticker}: ${validation.kept} of ${validation.proposed} proposed entities kept, ${validation.rejected.length} rejected, ` +
+      `${validation.merges.length} merged, ${validation.debtAdded ?? 0} debt instruments added`,
+  );
   const notes: string[] = [];
   if (graph.nodes.length - 1 < 5) {
     notes.push("Limited entities found in recent filings. Try a company with more recent 10-K disclosures.");
   }
 
-  report(baseline ? "Reading the debt note..." : "Generating memo...");
-  const memo = baseline ? { sections: [] } : await generateMemo(graph, market);
+  report(baseline ? "Reading the debt note..." : "Writing the signal summary and memo...");
+  const [memo, signal] = baseline
+    ? [{ sections: [] }, null]
+    : await Promise.all([generateMemo(graph, market), generateSignal(graph, capital)]);
 
   return {
     id: randomUUID(),
@@ -219,6 +225,7 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     newsAnalyzed: news.length,
     notes,
     validation,
+    signal,
     asOf: options.asOf ?? null,
     pipelineVersion: PIPELINE_VERSION,
   };
