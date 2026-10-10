@@ -37,14 +37,24 @@ function displayName(raw: string): string {
   return titled.replace(/\/[A-Z]{2}\/?$/, "").trim();
 }
 
+export interface AnalyzeOptions {
+  /**
+   * Build a baseline from the filings available on this date, for change
+   * detection. Baselines skip news, market data and the memo, which cannot be
+   * reconstructed for a past date.
+   */
+  asOf?: string;
+}
+
 /** Runs the full pipeline for one ticker: filings, news, market data, extraction, graph and memo. */
-export async function analyzeTicker(rawTicker: string, report: StepReporter): Promise<Report> {
+export async function analyzeTicker(rawTicker: string, report: StepReporter, options: AnalyzeOptions = {}): Promise<Report> {
   const ticker = rawTicker.trim().toUpperCase();
   if (!/^[A-Z][A-Z0-9.\-]{0,9}$/.test(ticker)) {
     throw new AnalyzeError(`We couldn't find a company with the ticker ${ticker || "you entered"}. Please check the spelling.`);
   }
   if (!geminiEnabled()) throw new AnalyzeError("Entity extraction is not configured on this server.");
-  const today = toIsoDate(new Date());
+  const baseline = Boolean(options.asOf);
+  const today = options.asOf ?? toIsoDate(new Date());
 
   report("Fetching SEC filings...");
   let lookup: Awaited<ReturnType<typeof lookupCik>>;
@@ -106,8 +116,8 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter): Pr
   report("Fetching news and market data...");
   const shortName = company.name.replace(/,?\s+(Inc|Corp|Co|Ltd|Plc|Corporation|Company|Holdings)\.?$/i, "");
   const [news, market, facts] = await Promise.all([
-    fetchRecentNews(`"${shortName}" OR ${ticker} stock`).catch(() => []),
-    fetchMarketSnapshot(ticker, today).catch(() => null),
+    baseline ? [] : fetchRecentNews(`"${shortName}" OR ${ticker} stock`).catch(() => []),
+    baseline ? null : fetchMarketSnapshot(ticker, today).catch(() => null),
     fetchFacts(lookup.cik).catch((): FactBook | null => null),
   ]);
   for (const item of news) {
@@ -161,8 +171,8 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter): Pr
     notes.push("Limited entities found in recent filings. Try a company with more recent 10-K disclosures.");
   }
 
-  report("Generating memo...");
-  const [memo, capital] = await Promise.all([generateMemo(graph, market), capitalTask]);
+  report(baseline ? "Reading the debt note..." : "Generating memo...");
+  const [memo, capital] = await Promise.all([baseline ? { sections: [] } : generateMemo(graph, market), capitalTask]);
 
   return {
     id: randomUUID(),
@@ -175,5 +185,6 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter): Pr
     filingsAnalyzed: filings.length,
     newsAnalyzed: news.length,
     notes,
+    asOf: options.asOf ?? null,
   };
 }

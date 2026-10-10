@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AnalyzeEvent, Entity, Report } from "@/types";
 import { CapitalStructurePanel } from "@/components/capital/capital-structure-panel";
+import { ChangePanel } from "@/components/changes/change-panel";
 import { TickerInput } from "@/components/input/ticker-input";
 import { Header } from "@/components/layout/header";
 import { PIPELINE_STEPS, StatusBar } from "@/components/layout/status-bar";
@@ -17,6 +18,30 @@ type Status = "idle" | "loading" | "ready" | "error";
 
 function isEvent(value: unknown): value is AnalyzeEvent {
   return typeof value === "object" && value !== null && "type" in value;
+}
+
+/** Reads an NDJSON stream of AnalyzeEvents, calling onEvent for each. Returns false if it ended without a result or error. */
+async function readEvents(response: Response, onEvent: (event: AnalyzeEvent) => void): Promise<boolean> {
+  if (!response.body) return false;
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finished = false;
+  while (!finished) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const event: unknown = JSON.parse(line);
+      if (!isEvent(event)) continue;
+      onEvent(event);
+      if (event.type !== "step") finished = true;
+    }
+  }
+  return finished;
 }
 
 function ago(iso: string): string {
@@ -36,6 +61,9 @@ export default function HomePage() {
   const [selected, setSelected] = useState<Entity | null>(null);
   const [focusRequest, setFocusRequest] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+  const [comparing, setComparing] = useState(false);
+  const [compareStep, setCompareStep] = useState<string | null>(null);
+  const [compareError, setCompareError] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
   const capitalRef = useRef<HTMLElement>(null);
 
@@ -75,39 +103,21 @@ export default function HomePage() {
     setStartedAt(Date.now());
     setError(null);
     setSelected(null);
+    setCompareError(null);
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticker, fresh }),
       });
-      if (!response.body) throw new Error("No response body");
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let finished = false;
-      while (!finished) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          const event: unknown = JSON.parse(line);
-          if (!isEvent(event)) continue;
-          if (event.type === "step") setStep(event.step);
-          if (event.type === "result") {
-            showReport(event.report, event.cached);
-            finished = true;
-          }
-          if (event.type === "error") {
-            setError(event.message);
-            setStatus("error");
-            finished = true;
-          }
+      const finished = await readEvents(response, (event) => {
+        if (event.type === "step") setStep(event.step);
+        if (event.type === "result") showReport(event.report, event.cached);
+        if (event.type === "error") {
+          setError(event.message);
+          setStatus("error");
         }
-      }
+      });
       if (!finished) throw new Error("Stream ended early");
     } catch {
       setError("The analysis stopped before it finished. Please try again.");
@@ -125,6 +135,33 @@ export default function HomePage() {
     },
     [report],
   );
+
+  const compare = useCallback(async () => {
+    if (!report) return;
+    setComparing(true);
+    setCompareStep(null);
+    setCompareError(null);
+    try {
+      const response = await fetch("/api/changes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reportId: report.id }),
+      });
+      const finished = await readEvents(response, (event) => {
+        if (event.type === "step") setCompareStep(event.step);
+        if (event.type === "result") {
+          setReport(event.report);
+          setSelected(null);
+        }
+        if (event.type === "error") setCompareError(event.message);
+      });
+      if (!finished) throw new Error("Stream ended early");
+    } catch {
+      setCompareError("The comparison stopped before it finished. Please try again.");
+    } finally {
+      setComparing(false);
+    }
+  }, [report]);
 
   const showCapital = useCallback(() => {
     setSelected(null);
@@ -186,6 +223,14 @@ export default function HomePage() {
               <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Entity map</h2>
               <Legend />
             </div>
+            <ChangePanel
+              changes={report.changes}
+              busy={comparing}
+              step={compareStep}
+              error={compareError}
+              onCompare={() => void compare()}
+              onSelectEntity={focusEntity}
+            />
             {report.notes.map((note) => (
               <p key={note} className="mb-3 text-sm text-amber-500">
                 {note}

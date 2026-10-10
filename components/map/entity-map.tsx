@@ -91,6 +91,8 @@ function Canvas({ graph, totalDebt = null, selectedId, focusRequest, onSelect }:
           sourceHandle: side === "right" ? "right-out" : "left-out",
           targetHandle: side === "right" ? "left-in" : "right-in",
           label: relationTypes.get(e.target)?.replace(/_/g, " "),
+          // Entities that dropped out of the filings hang off a dashed line.
+          ...(e.target.startsWith("removed-") ? { style: { stroke: EDGE_COLOR, strokeWidth: 1, strokeDasharray: "4 4", opacity: 0.6 } } : {}),
         };
       }),
     [spokes, positions, relationTypes],

@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Copy, ExternalLink, X } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
-import type { CapitalStructure, Entity, MagnitudeKind, RelationType, Trend } from "@/types";
+import type { CapitalStructure, Entity, EntityChange, MagnitudeKind, RelationType, Trend } from "@/types";
 import type { EntityLink } from "@/lib/graph-view";
 import { SEVERITY_LABELS, SEVERITY_STRIP, TYPE_BORDER, TYPE_LABELS } from "@/lib/entity-style";
 import { Button } from "@/components/ui/button";
@@ -74,6 +74,18 @@ const OTHER_KIND_LABEL: Record<MagnitudeKind, string> = {
   contract: "Contract",
   capacity: "Capacity",
   other: "Disclosed figure",
+};
+
+const CHANGE_DOT: Record<EntityChange["kind"], string> = {
+  new: "bg-emerald-500",
+  changed: "bg-amber-500",
+  removed: "border border-dashed border-zinc-500",
+};
+
+const CHANGE_LABEL: Record<EntityChange["kind"], string> = {
+  new: "New since the previous quarter",
+  changed: "Changed since the previous quarter",
+  removed: "No longer mentioned in the current filings",
 };
 
 const NOT_EXTRACTED = "Not extracted for this report. Read the filings again to add context.";
@@ -377,8 +389,8 @@ export function EntityPanel({
                 </span>
                 {entity.change ? (
                   <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-400">
-                    <span className={`h-2 w-2 rounded-full ${entity.change.kind === "new" ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden />
-                    {entity.change.kind === "new" ? "New since the previous report" : "Changed since the previous report"}
+                    <span className={`h-2 w-2 rounded-full ${CHANGE_DOT[entity.change.kind]}`} aria-hidden />
+                    {CHANGE_LABEL[entity.change.kind]}
                   </span>
                 ) : null}
               </div>

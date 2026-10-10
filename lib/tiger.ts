@@ -78,6 +78,21 @@ CREATE TABLE IF NOT EXISTS entities (
   source_date date
 );
 CREATE INDEX IF NOT EXISTS entities_report ON entities (report_id);
+
+-- Baseline reports are built from filings available on as_of, for change detection.
+ALTER TABLE reports ADD COLUMN IF NOT EXISTS as_of date;
+
+CREATE TABLE IF NOT EXISTS changes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_id uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  baseline_report_id uuid REFERENCES reports (id) ON DELETE SET NULL,
+  entity_name text NOT NULL,
+  change_type text NOT NULL,
+  old_value text,
+  new_value text,
+  detected_at timestamptz NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS changes_report ON changes (report_id);
 `;
 
 export async function migrate(): Promise<void> {
@@ -89,8 +104,8 @@ export async function saveReport(report: Report): Promise<void> {
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO reports (id, ticker, generated_at, graph_json, memo_json, report_json, filings_analyzed, news_analyzed)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      `INSERT INTO reports (id, ticker, generated_at, graph_json, memo_json, report_json, filings_analyzed, news_analyzed, as_of)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [
         report.id,
         report.graph.company.ticker,
@@ -100,6 +115,7 @@ export async function saveReport(report: Report): Promise<void> {
         JSON.stringify(report),
         report.filingsAnalyzed,
         report.newsAnalyzed,
+        report.asOf ?? null,
       ],
     );
     for (const e of report.graph.nodes) {
@@ -123,7 +139,7 @@ export async function saveReport(report: Report): Promise<void> {
 export async function findRecentReport(ticker: string, maxAgeHours: number): Promise<Report | null> {
   const result = await getPool().query<{ report_json: Report }>(
     `SELECT report_json FROM reports
-     WHERE ticker = $1 AND generated_at > NOW() - make_interval(hours => $2)
+     WHERE ticker = $1 AND as_of IS NULL AND generated_at > NOW() - make_interval(hours => $2)
      ORDER BY generated_at DESC LIMIT 1`,
     [ticker, maxAgeHours],
   );
@@ -135,4 +151,42 @@ export async function findReportById(id: string): Promise<Report | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const result = await getPool().query<{ report_json: Report }>("SELECT report_json FROM reports WHERE id = $1", [id]);
   return result.rows[0]?.report_json ?? null;
+}
+
+/** A baseline report for a ticker built from the filings available on a date. */
+export async function findBaseline(ticker: string, asOf: string): Promise<Report | null> {
+  const result = await getPool().query<{ report_json: Report }>(
+    "SELECT report_json FROM reports WHERE ticker = $1 AND as_of = $2 ORDER BY generated_at DESC LIMIT 1",
+    [ticker, asOf],
+  );
+  return result.rows[0]?.report_json ?? null;
+}
+
+/** Stores the comparison on the report and one row per change. */
+export async function saveChanges(report: Report): Promise<void> {
+  const changes = report.changes;
+  if (!changes) return;
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("UPDATE reports SET report_json = $2, graph_json = $3 WHERE id = $1", [
+      report.id,
+      JSON.stringify(report),
+      JSON.stringify(report.graph),
+    ]);
+    await client.query("DELETE FROM changes WHERE report_id = $1", [report.id]);
+    for (const c of changes.changes) {
+      await client.query(
+        `INSERT INTO changes (report_id, baseline_report_id, entity_name, change_type, old_value, new_value)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [report.id, changes.baselineId, c.name, c.kind, c.before ?? null, c.after ?? null],
+      );
+    }
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }

@@ -22,14 +22,14 @@ const TREND_LABEL: Record<Trend, string> = {
 };
 
 function ChangeDot({ entity }: { entity: Entity }) {
-  if (!entity.change) return null;
+  if (!entity.change || entity.change.kind === "removed") return null;
   const isNew = entity.change.kind === "new";
   return (
     <span
       className={`absolute right-2 top-2 h-2 w-2 rounded-full ${isNew ? "bg-emerald-500" : "bg-amber-500"}`}
-      title={isNew ? "New since the previous report" : "Changed since the previous report"}
+      title={isNew ? "New since the previous quarter" : "Changed since the previous quarter"}
     >
-      <span className="sr-only">{isNew ? "New since the previous report." : "Changed since the previous report."}</span>
+      <span className="sr-only">{isNew ? "New since the previous quarter." : "Changed since the previous quarter."}</span>
     </span>
   );
 }
@@ -39,10 +39,11 @@ function EntityNodeComponent({ data }: NodeProps<EntityFlowNode>) {
   const width = entity.isCentral ? "w-[260px]" : "w-[240px]";
   const trend = entity.trend && entity.trend !== "unknown" ? entity.trend : null;
   const TrendIcon = trend ? TREND_ICON[trend] : null;
+  const removed = entity.change?.kind === "removed";
 
   return (
     <div
-      className={`entity-box relative flex h-[136px] ${width} cursor-pointer flex-col overflow-hidden rounded-xs border-2 bg-white py-2.5 pl-4 pr-3 transition-colors ${TYPE_BORDER[entity.type]} ${TYPE_BORDER_HOVER[entity.type]}`}
+      className={`entity-box relative flex h-[136px] ${width} cursor-pointer flex-col overflow-hidden rounded-xs border-2 bg-white py-2.5 pl-4 pr-3 transition-colors ${TYPE_BORDER[entity.type]} ${TYPE_BORDER_HOVER[entity.type]} ${removed ? "border-dashed opacity-50" : ""}`}
       title={entity.name}
     >
       <span className={`absolute inset-y-0 left-0 w-1 ${SEVERITY_STRIP[entity.severity]}`} aria-hidden />
@@ -87,8 +88,9 @@ function EntityNodeComponent({ data }: NodeProps<EntityFlowNode>) {
             ) : null}
           </div>
           <div className="mt-auto font-mono text-[10px] text-zinc-400">
+            {removed ? "Last seen " : ""}
             {entity.sourceType} · {entity.sourceDate}
-            {entity.sourcePage ? ` · p. ${entity.sourcePage}` : ""}
+            {entity.sourcePage && !removed ? ` · p. ${entity.sourcePage}` : ""}
           </div>
         </>
       )}

@@ -313,7 +313,7 @@ export function selectRecentFilings(submissions: CompanySubmissions, today: stri
   const cutoff = `${Number(today.slice(0, 4)) - 2}${today.slice(4)}`;
   const picks: FilingRef[] = [];
   for (const form of FORM_PRIORITY) {
-    const latest = submissions.filings.find((f) => f.form === form && f.filingDate >= cutoff);
+    const latest = submissions.filings.find((f) => f.form === form && f.filingDate >= cutoff && f.filingDate <= today);
     if (latest) picks.push(latest);
   }
   return picks.sort((a, b) => b.filingDate.localeCompare(a.filingDate));

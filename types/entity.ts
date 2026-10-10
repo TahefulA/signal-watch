@@ -49,7 +49,8 @@ export interface Strategic {
 }
 
 export interface EntityChange {
-  kind: "new" | "changed";
+  /** removed entities are drawn faded from the baseline report. */
+  kind: "new" | "changed" | "removed";
   details: string[];
 }
 
