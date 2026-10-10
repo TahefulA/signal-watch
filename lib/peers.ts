@@ -14,7 +14,7 @@ const THEMES: { label: string; pattern: RegExp }[] = [
   { label: "Construction and supply chain", pattern: /\b(construction|supply chain|equipment|build|contractor)/i },
   { label: "Customer and tenant concentration", pattern: /\b(concentration|tenant|customer|counterparty)/i },
   { label: "Financing and liquidity", pattern: /\b(financing|liquidity|refinanc|capital markets|indebtedness|leverage)/i },
-  { label: "Permitting and regulation", pattern: /\b(regulat|permit|moratorium|zoning|executive order|legislation)/i },
+  { label: "Permitting and approvals", pattern: /\b(permit|moratorium|zoning|executive order|approval|public service commission|public utility commission|community opposition)/i },
   { label: "Bitcoin price and mining economics", pattern: /\b(bitcoin|hashprice|mining|halving|digital asset)/i },
   { label: "Interest rates", pattern: /\b(interest rate|rates)\b/i },
   { label: "Tariffs and trade", pattern: /\b(tariff|trade)/i },

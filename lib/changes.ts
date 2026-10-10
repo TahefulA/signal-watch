@@ -226,7 +226,7 @@ export async function diffReports(
           kind: "new",
           entityId: node.id,
           name: node.name,
-          detail: isDescriptive(node) ? "This disclosure is not in the earlier filings." : "Not mentioned in the earlier filings.",
+          detail: isDescriptive(node) || node.type === "financial" ? "This disclosure is not in the earlier filings." : "Not mentioned in the earlier filings.",
           citations: [citationOf(node)],
         });
       continue;

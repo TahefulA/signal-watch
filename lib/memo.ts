@@ -65,7 +65,11 @@ export function entityFacts(nodes: Entity[]): string {
 
 /** Splits {{id|text}} markers into linked spans, keeping only ids on the map. */
 export function toSpans(text: string, ids: Set<string>, names: Map<string, string>): MemoSpan[] {
-  return text
+  // Gemini sometimes writes a bare id such as kentucky-power-company; turn it into a link with the entity's name.
+  const marked = text.replace(/\{\{[^}]*\}\}|\b[a-z0-9]+(?:-[a-z0-9]+)+\b/g, (token) =>
+    !token.startsWith("{{") && ids.has(token) ? `{{${token}|${names.get(token) ?? token}}}` : token,
+  );
+  return marked
     .split(/(\{\{[^}]+\}\})/)
     .filter(Boolean)
     .map((part) => {
