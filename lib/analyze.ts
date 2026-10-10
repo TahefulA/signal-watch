@@ -14,11 +14,15 @@ import {
 } from "./edgar";
 import { extractEntities } from "./extraction";
 import { GeminiError, geminiEnabled } from "./gemini";
-import { buildGraph } from "./graph";
+import { addDebtNodes, buildGraph } from "./graph";
 import { fetchMarketSnapshot } from "./market";
 import { generateMemo } from "./memo";
 import { fetchRecentNews } from "./news";
-import { type FactBook, fetchFacts } from "./xbrl";
+import { type FactBook, fetchFacts, fiscalPeriodOf } from "./xbrl";
+
+/** Below this many verified entities, or above this share rejected, extraction runs once more. */
+const MIN_ENTITIES = 12;
+const MAX_REJECTED_SHARE = 0.3;
 
 /** Character budget for the debt notes sent to the capital structure call. */
 const DEBT_NOTE_BUDGET = 45_000;
@@ -73,7 +77,7 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     if (error instanceof AnalyzeError) throw error;
     throw new AnalyzeError("SEC EDGAR is currently unavailable. Please try again in a few minutes.");
   }
-  const company: CompanyProfile = { ticker, name: displayName(submissions.name), cik: lookup.cik };
+  const company: CompanyProfile = { ticker, name: displayName(submissions.name), cik: lookup.cik, sic: submissions.sicDescription || null };
 
   const filings = selectRecentFilings(submissions, today);
   if (!filings.some((f) => f.form === "10-K" || f.form === "10-Q")) {
@@ -141,6 +145,13 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     }
   }
 
+  // Label each filing excerpt with the fiscal period it covers, e.g. "Q2 2026".
+  if (facts) {
+    const byUrl = new Map(sources.filter((src) => src.sourceType !== "News").map((src) => [src.url, fiscalPeriodOf(facts, src.id)]));
+    for (const doc of [...docs, ...debtDocs]) if (doc.sourceType !== "News" && doc.sourceType !== "8-K") doc.fiscalPeriod = byUrl.get(doc.url) ?? null;
+    for (const src of sources) if (src.sourceType === "10-K" || src.sourceType === "10-Q") src.fiscalPeriod = fiscalPeriodOf(facts, src.id);
+  }
+
   report("Extracting entities and debt...");
   const capitalTask: Promise<CapitalStructure | null> =
     periodic && debtDocs.some((d) => d.sourceType !== "8-K")
@@ -169,16 +180,32 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     throw new AnalyzeError("We couldn't extract entities from this filing. Please try a different ticker.");
   }
 
-  report("Building map...");
-  const { graph, dropped } = buildGraph(company, extraction, docs);
-  if (dropped.length > 0) console.info(`${ticker}: dropped ${dropped.length} entities without a verifiable quote: ${dropped.join(", ")}`);
+  report("Verifying quotes...");
+  let built = buildGraph({ ...company }, extraction, docs);
+  const weak = (v: typeof built.validation) => v.kept < MIN_ENTITIES || v.rejected.length > v.proposed * MAX_REJECTED_SHARE;
+  if (weak(built.validation)) {
+    report("Too few verified entities, extracting again...");
+    const retry = await extractEntities(company.name, ticker, docs, { strict: true }).catch(() => null);
+    if (retry) {
+      const second = buildGraph({ ...company }, retry, docs);
+      if (second.validation.kept > built.validation.kept) {
+        second.validation.retried = true;
+        built = second;
+      }
+    }
+  }
+  const capital = await capitalTask;
+  if (capital && periodic && facts) capital.fiscalPeriod = fiscalPeriodOf(facts, periodic.accession);
+  const { validation } = built;
+  const graph = addDebtNodes(built.graph, capital, validation);
+  console.info(`${ticker}: ${validation.kept} of ${validation.proposed} entities kept, ${validation.rejected.length} rejected, ${validation.merges.length} merged`);
   const notes: string[] = [];
   if (graph.nodes.length - 1 < 5) {
     notes.push("Limited entities found in recent filings. Try a company with more recent 10-K disclosures.");
   }
 
   report(baseline ? "Reading the debt note..." : "Generating memo...");
-  const [memo, capital] = await Promise.all([baseline ? { sections: [] } : generateMemo(graph, market), capitalTask]);
+  const memo = baseline ? { sections: [] } : await generateMemo(graph, market);
 
   return {
     id: randomUUID(),
@@ -191,6 +218,7 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     filingsAnalyzed: filings.length,
     newsAnalyzed: news.length,
     notes,
+    validation,
     asOf: options.asOf ?? null,
     pipelineVersion: PIPELINE_VERSION,
   };

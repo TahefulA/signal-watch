@@ -13,6 +13,8 @@ export interface CorpusDoc {
   sentences: string[];
   /** The whole document the excerpt came from, used for page numbers. Not sent to Gemini. */
   fullText: string;
+  /** "Q2 2026" or "FY 2025" for periodic filings. */
+  fiscalPeriod?: string | null;
 }
 
 export function makeDoc(

@@ -52,6 +52,7 @@ const RELATION_PLURAL: Record<RelationType, string> = {
   COMPETES_WITH: "Other competitors",
   OWNED_BY: "Other owned entities",
   PARTNERS_WITH: "Other partners",
+  AFFILIATED_WITH: "Other people",
   IMPACTS: "Other risks and factors",
 };
 

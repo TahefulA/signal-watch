@@ -17,6 +17,8 @@ interface Fact {
   accn: string;
   form: string;
   filed: string;
+  fy?: number;
+  fp?: string;
 }
 
 interface CompanyFacts {
@@ -24,6 +26,15 @@ interface CompanyFacts {
 }
 
 export type FactBook = Map<string, Fact[]>;
+
+/** "Q2 2026" or "FY 2025" for the filing with this accession number, from its own XBRL tags. */
+export function fiscalPeriodOf(book: FactBook, accession: string): string | null {
+  for (const facts of book.values()) {
+    const f = facts.find((x) => x.accn === accession && x.fy && x.fp);
+    if (f?.fy && f.fp) return f.fp === "FY" ? `FY ${f.fy}` : `${f.fp} ${f.fy}`;
+  }
+  return null;
+}
 
 export async function fetchFacts(cik: string): Promise<FactBook> {
   const raw = await cachedFetchText(`https://data.sec.gov/api/xbrl/companyfacts/CIK${padCik(cik)}.json`, {

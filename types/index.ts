@@ -13,6 +13,16 @@ import type { CapitalStructure } from "./capital";
 import type { ChangeReport } from "./changes";
 import type { MeetingBrief } from "./brief";
 
+/** What citation validation and entity resolution did to Gemini's proposals. */
+export interface Validation {
+  proposed: number;
+  kept: number;
+  rejected: { name: string; reason: string; quote: string }[];
+  merges: { kept: string; merged: string; reason: string }[];
+  /** True when the first extraction kept too few entities and a second one was used. */
+  retried?: boolean;
+}
+
 export interface Report {
   id: string;
   generatedAt: string;
@@ -34,6 +44,7 @@ export interface Report {
   newsAnalyzed: number;
   /** Shown above the map, e.g. when few entities were found. */
   notes: string[];
+  validation?: Validation;
 }
 
 export type AnalyzeEvent =

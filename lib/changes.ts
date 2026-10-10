@@ -3,6 +3,9 @@ import { money } from "./capital";
 import { addDays } from "./dates";
 import { type FilingRef, fetchFilingText, getSubmissions } from "./edgar";
 import { extractFigures } from "./gemini";
+import { keyWords, sameEntity, words } from "./names";
+
+export { sameEntity };
 
 /**
  * Change detection between two reports built from different filings. Model
@@ -11,37 +14,6 @@ import { extractFigures } from "./gemini";
  * does not appear anywhere in the current ones. Changed figures need a verified
  * quote on both sides.
  */
-
-const SUFFIXES = new Set(["inc", "corp", "corporation", "co", "company", "llc", "lp", "ltd", "plc", "pbc", "the", "and", "of", "a", "an"]);
-
-/** Lower-cased words with a crude plural stem, so "tariffs" matches "tariff". */
-function words(text: string): string[] {
-  return text
-    .toLowerCase()
-    .replace(/[’']/g, "")
-    .split(/[^a-z0-9]+/)
-    .filter((w) => w.length > 0)
-    .map((w) => (w.length > 4 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w));
-}
-
-function keyWords(name: string): string[] {
-  return words(name).filter((w) => !SUFFIXES.has(w));
-}
-
-/** Entity resolution: "Anthropic PBC" and "Anthropic" are the same; so are names sharing most key words. */
-export function sameEntity(a: string, b: string): boolean {
-  const ka = keyWords(a);
-  const kb = keyWords(b);
-  if (ka.length === 0 || kb.length === 0) return false;
-  if (ka.join(" ") === kb.join(" ")) return true;
-  const sa = new Set(ka);
-  const sb = new Set(kb);
-  const shared = ka.filter((w) => sb.has(w)).length;
-  const smaller = Math.min(sa.size, sb.size);
-  // "Fluidstack" vs "Fluidstack Ltd" (subset), or "NY Data Center Moratorium" vs "New York Data Center Moratorium".
-  if (shared === smaller && smaller >= 1 && (smaller >= 2 || ka.length === 1 || kb.length === 1)) return true;
-  return shared / new Set([...ka, ...kb]).size >= 0.6;
-}
 
 /**
  * True when a document mentions the entity: the full name, or every key word
@@ -220,7 +192,8 @@ export async function diffReports(current: Report, baseline: Report): Promise<{ 
   const changes: EntityDiff[] = [];
   const mentionedBefore: string[] = [];
   const removed: Entity[] = [];
-  const filingNodes = (r: Report) => r.graph.nodes.filter((n) => !n.isCentral && n.sourceType !== "News");
+  // Debt boxes are compared through the debt note below, not by name.
+  const filingNodes = (r: Report) => r.graph.nodes.filter((n) => !n.isCentral && n.sourceType !== "News" && !n.id.startsWith("debt-"));
   const beforeNodes = filingNodes(baseline);
 
   for (const node of filingNodes(current)) {

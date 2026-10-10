@@ -66,6 +66,8 @@ export interface CapitalStructure {
   sourceType: "10-K" | "10-Q";
   sourceDate: string;
   sourceUrl: string;
+  /** "Q2 2026" for the periodic filing the debt note came from. */
+  fiscalPeriod?: string | null;
   instruments: DebtInstrument[];
   maturitySchedule: MaturitySchedule | null;
   metrics: CapitalMetric[];

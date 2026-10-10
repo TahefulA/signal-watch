@@ -214,8 +214,8 @@ export interface Section {
 }
 
 const SECTION_PATTERNS: { label: string; start: RegExp }[] = [
-  { label: "Item 1. Business", start: /\n\s*Item\s*1\.?\s*[\-\u2013\u2014:]?\s*Business\s*\n/gi },
-  { label: "Item 1A. Risk Factors", start: /\n\s*Item\s*1A\.?\s*[\-–—:]?\s*Risk Factors\s*\n/gi },
+  { label: "Item 1. Business", start: /\n\s*Item\s*1\s*\.?\s*[\-\u2013\u2014:]?\s*Business\.?\s*\n/gi },
+  { label: "Item 1A. Risk Factors", start: /\n\s*Item\s*1A\s*\.?\s*[\-–—:]?\s*Risk Factors\.?\s*\n/gi },
   {
     label: "Item 7. Management’s Discussion and Analysis",
     start: /\n\s*Item\s*7\.?\s*[\-–—:]?\s*Management.{1,3}s Discussion and Analysis[^\n]*\n/gi,
@@ -228,21 +228,26 @@ const SECTION_PATTERNS: { label: string; start: RegExp }[] = [
   { label: "Item 4. Controls and Procedures", start: /\n\s*Item\s*4\.?\s*[\-–—:]?\s*Controls and Procedures\s*\n/gi },
 ];
 
-const ITEM_HEADING = /\n\s*Item\s*\d+[A-C]?\.?\s*[\-–—:]?\s*[A-Z][^\n]{2,90}\n/gi;
+const ITEM_HEADING = /\n\s*Item\s*\d+[A-C]?\s*\.?\s*[\-–—:]?\s*[A-Z][^\n]{2,90}\n/gi;
+
+/** Running page headers such as "Item 1 . Business (Continued)" repeat inside a section; they are not boundaries. */
+const CONTINUED = /\(continued\)/i;
 
 /**
  * Finds the body of each known section. The table of contents repeats every
  * heading, so the longest match for each heading is taken as the body.
  */
 export function extractSections(text: string): Section[] {
-  const headings = Array.from(text.matchAll(ITEM_HEADING)).map((m) => m.index ?? 0);
+  const headings = Array.from(text.matchAll(ITEM_HEADING))
+    .filter((m) => !CONTINUED.test(m[0]))
+    .map((m) => m.index ?? 0);
   const sections: Section[] = [];
   for (const { label, start } of SECTION_PATTERNS) {
     let best = "";
     for (const match of text.matchAll(start)) {
       const from = (match.index ?? 0) + match[0].length;
       const next = headings.find((h) => h > from + 50) ?? text.length;
-      const body = text.slice(from, next);
+      const body = text.slice(from, next).replace(/\n\s*Item\s*\d+[A-C]?\s*\.?[^\n]{0,90}\(continued\)\s*(?=\n)/gi, "");
       if (body.length > best.length) best = body;
     }
     if (best.length > 500) sections.push({ label, text: best });
@@ -352,7 +357,22 @@ export function excerptFiling(filing: FilingRef, documents: DocumentText[], budg
     .filter((s): s is Section => s !== undefined);
   if (chosen.length === 0) return [{ label: filing.form, text: primary.text.slice(0, budget), url: primary.url }];
   const share = Math.floor(budget / chosen.length);
-  return chosen.map((s) => ({ label: s.label, text: s.text.slice(0, share), url: primary.url }));
+  return chosen.map((s) => ({ label: s.label, text: withCompetition(s.text, share), url: primary.url }));
+}
+
+const COMPETITION_HEADING = /\n\s*(?:Competition|Competitive (?:Landscape|Environment|Conditions))\s*\n/i;
+const COMPETITION_BUDGET = 4_000;
+
+/**
+ * Cuts a section to its share, but keeps the "Competition" subsection of a
+ * Business section even when it falls past the cut, since it names competitors.
+ */
+function withCompetition(text: string, share: number): string {
+  if (text.length <= share) return text;
+  const match = COMPETITION_HEADING.exec(text);
+  if (!match || match.index + COMPETITION_BUDGET <= share) return text.slice(0, share);
+  const competition = text.slice(match.index, match.index + COMPETITION_BUDGET);
+  return `${text.slice(0, share - competition.length)}\n${competition}`;
 }
 
 const NOTE_HEADING = /\n\s*(?:NOTE|Note)\s*(\d{1,2})\.?\s*[\-–—:.]?\s*([^\n]{3,90})\n/g;

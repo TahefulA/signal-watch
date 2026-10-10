@@ -14,7 +14,47 @@ export type RelationType =
   | "COMPETES_WITH"
   | "OWNED_BY"
   | "PARTNERS_WITH"
+  | "AFFILIATED_WITH"
   | "IMPACTS";
+
+/**
+ * The specific relationship, from an expanded taxonomy. Qualified labels such as
+ * SOLE_SUPPLIER_OF are kept only when the entity's quote uses a supporting word.
+ */
+export type RelationDetail =
+  | "SOLE_SUPPLIER_OF"
+  | "PRIMARY_SUPPLIER_OF"
+  | "SECONDARY_SUPPLIER_OF"
+  | "SUPPLIES_TO"
+  | "ANCHOR_TENANT_OF"
+  | "MAJOR_CUSTOMER_OF"
+  | "CUSTOMER_OF"
+  | "TRIAL_CUSTOMER_OF"
+  | "GUARANTEES"
+  | "PROVIDES_CREDIT_SUPPORT_TO"
+  | "LENDS_TO"
+  | "HAS_CREDIT_FACILITY_WITH"
+  | "DIRECT_COMPETITOR_OF"
+  | "INDIRECT_COMPETITOR_OF"
+  | "COMPETES_WITH"
+  | "REGULATED_BY"
+  | "SUBJECT_TO_ORDER_FROM"
+  | "LICENSED_BY"
+  | "MONITORED_BY"
+  | "OWNS"
+  | "JOINT_VENTURE_WITH"
+  | "PARTNERS_WITH"
+  | "EXECUTIVE_OF"
+  | "DIRECTOR_OF"
+  | "MAJOR_HOLDER_OF"
+  | "EXPOSED_TO"
+  | "DEPENDENT_ON"
+  | "VULNERABLE_TO"
+  | "IMPACTED_BY"
+  | "SENSITIVE_TO"
+  | "DRIVEN_BY";
+
+export type Confidence = "high" | "medium" | "low";
 
 export type Trend = "increasing" | "decreasing" | "stable" | "unknown";
 
@@ -74,6 +114,20 @@ export interface Entity {
 
   // Context fields. Undefined on reports generated before they existed; null when not disclosed.
   relationType?: RelationType;
+  relationDetail?: RelationDetail;
+  /** One line for the box, no figures beyond those in the entity's quotes. */
+  headline?: string | null;
+  /** "Q2 2026" or "FY 2025" for filings, from the filing's XBRL data. */
+  fiscalPeriod?: string | null;
+  confidence?: Confidence;
+  /** Why the confidence label was given, e.g. "Named in a 10-Q sentence". */
+  confidenceBasis?: string;
+  /** Parent or controlling entity, only when a filing sentence states it. */
+  parent?: { name: string; citation: Citation } | null;
+  /** Other names merged into this entity by entity resolution. */
+  aliases?: string[];
+  /** Evidence for a trend found by comparing with the previous quarter. */
+  trendBasis?: string | null;
   sourcePage?: string | null;
   /** The paragraph around the quote. */
   sourceContext?: string | null;
@@ -95,7 +149,43 @@ export const RELATION_TYPES: RelationType[] = [
   "COMPETES_WITH",
   "OWNED_BY",
   "PARTNERS_WITH",
+  "AFFILIATED_WITH",
   "IMPACTS",
 ];
+
+/** Each specific relationship and the general one it belongs to. */
+export const RELATION_DETAILS: Record<RelationDetail, RelationType> = {
+  SOLE_SUPPLIER_OF: "SUPPLIES_TO",
+  PRIMARY_SUPPLIER_OF: "SUPPLIES_TO",
+  SECONDARY_SUPPLIER_OF: "SUPPLIES_TO",
+  SUPPLIES_TO: "SUPPLIES_TO",
+  ANCHOR_TENANT_OF: "CUSTOMER_OF",
+  MAJOR_CUSTOMER_OF: "CUSTOMER_OF",
+  CUSTOMER_OF: "CUSTOMER_OF",
+  TRIAL_CUSTOMER_OF: "CUSTOMER_OF",
+  GUARANTEES: "GUARANTEES",
+  PROVIDES_CREDIT_SUPPORT_TO: "GUARANTEES",
+  LENDS_TO: "LENDS_TO",
+  HAS_CREDIT_FACILITY_WITH: "LENDS_TO",
+  DIRECT_COMPETITOR_OF: "COMPETES_WITH",
+  INDIRECT_COMPETITOR_OF: "COMPETES_WITH",
+  COMPETES_WITH: "COMPETES_WITH",
+  REGULATED_BY: "REGULATES",
+  SUBJECT_TO_ORDER_FROM: "REGULATES",
+  LICENSED_BY: "REGULATES",
+  MONITORED_BY: "REGULATES",
+  OWNS: "OWNED_BY",
+  JOINT_VENTURE_WITH: "PARTNERS_WITH",
+  PARTNERS_WITH: "PARTNERS_WITH",
+  EXECUTIVE_OF: "AFFILIATED_WITH",
+  DIRECTOR_OF: "AFFILIATED_WITH",
+  MAJOR_HOLDER_OF: "AFFILIATED_WITH",
+  EXPOSED_TO: "IMPACTS",
+  DEPENDENT_ON: "IMPACTS",
+  VULNERABLE_TO: "IMPACTS",
+  IMPACTED_BY: "IMPACTS",
+  SENSITIVE_TO: "IMPACTS",
+  DRIVEN_BY: "IMPACTS",
+};
 export const TRENDS: Trend[] = ["increasing", "decreasing", "stable", "unknown"];
 export const MAGNITUDE_KINDS: MagnitudeKind[] = ["revenue", "cost", "balance_sheet", "contract", "capacity", "other"];
