@@ -1,6 +1,7 @@
-import { Pool, type PoolConfig } from "pg";
+import { Pool, type PoolClient, type PoolConfig } from "pg";
 import { TIMESCALE_CA } from "./certs/timescale-ca";
-import type { PeerComparison, Report } from "@/types";
+import { viewGraph } from "./graph-view";
+import type { Entity, PeerComparison, Report } from "@/types";
 
 /**
  * Tiger Data (PostgreSQL) storage for analysis reports. Each analyzed ticker
@@ -106,10 +107,145 @@ CREATE TABLE IF NOT EXISTS peer_comparisons (
   created_at timestamptz NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS peer_comparisons_report ON peer_comparisons (report_id_1);
+
+-- Labeled property graph. entities is the node store (node_label + properties),
+-- relationships is the edge store. The flat columns mirror common properties for querying.
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS entity_key text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS node_label text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS properties jsonb;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS revenue_impact numeric;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS cost_impact numeric;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS balance_sheet_impact numeric;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS magnitude_label text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS trend text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS why_it_matters text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS what_if_disappeared text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS structural_protection text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS source_page text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS source_section text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT NOW();
+CREATE INDEX IF NOT EXISTS entities_label ON entities (node_label);
+
+CREATE TABLE IF NOT EXISTS relationships (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_id uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  from_node_id uuid NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
+  to_node_id uuid NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
+  relationship_type text NOT NULL,
+  properties jsonb,
+  created_at timestamptz NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS relationships_report ON relationships (report_id);
+CREATE INDEX IF NOT EXISTS relationships_type ON relationships (relationship_type);
+
+CREATE TABLE IF NOT EXISTS debt_instruments (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_id uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  instrument_name text NOT NULL,
+  face_value numeric,
+  commitment numeric,
+  maturity_date text,
+  coupon text,
+  seniority text NOT NULL,
+  kind text NOT NULL,
+  source_quote text NOT NULL,
+  source_url text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS debt_instruments_report ON debt_instruments (report_id);
 `;
 
 export async function migrate(): Promise<void> {
   await getPool().query(SCHEMA_SQL);
+}
+
+const NODE_LABEL: Record<Entity["type"], string> = {
+  company: "Company",
+  risk: "Risk",
+  macro: "Macro",
+  financial: "Financial",
+  regulatory: "Regulatory",
+  neutral: "Neutral",
+};
+
+/** A percentage or dollar figure from a magnitude label, e.g. "41% of revenue" -> 41. */
+function numberIn(label: string): number | null {
+  const match = label.replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (/billion/i.test(label)) return value * 1e9;
+  if (/million/i.test(label)) return value * 1e6;
+  return value;
+}
+
+function relationshipType(text: string): string {
+  return text.toUpperCase().replace(/[^A-Z0-9]+/g, "_").replace(/(^_|_$)/g, "").slice(0, 60) || "RELATED_TO";
+}
+
+/** Writes the report's graph as nodes and edges, plus its debt instruments. */
+export async function writeGraph(client: PoolClient, report: Report): Promise<void> {
+  const uuidOf = new Map<string, string>();
+  for (const e of report.graph.nodes) {
+    if (e.change?.kind === "removed") continue;
+    const m = e.magnitude ?? null;
+    const result = await client.query<{ id: string }>(
+      `INSERT INTO entities (report_id, entity_key, node_label, name, type, relationship, severity, source_quote, source_url,
+         source_type, source_date, properties, revenue_impact, cost_impact, balance_sheet_impact, magnitude_label, trend,
+         why_it_matters, what_if_disappeared, structural_protection, source_page, source_section)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+       RETURNING id`,
+      [
+        report.id,
+        e.id,
+        NODE_LABEL[e.type],
+        e.name,
+        e.type,
+        e.relationship,
+        e.severity,
+        e.sourceQuote,
+        e.sourceUrl,
+        e.sourceType,
+        e.sourceDate || null,
+        JSON.stringify(e),
+        m?.kind === "revenue" ? numberIn(m.label) : null,
+        m?.kind === "cost" ? numberIn(m.label) : null,
+        m?.kind === "balance_sheet" ? numberIn(m.label) : null,
+        m?.label ?? null,
+        e.trend ?? null,
+        e.strategic?.whyItMatters ?? null,
+        e.strategic?.ifItDisappeared ?? null,
+        e.strategic?.protection?.text ?? null,
+        e.sourcePage ?? null,
+        e.sourceLabel,
+      ],
+    );
+    uuidOf.set(e.id, result.rows[0].id);
+  }
+
+  const central = report.graph.nodes.find((n) => n.isCentral);
+  // Every entity gets its typed edge to the company (the map's spokes), plus any entity-to-entity links.
+  const { spokes } = viewGraph(report.graph);
+  const links = report.graph.edges.filter((e) => !central || (e.source !== central.id && e.target !== central.id));
+  for (const edge of [...spokes, ...links]) {
+    const target = report.graph.nodes.find((n) => n.id === edge.target);
+    // Edges from the subject company are stored entity -> company with the typed relationship, e.g. Fluidstack CUSTOMER_OF TeraWulf.
+    const fromCompany = central && edge.source === central.id;
+    const from = uuidOf.get(fromCompany ? edge.target : edge.source);
+    const to = uuidOf.get(fromCompany ? edge.source : edge.target);
+    if (!from || !to) continue;
+    const type = fromCompany ? (target?.relationType ?? "IMPACTS") : relationshipType(edge.relationship);
+    await client.query(
+      "INSERT INTO relationships (report_id, from_node_id, to_node_id, relationship_type, properties) VALUES ($1, $2, $3, $4, $5)",
+      [report.id, from, to, type, JSON.stringify({ label: edge.relationship })],
+    );
+  }
+
+  for (const i of report.capital?.instruments ?? []) {
+    await client.query(
+      `INSERT INTO debt_instruments (report_id, instrument_name, face_value, commitment, maturity_date, coupon, seniority, kind, source_quote, source_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [report.id, i.name, i.outstanding, i.commitment, i.maturity, i.coupon, i.seniority, i.kind, i.citations[0]?.quote ?? "", i.citations[0]?.sourceUrl ?? ""],
+    );
+  }
 }
 
 export async function saveReport(report: Report): Promise<void> {
@@ -131,14 +267,7 @@ export async function saveReport(report: Report): Promise<void> {
         report.asOf ?? null,
       ],
     );
-    for (const e of report.graph.nodes) {
-      if (e.isCentral) continue;
-      await client.query(
-        `INSERT INTO entities (report_id, name, type, relationship, severity, source_quote, source_url, source_type, source_date)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [report.id, e.name, e.type, e.relationship, e.severity, e.sourceQuote, e.sourceUrl, e.sourceType, e.sourceDate || null],
-      );
-    }
+    await writeGraph(client, report);
     await client.query("COMMIT");
   } catch (error) {
     await client.query("ROLLBACK");
@@ -233,4 +362,34 @@ export async function updateReport(report: Report): Promise<void> {
     JSON.stringify(report),
     JSON.stringify(report.graph),
   ]);
+}
+
+/** Rewrites the graph tables for a saved report, for reports saved before those tables existed. */
+export async function backfillGraph(report: Report): Promise<void> {
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("DELETE FROM relationships WHERE report_id = $1", [report.id]);
+    await client.query("DELETE FROM entities WHERE report_id = $1", [report.id]);
+    await client.query("DELETE FROM debt_instruments WHERE report_id = $1", [report.id]);
+    await writeGraph(client, report);
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/** Every saved report id, oldest first. */
+export async function listReportIds(): Promise<string[]> {
+  const result = await getPool().query<{ id: string }>("SELECT id FROM reports ORDER BY generated_at");
+  return result.rows.map((r) => r.id);
+}
+
+/** Runs a read-only query against the graph tables, for scripts. */
+export async function queryRows<T extends Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
+  const result = await getPool().query<T>(sql, params);
+  return result.rows;
 }
