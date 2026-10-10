@@ -54,8 +54,8 @@ Context for each entity. Leave a field null when the text does not support it; n
 - magnitude_label: the single most useful disclosed figure for this entity, at most 6 words, using the number exactly as the text writes it, for example "$3,200.0 million principal", "378 MW contracted", "41% of revenue". magnitude_kind says what it measures. magnitude_quote is the sentence containing that figure.
 - trend: increasing, decreasing or stable only when the text compares this entity's figure across periods; otherwise unknown. trend_quote is the sentence making that comparison.
 - why_it_matters: one sentence on why this entity matters to the company's credit. Do not include numbers.
-- if_it_disappeared: one sentence. For counterparties, financing, sites and people: what the text implies would happen to the company if the relationship ended. For risks, macro factors, regulators and rules (types risk, macro, regulatory): what the text says would happen if the risk materializes or the rule bites. Do not include numbers.
-- In why_it_matters and if_it_disappeared, never rank or compare entities (largest, sole, only, main, biggest, primary, majority) unless a quote you return says so in those words. Prefer plain, specific statements over emphasis such as massive or huge.
+- downside_scenario: one sentence on the harm to the company in the bad case. For counterparties, financing, sites and people: the relationship ends or fails. For risks, macro factors, regulators and rules: the risk materializes, or the regulator or rule acts against the company (for example a permit is denied or a rate case goes badly). Always describe the harm, never a benefit. Do not include numbers.
+- In why_it_matters and downside_scenario, never rank or compare entities (largest, sole, only, main, biggest, primary, majority) unless a quote you return says so in those words. Prefer plain, specific statements over emphasis such as massive or huge.
 - protection: a contract term, guarantee, collateral, insurance or similar protection the text describes for this relationship, at most 12 words. protection_quote is the sentence describing it.
 
 - edges: use "COMPANY" for the main company. Add an edge between two entities only when the text links them directly (for example a guarantor behind a tenant's lease).
@@ -89,7 +89,7 @@ const SCHEMA: Schema = {
           trend_quote: nullableString,
           trend_doc: nullableString,
           why_it_matters: nullableString,
-          if_it_disappeared: nullableString,
+          downside_scenario: nullableString,
           protection: nullableString,
           protection_quote: nullableString,
           protection_doc: nullableString,
@@ -145,7 +145,7 @@ function parseEntity(n: unknown): RawEntity | null {
     trend_quote: optionalString(r.trend_quote),
     trend_doc: optionalString(r.trend_doc),
     why_it_matters: optionalString(r.why_it_matters),
-    if_it_disappeared: optionalString(r.if_it_disappeared),
+    if_it_disappeared: optionalString(r.downside_scenario),
     protection: optionalString(r.protection),
     protection_quote: optionalString(r.protection_quote),
     protection_doc: optionalString(r.protection_doc),
