@@ -76,6 +76,7 @@ export default function HomePage() {
   const [briefError, setBriefError] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
   const capitalRef = useRef<HTMLElement>(null);
+  const analyzeRef = useRef<((ticker: string, fresh?: boolean) => Promise<void>) | null>(null);
 
   const showReport = useCallback((next: Report, wasCached: boolean) => {
     setReport(next);
@@ -106,6 +107,12 @@ export default function HomePage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("report");
+    const tickerParam = params.get("ticker");
+    if (!id && tickerParam && /^[A-Za-z][A-Za-z0-9.\-]{0,9}$/.test(tickerParam)) {
+      // analyzeRef is filled by a later effect in the same commit, so wait for it.
+      queueMicrotask(() => void analyzeRef.current?.(tickerParam.toUpperCase(), params.get("fresh") === "1"));
+      return;
+    }
     const peerIds = (params.get("peers") ?? "").split(",").filter((p) => /^[0-9a-f-]{36}$/i.test(p));
     if (!id) return;
     setStatus("loading");
@@ -160,6 +167,10 @@ export default function HomePage() {
       setStatus("error");
     }
   }, [showReport]);
+
+  useEffect(() => {
+    analyzeRef.current = analyze;
+  }, [analyze]);
 
   const focusEntity = useCallback(
     (id: string) => {
@@ -264,6 +275,19 @@ export default function HomePage() {
     }
   }, [report, peerReports]);
 
+  const watchCompany = useCallback(async (ticker: string) => {
+    try {
+      const response = await fetch("/api/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticker, action: "add" }),
+      });
+      setToast(response.ok ? `${ticker} is on the dashboard` : "The dashboard could not be updated.");
+    } catch {
+      setToast("The dashboard could not be updated.");
+    }
+  }, []);
+
   const showCapital = useCallback(() => {
     setSelected(null);
     capitalRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -275,7 +299,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      <Header active="analyze" />
 
       <section className="border-b border-zinc-800 px-6 py-4">
         <div className="flex min-h-[80px] flex-col justify-center gap-3">
@@ -290,6 +314,13 @@ export default function HomePage() {
                 with sources
               </span>
               <span>{cached ? `Saved report from ${ago(report.generatedAt)}` : `Generated ${ago(report.generatedAt)}`}</span>
+              <button
+                type="button"
+                onClick={() => void watchCompany(report.graph.company.ticker)}
+                className="text-zinc-300 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-50"
+              >
+                Add {report.graph.company.ticker} to dashboard
+              </button>
               {cached ? (
                 <button
                   type="button"

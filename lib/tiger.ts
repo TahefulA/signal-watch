@@ -152,6 +152,11 @@ CREATE TABLE IF NOT EXISTS debt_instruments (
   source_url text NOT NULL
 );
 CREATE INDEX IF NOT EXISTS debt_instruments_report ON debt_instruments (report_id);
+
+CREATE TABLE IF NOT EXISTS watchlist (
+  ticker text PRIMARY KEY,
+  added_at timestamptz NOT NULL DEFAULT NOW()
+);
 `;
 
 export async function migrate(): Promise<void> {
@@ -392,4 +397,26 @@ export async function listReportIds(): Promise<string[]> {
 export async function queryRows<T extends Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
   const result = await getPool().query<T>(sql, params);
   return result.rows;
+}
+
+export async function listWatchlist(): Promise<string[]> {
+  const rows = await queryRows<{ ticker: string }>("SELECT ticker FROM watchlist ORDER BY added_at");
+  return rows.map((r) => r.ticker);
+}
+
+export async function addToWatchlist(ticker: string): Promise<void> {
+  await getPool().query("INSERT INTO watchlist (ticker) VALUES ($1) ON CONFLICT DO NOTHING", [ticker]);
+}
+
+export async function removeFromWatchlist(ticker: string): Promise<void> {
+  await getPool().query("DELETE FROM watchlist WHERE ticker = $1", [ticker]);
+}
+
+/** The newest current (non-baseline) report for a ticker, at any age. */
+export async function findLatestReport(ticker: string): Promise<Report | null> {
+  const rows = await queryRows<{ report_json: Report }>(
+    "SELECT report_json FROM reports WHERE ticker = $1 AND as_of IS NULL ORDER BY generated_at DESC LIMIT 1",
+    [ticker],
+  );
+  return rows[0]?.report_json ?? null;
 }

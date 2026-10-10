@@ -5,6 +5,7 @@ export type * from "./capital";
 export type * from "./changes";
 export type * from "./peers";
 export type * from "./brief";
+export type * from "./dashboard";
 
 import type { EntityGraph, MarketSnapshot, SourceDocument } from "./graph";
 import type { Memo } from "./memo";
