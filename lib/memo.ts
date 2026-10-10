@@ -75,8 +75,12 @@ export function toSpans(text: string, ids: Set<string>, names: Map<string, strin
     .map((part) => {
       const match = part.match(/^\{\{\s*([^|}]+?)\s*(?:\|\s*([^}]+?)\s*)?\}\}$/);
       if (!match) return { text: part };
-      const id = match[1];
-      const label = match[2] ?? names.get(id) ?? id;
+      // Accept "new-york governor kathy hochul" for new-york-governor-kathy-hochul.
+      const loose = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const id = ids.has(match[1]) ? match[1] : Array.from(ids).find((x) => x === loose(match[1])) ?? match[1];
+      const written = match[2];
+      // A label that is just the id, in any form, reads badly; show the entity's name instead.
+      const label = written && loose(written) !== loose(id) ? written : (names.get(id) ?? written ?? id);
       return ids.has(id) ? { text: label, entityId: id } : { text: label };
     });
 }
