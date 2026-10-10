@@ -221,7 +221,8 @@ function parseExtraction(value: unknown): Extraction {
     const r = e as Record<string, unknown>;
     return isString(r.from) && isString(r.to) && isString(r.relationship);
   });
-  if (nodes.length === 0) throw new GeminiError("Extraction returned no usable entities", "parse");
+  // A handful of entities means a truncated or degenerate answer, not a sparse filing.
+  if (nodes.length < 4) throw new GeminiError(`Extraction returned only ${nodes.length} usable entities`, "parse");
   const ratings = (Array.isArray(v.ratings) ? v.ratings : []).filter((x): x is RawRating => {
     if (typeof x !== "object" || x === null) return false;
     const r = x as Record<string, unknown>;
@@ -253,6 +254,6 @@ export async function extractEntities(
   } catch (error) {
     if (!(error instanceof GeminiError) || error.kind !== "parse") throw error;
     const stricter = `${SYSTEM}\n\nYour previous answer could not be used. Return only valid JSON matching the schema, with every required field filled.`;
-    return parseExtraction(await generateJson(stricter, prompt, SCHEMA));
+    return parseExtraction(await generateJson(stricter, prompt, SCHEMA, { thinking: "low" }));
   }
 }

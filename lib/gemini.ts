@@ -75,6 +75,7 @@ async function callModel(model: string, system: string, prompt: string, schema: 
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new GeminiError("GEMINI_API_KEY is not set", "config");
 
+  const started = Date.now();
   let response: Response;
   try {
     response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -86,6 +87,8 @@ async function callModel(model: string, system: string, prompt: string, schema: 
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.1,
+          // Twenty-five entities with their context run past the default output limit, which truncates the JSON.
+          maxOutputTokens: 32_768,
           responseMimeType: "application/json",
           responseSchema: schema,
           ...(options.thinking ? { thinkingConfig: { thinkingLevel: options.thinking } } : {}),
@@ -94,17 +97,20 @@ async function callModel(model: string, system: string, prompt: string, schema: 
     });
   } catch (error) {
     const timedOut = error instanceof Error && error.name === "TimeoutError";
+    console.warn(`Gemini ${model}: ${timedOut ? "timed out" : "request failed"} after ${Date.now() - started} ms`);
     throw new GeminiError(timedOut ? "Gemini timed out" : `Gemini request failed: ${String(error)}`, timedOut ? "timeout" : "http");
   }
   if (!response.ok) {
     throw new GeminiError(`Gemini ${response.status}: ${(await response.text()).slice(0, 300)}`, "http", response.status);
   }
   const body = (await response.json()) as GeminiResponse;
-  const text = body.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  const candidate = body.candidates?.[0];
+  const text = candidate?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  console.info(`Gemini ${model}: ${candidate?.finishReason ?? "no candidate"}, ${text.length} chars in ${Date.now() - started} ms`);
   try {
     return JSON.parse(text);
   } catch {
-    throw new GeminiError("Gemini returned invalid JSON", "parse");
+    throw new GeminiError(`Gemini returned invalid JSON (${candidate?.finishReason ?? "unknown"})`, "parse");
   }
 }
 
