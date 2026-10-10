@@ -113,6 +113,28 @@ function figuresOf(label: string): string {
   return extractFigures(label).join(" ");
 }
 
+const GENERIC_CAPS = new Set(["The", "Company", "Our", "We", "In", "Under", "As", "On", "For", "MW", "GW", "IT", "AI", "HPC", "Inc", "LLC", "Notes", "Data", "Center", "Campus"]);
+
+/** Capitalised words after the first, minus the entity's own name and generic words. */
+function properNouns(quote: string, entityName: string): Set<string> {
+  const own = new Set(entityName.split(/[^A-Za-z0-9]+/).map((w) => w.toLowerCase()));
+  const tokens = quote.split(/[^A-Za-z0-9]+/).filter(Boolean).slice(1);
+  return new Set(tokens.filter((w) => /^[A-Z][a-z]+/.test(w) && !GENERIC_CAPS.has(w) && !own.has(w.toLowerCase())));
+}
+
+/**
+ * True when two quotes describe the same thing: they share a proper noun beyond
+ * the entity's name ("Lake Mariner"), so 168 MW in Abernathy and 378 MW at Lake
+ * Mariner are not read as one figure changing.
+ */
+function sameSubject(a: string, b: string, entityName: string): boolean {
+  const pa = properNouns(a, entityName);
+  const pb = properNouns(b, entityName);
+  if (pa.size === 0 && pb.size === 0) return true;
+  for (const w of pa) if (pb.has(w)) return true;
+  return false;
+}
+
 /** Units in a magnitude label; two labels are comparable only when these match ("1 GW" and "1,000 MW" are not). */
 function unitsOf(label: string): string {
   return Array.from(new Set((label.toLowerCase().match(/%|\$|\b(mw|gw|kw|million|billion|thousand|shares?|years?|acres?|sites?)\b/g) ?? []).map((u) => u.replace(/s$/, ""))))
@@ -233,7 +255,15 @@ export async function diffReports(
     }
     const sourceMoved = prior.sourceDate !== node.sourceDate;
     // Trend: the same kind of disclosed figure in both quarters, in the same units.
-    if (prior.magnitude && node.magnitude && prior.magnitude.kind === node.magnitude.kind && unitsOf(prior.magnitude.label) === unitsOf(node.magnitude.label)) {
+    const comparable =
+      prior.magnitude !== null &&
+      prior.magnitude !== undefined &&
+      node.magnitude !== null &&
+      node.magnitude !== undefined &&
+      prior.magnitude.kind === node.magnitude.kind &&
+      unitsOf(prior.magnitude.label) === unitsOf(node.magnitude.label) &&
+      sameSubject(prior.magnitude.citation.quote, node.magnitude.citation.quote, node.name);
+    if (comparable && prior.magnitude && node.magnitude) {
       const before = Number(extractFigures(prior.magnitude.label)[0]);
       const after = Number(extractFigures(node.magnitude.label)[0]);
       if (Number.isFinite(before) && Number.isFinite(after)) {
@@ -244,8 +274,7 @@ export async function diffReports(
     if (
       prior.magnitude &&
       node.magnitude &&
-      prior.magnitude.kind === node.magnitude.kind &&
-      unitsOf(prior.magnitude.label) === unitsOf(node.magnitude.label) &&
+      comparable &&
       prior.magnitude.citation.quote !== node.magnitude.citation.quote &&
       figuresOf(prior.magnitude.label) !== figuresOf(node.magnitude.label)
     ) {
