@@ -69,7 +69,10 @@ function Canvas({ graph, selectedId, focusRequest, onSelect }: EntityMapProps) {
     const node = getNode(selectedId);
     if (!node) return;
     const width = node.width ?? NODE_WIDTH;
-    void setCenter(node.position.x + width / 2, node.position.y + NODE_HEIGHT / 2, { zoom: 1.1, duration: 300 });
+    const zoom = 1.1;
+    // On wide screens the entity panel covers the right 420px; center the box in what remains.
+    const panelOffset = window.innerWidth >= 1024 ? 210 / zoom : 0;
+    void setCenter(node.position.x + width / 2 + panelOffset, node.position.y + NODE_HEIGHT / 2, { zoom, duration: 300 });
   }, [focusRequest, selectedId, getNode, setCenter]);
 
   // Edges leave the parent on the side facing the child. Edges from the subject

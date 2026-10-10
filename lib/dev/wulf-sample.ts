@@ -78,3 +78,23 @@ export const WULF_SAMPLE: EntityGraph = {
   nodes,
   edges,
 };
+
+import type { Memo, MemoSpan } from "@/types";
+
+/** Splits text on {{id|label}} markers into linked spans. */
+function spans(text: string): MemoSpan[] {
+  return text.split(/(\{\{[^}]+\}\})/).filter(Boolean).map((part) => {
+    const match = part.match(/^\{\{([^|]+)\|([^}]+)\}\}$/);
+    return match ? { entityId: match[1], text: match[2] } : { text: part };
+  });
+}
+
+export const WULF_SAMPLE_MEMO: Memo = {
+  sections: [
+    { key: "executive_summary", title: "Executive summary", spans: spans("TeraWulf is mid-transition from bitcoin mining to contracted HPC leasing, funded with secured debt. The credit now rests on lease commencement at {{fluidstack|Fluidstack}} and {{core42|Core42}} sites and the {{google-backstop|Google backstop}} behind the Fluidstack leases.") },
+    { key: "thesis", title: "Thesis", spans: spans("The filings describe a company whose cash flow profile is changing faster than its revenue mix. {{bitcoin-mining-revenue|Bitcoin mining}} still supplies the majority of revenue, while the {{2030-senior-secured-notes|2030 Senior Secured Notes}} finance the HPC build. Commencement timing on the remaining Fluidstack leases is the variable that matters for coverage.") },
+    { key: "key_risks", title: "Key risks", spans: spans("Tenant concentration in {{fluidstack|Fluidstack}} and {{core42|Core42}}. Execution risk on expansion at {{lake-mariner-data-campus|Lake Mariner}}, which depends on {{nyiso-approvals|NYISO approvals}}. {{competition-for-power-sites|Competition for power sites}} and capital in the high-density compute market.") },
+    { key: "mitigants", title: "Mitigants", spans: spans("Credit enhancement from the {{google-backstop|Google backstop}} supports the Fluidstack lease cash flows. The {{abernathy-jv-sale|Abernathy JV sale}} converts a development stake into liquidity. Long-term lease structures replace mining revenue that moves with the bitcoin price.") },
+    { key: "relative_value", title: "Relative value", spans: spans("The filings and market data behind this map do not include peer spreads, so relative value against comparable issuers is not assessed here.") },
+  ],
+};
