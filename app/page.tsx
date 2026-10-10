@@ -1,55 +1,175 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import type { Entity } from "@/types";
+import type { AnalyzeEvent, Entity, Report } from "@/types";
+import { TickerInput } from "@/components/input/ticker-input";
 import { Header } from "@/components/layout/header";
+import { PIPELINE_STEPS, StatusBar } from "@/components/layout/status-bar";
 import { EntityMap } from "@/components/map/entity-map";
 import { Legend } from "@/components/map/legend";
 import { MemoContainer } from "@/components/memo/memo-container";
 import { EntityPanel } from "@/components/panel/entity-panel";
 import { Toast } from "@/components/ui/toast";
-import { WULF_SAMPLE, WULF_SAMPLE_MEMO } from "@/lib/dev/wulf-sample";
+
+type Status = "idle" | "loading" | "ready" | "error";
+
+function isEvent(value: unknown): value is AnalyzeEvent {
+  return typeof value === "object" && value !== null && "type" in value;
+}
+
+function ago(iso: string): string {
+  const minutes = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60_000));
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  return `${Math.round(minutes / 60)} h ago`;
+}
 
 export default function HomePage() {
-  const graph = WULF_SAMPLE;
+  const [status, setStatus] = useState<Status>("idle");
+  const [step, setStep] = useState(PIPELINE_STEPS[0]);
+  const [startedAt, setStartedAt] = useState(0);
+  const [report, setReport] = useState<Report | null>(null);
+  const [cached, setCached] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Entity | null>(null);
   const [focusRequest, setFocusRequest] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
-  const mapRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLElement>(null);
+
+  const analyze = useCallback(async (ticker: string, fresh = false) => {
+    setStatus("loading");
+    setStep(PIPELINE_STEPS[0]);
+    setStartedAt(Date.now());
+    setError(null);
+    setSelected(null);
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticker, fresh }),
+      });
+      if (!response.body) throw new Error("No response body");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finished = false;
+      while (!finished) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const event: unknown = JSON.parse(line);
+          if (!isEvent(event)) continue;
+          if (event.type === "step") setStep(event.step);
+          if (event.type === "result") {
+            setReport(event.report);
+            setCached(event.cached);
+            setStatus("ready");
+            finished = true;
+          }
+          if (event.type === "error") {
+            setError(event.message);
+            setStatus("error");
+            finished = true;
+          }
+        }
+      }
+      if (!finished) throw new Error("Stream ended early");
+    } catch {
+      setError("The analysis stopped before it finished. Please try again.");
+      setStatus("error");
+    }
+  }, []);
 
   const focusEntity = useCallback(
     (id: string) => {
-      const entity = graph.nodes.find((n) => n.id === id);
+      const entity = report?.graph.nodes.find((n) => n.id === id);
       if (!entity) return;
       setSelected(entity);
       setFocusRequest((n) => n + 1);
       mapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     },
-    [graph.nodes],
+    [report],
   );
+
+  const graph = report?.graph ?? null;
 
   return (
     <div className="min-h-screen">
       <Header />
-      <section ref={mapRef} className="scroll-mt-4 px-6 py-8">
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-          <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Entity map</h2>
-          <Legend />
-        </div>
-        <div className="h-[70vh] min-h-[480px] border border-zinc-800">
-          <EntityMap graph={graph} selectedId={selected?.id ?? null} focusRequest={focusRequest} onSelect={setSelected} />
+
+      <section className="border-b border-zinc-800 px-6 py-4">
+        <div className="flex min-h-[80px] flex-col justify-center gap-3">
+          <TickerInput busy={status === "loading"} onSubmit={(t) => void analyze(t)} />
+          {status === "loading" ? <StatusBar step={step} startedAt={startedAt} /> : null}
+          {status === "error" && error ? <p className="text-sm text-red-400" role="alert">{error}</p> : null}
+          {status === "ready" && report ? (
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
+              <span className="font-mono text-zinc-300">{report.graph.company.ticker}</span>
+              <span>
+                {report.filingsAnalyzed} filings and {report.newsAnalyzed} headlines read, {report.graph.nodes.length - 1} entities
+                with sources
+              </span>
+              <span>{cached ? `Saved report from ${ago(report.generatedAt)}` : `Generated ${ago(report.generatedAt)}`}</span>
+              {cached ? (
+                <button
+                  type="button"
+                  onClick={() => void analyze(report.graph.company.ticker, true)}
+                  className="text-zinc-300 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-50"
+                >
+                  Read the filings again
+                </button>
+              ) : null}
+            </p>
+          ) : null}
         </div>
       </section>
-      <MemoContainer
-        memo={WULF_SAMPLE_MEMO}
-        company={graph.company}
-        generatedAt="2026-10-10"
-        sourceCount={2}
-        onEntityClick={focusEntity}
-      />
+
+      {status === "idle" ? (
+        <section className="max-w-2xl px-6 py-8 text-sm leading-relaxed text-zinc-400">
+          <p>
+            Enter a ticker to read the company&rsquo;s latest 10-K, 10-Q and 8-K, its recent headlines and 90 days of
+            market data. Signal Watch maps every counterparty, financing, regulator and risk it finds, with the sentence
+            each one came from, and drafts a five-part credit memo underneath.
+          </p>
+          <p className="mt-3 text-zinc-500">
+            Analysis takes 15 to 40 seconds. Each box on the map opens the filing sentence it is based on.
+          </p>
+        </section>
+      ) : null}
+
+      {graph && report && status !== "loading" ? (
+        <>
+          <section ref={mapRef} className="scroll-mt-4 px-6 py-8">
+            <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+              <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Entity map</h2>
+              <Legend />
+            </div>
+            {report.notes.map((note) => (
+              <p key={note} className="mb-3 text-sm text-amber-500">
+                {note}
+              </p>
+            ))}
+            <div className="h-[70vh] min-h-[480px] border border-zinc-800">
+              <EntityMap graph={graph} selectedId={selected?.id ?? null} focusRequest={focusRequest} onSelect={setSelected} />
+            </div>
+          </section>
+          <MemoContainer
+            memo={report.memo}
+            company={graph.company}
+            generatedAt={report.generatedAt}
+            sourceCount={report.sources.length}
+            onEntityClick={focusEntity}
+          />
+        </>
+      ) : null}
+
       <EntityPanel
         entity={selected}
-        companyName={graph.company.name}
+        companyName={graph?.company.name ?? ""}
         onClose={() => setSelected(null)}
         onToast={setToast}
       />

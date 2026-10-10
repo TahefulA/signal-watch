@@ -54,6 +54,13 @@ function assignSides(central: Entity, nodes: Entity[], edges: EntityEdge[]): Map
     sides.set(mover.id, heavy === "left" ? "right" : "left");
   }
 
+  // Two linked entities share a side so their edge never crosses the subject company.
+  for (const e of edges) {
+    if (e.source === central.id) continue;
+    const from = sides.get(e.source);
+    if (from && sides.has(e.target)) sides.set(e.target, from);
+  }
+
   // Entities reached only through another entity follow their parent.
   let changed = true;
   while (changed) {
@@ -89,7 +96,14 @@ function layoutSide(central: Entity, members: Entity[], edges: EntityEdge[], sid
 
   // dagre orders a column to reduce crossings, not by importance. Reassign the
   // direct neighbors' vertical slots by type and severity, and carry children along.
-  const direct = sortEntities(members.filter((m) => edges.some((e) => e.source === central.id && e.target === m.id)));
+  // Only the first column: linked from the company and not from another entity.
+  const direct = sortEntities(
+    members.filter(
+      (m) =>
+        edges.some((e) => e.source === central.id && e.target === m.id) &&
+        !edges.some((e) => e.target === m.id && e.source !== central.id && ids.has(e.source)),
+    ),
+  );
   const slots = direct.map((m) => result.get(m.id)?.y ?? 0).sort((a, b) => a - b);
   const shift = new Map<string, number>();
   direct.forEach((m, i) => {
