@@ -116,7 +116,7 @@ function docFor(byId: Map<string, CorpusDoc>, ref: string | null): CorpusDoc | u
   return ref ? byId.get(ref.replace(/[[\]]/g, "").trim()) : undefined;
 }
 
-const RANKING = /\b(largest|sole|only|main|biggest|primary|majority|principal)\b/gi;
+const RANKING = /\b(largest|sole|only|main|biggest|primary|majority|principal|earliest|latest|highest|lowest|smallest|first)\b/gi;
 
 /** True when the analysis ranks the entity with a word none of its quotes use. */
 export function unsupportedRanking(text: string, passages: string[]): boolean {
