@@ -127,6 +127,11 @@ function EntityNodeComponent({ data }: NodeProps<EntityFlowNode>) {
                 {figure}
               </span>
             ) : null}
+            {entity.relationType === "CUSTOMER_OF" && entity.magnitude && entity.magnitude.kind !== "revenue" ? (
+              <span className="shrink-0 rounded-xs border border-dashed border-zinc-300 px-1 py-px text-zinc-500" title="Revenue share not disclosed in the filings read">
+                Rev % n/d
+              </span>
+            ) : null}
             {TrendIcon && trend ? (
               <span className="inline-flex shrink-0 items-center text-zinc-700" title={entity.trendBasis ?? TREND_LABEL[trend]}>
                 <TrendIcon className="h-3 w-3" aria-hidden />

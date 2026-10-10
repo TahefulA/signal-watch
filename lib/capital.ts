@@ -272,6 +272,25 @@ function nextMaturity(instruments: DebtInstrument[], from: string | null): { nam
   return { name: upcoming.name, maturity: upcoming.maturity, display };
 }
 
+/** The company's own tagged debt total, from the first combination of concepts it reports at the date. */
+function xbrlDebt(book: FactBook, cik: string, date: string): { total: number; concepts: string[]; values: XbrlValue[] } | null {
+  const combos = [
+    ["DebtInstrumentCarryingAmount"],
+    ["DebtCurrent", "LongTermDebtAndCapitalLeaseObligations"],
+    ["LongTermDebtCurrent", "LongTermDebtNoncurrent"],
+    ["DebtLongtermAndShorttermCombinedAmount"],
+    ["LongTermDebt"],
+  ];
+  for (const combo of combos) {
+    const values = combo.map((c) => instantAt(book, cik, [c], date));
+    if (values.every((v): v is XbrlValue => v !== null)) {
+      const found = values as XbrlValue[];
+      return { total: found.reduce((sum, v) => sum + v.value, 0), concepts: combo, values: found };
+    }
+  }
+  return null;
+}
+
 const INTEREST = ["InterestExpenseNonoperating", "InterestExpense", "InterestExpenseDebt", "InterestAndDebtExpense"];
 
 /** Ratios built from the instruments and the company's XBRL figures. Any input that is missing shows as not available. */
@@ -284,11 +303,6 @@ export function computeMetrics(
 ): { metrics: CapitalMetric[]; financials: XbrlValue[] } {
   const counted = instruments.filter((i) => i.outstanding !== null);
   const listedTotal = counted.reduce((sum, i) => sum + (i.outstanding ?? 0), 0);
-  // The filing's own maturities table is the better total when Gemini missed an instrument.
-  // A table smaller than the listed instruments probably leaves something out, so the larger figure wins.
-  const reconciles = !schedule || Math.abs(schedule.total - listedTotal) <= schedule.total * 0.005;
-  const totalDebt = schedule ? Math.max(schedule.total, listedTotal) : listedTotal;
-  const hasDebt = counted.length > 0 || schedule !== null;
   const secured = counted.filter((i) => i.seniority === "senior_secured").reduce((sum, i) => sum + (i.outstanding ?? 0), 0);
 
   const date = book ? (asOf && instantAt(book, cik, CASH, asOf) ? asOf : latestInstantDate(book, CASH)) : null;
@@ -296,6 +310,37 @@ export function computeMetrics(
   const operating = book && date ? trailingTwelveMonths(book, cik, OPERATING_INCOME, date) : null;
   const depreciation = book && date ? trailingTwelveMonths(book, cik, DEPRECIATION, date) : null;
   const interest = book && date ? trailingTwelveMonths(book, cik, INTEREST, date) : null;
+  const tagged = book && date ? xbrlDebt(book, cik, date) : null;
+
+  // Total debt must reconcile with something the company reported: its maturities table, or its
+  // tagged debt total within 15%. Otherwise the instruments Gemini found may be a fraction of the
+  // debt, and leverage built on them would mislead, so it is not shown.
+  const scheduleMatches = schedule !== null && Math.abs(schedule.total - listedTotal) <= schedule.total * 0.005;
+  const taggedMatches = tagged !== null && listedTotal > 0 && Math.abs(tagged.total - listedTotal) <= tagged.total * 0.15;
+  let totalDebt: number | null;
+  let debtNote: string;
+  if (schedule) {
+    // A table smaller than the listed instruments probably leaves something out, so the larger figure wins.
+    totalDebt = Math.max(schedule.total, listedTotal);
+    debtNote = scheduleMatches
+      ? `Matches the filing's maturities table and the ${counted.length} instruments below.`
+      : totalDebt === schedule.total
+        ? `From the filing's maturities table. The instruments matched to quotes below account for ${money(listedTotal)}.`
+        : `Principal of the instruments below. The filing's maturities table totals ${money(schedule.total)}.`;
+  } else if (taggedMatches && tagged) {
+    totalDebt = listedTotal;
+    debtNote = `Principal of the ${counted.length} instruments below, within 15% of the ${money(tagged.total)} carrying amount the company reports in XBRL.`;
+  } else if (tagged) {
+    totalDebt = tagged.total;
+    debtNote = `Carrying amount the company reports in XBRL (${tagged.concepts.join(" + ")}), as of ${date}.${counted.length ? ` The instruments matched to quotes below account for ${money(listedTotal)}.` : ""}`;
+  } else {
+    totalDebt = null;
+    debtNote = counted.length
+      ? `Not reconciled: the ${counted.length} instrument${counted.length > 1 ? "s" : ""} matched to quotes total ${money(listedTotal)}, but the filing has no maturities table or standard XBRL debt total to confirm it is complete.`
+      : "No outstanding principal was found in the debt note.";
+  }
+  const reconciles = scheduleMatches || taggedMatches;
+  const hasDebt = totalDebt !== null;
   const ebitda = operating && depreciation ? operating.value + depreciation.value : null;
   const ebitdaInputs = [operating, depreciation].filter((v): v is XbrlValue => v !== null);
   const revenue = book && date ? trailingTwelveMonths(book, cik, REVENUE, date) : null;
@@ -303,20 +348,17 @@ export function computeMetrics(
   const capex = book && date ? trailingTwelveMonths(book, cik, CAPEX, date) : null;
   const currentAssets = book && date ? instantAt(book, cik, ["AssetsCurrent"], date) : null;
   const currentLiabilities = book && date ? instantAt(book, cik, ["LiabilitiesCurrent"], date) : null;
-  const financials = [revenue, cash, operating, depreciation, interest, operatingCash, capex, currentAssets, currentLiabilities].filter(
+  const financials = [...(tagged?.values ?? []), revenue, cash, operating, depreciation, interest, operatingCash, capex, currentAssets, currentLiabilities].filter(
     (v): v is XbrlValue => v !== null,
   );
 
-  const debtNote = !schedule
-    ? `Principal of the ${counted.length} instruments below. Excludes leases.`
-    : reconciles
-      ? `Matches the filing's maturities table and the ${counted.length} instruments below.`
-      : totalDebt === schedule.total
-        ? `From the filing's maturities table. The instruments matched to quotes below account for ${money(listedTotal)}.`
-        : `Principal of the instruments below. The filing's maturities table totals ${money(schedule.total)}.`;
-
   const ratio = (numerator: number | null, label: string): { display: string; note: string } => {
-    if (numerator === null || !hasDebt) return { display: "Not available", note: "No outstanding principal was found in the debt note." };
+    if (numerator === null || !hasDebt) {
+      return {
+        display: "Not available",
+        note: counted.length ? "Not shown because total debt could not be reconciled with the filing." : "No outstanding principal was found in the debt note.",
+      };
+    }
     if (ebitda === null) return { display: "Not available", note: "EBITDA could not be built from the company's XBRL data." };
     if (ebitda <= 0) return { display: "n/m", note: "Not meaningful: EBITDA was negative." };
     return { display: multiple(numerator / ebitda), note: label };
@@ -326,20 +368,20 @@ export function computeMetrics(
   metrics.push({
     key: "total_debt",
     label: "Total debt",
-    display: hasDebt ? money(totalDebt) : "Not available",
+    display: totalDebt !== null ? money(totalDebt) : counted.length ? "Not reconciled" : "Not available",
     note: debtNote,
     inputs: [],
   });
   metrics.push({
     key: "net_debt",
     label: "Net debt",
-    display: hasDebt && cash ? money(totalDebt - cash.value) : "Not available",
+    display: totalDebt !== null && cash ? money(totalDebt - cash.value) : "Not available",
     note: cash ? `Less cash of ${money(cash.value)} as of ${date}.` : "Cash was not found in the company's XBRL data.",
     inputs: cash ? [cash] : [],
   });
-  const lev = ratio(hasDebt ? totalDebt : null, "Total debt over last-12-month EBITDA.");
+  const lev = ratio(totalDebt, "Total debt over last-12-month EBITDA.");
   metrics.push({ key: "debt_to_ebitda", label: "Total debt / EBITDA", ...lev, inputs: ebitdaInputs });
-  const netLev = ratio(hasDebt && cash ? totalDebt - cash.value : null, "Net debt over last-12-month EBITDA.");
+  const netLev = ratio(totalDebt !== null && cash ? totalDebt - cash.value : null, "Net debt over last-12-month EBITDA.");
   metrics.push({ key: "net_debt_to_ebitda", label: "Net debt / EBITDA", ...netLev, inputs: cash ? [cash, ...ebitdaInputs] : ebitdaInputs });
 
   metrics.push({

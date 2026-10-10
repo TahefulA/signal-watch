@@ -34,7 +34,7 @@ export class AnalyzeError extends Error {}
  * Bumped when extraction or verification changes, so stored baselines built by
  * older code are rebuilt rather than compared against.
  */
-export const PIPELINE_VERSION = 2;
+export const PIPELINE_VERSION = 3;
 
 export type StepReporter = (step: string) => void;
 
@@ -90,8 +90,9 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
   const docs: CorpusDoc[] = [];
   const sources: SourceDocument[] = [];
   // The newest 10-Q or 10-K carries the current debt footnote.
-  const periodic = filings.find((f): f is FilingRef => f.form === "10-Q" || f.form === "10-K");
   const debtDocs: CorpusDoc[] = [];
+  const debtNotesByFiling = new Map<string, ReturnType<typeof extractDebtNotes>>();
+  const primaryText = new Map<string, { url: string; text: string }>();
   try {
     for (const filing of filings) {
       const documents = await fetchFilingText(filing);
@@ -101,17 +102,9 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
         const fullText = documents.find((d) => d.url === ex.url)?.text ?? ex.text;
         const doc = makeDoc(`D${docs.length + 1}`, form, filing.filingDate, ex.url, ex.label, ex.text, fullText);
         docs.push(doc);
-        if (form === "8-K" && periodic && filing.filingDate > periodic.filingDate) debtDocs.push({ ...doc, id: `F${debtDocs.length + 1}` });
       }
-      if (filing === periodic && documents[0]) {
-        let budget = DEBT_NOTE_BUDGET;
-        for (const note of extractDebtNotes(documents[0].text)) {
-          if (budget <= 0) break;
-          const text = note.text.slice(0, budget);
-          budget -= text.length;
-          debtDocs.push(makeDoc(`F${debtDocs.length + 1}`, form, filing.filingDate, documents[0].url, note.label, text, documents[0].text));
-        }
-      }
+      if ((form === "10-Q" || form === "10-K") && documents[0]) debtNotesByFiling.set(filing.accession, extractDebtNotes(documents[0].text));
+      if ((form === "10-Q" || form === "10-K") && documents[0]) primaryText.set(filing.accession, documents[0]);
       sources.push({
         id: filing.accession,
         sourceType: filing.form as "10-K" | "10-Q" | "8-K",
@@ -122,6 +115,23 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     }
   } catch {
     throw new AnalyzeError("SEC EDGAR is currently unavailable. Please try again in a few minutes.");
+  }
+
+  // The newest 10-Q or 10-K with a debt note. Some 10-Qs (AT&T's, for one) have none, so fall back to the 10-K.
+  const debtFiling = filings.find((f) => (f.form === "10-Q" || f.form === "10-K") && (debtNotesByFiling.get(f.accession)?.length ?? 0) > 0) ?? null;
+  if (debtFiling) {
+    const primary = primaryText.get(debtFiling.accession);
+    let budget = DEBT_NOTE_BUDGET;
+    for (const note of debtNotesByFiling.get(debtFiling.accession) ?? []) {
+      if (budget <= 0 || !primary) break;
+      const text = note.text.slice(0, budget);
+      budget -= text.length;
+      debtDocs.push(makeDoc(`F${debtDocs.length + 1}`, debtFiling.form as "10-K" | "10-Q", debtFiling.filingDate, primary.url, note.label, text, primary.text));
+    }
+  }
+  // 8-Ks filed after the debt filing can announce new debt; they go to the capital structure call too.
+  for (const doc of docs) {
+    if (doc.sourceType === "8-K" && debtFiling && doc.date > debtFiling.filingDate) debtDocs.push({ ...doc, id: `F${debtDocs.length + 1}` });
   }
 
   report("Fetching news and market data...");
@@ -155,14 +165,14 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
 
   report("Extracting entities and debt...");
   const capitalTask: Promise<CapitalStructure | null> =
-    periodic && debtDocs.some((d) => d.sourceType !== "8-K")
+    debtFiling && debtDocs.some((d) => d.sourceType !== "8-K")
       ? extractCapitalStructure({
           companyName: company.name,
           ticker,
           cik: lookup.cik,
           docs: debtDocs,
-          sourceType: periodic.form as "10-K" | "10-Q",
-          sourceDate: periodic.filingDate,
+          sourceType: debtFiling.form as "10-K" | "10-Q",
+          sourceDate: debtFiling.filingDate,
           sourceUrl: debtDocs.find((d) => d.sourceType !== "8-K")?.url ?? "",
           facts,
         }).catch((error: unknown) => {
@@ -196,7 +206,7 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     }
   }
   const capital = await capitalTask;
-  if (capital && periodic && facts) capital.fiscalPeriod = fiscalPeriodOf(facts, periodic.accession);
+  if (capital && debtFiling && facts) capital.fiscalPeriod = fiscalPeriodOf(facts, debtFiling.accession);
   const { validation } = built;
   const graph = addDebtNodes(built.graph, capital, validation);
   console.info(

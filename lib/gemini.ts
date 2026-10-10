@@ -9,7 +9,7 @@ const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 /** Used when the primary model is overloaded. */
 const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? "gemini-3.5-flash-lite";
 const RETRYABLE = new Set([429, 500, 503]);
-const TIMEOUT_MS = 45_000;
+const TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS ?? 55_000);
 
 export class GeminiError extends Error {
   constructor(
@@ -51,11 +51,19 @@ export interface GenerateOptions {
 
 export async function generateJson(system: string, prompt: string, schema: Schema, options: GenerateOptions = {}): Promise<unknown> {
   let lastError: GeminiError | null = null;
-  for (const model of [MODEL, MODEL, FALLBACK_MODEL, FALLBACK_MODEL]) {
+  const attempts = [MODEL, MODEL, FALLBACK_MODEL, FALLBACK_MODEL];
+  for (let i = 0; i < attempts.length; i++) {
     try {
-      return await callModel(model, system, prompt, schema, options);
+      return await callModel(attempts[i], system, prompt, schema, options);
     } catch (error) {
-      if (!(error instanceof GeminiError) || error.status === undefined || !RETRYABLE.has(error.status)) throw error;
+      if (!(error instanceof GeminiError)) throw error;
+      // A timeout goes straight to the faster fallback model rather than waiting again.
+      if (error.kind === "timeout" && attempts[i] === MODEL) {
+        lastError = error;
+        i = attempts.indexOf(FALLBACK_MODEL) - 1;
+        continue;
+      }
+      if (error.status === undefined || !RETRYABLE.has(error.status)) throw error;
       lastError = error;
       await new Promise((resolve) => setTimeout(resolve, 800));
     }
