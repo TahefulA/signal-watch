@@ -1,6 +1,8 @@
-import type { CompanyProfile, Entity, EntityEdge, EntityGraph } from "@/types";
+import type { Citation, CompanyProfile, Entity, EntityEdge, EntityGraph, Magnitude, Strategic, Trend } from "@/types";
+import { cite, figuresSupported, pageOf, paragraphAround } from "./citations";
 import type { CorpusDoc } from "./corpus";
-import type { Extraction } from "./extraction";
+import type { Extraction, RawEntity } from "./extraction";
+import { extractFigures } from "./gemini";
 import { verifyQuote } from "./quotes";
 
 export interface BuildResult {
@@ -20,6 +22,47 @@ function normalizeName(name: string): string {
 function sentenceCase(text: string): string {
   const t = text.trim().replace(/\s+/g, " ");
   return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+function docFor(byId: Map<string, CorpusDoc>, ref: string | null): CorpusDoc | undefined {
+  return ref ? byId.get(ref.replace(/[[\]]/g, "").trim()) : undefined;
+}
+
+interface Context {
+  magnitude: Magnitude | null;
+  trend: Trend;
+  trendCitation: Citation | null;
+  strategic: Strategic;
+}
+
+/**
+ * Keeps only context Gemini can back up: a magnitude whose every figure is in its
+ * quote, a trend with a quote making the comparison, a protection with a quote,
+ * and analysis sentences that introduce no figures of their own.
+ */
+function verifiedContext(raw: RawEntity, byId: Map<string, CorpusDoc>, mainQuote: string): Context {
+  const magCitation = cite(docFor(byId, raw.magnitude_doc), raw.magnitude_quote);
+  const magnitude =
+    raw.magnitude_label && magCitation && extractFigures(raw.magnitude_label).length > 0 && figuresSupported(raw.magnitude_label, [magCitation.quote])
+      ? { kind: raw.magnitude_kind ?? "other", label: raw.magnitude_label, citation: magCitation }
+      : null;
+
+  const trendCitation = raw.trend !== "unknown" ? cite(docFor(byId, raw.trend_doc), raw.trend_quote) : null;
+  const protectionCitation = raw.protection ? cite(docFor(byId, raw.protection_doc), raw.protection_quote) : null;
+
+  const passages = [mainQuote, magCitation?.quote ?? "", protectionCitation?.quote ?? ""];
+  const analysis = (text: string | null) => (text && figuresSupported(text, passages) ? text : null);
+
+  return {
+    magnitude,
+    trend: trendCitation ? raw.trend : "unknown",
+    trendCitation,
+    strategic: {
+      whyItMatters: analysis(raw.why_it_matters),
+      ifItDisappeared: analysis(raw.if_it_disappeared),
+      protection: raw.protection && protectionCitation ? { text: raw.protection, citation: protectionCitation } : null,
+    },
+  };
 }
 
 /**
@@ -52,6 +95,8 @@ export function buildGraph(company: CompanyProfile, extraction: Extraction, docs
     sourceUrl: subjectDoc?.url ?? `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${company.cik}`,
     sourceLabel: subjectDoc?.label ?? "SEC EDGAR",
     isCentral: true,
+    sourcePage: subjectDoc && subjectQuote ? pageOf(subjectDoc.fullText, subjectQuote) : null,
+    sourceContext: subjectDoc && subjectQuote ? paragraphAround(subjectDoc.text, subjectQuote) : null,
   });
 
   const subjectNames = new Set([normalizeName(company.name), normalizeName(company.ticker), "company"]);
@@ -80,6 +125,10 @@ export function buildGraph(company: CompanyProfile, extraction: Extraction, docs
       sourceQuote: quote,
       sourceUrl: doc.url,
       sourceLabel: doc.label,
+      relationType: raw.relation_type,
+      sourcePage: doc.sourceType === "News" ? null : pageOf(doc.fullText, quote),
+      sourceContext: doc.sourceType === "News" ? null : paragraphAround(doc.text, quote),
+      ...verifiedContext(raw, byId, quote),
     });
   }
 

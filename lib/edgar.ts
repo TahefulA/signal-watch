@@ -354,3 +354,38 @@ export function excerptFiling(filing: FilingRef, documents: DocumentText[], budg
   const share = Math.floor(budget / chosen.length);
   return chosen.map((s) => ({ label: s.label, text: s.text.slice(0, share), url: primary.url }));
 }
+
+const NOTE_HEADING = /\n\s*(?:NOTE|Note)\s*(\d{1,2})\.?\s*[\-–—:.]?\s*([^\n]{3,90})\n/g;
+const DEBT_NOTE = /\b(debt|borrowings?|indebtedness|notes payable|credit (?:facility|facilities|agreement)|convertible (?:senior |promissory )?notes|senior notes|financing arrangements)\b/i;
+
+/**
+ * The financial-statement notes that describe debt, such as "NOTE 10 – DEBT" and
+ * "NOTE 11 – CONVERTIBLE PROMISSORY NOTES". Each note runs to the next note heading.
+ */
+export function extractDebtNotes(text: string): Section[] {
+  const headings = Array.from(text.matchAll(NOTE_HEADING)).map((m) => ({
+    index: m.index ?? 0,
+    end: (m.index ?? 0) + m[0].length,
+    number: m[1],
+    title: m[2].trim(),
+  }));
+  const notes: Section[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < headings.length; i++) {
+    const h = headings[i];
+    if (!DEBT_NOTE.test(h.title) || /fair value|income tax|lease/i.test(h.title)) continue;
+    const next = headings.slice(i + 1).find((n) => n.number !== h.number);
+    const body = text.slice(h.end, next ? next.index : text.length);
+    // The table of contents and cross-references repeat headings; keep the longest body per note.
+    if (body.length < 800) continue;
+    const label = `Note ${h.number}. ${h.title.replace(/^[\-–—:.\s]+/, "")}`;
+    if (seen.has(h.number)) {
+      const existing = notes.find((n) => n.label.startsWith(`Note ${h.number}.`));
+      if (existing && existing.text.length < body.length) existing.text = body;
+      continue;
+    }
+    seen.add(h.number);
+    notes.push({ label, text: body });
+  }
+  return notes;
+}

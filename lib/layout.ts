@@ -1,9 +1,9 @@
 import dagre from "@dagrejs/dagre";
 import type { Entity, EntityEdge, EntityType } from "@/types";
 
-export const NODE_WIDTH = 220;
-export const NODE_HEIGHT = 96;
-export const CENTRAL_WIDTH = 250;
+export const NODE_WIDTH = 240;
+export const NODE_HEIGHT = 136;
+export const CENTRAL_WIDTH = 260;
 
 export type Side = "left" | "right";
 
@@ -80,7 +80,7 @@ function assignSides(central: Entity, nodes: Entity[], edges: EntityEdge[]): Map
 function layoutSide(central: Entity, members: Entity[], edges: EntityEdge[], side: Side): Map<string, { x: number; y: number }> {
   const graph = new dagre.graphlib.Graph();
   graph.setDefaultEdgeLabel(() => ({}));
-  graph.setGraph({ rankdir: side === "right" ? "LR" : "RL", nodesep: 40, ranksep: 110, marginx: 0, marginy: 0 });
+  graph.setGraph({ rankdir: side === "right" ? "LR" : "RL", nodesep: 28, ranksep: 170, marginx: 0, marginy: 0 });
   graph.setNode(central.id, { width: CENTRAL_WIDTH, height: NODE_HEIGHT });
   for (const m of sortEntities(members)) graph.setNode(m.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
   const ids = new Set([central.id, ...members.map((m) => m.id)]);

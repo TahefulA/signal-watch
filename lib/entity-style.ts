@@ -40,3 +40,13 @@ export const SEVERITY_LABELS: Record<Severity, string> = {
   low: "Low severity",
   none: "No severity",
 };
+
+/** Darker shade of each type color, used on hover. */
+export const TYPE_BORDER_HOVER: Record<EntityType, string> = {
+  company: "hover:border-blue-800",
+  risk: "hover:border-red-800",
+  macro: "hover:border-amber-800",
+  financial: "hover:border-emerald-800",
+  regulatory: "hover:border-violet-800",
+  neutral: "hover:border-zinc-600",
+};

@@ -27,7 +27,8 @@ export function geminiEnabled(): boolean {
 
 /** Gemini's OpenAPI-style response schema. */
 export interface Schema {
-  type: "OBJECT" | "ARRAY" | "STRING";
+  type: "OBJECT" | "ARRAY" | "STRING" | "NUMBER";
+  nullable?: boolean;
   properties?: Record<string, Schema>;
   required?: string[];
   items?: Schema;

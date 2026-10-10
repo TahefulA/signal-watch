@@ -11,6 +11,8 @@ export interface CorpusDoc {
   label: string;
   text: string;
   sentences: string[];
+  /** The whole document the excerpt came from, used for page numbers. Not sent to Gemini. */
+  fullText: string;
 }
 
 export function makeDoc(
@@ -20,9 +22,10 @@ export function makeDoc(
   url: string,
   label: string,
   text: string,
+  fullText = text,
 ): CorpusDoc {
   const sentences = sourceType === "News" ? [text] : splitSentences(text);
-  return { id, sourceType, date, url, label, text, sentences };
+  return { id, sourceType, date, url, label, text, sentences, fullText };
 }
 
 export function renderCorpus(docs: CorpusDoc[]): string {

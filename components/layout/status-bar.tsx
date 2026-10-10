@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export const PIPELINE_STEPS = [
   "Fetching SEC filings...",
   "Fetching news and market data...",
-  "Extracting entities...",
+  "Extracting entities and debt...",
   "Building map...",
   "Generating memo...",
 ];
