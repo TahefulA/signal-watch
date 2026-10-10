@@ -469,10 +469,11 @@ export function computeMetrics(
   metrics.push({
     key: "liquidity",
     label: "Cash + revolver availability",
-    display: cash ? money(cash.value + undrawn) : "Not available",
+    // When no drawn amount is disclosed the commitment is an upper bound, and the display says so.
+    display: cash ? `${assumedUndrawn.length ? "Up to " : ""}${money(cash.value + undrawn)}` : "Not available",
     note: cash
-      ? `Cash plus ${money(undrawn)} of undrawn revolver commitments.` +
-        (assumedUndrawn.length ? ` No drawn amount disclosed for ${assumedUndrawn.join(", ")}; counted as undrawn.` : "")
+      ? `Cash plus ${assumedUndrawn.length ? "up to " : ""}${money(undrawn)} of revolver commitments.` +
+        (assumedUndrawn.length ? ` No drawn amount is disclosed for ${assumedUndrawn.join(", ")}, so availability may be lower.` : "")
       : "Cash was not found in the company's XBRL data.",
     inputs: cash ? [cash] : [],
   });
@@ -480,9 +481,9 @@ export function computeMetrics(
   metrics.push({
     key: "revolver_availability",
     label: "Revolver availability",
-    display: revolvers.length ? money(undrawn) : "No revolver",
+    display: revolvers.length ? `${assumedUndrawn.length ? "Up to " : ""}${money(undrawn)}` : "No revolver",
     note: revolvers.length
-      ? `Undrawn commitments on ${revolvers.map((r) => r.name).join(", ")}.${assumedUndrawn.length ? " No drawn amount was disclosed, so it is counted as undrawn." : ""}`
+      ? `Commitments on ${revolvers.map((r) => r.name).join(", ")}.${assumedUndrawn.length ? " No drawn amount is disclosed, so the commitment is an upper bound." : ""}`
       : "No revolving facility in the debt note.",
     inputs: [],
   });
