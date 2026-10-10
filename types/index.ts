@@ -26,6 +26,8 @@ export interface Report {
   changes?: ChangeReport | null;
   /** Set on baseline reports built from filings available on this date; they are never served as current. */
   asOf?: string | null;
+  /** Version of the extraction pipeline that built the report. */
+  pipelineVersion?: number;
   market: MarketSnapshot | null;
   sources: SourceDocument[];
   filingsAnalyzed: number;

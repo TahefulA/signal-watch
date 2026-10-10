@@ -1,5 +1,5 @@
 import type { AnalyzeEvent } from "@/types";
-import { AnalyzeError, analyzeTicker } from "@/lib/analyze";
+import { AnalyzeError, PIPELINE_VERSION, analyzeTicker } from "@/lib/analyze";
 import { applyChanges, baselineDate, diffReports } from "@/lib/changes";
 import { findBaseline, findReportById, saveChanges, saveReport, tigerEnabled } from "@/lib/tiger";
 
@@ -33,7 +33,7 @@ export async function POST(request: Request): Promise<Response> {
         if (!asOf) throw new AnalyzeError("This report has no 10-Q or 10-K to compare against.");
 
         const ticker = current.graph.company.ticker;
-        let baseline = await findBaseline(ticker, asOf);
+        let baseline = await findBaseline(ticker, asOf, PIPELINE_VERSION);
         if (!baseline) {
           baseline = await analyzeTicker(ticker, (step) => send({ type: "step", step: `Previous quarter: ${step}` }), { asOf });
           await saveReport(baseline);

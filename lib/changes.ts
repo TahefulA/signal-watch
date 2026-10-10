@@ -142,19 +142,55 @@ function amount(i: DebtInstrument): string | undefined {
   return undefined;
 }
 
-function diffDebt(before: DebtInstrument[], after: DebtInstrument[]): EntityDiff[] {
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+function baseName(i: DebtInstrument): string {
+  return i.name.replace(/\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * True when filings mention an instrument: by its maturity date written out
+ * ("June 1, 2033"), or by name without qualifiers such as "(Jun)" when no other
+ * instrument shares that name.
+ */
+function mentionsDebt(text: FilingWords, i: DebtInstrument, all: DebtInstrument[]): boolean {
+  const m = i.maturity?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m && text.joined.includes(words(`${MONTHS[Number(m[2]) - 1]} ${Number(m[3])} ${m[1]}`).join(" "))) return true;
+  const ambiguous = all.filter((x) => sameEntity(baseName(x), baseName(i))).length > 1;
+  return !ambiguous && mentions(text.sentences, baseName(i));
+}
+
+const RETIRED = /\b(repaid|repay|terminated|terminate|extinguishment|redeemed|retired|matured|paid off)\b/;
+
+/** True when a current filing says the instrument was repaid, redeemed or terminated. */
+function describedAsRetired(text: FilingWords, i: DebtInstrument): boolean {
+  const key = keyWords(baseName(i));
+  return text.sentences.some((s) => key.every((k) => s.includes(k)) && RETIRED.test(s.join(" ")));
+}
+
+function diffDebt(before: DebtInstrument[], after: DebtInstrument[], beforeText: FilingWords, afterText: FilingWords): EntityDiff[] {
   const out: EntityDiff[] = [];
+  const year = (i: DebtInstrument) => (i.maturity ?? "").slice(0, 4);
+  // Gemini names the same notes differently between runs ("2029 Convertible Notes", "4.25% Convertible
+  // Senior Notes due 2029"), so the same kind and maturity year also count as a match.
   const match = (a: DebtInstrument, list: DebtInstrument[]) =>
-    list.find((b) => sameEntity(a.name, b.name) && (a.maturity ?? "").slice(0, 4) === (b.maturity ?? "").slice(0, 4));
+    list.find((b) => year(a) === year(b) && (sameEntity(a.name, b.name) || (a.kind === b.kind && year(a) !== "")));
   for (const a of after) {
     const b = match(a, before);
     if (!b) {
+      if (mentionsDebt(beforeText, a, after)) continue;
       out.push({ kind: "new_debt", name: a.name, detail: "New in the debt note.", after: amount(a), citations: a.citations.slice(0, 1) });
-    } else if (a.outstanding !== null && b.outstanding !== null && Math.abs(a.outstanding - b.outstanding) >= 1e6) {
+    } else if (
+      a.outstanding !== null &&
+      b.outstanding !== null &&
+      Math.abs(a.outstanding - b.outstanding) >= 1e6 &&
+      // Two notes of the same kind can mature in the same year; compare amounts only for an unambiguous pair.
+      (sameEntity(a.name, b.name) || before.filter((x) => x.kind === a.kind && year(x) === year(a)).length === 1)
+    ) {
       out.push({
         kind: "debt_amount",
         name: a.name,
-        detail: `Outstanding principal changed.`,
+        detail: "Outstanding principal changed.",
         before: amount(b),
         after: amount(a),
         citations: [...b.citations.slice(0, 1), ...a.citations.slice(0, 1)],
@@ -162,9 +198,16 @@ function diffDebt(before: DebtInstrument[], after: DebtInstrument[]): EntityDiff
     }
   }
   for (const b of before) {
-    if (!match(b, after)) {
-      out.push({ kind: "repaid_debt", name: b.name, detail: "No longer listed in the debt note.", before: amount(b), citations: b.citations.slice(0, 1) });
-    }
+    if (match(b, after)) continue;
+    const retired = describedAsRetired(afterText, b);
+    if (!retired && mentionsDebt(afterText, b, before)) continue;
+    out.push({
+      kind: "repaid_debt",
+      name: b.name,
+      detail: retired ? "Described as repaid or terminated in the current filings." : "No longer mentioned in the current filings.",
+      before: amount(b),
+      citations: b.citations.slice(0, 1),
+    });
   }
   return out;
 }
@@ -251,7 +294,7 @@ export async function diffReports(current: Report, baseline: Report): Promise<{ 
     removed.push({ ...prior, id: `removed-${prior.id}`, change: { kind: "removed", details: ["No longer mentioned in the current filings."] } });
   }
 
-  changes.push(...diffDebt(baseline.capital?.instruments ?? [], current.capital?.instruments ?? []));
+  changes.push(...diffDebt(baseline.capital?.instruments ?? [], current.capital?.instruments ?? [], beforeText, afterText));
 
   const baselineIds = new Set(baseline.sources.map((s) => s.id));
   return {

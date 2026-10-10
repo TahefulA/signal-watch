@@ -25,6 +25,12 @@ const DEBT_NOTE_BUDGET = 45_000;
 
 export class AnalyzeError extends Error {}
 
+/**
+ * Bumped when extraction or verification changes, so stored baselines built by
+ * older code are rebuilt rather than compared against.
+ */
+export const PIPELINE_VERSION = 2;
+
 export type StepReporter = (step: string) => void;
 
 function displayName(raw: string): string {
@@ -186,5 +192,6 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     newsAnalyzed: news.length,
     notes,
     asOf: options.asOf ?? null,
+    pipelineVersion: PIPELINE_VERSION,
   };
 }

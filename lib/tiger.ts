@@ -301,10 +301,12 @@ export async function findReportById(id: string): Promise<Report | null> {
 }
 
 /** A baseline report for a ticker built from the filings available on a date. */
-export async function findBaseline(ticker: string, asOf: string): Promise<Report | null> {
+export async function findBaseline(ticker: string, asOf: string, pipelineVersion: number): Promise<Report | null> {
   const result = await getPool().query<{ report_json: Report }>(
-    "SELECT report_json FROM reports WHERE ticker = $1 AND as_of = $2 ORDER BY generated_at DESC LIMIT 1",
-    [ticker, asOf],
+    `SELECT report_json FROM reports
+     WHERE ticker = $1 AND as_of = $2 AND (report_json->>'pipelineVersion')::int = $3
+     ORDER BY generated_at DESC LIMIT 1`,
+    [ticker, asOf, pipelineVersion],
   );
   return result.rows[0]?.report_json ?? null;
 }
