@@ -1,4 +1,5 @@
-import { Pool, type PoolClient } from "pg";
+import { Pool, type PoolClient, type PoolConfig } from "pg";
+import { TIMESCALE_CA } from "./certs/timescale-ca";
 import type { ComponentKey, SignalEvent, SignalScore, TickerDataset, TickerProfile } from "@/types";
 
 /**
@@ -19,11 +20,28 @@ export function tigerEnabled(): boolean {
   }
 }
 
+/**
+ * Tiger Cloud signs server certificates with its own CA, which Node does not
+ * trust by default. Trust that CA explicitly so the connection stays verified.
+ * The sslmode parameter is removed because pg would otherwise override this config.
+ */
+function connectionConfig(): PoolConfig {
+  const url = new URL(process.env.DATABASE_URL ?? "");
+  const sslDisabled = url.searchParams.get("sslmode") === "disable";
+  url.searchParams.delete("sslmode");
+  const isTigerCloud = url.hostname.endsWith(".tsdb.cloud.timescale.com");
+  const ssl: PoolConfig["ssl"] = sslDisabled
+    ? false
+    : isTigerCloud
+      ? { ca: TIMESCALE_CA, rejectUnauthorized: true }
+      : { rejectUnauthorized: true };
+  return { connectionString: url.toString(), ssl };
+}
+
 function getPool(): Pool {
   if (!pool) {
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.DATABASE_URL?.includes("sslmode=disable") ? false : { rejectUnauthorized: false },
+      ...connectionConfig(),
       max: 3,
       connectionTimeoutMillis: 5_000,
       query_timeout: 10_000,

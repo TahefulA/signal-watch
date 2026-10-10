@@ -9,35 +9,6 @@
  "scores": [
   {
    "ticker": "T",
-   "date": "2026-07-12",
-   "total_score": 0,
-   "filing_anomaly": 0,
-   "insider_activity": 0,
-   "sentiment_divergence": 0,
-   "market_divergence": 0,
-   "drivers": {
-    "filing_anomaly": [],
-    "insider_activity": [],
-    "sentiment_divergence": [
-     "t-ccb825083e97",
-     "t-0b32ac0f6b2e",
-     "t-57a86c733708",
-     "t-b85015c0e155",
-     "t-acdee476d8a9",
-     "t-c6a9c9007ce2",
-     "t-92d7283f805d"
-    ],
-    "market_divergence": []
-   },
-   "notes": {
-    "filing_anomaly": "No filing anomalies in the last 90 days.",
-    "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 50 across 75 headlines.",
-    "market_divergence": "T +4.0% vs XLC +1.9% over 5 sessions; HYG/LQD +1.1%."
-   }
-  },
-  {
-   "ticker": "T",
    "date": "2026-07-13",
    "total_score": 0,
    "filing_anomaly": 0,
@@ -49,8 +20,8 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-ccb825083e97",
+     "t-7d9ef1cbf010",
      "t-b85015c0e155",
-     "t-acdee476d8a9",
      "t-c6a9c9007ce2",
      "t-92d7283f805d",
      "t-d0616d16ff0c",
@@ -61,7 +32,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 52 across 63 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 51 across 68 headlines.",
     "market_divergence": "T +6.1% vs XLC +1.3% over 5 sessions; HYG/LQD +1.2%."
    }
   },
@@ -79,18 +50,18 @@
     "sentiment_divergence": [
      "t-ccb825083e97",
      "t-b85015c0e155",
-     "t-acdee476d8a9",
      "t-c6a9c9007ce2",
      "t-92d7283f805d",
      "t-d0616d16ff0c",
-     "t-c91d616070b2"
+     "t-c91d616070b2",
+     "t-eab9572f360d"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 54 across 56 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 53 across 59 headlines.",
     "market_divergence": "T +2.3% vs XLC +0.4% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -112,14 +83,14 @@
      "t-d0616d16ff0c",
      "t-c91d616070b2",
      "t-eab9572f360d",
-     "t-5551c7ea0f28"
+     "t-ccff0ef480b1"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 57 across 54 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 56 across 57 headlines.",
     "market_divergence": "T +2.8% vs XLC +3.6% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -140,15 +111,15 @@
      "t-d0616d16ff0c",
      "t-c91d616070b2",
      "t-eab9572f360d",
-     "t-5551c7ea0f28",
-     "t-57bc6ecbe8f2"
+     "t-ccff0ef480b1",
+     "t-5551c7ea0f28"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 56 across 48 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 56 across 51 headlines.",
     "market_divergence": "T +5.9% vs XLC +1.9% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -169,15 +140,15 @@
      "t-d0616d16ff0c",
      "t-c91d616070b2",
      "t-eab9572f360d",
-     "t-5551c7ea0f28",
-     "t-57bc6ecbe8f2"
+     "t-ccff0ef480b1",
+     "t-5551c7ea0f28"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 56 across 48 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 56 across 50 headlines.",
     "market_divergence": "T +3.2% vs XLC -0.9% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -198,15 +169,15 @@
      "t-d0616d16ff0c",
      "t-c91d616070b2",
      "t-eab9572f360d",
-     "t-5551c7ea0f28",
-     "t-57bc6ecbe8f2"
+     "t-ccff0ef480b1",
+     "t-5551c7ea0f28"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 56 across 47 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 57 across 49 headlines.",
     "market_divergence": "T +3.2% vs XLC -0.9% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -226,16 +197,16 @@
      "t-d0616d16ff0c",
      "t-c91d616070b2",
      "t-eab9572f360d",
+     "t-ccff0ef480b1",
      "t-5551c7ea0f28",
-     "t-57bc6ecbe8f2",
-     "t-f0892620cd34"
+     "t-57bc6ecbe8f2"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 55 across 46 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 56 across 48 headlines.",
     "market_divergence": "T +3.2% vs XLC -0.9% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -253,18 +224,18 @@
     "sentiment_divergence": [
      "t-ccb825083e97",
      "t-eab9572f360d",
+     "t-ccff0ef480b1",
      "t-5551c7ea0f28",
      "t-57bc6ecbe8f2",
      "t-f0892620cd34",
-     "t-3c5052c10f1d",
-     "t-e90acf521e23"
+     "t-3c5052c10f1d"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 52 across 42 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 53 across 44 headlines.",
     "market_divergence": "T +1.9% vs XLC -0.7% over 5 sessions; HYG/LQD 0.0%."
    }
   },
@@ -281,19 +252,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-ccb825083e97",
+     "t-ccff0ef480b1",
      "t-5551c7ea0f28",
      "t-57bc6ecbe8f2",
      "t-f0892620cd34",
      "t-3c5052c10f1d",
-     "t-e90acf521e23",
-     "t-d605afb74ecd"
+     "t-e90acf521e23"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 53 across 38 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 53 across 40 headlines.",
     "market_divergence": "T +4.6% vs XLC -1.3% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -310,8 +281,8 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-cce688162438",
      "t-5551c7ea0f28",
      "t-57bc6ecbe8f2",
      "t-f0892620cd34",
@@ -322,7 +293,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 64 across 68 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 63 across 70 headlines.",
     "market_divergence": "T +7.5% vs XLC -3.7% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -339,19 +310,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-f0892620cd34",
-     "t-3c5052c10f1d"
+     "t-3c5052c10f1d",
+     "t-e90acf521e23",
+     "t-d605afb74ecd"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 64 across 72 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 62 across 73 headlines.",
     "market_divergence": "T +4.5% vs XLC -6.5% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -368,19 +339,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-e90acf521e23",
-     "t-d605afb74ecd"
+     "t-d605afb74ecd",
+     "t-dfed5085ce58",
+     "t-016423c8e324"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 68 across 69 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 66 across 70 headlines.",
     "market_divergence": "T +10.6% vs XLC -3.9% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -397,19 +368,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d605afb74ecd",
-     "t-dfed5085ce58"
+     "t-dfed5085ce58",
+     "t-016423c8e324",
+     "t-e7dabf7795b4"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 69 across 69 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 67 across 70 headlines.",
     "market_divergence": "T +10.6% vs XLC -3.9% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -426,19 +397,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d605afb74ecd",
-     "t-dfed5085ce58"
+     "t-dfed5085ce58",
+     "t-016423c8e324",
+     "t-e7dabf7795b4"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 70 across 70 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 68 across 71 headlines.",
     "market_divergence": "T +10.6% vs XLC -3.9% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -455,19 +426,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-016423c8e324"
+     "t-016423c8e324",
+     "t-e7dabf7795b4",
+     "t-399e7cc93025"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 74 across 85 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 72 across 84 headlines.",
     "market_divergence": "T +11.3% vs XLC -2.8% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -484,19 +455,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-e7dabf7795b4"
+     "t-e7dabf7795b4",
+     "t-399e7cc93025",
+     "t-a580bd2e749d"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 74 across 92 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 73 across 87 headlines.",
     "market_divergence": "T +10.8% vs XLC -0.3% over 5 sessions; HYG/LQD -0.3%."
    }
   },
@@ -513,19 +484,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-a580bd2e749d"
+     "t-a580bd2e749d",
+     "t-8d8419fd90f6",
+     "t-27dc966cd1ba"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 72 across 98 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 70 across 94 headlines.",
     "market_divergence": "T +3.9% vs XLC +0.3% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -542,19 +513,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-a580bd2e749d"
+     "t-a580bd2e749d",
+     "t-8d8419fd90f6",
+     "t-27dc966cd1ba"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 72 across 104 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 71 across 99 headlines.",
     "market_divergence": "T +1.1% vs XLC +1.1% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -571,19 +542,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-a580bd2e749d"
+     "t-a580bd2e749d",
+     "t-8d8419fd90f6",
+     "t-27dc966cd1ba"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 72 across 105 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 70 across 100 headlines.",
     "market_divergence": "T -3.6% vs XLC +1.8% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -600,19 +571,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-a580bd2e749d"
+     "t-a580bd2e749d",
+     "t-8d8419fd90f6",
+     "t-27dc966cd1ba"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 72 across 106 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 70 across 101 headlines.",
     "market_divergence": "T -3.6% vs XLC +1.8% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -629,19 +600,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-a580bd2e749d"
+     "t-a580bd2e749d",
+     "t-8d8419fd90f6",
+     "t-27dc966cd1ba"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 71 across 107 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 70 across 102 headlines.",
     "market_divergence": "T -3.6% vs XLC +1.8% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -658,19 +629,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-a580bd2e749d"
+     "t-a580bd2e749d",
+     "t-8d8419fd90f6",
+     "t-27dc966cd1ba"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 72 across 106 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 71 across 101 headlines.",
     "market_divergence": "T -3.4% vs XLC +3.4% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -687,19 +658,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
+     "t-245d40c993f8",
      "t-bf9cbc5c1c2a",
-     "t-c7e84fa59679",
-     "t-cce688162438",
-     "t-87637b147c64",
      "t-d4365349b882",
-     "t-a580bd2e749d"
+     "t-a580bd2e749d",
+     "t-8d8419fd90f6",
+     "t-27dc966cd1ba"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 72 across 107 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 71 across 102 headlines.",
     "market_divergence": "T -5.2% vs XLC +2.2% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -716,19 +687,19 @@
     "insider_activity": [],
     "sentiment_divergence": [
      "t-1f89a962cf74",
-     "t-c7e84fa59679",
-     "t-87637b147c64",
      "t-d4365349b882",
      "t-a580bd2e749d",
      "t-8d8419fd90f6",
-     "t-27dc966cd1ba"
+     "t-27dc966cd1ba",
+     "t-2fc8314874b2",
+     "t-da5ea4d9d5e5"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 82 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 65 across 76 headlines.",
     "market_divergence": "T -3.7% vs XLC +1.2% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -757,7 +728,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 66 across 77 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 66 across 72 headlines.",
     "market_divergence": "T +2.2% vs XLC +4.3% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -786,7 +757,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 64 across 76 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 63 across 70 headlines.",
     "market_divergence": "T +2.3% vs XLC +2.8% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -815,7 +786,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 63 across 76 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 62 across 70 headlines.",
     "market_divergence": "T +2.3% vs XLC +2.8% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -837,14 +808,14 @@
      "t-da5ea4d9d5e5",
      "t-6a7261807810",
      "t-c699d3eaf862",
-     "t-14447b1a86b2"
+     "t-26f15f8aaff6"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 63 across 75 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 61 across 69 headlines.",
     "market_divergence": "T +2.3% vs XLC +2.8% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -864,8 +835,8 @@
      "t-da5ea4d9d5e5",
      "t-6a7261807810",
      "t-c699d3eaf862",
-     "t-14447b1a86b2",
-     "t-8f1fb9d34639",
+     "t-26f15f8aaff6",
+     "t-a49ac01144fe",
      "t-d8196ec28f08"
     ],
     "market_divergence": []
@@ -873,7 +844,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 56 across 60 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 55 across 55 headlines.",
     "market_divergence": "T +1.9% vs XLC +0.4% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -892,8 +863,8 @@
      "t-1f89a962cf74",
      "t-61e6b8acbf4b",
      "t-c699d3eaf862",
-     "t-14447b1a86b2",
-     "t-8f1fb9d34639",
+     "t-26f15f8aaff6",
+     "t-a49ac01144fe",
      "t-d8196ec28f08",
      "t-3b1d78c0b51e"
     ],
@@ -902,7 +873,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 53 across 54 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 53 across 51 headlines.",
     "market_divergence": "T +4.8% vs XLC -0.7% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -920,7 +891,7 @@
     "sentiment_divergence": [
      "t-1f89a962cf74",
      "t-61e6b8acbf4b",
-     "t-8f1fb9d34639",
+     "t-a49ac01144fe",
      "t-d8196ec28f08",
      "t-3b1d78c0b51e",
      "t-7624c9b531c1"
@@ -930,7 +901,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 55 across 46 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 55 across 43 headlines.",
     "market_divergence": "T +5.2% vs XLC -0.5% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -956,7 +927,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 53 across 42 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 53 across 41 headlines.",
     "market_divergence": "T +3.7% vs XLC +1.2% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1114,7 +1085,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 57 across 31 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 57 across 32 headlines.",
     "market_divergence": "T +3.6% vs XLC +1.0% over 5 sessions; HYG/LQD -0.3%."
    }
   },
@@ -1142,7 +1113,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 57 across 33 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 57 across 34 headlines.",
     "market_divergence": "T +2.3% vs XLC -1.7% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1171,7 +1142,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 35 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 60 across 36 headlines.",
     "market_divergence": "T +1.6% vs XLC -1.4% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1200,7 +1171,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 33 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 61 across 34 headlines.",
     "market_divergence": "T +1.6% vs XLC -1.4% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1229,7 +1200,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 34 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 61 across 35 headlines.",
     "market_divergence": "T +1.6% vs XLC -1.4% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1258,7 +1229,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 37 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 60 across 40 headlines.",
     "market_divergence": "T +4.1% vs XLC +1.4% over 5 sessions; HYG/LQD -0.3%."
    }
   },
@@ -1286,7 +1257,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 35 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 60 across 38 headlines.",
     "market_divergence": "T +3.5% vs XLC +2.4% over 5 sessions; HYG/LQD -0.5%."
    }
   },
@@ -1313,7 +1284,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 33 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 60 across 36 headlines.",
     "market_divergence": "T +3.0% vs XLC +1.2% over 5 sessions; HYG/LQD 0.0%."
    }
   },
@@ -1341,7 +1312,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 63 across 33 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 62 across 35 headlines.",
     "market_divergence": "T +1.1% vs XLC +0.7% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1370,7 +1341,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 64 across 38 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 64 across 40 headlines.",
     "market_divergence": "T +2.8% vs XLC +1.4% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1399,7 +1370,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 65 across 39 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 65 across 41 headlines.",
     "market_divergence": "T +2.8% vs XLC +1.4% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1428,7 +1399,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 65 across 40 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 64 across 42 headlines.",
     "market_divergence": "T +2.8% vs XLC +1.4% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1457,7 +1428,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 44 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 66 across 46 headlines.",
     "market_divergence": "T +0.8% vs XLC -0.8% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1486,7 +1457,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 46 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 66 across 48 headlines.",
     "market_divergence": "T +0.9% vs XLC -2.0% over 5 sessions; HYG/LQD +0.6%."
    }
   },
@@ -1514,7 +1485,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 50 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 67 across 51 headlines.",
     "market_divergence": "T +0.3% vs XLC -0.2% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -1542,7 +1513,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 69 across 48 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 68 across 49 headlines.",
     "market_divergence": "T +3.0% vs XLC +1.8% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -1569,7 +1540,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 44 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 67 across 45 headlines.",
     "market_divergence": "T -1.3% vs XLC -0.8% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1596,7 +1567,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 66 across 45 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 66 across 46 headlines.",
     "market_divergence": "T -1.3% vs XLC -0.8% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1623,7 +1594,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 44 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 67 across 45 headlines.",
     "market_divergence": "T -1.3% vs XLC -0.8% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1650,7 +1621,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 41 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 67 across 40 headlines.",
     "market_divergence": "T -1.3% vs XLC -0.8% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1678,7 +1649,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 45 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 68 across 42 headlines.",
     "market_divergence": "T -1.1% vs XLC +0.1% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -1706,7 +1677,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 66 across 48 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 67 across 45 headlines.",
     "market_divergence": "T -3.3% vs XLC 0.0% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1733,7 +1704,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 45 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 68 across 42 headlines.",
     "market_divergence": "T -1.5% vs XLC -0.8% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -1760,7 +1731,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 38 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 35 headlines.",
     "market_divergence": "T -0.5% vs XLC -0.7% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -1786,7 +1757,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 66 across 37 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 68 across 34 headlines.",
     "market_divergence": "T -0.5% vs XLC -0.7% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -1812,7 +1783,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 66 across 37 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 34 headlines.",
     "market_divergence": "T -0.5% vs XLC -0.7% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -1832,15 +1803,14 @@
      "t-8e160fa3548e",
      "t-d2b0600cb6fd",
      "t-dd86c8be38e1",
-     "t-9190ef337681",
-     "t-5e4b6fef9925"
+     "t-9190ef337681"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 69 across 33 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 70 across 30 headlines.",
     "market_divergence": "T +3.2% vs XLC +2.7% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -1860,15 +1830,14 @@
      "t-8e160fa3548e",
      "t-d2b0600cb6fd",
      "t-dd86c8be38e1",
-     "t-9190ef337681",
-     "t-5e4b6fef9925"
+     "t-9190ef337681"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 68 across 34 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 30 headlines.",
     "market_divergence": "T +4.4% vs XLC +2.3% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1889,15 +1858,15 @@
      "t-d2b0600cb6fd",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
-     "t-4862fd04febc"
+     "t-4862fd04febc",
+     "t-aae6bcfe4379"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 35 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 64 across 29 headlines.",
     "market_divergence": "T +2.8% vs XLC +2.0% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1917,7 +1886,6 @@
      "t-d2b0600cb6fd",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379"
     ],
@@ -1926,7 +1894,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 59 across 31 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 62 across 25 headlines.",
     "market_divergence": "T -0.6% vs XLC +0.8% over 5 sessions; HYG/LQD -0.6%."
    }
   },
@@ -1946,7 +1914,6 @@
      "t-d2b0600cb6fd",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379"
     ],
@@ -1955,7 +1922,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 60 across 31 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 63 across 23 headlines.",
     "market_divergence": "T -2.5% vs XLC -1.6% over 5 sessions; HYG/LQD -0.5%."
    }
   },
@@ -1975,7 +1942,6 @@
      "t-d2b0600cb6fd",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379"
     ],
@@ -1984,7 +1950,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 30 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 64 across 22 headlines.",
     "market_divergence": "T -2.5% vs XLC -1.6% over 5 sessions; HYG/LQD -0.5%."
    }
   },
@@ -2004,7 +1970,6 @@
      "t-d2b0600cb6fd",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379"
     ],
@@ -2013,7 +1978,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 61 across 30 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 64 across 22 headlines.",
     "market_divergence": "T -2.5% vs XLC -1.6% over 5 sessions; HYG/LQD -0.5%."
    }
   },
@@ -2033,7 +1998,6 @@
      "t-d2b0600cb6fd",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379"
     ],
@@ -2042,7 +2006,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 62 across 31 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 65 across 24 headlines.",
     "market_divergence": "T -4.0% vs XLC +0.1% over 5 sessions; HYG/LQD -0.6%."
    }
   },
@@ -2061,7 +2025,6 @@
      "t-1f89a962cf74",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379"
     ],
@@ -2070,7 +2033,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 60 across 30 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 62 across 24 headlines.",
     "market_divergence": "T -6.1% vs XLC -0.1% over 5 sessions; HYG/LQD -0.4%."
    }
   },
@@ -2089,7 +2052,6 @@
      "t-1f89a962cf74",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379"
     ],
@@ -2098,7 +2060,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 58 across 29 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 62 across 22 headlines.",
     "market_divergence": "T -2.2% vs XLC -0.1% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2117,7 +2079,6 @@
      "t-1f89a962cf74",
      "t-dd86c8be38e1",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379",
      "t-f09796db40c4"
@@ -2127,7 +2088,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 56 across 35 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 59 across 27 headlines.",
     "market_divergence": "T +0.2% vs XLC +1.8% over 5 sessions; HYG/LQD +0.9%."
    }
   },
@@ -2145,7 +2106,6 @@
     "sentiment_divergence": [
      "t-1f89a962cf74",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379",
      "t-f09796db40c4",
@@ -2156,7 +2116,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 55 across 40 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 57 across 30 headlines.",
     "market_divergence": "T -0.1% vs XLC +2.3% over 5 sessions; HYG/LQD +0.6%."
    }
   },
@@ -2174,7 +2134,6 @@
     "sentiment_divergence": [
      "t-1f89a962cf74",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379",
      "t-f09796db40c4",
@@ -2185,7 +2144,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 55 across 40 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 57 across 30 headlines.",
     "market_divergence": "T -0.1% vs XLC +2.3% over 5 sessions; HYG/LQD +0.6%."
    }
   },
@@ -2203,7 +2162,6 @@
     "sentiment_divergence": [
      "t-1f89a962cf74",
      "t-9190ef337681",
-     "t-5e4b6fef9925",
      "t-4862fd04febc",
      "t-aae6bcfe4379",
      "t-f09796db40c4",
@@ -2214,7 +2172,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 57 across 40 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 57 across 30 headlines.",
     "market_divergence": "T -0.1% vs XLC +2.3% over 5 sessions; HYG/LQD +0.6%."
    }
   },
@@ -2243,7 +2201,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 57 across 41 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 59 across 31 headlines.",
     "market_divergence": "T -2.2% vs XLC -3.1% over 5 sessions; HYG/LQD +1.1%."
    }
   },
@@ -2272,7 +2230,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 66 across 49 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 39 headlines.",
     "market_divergence": "T -2.5% vs XLC -1.8% over 5 sessions; HYG/LQD +0.9%."
    }
   },
@@ -2301,7 +2259,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 72 across 44 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 74 across 36 headlines.",
     "market_divergence": "T -3.6% vs XLC -1.4% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -2330,7 +2288,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 69 across 47 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 71 across 38 headlines.",
     "market_divergence": "T -4.5% vs XLC -3.6% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -2359,7 +2317,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 68 across 51 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 70 across 44 headlines.",
     "market_divergence": "T -4.3% vs XLC -2.3% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2388,7 +2346,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 68 across 53 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 46 headlines.",
     "market_divergence": "T -4.3% vs XLC -2.3% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2417,7 +2375,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 54 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 47 headlines.",
     "market_divergence": "T -4.3% vs XLC -2.3% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2446,7 +2404,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 68 across 53 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 46 headlines.",
     "market_divergence": "T -2.7% vs XLC +0.4% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -2475,7 +2433,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 67 across 56 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 49 headlines.",
     "market_divergence": "T -0.2% vs XLC +0.2% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -2504,7 +2462,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 68 across 58 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 69 across 52 headlines.",
     "market_divergence": "T +0.3% vs XLC +0.3% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2533,7 +2491,7 @@
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 70 across 66 headlines.",
+    "sentiment_divergence": "Management tone 60 against news tone 70 across 58 headlines.",
     "market_divergence": "T +2.3% vs XLC +1.9% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -2554,16 +2512,45 @@
      "t-feb68a32b564",
      "t-824d16a59f06",
      "t-6fcfe9b486e7",
-     "t-6ab66cf4d1b8",
-     "t-cecbdcf3a29c"
+     "t-cecbdcf3a29c",
+     "t-83d7b94e763f"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "No filing anomalies in the last 90 days.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 60 against news tone 63 across 88 headlines.",
-    "market_divergence": "T -9.2% vs XLC +0.1% over 5 sessions; HYG/LQD -0.1%."
+    "sentiment_divergence": "Management tone 60 against news tone 63 across 89 headlines.",
+    "market_divergence": "T -7.7% vs XLC +0.1% over 5 sessions; HYG/LQD -0.2%."
+   }
+  },
+  {
+   "ticker": "T",
+   "date": "2026-10-10",
+   "total_score": 0,
+   "filing_anomaly": 0,
+   "insider_activity": 0,
+   "sentiment_divergence": 0,
+   "market_divergence": 0,
+   "drivers": {
+    "filing_anomaly": [],
+    "insider_activity": [],
+    "sentiment_divergence": [
+     "t-1f89a962cf74",
+     "t-a52daa7c7d31",
+     "t-feb68a32b564",
+     "t-824d16a59f06",
+     "t-6fcfe9b486e7",
+     "t-cecbdcf3a29c",
+     "t-83d7b94e763f"
+    ],
+    "market_divergence": []
+   },
+   "notes": {
+    "filing_anomaly": "No filing anomalies in the last 90 days.",
+    "insider_activity": "No notable open-market insider trades in the last 30 days.",
+    "sentiment_divergence": "Management tone 60 against news tone 63 across 89 headlines.",
+    "market_divergence": "T -7.7% vs XLC +0.1% over 5 sessions; HYG/LQD -0.2%."
    }
   }
  ],
@@ -2583,31 +2570,17 @@
    "score_impact": 0
   },
   {
-   "id": "t-0b32ac0f6b2e",
+   "id": "t-7d9ef1cbf010",
    "ticker": "T",
-   "date": "2026-06-29",
+   "date": "2026-06-30",
    "event_type": "news",
    "category": "news_negative",
    "component": "sentiment_divergence",
-   "title": "Negative coverage from Yahoo Finance",
-   "quote": "Telecom Turmoil: Comcast Rises 7% on Media Spinoff, AT&T Falls 5% on CFO Exit and Starlink Threat, Verizon Sinks 7% on Dow Exit",
+   "title": "Negative coverage from TipRanks",
+   "quote": "AT&T Plunges As Index Exit And Starlink Jitters Bite",
    "quote_kind": "verbatim",
-   "source_label": "Yahoo Finance headline, Jun 29, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNTGlJZGIxaXp6ano2c2ptVzNrbTI1a09fSVV3YzN0QUN0bzJQQ2R6R2VTZ2JwV0FLUHJNOWRtcVd1VXdzSl91MC1jbkhUV25PTDN3YnJrbmpIZ25tTWUwOTl6d21TNVdzNE44OUU3SUVxdWJRTmh3TjNTOGc0WXdwaGNUbTFiRGNlenRGQ2k5VEZkY0p4OE5MWXJjeDQ?oc=5",
-   "score_impact": 6.5
-  },
-  {
-   "id": "t-57a86c733708",
-   "ticker": "T",
-   "date": "2026-06-29",
-   "event_type": "news",
-   "category": "news_negative",
-   "component": "sentiment_divergence",
-   "title": "Negative coverage from Yahoo Finance",
-   "quote": "Verizon falls 7%, AT&T hits 52-week low as SpaceX and cable rivals converge",
-   "quote_kind": "verbatim",
-   "source_label": "Yahoo Finance headline, Jun 29, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPaXIxZ01ycWdlXzg5TFNKNXg2OTZUSEYwTTlsZXlnbTAwdGYxYmNnMENraGxkcDRVSE9Xc0VDT1pPVllHeTJoNWFGTGlUYms0TzV5WkE0OGZSZzR0T1kzX1M0VTBPRXhlTmJSU0t0RGhLMU10U0NRWlFQeUJ2Q19mNl9sQ3hjRzZiR3htNHA3Ry0?oc=5",
+   "source_label": "TipRanks headline, Jun 30, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOQ0RnRk9HVXU1bXFkaU5wUEtCTUY3Y1dtTzlBc0ZEMmttX1NpVVBqNzdWSGhlQUFfSmJqQUJjWHU0amc4aUdwRnRTNjMzMTYwWUdUemZ3cFViV09WY1hEZjA1YXRRRGx3a1FNUGxKYnpleHA2bTBVeWZQOVlqc1o0ZVhyODhoLTFadndkTl9PamlZMG0z?oc=5",
    "score_impact": 6.5
   },
   {
@@ -2623,20 +2596,6 @@
    "source_label": "TheStreet headline, Jul 1, 2026",
    "source_url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPakdqVTZCMXdWMHpaS2FMS011YXZKczI2VG9TMXk0UW9oWV9zVVlNVFpvOGpxSDU3Wkk5X0RrdmN0dnJzSXNJQ2xMMFhoSW5NNGd3VWRTRmVYdjBtdUt6ZjhBS0d0Vk5FM0pfQk5GTXBkQjJzdW14Tm16T0RoS2M5TW5jMUl2Q3k5bXBWNTR1OVRCMDJINGRHNkhMcEVtdUsx?oc=5",
    "score_impact": 6.5
-  },
-  {
-   "id": "t-acdee476d8a9",
-   "ticker": "T",
-   "date": "2026-07-01",
-   "event_type": "news",
-   "category": "news_positive",
-   "component": "sentiment_divergence",
-   "title": "Positive coverage from TipRanks",
-   "quote": "SurgePays Amends AT&T Deal, Cuts Costs, Gains Forgiveness",
-   "quote_kind": "verbatim",
-   "source_label": "TipRanks headline, Jul 1, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQbzdKWnNpaXBZbFJ5QkgzVzc2UTQ3YXAxTk5WSUFHbGw4cnZhV3VlMGk4NlVzMDdYdEFTemhReEw0VE90YUNvMkVYZUFGVk5BRU82bVdYVExHeDJZQ0YzVVdOeDRlRW15enNSdmJLOFNMV19PU1hIZHRlc0YtYkpsYkpzdXF2ZnRNYVozeGZ2dm5pcjdJUHVhNXQ3dlFLNzBWNE9RVElIakViUQ?oc=5",
-   "score_impact": -6.5
   },
   {
    "id": "t-c6a9c9007ce2",
@@ -2706,6 +2665,20 @@
    "quote_kind": "verbatim",
    "source_label": "Yahoo Finance headline, Jul 7, 2026",
    "source_url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNT0Y0bWVxb3dOS1pLdmp5N2ZLVXRHeERFRkJsOGU0cGU5UThTXy1DVUZUYmpTM09tR2JRQS12Yjl5TnNQYVZuOWFsdE5SNXFkM0dNT2haenhwOC0wc2s2YnhwUjZ1cjJ5MTJSRW9DUzYzWWdSWGo2dkhwVm1pckNqUWhIaEdHcmFLSjQ0XzdCUVp4ZTZBWHg0akNZMA?oc=5",
+   "score_impact": -6.5
+  },
+  {
+   "id": "t-ccff0ef480b1",
+   "ticker": "T",
+   "date": "2026-07-08",
+   "event_type": "news",
+   "category": "news_positive",
+   "component": "sentiment_divergence",
+   "title": "Positive coverage from Benzinga",
+   "quote": "Merck To Rally More Than 16%? Here Are 10 Top Analyst Forecasts For Wednesday",
+   "quote_kind": "verbatim",
+   "source_label": "Benzinga headline, Jul 8, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxOLUdQVl82Y1dQSFhCVXFDeWNkZUswYUpDZFVLUXNrQjR1OWZBVHNHeFlwZHZqNDIzckk5TDZvNi1xUXI1Z0UtQ01SNGJQaFc2Nk9yZlZBeVpKeWV5MTlOYllsUmN6RjJDTTJUU3BkZFNTT2lKaFFpUmFFRTBMOFRrbW5lcTNQdmVsVEJNd21lS1VIaEhJSW55X3VlOVZva1dMcWozNUxBajVqanNLTzRQWGVfYWk3Y1RuWlplb242eElsWmVhQVNqbDlkWk1VanRVTjhESUZKY1FxTElTOVVjcTVmcmM?oc=5",
    "score_impact": -6.5
   },
   {
@@ -2863,6 +2836,20 @@
    "score_impact": 0
   },
   {
+   "id": "t-245d40c993f8",
+   "ticker": "T",
+   "date": "2026-07-22",
+   "event_type": "news",
+   "category": "news_positive",
+   "component": "sentiment_divergence",
+   "title": "Positive coverage from WSJ",
+   "quote": "AT&T Revenue Rises on Growth in Postpaid Phone, Internet Customers",
+   "quote_kind": "verbatim",
+   "source_label": "WSJ headline, Jul 22, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOME1kUDdiTFEwZUtwaGpNVnVuN2RFNDM2cnBjbUFNSFJ2SWpqbU9MWjYyeUJIa0c1QmNQbzc4X3JGVkRQV3dKQmt3T0VLTkllSHdKZHlyOG8xeThWYXhWMGEzVUpvRktuNFdaVHh4bko3NGR4MHpGRGxsNE1GUGNxa2JncE5pYzlGT1p2d1ZLTVhaR1g4YjhrbG1vRkNadjRZWTdpbXBKdGYtTlRYQUpNcENn?oc=5",
+   "score_impact": -10
+  },
+  {
    "id": "t-bf9cbc5c1c2a",
    "ticker": "T",
    "date": "2026-07-22",
@@ -2875,48 +2862,6 @@
    "source_label": "Reuters headline, Jul 22, 2026",
    "source_url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxPUVEwczc4NDViSFl1TzJ3TUpYM1lkZkotSHh1QmUzTFQzQjNQYy0ySDZPSmJJWkVCTFE4TEE2Z0xiUExFcVlBLTdoZWljQnJLZjBaMkJlXzN3YVo1c3VQdkIyMlQtanpMMUc5X3QxSmo5cE1xM2JCN2hPWTRXSnlpdVpSclBGV1p3dF9mSDQ2WjVjdnNvVzA5ZXZiT0cyVndoY1dKVnM2RFpTUzFxeEgzWTdsSUlLTTAwNGFkamhncXVQRTQ2LUZRa1AtMEp5QQ?oc=5",
    "score_impact": -10
-  },
-  {
-   "id": "t-cce688162438",
-   "ticker": "T",
-   "date": "2026-07-22",
-   "event_type": "news",
-   "category": "news_positive",
-   "component": "sentiment_divergence",
-   "title": "Positive coverage from Barron's",
-   "quote": "AT&T Stock Rises After Earnings. So Much for SpaceX Fears.",
-   "quote_kind": "verbatim",
-   "source_label": "Barron's headline, Jul 22, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5FU09SRFlVQ19XY1FpRzV6Qko3NENITWRlX1dsZlJPT09McnlVdmFWb0tMQWI0LW1vOEkyLS1mSEp6MXdyNEFiMUpUclVpYW5zMFRieXdGNm5FNW1SQkRpY25IUVloczdycF9hcGo0dVN4dHVORmc?oc=5",
-   "score_impact": -8.5
-  },
-  {
-   "id": "t-c7e84fa59679",
-   "ticker": "T",
-   "date": "2026-07-23",
-   "event_type": "news",
-   "category": "news_positive",
-   "component": "sentiment_divergence",
-   "title": "Positive coverage from WSJ",
-   "quote": "AT&T Revenue Rises on Growth in Postpaid Phone, Internet Customers",
-   "quote_kind": "verbatim",
-   "source_label": "WSJ headline, Jul 23, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOME1kUDdiTFEwZUtwaGpNVnVuN2RFNDM2cnBjbUFNSFJ2SWpqbU9MWjYyeUJIa0c1QmNQbzc4X3JGVkRQV3dKQmt3T0VLTkllSHdKZHlyOG8xeThWYXhWMGEzVUpvRktuNFdaVHh4bko3NGR4MHpGRGxsNE1GUGNxa2JncE5pYzlGT1p2d1ZLTVhaR1g4YjhrbG1vRkNadjRZWTdpbXBKdGYtTlRYQUpNcENn?oc=5",
-   "score_impact": -10
-  },
-  {
-   "id": "t-87637b147c64",
-   "ticker": "T",
-   "date": "2026-07-23",
-   "event_type": "news",
-   "category": "news_positive",
-   "component": "sentiment_divergence",
-   "title": "Positive coverage from Barron's",
-   "quote": "AT&T Stock Gets Upgraded Because SpaceX Worries Are Simply Overblown",
-   "quote_kind": "verbatim",
-   "source_label": "Barron's headline, Jul 23, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5YZ0pCSXgxYlNtbmozczFwY0FXN0hqNFVJQW1EdmtHLWpxNnRzZERRTnBRblZfNTIxRG1DZmhPRDhtSmNoZ2hZSV83Ynk2NnR6TEEzUllOV2std3E2UGNmRWxhRy0za1kybUdZSGdSQUNIY3diV0FGSVJBU3dybnM?oc=5",
-   "score_impact": -8.5
   },
   {
    "id": "t-a580bd2e749d",
@@ -3031,31 +2976,31 @@
    "score_impact": -6.5
   },
   {
-   "id": "t-14447b1a86b2",
+   "id": "t-26f15f8aaff6",
    "ticker": "T",
    "date": "2026-07-29",
    "event_type": "news",
    "category": "news_negative",
    "component": "sentiment_divergence",
-   "title": "Negative coverage from Yahoo Finance UK",
+   "title": "Negative coverage from Yahoo Finance",
    "quote": "AT&T and Verizon tumble as Musk’s SpaceX plots direct mobile threat",
    "quote_kind": "verbatim",
-   "source_label": "Yahoo Finance UK headline, Jul 29, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPRjdVRG9JdnNSZUQ5cXJlSFU3d0xvNjZGUG9UT19hZ1NOYURnTDhvZEoxcjc3U3BjV2o0eU9IZWQzOU1QTDR0QTVySVY0TmZDczUtTnhHNVo1NTJERTRoQ2sxUkVMNXBCd2hwQ2hvaUdXQmlhZzJhV0JHNE5uaUFCS01qdw?oc=5",
+   "source_label": "Yahoo Finance headline, Jul 29, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxNS1dWSkU5OGlRNjJWX2g3NG5JN1U0VGdRSUdxX05rczZ6V1ZZeHRQb1ZmUkxmMGtZY3FGOHVIN0pBb3ROb1BIaVJYM1NmYUZicXpIdzdDNkNnVU8yMWZUR2owbDhRWUlVYXRrX0hxMEVTRkEwd3lYcFdvb213MG42UDNRSklqdWFKVmMxcVZ3YU1JU3M?oc=5",
    "score_impact": 6.5
   },
   {
-   "id": "t-8f1fb9d34639",
+   "id": "t-a49ac01144fe",
    "ticker": "T",
    "date": "2026-07-30",
    "event_type": "news",
    "category": "news_positive",
    "component": "sentiment_divergence",
-   "title": "Positive coverage from The Motley Fool",
+   "title": "Positive coverage from Yahoo Finance",
    "quote": "AT&T Just Expanded Its Use of D-Wave Quantum's Tech. Time to Buy This Leading Quantum-Computing Stock?",
    "quote_kind": "verbatim",
-   "source_label": "The Motley Fool headline, Jul 30, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOd0xMX0M1SDB0clM5ZldDa1NVcmliWlJUM0xKQ1UzN0ZtbEVWMWFFa0NZdTM5cmtQVlJRSkFYb25XV2RmSk9YalZiOWVpNmFkVW0tYzFCN2JKbkpOaXZXMUtIQlR6NHpJbEFZd2NtMlItamtRX2ljRU1BZElUcFVDQlBKRnNMM193MTJMdXpEd25CREV3TkdJ?oc=5",
+   "source_label": "Yahoo Finance headline, Jul 30, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxNZGRsb3FUVUxLVGJORGVCcVVJcm81UUhiN0RReWptLXdNNDRudkxGdHVZSzQ3RVU0VVVHWkdUc3hWRktEUkhHTHRFbmQ1NFp2ZHN1SUZ5aGREX3I1eXdqY3IxQ2ZkSkZBcmhsWmQzUjdoMmJNamIzc3JRVWpfNUp0a0ZCaFJpT3U5aU1MWjJVMA?oc=5",
    "score_impact": -6.5
   },
   {
@@ -3269,20 +3214,6 @@
    "score_impact": -6.5
   },
   {
-   "id": "t-5e4b6fef9925",
-   "ticker": "T",
-   "date": "2026-09-14",
-   "event_type": "news",
-   "category": "news_positive",
-   "component": "sentiment_divergence",
-   "title": "Positive coverage from Yahoo Finance",
-   "quote": "3 Reasons to Avoid T and 1 Stock to Buy Instead",
-   "quote_kind": "verbatim",
-   "source_label": "Yahoo Finance headline, Sep 14, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNaHRRV0VNRjdKMXJSUDVqLUpLLWpGZUdXNTZMa1BIa210SXc3X0ZtZEhyZWtIRjF0dmxBU0gyTjY1WjZKQU1kZ3Myb1lNaVBseEFpakE4SE9DODk5bEs1Y0hGZnU2NGNwUVh2Z1JLQ3g1SmxsLUVqWGR0YXhUdkhRU3I4N3ZYcUwtTmNHUg?oc=5",
-   "score_impact": -6.5
-  },
-  {
    "id": "t-4862fd04febc",
    "ticker": "T",
    "date": "2026-09-16",
@@ -3451,6 +3382,20 @@
    "score_impact": -6.5
   },
   {
+   "id": "t-6209f8154d4a",
+   "ticker": "T",
+   "date": "2026-10-07",
+   "event_type": "news",
+   "category": "news_positive",
+   "component": "sentiment_divergence",
+   "title": "Positive coverage from Yahoo Finance",
+   "quote": "Can AT&T's U.S. Fiber Expansion Deal With GIP & CPP Boost the Stock?",
+   "quote_kind": "verbatim",
+   "source_label": "Yahoo Finance headline, Oct 7, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNbmdsSXA1NU9rQ2syaXJvaFNPMFFwbnJ0V0YyNm5JSy16YlllZFhXX1c5MGtfYXpxUjB3TFc4ZGk5akd1Qk10MGJHUlNxQmtuMU9OSDdybUxEN1FGTUtPZlpReWZDc3FsNTZZRnFkV1pmZGdJaEpVaDBBUlVXOF9lZV9HQ2NOTGwxNHpYd1NpNy1KS3Nf?oc=5",
+   "score_impact": -6.5
+  },
+  {
    "id": "t-824d16a59f06",
    "ticker": "T",
    "date": "2026-10-08",
@@ -3479,20 +3424,6 @@
    "score_impact": -8.5
   },
   {
-   "id": "t-6ab66cf4d1b8",
-   "ticker": "T",
-   "date": "2026-10-09",
-   "event_type": "news",
-   "category": "news_positive",
-   "component": "sentiment_divergence",
-   "title": "Positive coverage from Barron's",
-   "quote": "AT&T Stock: Citi Says Buy After SpaceX Spectrum Selloff",
-   "quote_kind": "verbatim",
-   "source_label": "Barron's headline, Oct 9, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNdWJJVkhVbGJYVXpNcWpuNzItTWJZelUzMEsxWXFEZnRJRUdQWklxcmxhUXJWdHVpdVh4d2J2d3R3RkFjbHljbDlqd1pUWUFmZXF2Nm55TFp6X2M1WHl3b1QtM2d3eTU4SjdRMk8wTWhpdVh2SFlhVHlKdFlySEJOVXRRUQ?oc=5",
-   "score_impact": -8.5
-  },
-  {
    "id": "t-cecbdcf3a29c",
    "ticker": "T",
    "date": "2026-10-09",
@@ -3505,8 +3436,22 @@
    "source_label": "Barron's headline, Oct 9, 2026",
    "source_url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPVjNNRzRHMHNBaExIaDE3UDFfeGlXYXlGSTRmM3JGajhvbXlLSkZnTzI3MXROQ0tUNGJuV3dzR0xNeWhiaHBnN1BMU2Z1aVlzY2JCbTRLNTd3eThxSUNLaWNPeHpsZEo1WGhmOXkzWW9oX1pVVFV0ZE9mR25aM1BveUw4RndnUHlZbkUybGtQQXZqdGNrdGc?oc=5",
    "score_impact": -8.5
+  },
+  {
+   "id": "t-83d7b94e763f",
+   "ticker": "T",
+   "date": "2026-10-09",
+   "event_type": "news",
+   "category": "news_negative",
+   "component": "sentiment_divergence",
+   "title": "Negative coverage from MarketWatch",
+   "quote": "As AT&T, Verizon and T-Mobile shares fall, Wall Street assesses the growing SpaceX threat",
+   "quote_kind": "verbatim",
+   "source_label": "MarketWatch headline, Oct 9, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxOeWhaS1NCZlJ4VnJsY1d5OFFTNnFPblRlQVBoTFdNeUg0M0JBTUNidVVXWlNMck41Tlc3eXotZjQ1eHBjMWtCbVh2WFFUTC04UHZIOFBpcHU3QUNMY2RxUHJydVQ0WEgwek5rSGU5cjFUcUlVOWE0WUNwOHNQOEVFMk0yZGRzeUsxM3ZRQ25TUENqcmtaVnZpOXV6Nkl2dy11c2JBMFdNamdoNUlyYjQzcnk5YnpWRDd2S1BaQ3JKS0xheGxVejhEUlZ3?oc=5",
+   "score_impact": 8.5
   }
  ],
  "reason": "No active risk signals across filings, insiders, news or market data.",
- "generated_at": "2026-10-09T19:09:24.137Z"
+ "generated_at": "2026-10-10T09:49:53.864Z"
 }

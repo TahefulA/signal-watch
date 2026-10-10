@@ -9,37 +9,6 @@
  "scores": [
   {
    "ticker": "WULF",
-   "date": "2026-07-12",
-   "total_score": 1.3,
-   "filing_anomaly": 4.2,
-   "insider_activity": 0,
-   "sentiment_divergence": 0,
-   "market_divergence": 0,
-   "drivers": {
-    "filing_anomaly": [
-     "wulf-aad3c1b8bbfd"
-    ],
-    "insider_activity": [],
-    "sentiment_divergence": [
-     "wulf-dfb8e2c24b0e",
-     "wulf-91a627e89af3",
-     "wulf-c28e71faa048",
-     "wulf-0f5e1b981fd3",
-     "wulf-aabfdaf7b226",
-     "wulf-5da24a765f15",
-     "wulf-7ee4bf270f4c"
-    ],
-    "market_divergence": []
-   },
-   "notes": {
-    "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
-    "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 71 across 88 headlines.",
-    "market_divergence": "WULF +3.7% vs XLK +2.9% over 5 sessions; HYG/LQD +1.1%."
-   }
-  },
-  {
-   "ticker": "WULF",
    "date": "2026-07-13",
    "total_score": 1.2,
    "filing_anomaly": 4,
@@ -65,7 +34,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 70 across 89 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 70 across 86 headlines.",
     "market_divergence": "WULF -5.9% vs XLK -1.2% over 5 sessions; HYG/LQD +1.2%."
    }
   },
@@ -96,7 +65,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 70 across 96 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 69 across 94 headlines.",
     "market_divergence": "WULF -4.1% vs XLK +2.5% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -129,7 +98,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 68 across 102 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 67 across 103 headlines.",
     "market_divergence": "WULF -15.2% vs XLK +0.1% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -162,7 +131,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 67 across 107 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 66 across 108 headlines.",
     "market_divergence": "WULF -22.5% vs XLK -4.2% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -195,7 +164,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 68 across 105 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 67 across 106 headlines.",
     "market_divergence": "WULF -17.3% vs XLK -5.5% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -228,7 +197,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 68 across 105 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 67 across 106 headlines.",
     "market_divergence": "WULF -17.3% vs XLK -5.5% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -261,7 +230,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 68 across 105 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 67 across 106 headlines.",
     "market_divergence": "WULF -17.3% vs XLK -5.5% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -292,7 +261,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 63 across 73 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 61 across 73 headlines.",
     "market_divergence": "WULF -9.7% vs XLK -3.1% over 5 sessions; HYG/LQD 0.0%."
    }
   },
@@ -323,7 +292,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 65 across 60 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 63 across 59 headlines.",
     "market_divergence": "WULF +2.4% vs XLK -1.5% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -354,7 +323,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 63 across 55 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 60 across 55 headlines.",
     "market_divergence": "WULF +0.6% vs XLK -0.7% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -378,14 +347,14 @@
      "wulf-93b12cd7c138",
      "wulf-b96c906d285e",
      "wulf-601d80dc8bb9",
-     "wulf-65b1708619c5"
+     "wulf-5f30449e04f0"
     ],
     "market_divergence": []
    },
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 60 across 42 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 59 across 44 headlines.",
     "market_divergence": "WULF +11.5% vs XLK +0.5% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -407,6 +376,7 @@
      "wulf-93b12cd7c138",
      "wulf-b96c906d285e",
      "wulf-601d80dc8bb9",
+     "wulf-5f30449e04f0",
      "wulf-65b1708619c5"
     ],
     "market_divergence": []
@@ -414,7 +384,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 56 across 36 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 54 across 38 headlines.",
     "market_divergence": "WULF +1.7% vs XLK +0.2% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -436,6 +406,7 @@
      "wulf-93b12cd7c138",
      "wulf-b96c906d285e",
      "wulf-601d80dc8bb9",
+     "wulf-5f30449e04f0",
      "wulf-65b1708619c5"
     ],
     "market_divergence": []
@@ -443,7 +414,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 56 across 36 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 54 across 38 headlines.",
     "market_divergence": "WULF +1.7% vs XLK +0.2% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -464,6 +435,7 @@
      "wulf-dfb8e2c24b0e",
      "wulf-b96c906d285e",
      "wulf-601d80dc8bb9",
+     "wulf-5f30449e04f0",
      "wulf-65b1708619c5"
     ],
     "market_divergence": []
@@ -471,7 +443,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 58 across 35 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 56 across 37 headlines.",
     "market_divergence": "WULF +1.7% vs XLK +0.2% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -491,6 +463,7 @@
     "sentiment_divergence": [
      "wulf-dfb8e2c24b0e",
      "wulf-601d80dc8bb9",
+     "wulf-5f30449e04f0",
      "wulf-65b1708619c5",
      "wulf-fc057af5ec29"
     ],
@@ -499,7 +472,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 54 across 35 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 52 across 37 headlines.",
     "market_divergence": "WULF -4.7% vs XLK -0.8% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -526,7 +499,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 50 across 31 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 50 across 32 headlines.",
     "market_divergence": "WULF -14.0% vs XLK -5.4% over 5 sessions; HYG/LQD -0.3%."
    }
   },
@@ -646,7 +619,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 60 across 25 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 60 across 26 headlines.",
     "market_divergence": "WULF -4.3% vs XLK -0.3% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -676,7 +649,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 60 across 26 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 59 across 27 headlines.",
     "market_divergence": "WULF -4.3% vs XLK -0.3% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -705,7 +678,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 57 across 27 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 56 across 27 headlines.",
     "market_divergence": "WULF +4.7% vs XLK +2.1% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -734,7 +707,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 56 against news tone 56 across 27 headlines.",
+    "sentiment_divergence": "Management tone 56 against news tone 54 across 27 headlines.",
     "market_divergence": "WULF +10.5% vs XLK +9.2% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -765,7 +738,7 @@
    "notes": {
     "filing_anomaly": "2 anomalies from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 54 across 41 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 53 across 41 headlines.",
     "market_divergence": "WULF +19.7% vs XLK +11.6% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -796,7 +769,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 56 across 45 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 55 across 45 headlines.",
     "market_divergence": "WULF -1.1% vs XLK +5.5% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -829,7 +802,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 53 across 51 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 52 across 51 headlines.",
     "market_divergence": "WULF -3.3% vs XLK +7.2% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -862,7 +835,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 53 across 52 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 52 across 52 headlines.",
     "market_divergence": "WULF -3.3% vs XLK +7.2% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -895,7 +868,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 53 across 52 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 52 across 52 headlines.",
     "market_divergence": "WULF -3.3% vs XLK +7.2% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -960,7 +933,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 56 across 59 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 55 across 59 headlines.",
     "market_divergence": "WULF -11.3% vs XLK -0.4% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -990,7 +963,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 57 across 59 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 56 across 59 headlines.",
     "market_divergence": "WULF -4.9% vs XLK +1.6% over 5 sessions; HYG/LQD +0.7%."
    }
   },
@@ -1050,7 +1023,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 51 across 60 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 50 across 60 headlines.",
     "market_divergence": "WULF +1.8% vs XLK +1.1% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -1079,7 +1052,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 51 across 60 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 50 across 59 headlines.",
     "market_divergence": "WULF +1.8% vs XLK +1.1% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -1108,7 +1081,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 51 across 60 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 50 across 59 headlines.",
     "market_divergence": "WULF +1.8% vs XLK +1.1% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -1255,7 +1228,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 46 across 46 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 47 across 47 headlines.",
     "market_divergence": "WULF -10.0% vs XLK -3.5% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1285,7 +1258,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 46 across 46 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 47 across 47 headlines.",
     "market_divergence": "WULF -10.0% vs XLK -3.5% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1316,7 +1289,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 47 across 47 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 48 across 48 headlines.",
     "market_divergence": "WULF -10.0% vs XLK -3.5% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1347,7 +1320,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 52 across 49 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 53 across 50 headlines.",
     "market_divergence": "WULF -12.0% vs XLK -5.4% over 5 sessions; HYG/LQD -0.3%."
    }
   },
@@ -1378,7 +1351,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 54 across 51 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 55 across 51 headlines.",
     "market_divergence": "WULF +4.5% vs XLK -2.1% over 5 sessions; HYG/LQD -0.5%."
    }
   },
@@ -1409,7 +1382,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 53 across 49 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 54 across 49 headlines.",
     "market_divergence": "WULF +3.0% vs XLK -0.4% over 5 sessions; HYG/LQD 0.0%."
    }
   },
@@ -1440,7 +1413,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 58 across 51 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 59 across 51 headlines.",
     "market_divergence": "WULF +0.2% vs XLK +3.0% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1471,7 +1444,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 58 across 56 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 59 across 56 headlines.",
     "market_divergence": "WULF -1.9% vs XLK +1.3% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1502,7 +1475,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 58 across 57 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 59 across 57 headlines.",
     "market_divergence": "WULF -1.9% vs XLK +1.3% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1533,7 +1506,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 58 across 58 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 59 across 59 headlines.",
     "market_divergence": "WULF -1.9% vs XLK +1.3% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1564,7 +1537,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 59 across 64 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 60 across 64 headlines.",
     "market_divergence": "WULF -2.3% vs XLK +3.6% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -1597,7 +1570,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 62 across 60 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 63 across 60 headlines.",
     "market_divergence": "WULF -10.2% vs XLK +1.0% over 5 sessions; HYG/LQD +0.6%."
    }
   },
@@ -1659,7 +1632,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 63 across 57 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 64 across 57 headlines.",
     "market_divergence": "WULF -1.6% vs XLK -1.4% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -1690,7 +1663,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 66 across 52 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 66 across 51 headlines.",
     "market_divergence": "WULF +7.6% vs XLK +0.9% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1721,7 +1694,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 66 across 51 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 67 across 50 headlines.",
     "market_divergence": "WULF +7.6% vs XLK +0.9% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1752,7 +1725,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 67 across 52 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 67 across 51 headlines.",
     "market_divergence": "WULF +7.6% vs XLK +0.9% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1783,7 +1756,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 66 across 43 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 67 across 42 headlines.",
     "market_divergence": "WULF +7.6% vs XLK +0.9% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -1812,7 +1785,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 63 across 36 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 64 across 37 headlines.",
     "market_divergence": "WULF +18.0% vs XLK +0.7% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -1841,7 +1814,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 64 across 34 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 65 across 35 headlines.",
     "market_divergence": "WULF +16.9% vs XLK +2.3% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -1869,7 +1842,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 59 across 31 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 60 across 32 headlines.",
     "market_divergence": "WULF +8.9% vs XLK +0.9% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -1896,7 +1869,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 62 across 25 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 64 across 25 headlines.",
     "market_divergence": "WULF +3.1% vs XLK +0.9% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -1923,7 +1896,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 63 across 25 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 64 across 25 headlines.",
     "market_divergence": "WULF +3.1% vs XLK +0.9% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -1950,7 +1923,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 64 across 23 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 66 across 22 headlines.",
     "market_divergence": "WULF +3.1% vs XLK +0.9% over 5 sessions; HYG/LQD +0.4%."
    }
   },
@@ -1976,7 +1949,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 61 across 18 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 64 across 18 headlines.",
     "market_divergence": "WULF -6.3% vs XLK -1.6% over 5 sessions; HYG/LQD +0.3%."
    }
   },
@@ -2004,7 +1977,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "No notable open-market insider trades in the last 30 days.",
-    "sentiment_divergence": "Management tone 61 against news tone 59 across 18 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 61 across 18 headlines.",
     "market_divergence": "WULF -18.9% vs XLK -2.2% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -2031,7 +2004,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 58 across 17 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 61 across 17 headlines.",
     "market_divergence": "WULF -10.2% vs XLK -2.1% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2059,7 +2032,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 61 across 18 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 64 across 18 headlines.",
     "market_divergence": "WULF +2.0% vs XLK +1.5% over 5 sessions; HYG/LQD -0.6%."
    }
   },
@@ -2087,7 +2060,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 64 across 18 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 66 across 18 headlines.",
     "market_divergence": "WULF +1.6% vs XLK +1.0% over 5 sessions; HYG/LQD -0.5%."
    }
   },
@@ -2115,7 +2088,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 64 across 18 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 66 across 18 headlines.",
     "market_divergence": "WULF +1.6% vs XLK +1.0% over 5 sessions; HYG/LQD -0.5%."
    }
   },
@@ -2143,7 +2116,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 60 across 16 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 63 across 16 headlines.",
     "market_divergence": "WULF +1.6% vs XLK +1.0% over 5 sessions; HYG/LQD -0.5%."
    }
   },
@@ -2173,7 +2146,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 60 across 16 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 63 across 16 headlines.",
     "market_divergence": "WULF +12.8% vs XLK +5.9% over 5 sessions; HYG/LQD -0.6%."
    }
   },
@@ -2201,7 +2174,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 59 across 18 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 60 across 16 headlines.",
     "market_divergence": "WULF +19.6% vs XLK +6.9% over 5 sessions; HYG/LQD -0.4%."
    }
   },
@@ -2229,7 +2202,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 57 across 24 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 57 across 22 headlines.",
     "market_divergence": "WULF +6.2% vs XLK +6.3% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2257,7 +2230,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 56 across 24 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 57 across 22 headlines.",
     "market_divergence": "WULF -1.1% vs XLK +3.7% over 5 sessions; HYG/LQD +0.9%."
    }
   },
@@ -2287,7 +2260,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 54 across 25 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 55 across 24 headlines.",
     "market_divergence": "WULF -7.5% vs XLK +3.6% over 5 sessions; HYG/LQD +0.6%."
    }
   },
@@ -2317,7 +2290,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 55 across 24 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 55 across 23 headlines.",
     "market_divergence": "WULF -7.5% vs XLK +3.6% over 5 sessions; HYG/LQD +0.6%."
    }
   },
@@ -2347,7 +2320,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 55 across 24 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 55 across 23 headlines.",
     "market_divergence": "WULF -7.5% vs XLK +3.6% over 5 sessions; HYG/LQD +0.6%."
    }
   },
@@ -2377,7 +2350,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 53 across 23 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 53 across 22 headlines.",
     "market_divergence": "WULF -13.4% vs XLK -0.2% over 5 sessions; HYG/LQD +1.1%."
    }
   },
@@ -2407,7 +2380,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 58 across 21 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 58 across 20 headlines.",
     "market_divergence": "WULF -12.9% vs XLK -0.9% over 5 sessions; HYG/LQD +0.9%."
    }
   },
@@ -2435,7 +2408,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 57 across 22 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 58 across 21 headlines.",
     "market_divergence": "WULF -9.5% vs XLK +0.2% over 5 sessions; HYG/LQD +0.5%."
    }
   },
@@ -2464,7 +2437,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 53 across 19 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 53 across 18 headlines.",
     "market_divergence": "WULF -8.5% vs XLK +1.6% over 5 sessions; HYG/LQD -0.2%."
    }
   },
@@ -2492,7 +2465,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 57 across 22 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 58 across 21 headlines.",
     "market_divergence": "WULF -1.6% vs XLK +1.8% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2520,7 +2493,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 57 across 23 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 57 across 22 headlines.",
     "market_divergence": "WULF -1.6% vs XLK +1.8% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2548,7 +2521,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 57 across 23 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 57 across 22 headlines.",
     "market_divergence": "WULF -1.6% vs XLK +1.8% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2578,7 +2551,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 53 across 41 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 53 across 39 headlines.",
     "market_divergence": "WULF -2.2% vs XLK +3.3% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -2608,7 +2581,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 54 across 41 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 54 across 40 headlines.",
     "market_divergence": "WULF -0.8% vs XLK +3.9% over 5 sessions; HYG/LQD +0.2%."
    }
   },
@@ -2638,7 +2611,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 53 across 39 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 54 across 38 headlines.",
     "market_divergence": "WULF -2.7% vs XLK +2.9% over 5 sessions; HYG/LQD +0.1%."
    }
   },
@@ -2668,7 +2641,7 @@
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 52 across 47 headlines.",
+    "sentiment_divergence": "Management tone 61 against news tone 51 across 45 headlines.",
     "market_divergence": "WULF -8.5% vs XLK 0.0% over 5 sessions; HYG/LQD -0.1%."
    }
   },
@@ -2691,17 +2664,51 @@
      "wulf-f3d56da36fd7",
      "wulf-b6bc05138e95",
      "wulf-bdc0e97eed97",
-     "wulf-04829ad7bca8"
+     "wulf-04829ad7bca8",
+     "wulf-0033528010f7"
     ],
     "market_divergence": [
-     "wulf-38af434bb717"
+     "wulf-f174e7fb96d3"
     ]
    },
    "notes": {
     "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
     "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
-    "sentiment_divergence": "Management tone 61 against news tone 51 across 47 headlines.",
-    "market_divergence": "WULF -11.7% vs XLK -0.5% over 5 sessions; HYG/LQD -0.1%."
+    "sentiment_divergence": "Management tone 61 against news tone 51 across 46 headlines.",
+    "market_divergence": "WULF -11.1% vs XLK -0.5% over 5 sessions; HYG/LQD -0.2%."
+   }
+  },
+  {
+   "ticker": "WULF",
+   "date": "2026-10-10",
+   "total_score": 11.2,
+   "filing_anomaly": 4,
+   "insider_activity": 0,
+   "sentiment_divergence": 0,
+   "market_divergence": 50,
+   "drivers": {
+    "filing_anomaly": [
+     "wulf-1b7d2e9974da"
+    ],
+    "insider_activity": [
+     "wulf-fcf35169ef7c"
+    ],
+    "sentiment_divergence": [
+     "wulf-f3d56da36fd7",
+     "wulf-b6bc05138e95",
+     "wulf-bdc0e97eed97",
+     "wulf-04829ad7bca8",
+     "wulf-0033528010f7"
+    ],
+    "market_divergence": [
+     "wulf-f174e7fb96d3"
+    ]
+   },
+   "notes": {
+    "filing_anomaly": "1 anomaly from filings in the last 90 days, weighted by age.",
+    "insider_activity": "1 insider signal in the last 30 days, weighted by age.",
+    "sentiment_divergence": "Management tone 61 against news tone 52 across 47 headlines.",
+    "market_divergence": "WULF -11.1% vs XLK -0.5% over 5 sessions; HYG/LQD -0.2%."
    }
   }
  ],
@@ -2733,34 +2740,6 @@
    "source_label": "10-Q, Item 2. Management’s Discussion and Analysis, filed May 8, 2026",
    "source_url": "https://www.sec.gov/Archives/edgar/data/1083301/000108330126000092/wulf-20260331.htm",
    "score_impact": 0
-  },
-  {
-   "id": "wulf-0f5e1b981fd3",
-   "ticker": "WULF",
-   "date": "2026-06-29",
-   "event_type": "news",
-   "category": "news_positive",
-   "component": "sentiment_divergence",
-   "title": "Positive coverage from Yahoo Finance",
-   "quote": "Is TeraWulf Inc. (WULF) A Good Stock To Buy Now?",
-   "quote_kind": "verbatim",
-   "source_label": "Yahoo Finance headline, Jun 29, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPTDQzWTJrOXgzaEZLT2V5blhacG95LTJsbkV5ckJRQ19aSi1XT3JkTkF0QmNVV1FCQW9jQldPNzZ1VnFGWVFhak9sNTgyOHc1LUdiRll6blYyVlh2TDNhU25abGpSX2lwaklzUzh2ay03RXdzRFdMb2YyVVJxU29rTzIyMU1PVnhLZ1V2OFRQNWNsNlp2OVM3Yw?oc=5",
-   "score_impact": -6.5
-  },
-  {
-   "id": "wulf-aabfdaf7b226",
-   "ticker": "WULF",
-   "date": "2026-06-29",
-   "event_type": "news",
-   "category": "news_positive",
-   "component": "sentiment_divergence",
-   "title": "Positive coverage from Yahoo Finance",
-   "quote": "TeraWulf gains bullish initiation from Citi on AI data center growth outlook",
-   "quote_kind": "verbatim",
-   "source_label": "Yahoo Finance headline, Jun 29, 2026",
-   "source_url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQN1BUSlM5bWMxTEJ3TXJYTmJkNWc0WUFaeHloVXdlcVNTREg5N040dGR5YnkxcXQzY1F1MUxYNzQwU2lxbXV4TE5wSGM1b2duVDJOR240Qy1DdFc2YlJEQW5vMU1kNXZjU3B3VXg1SUQzVUl4dGtBalVTVF9hb1daaGlsZUlTSjZGMThfZWhKdUJiQlBuQzRTM2FkUVdiR3dCeU1NQg?oc=5",
-   "score_impact": -6.5
   },
   {
    "id": "wulf-91a627e89af3",
@@ -2915,6 +2894,20 @@
    "source_label": "Yahoo Finance headline, Jul 14, 2026",
    "source_url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPYUdPSTFkbExHRnRMcE9OUm9uMms1bUZKM2ctbTBYVG5OWDNHYWt2a201UngzT3lvUkQzLXBDMy1rajRUTDdZcFJScGE5VElvUkJ5clhndGJDRno4LWRLU2FST3pCbUdlcXVPX2owblNYT2d6Y2xSYUVDdVhKRDFIeWVpaWVkQXVueUNRM042eE1JaTA?oc=5",
    "score_impact": -6.5
+  },
+  {
+   "id": "wulf-5f30449e04f0",
+   "ticker": "WULF",
+   "date": "2026-07-14",
+   "event_type": "news",
+   "category": "news_negative",
+   "component": "sentiment_divergence",
+   "title": "Negative coverage from Yahoo Finance",
+   "quote": "TeraWulf CEO Cheered New York’s Data Center Freeze, His Stock Fell 7%.",
+   "quote_kind": "verbatim",
+   "source_label": "Yahoo Finance headline, Jul 14, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOT0JSeHpQMDNiRkstNmVWTmVMRXF3MTZaaEhNcHRmcGFFME8yUW1CU2FBWUJWMTN3S3RCWjRyUUdMd0dRQ1hhNS1NUGk3RHFfMXhqeUo4bVozcFN6eWg4VlhhM2tKTi1QenJlMXVScnFYb3VDeTJnUi0zdE90Y1VmOHU2SUZ4VjVoeTRsdVY4TV9LOHJMWTkyRG8tWQ?oc=5",
+   "score_impact": 6.5
   },
   {
    "id": "wulf-79e0563d2d80",
@@ -3421,7 +3414,21 @@
    "score_impact": 6.5
   },
   {
-   "id": "wulf-38af434bb717",
+   "id": "wulf-0033528010f7",
+   "ticker": "WULF",
+   "date": "2026-10-09",
+   "event_type": "news",
+   "category": "news_positive",
+   "component": "sentiment_divergence",
+   "title": "Positive coverage from Yahoo Finance",
+   "quote": "TeraWulf (WULF) Is Down 11.1% After Doubling Muskie Campus Power Deal Capacity To 1 GW – Has The Bull Case Changed?",
+   "quote_kind": "verbatim",
+   "source_label": "Yahoo Finance headline, Oct 9, 2026",
+   "source_url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQNmZvaWZpYXg5cTdaall2Mi01d2RZUno3Yl9XakdpUkVya3N0RjI5TWxJZExoblZ0RklsOVJCRUk5VmNBaEpMSWFjRmlsX2hsTnpPM25WeWJnNEtTSVlTeTEzRWVwcHVnWWRSUURkX2RxdnZYTTJkUjg3X3YtRUludnVnbWE2Y2w3ekVOMnJsel8?oc=5",
+   "score_impact": -6.5
+  },
+  {
+   "id": "wulf-f174e7fb96d3",
    "ticker": "WULF",
    "date": "2026-10-09",
    "event_type": "market",
@@ -3430,11 +3437,11 @@
    "quote_kind": "reported",
    "source_url": "https://finance.yahoo.com/quote/WULF/history/",
    "title": "Underperformed XLK by more than 10 points in a week",
-   "quote": "WULF returned -11.7% over the 5 sessions to Oct 9, 2026, while XLK returned -0.5%.",
+   "quote": "WULF returned -11.1% over the 5 sessions to Oct 9, 2026, while XLK returned -0.5%.",
    "source_label": "Yahoo Finance daily closes, WULF and XLK",
    "score_impact": 50
   }
  ],
  "reason": "Market divergence leads: underperformed XLK by more than 10 points in a week (Oct 9, 2026).",
- "generated_at": "2026-10-09T19:09:22.798Z"
+ "generated_at": "2026-10-10T09:49:31.949Z"
 }
