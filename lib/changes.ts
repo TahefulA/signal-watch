@@ -37,6 +37,20 @@ function containsPassage(text: FilingWords, quote: string): boolean {
   return needle.length > 0 && text.joined.includes(needle);
 }
 
+/**
+ * True when the filings contain a sentence sharing at least 60% of the passage's
+ * words: risk factors are reworded slightly from one filing to the next.
+ */
+function similarPassage(text: FilingWords, quote: string): boolean {
+  const wanted = new Set(words(quote).filter((w) => w.length > 3));
+  if (wanted.size < 5) return false;
+  return text.sentences.some((sentence) => {
+    let shared = 0;
+    for (const w of new Set(sentence)) if (wanted.has(w)) shared++;
+    return shared / wanted.size >= 0.6;
+  });
+}
+
 /** Model-named entities such as "Construction Delays" are compared by their evidence, not their name. */
 function isDescriptive(e: Entity): boolean {
   return e.type === "risk" || e.type === "macro";
@@ -203,7 +217,9 @@ export async function diffReports(
   for (const node of filingNodes(current)) {
     const prior = beforeNodes.find((b) => sameEntity(b.name, node.name));
     if (!prior) {
-      const seenBefore = isDescriptive(node) ? containsPassage(beforeText, node.sourceQuote) : mentions(beforeText.sentences, node.name);
+      const seenBefore = isDescriptive(node)
+        ? containsPassage(beforeText, node.sourceQuote) || similarPassage(beforeText, node.sourceQuote)
+        : mentions(beforeText.sentences, node.name) || (node.type === "financial" && similarPassage(beforeText, node.sourceQuote));
       if (seenBefore) mentionedBefore.push(node.name);
       else
         changes.push({
@@ -272,7 +288,13 @@ export async function diffReports(
 
   for (const prior of beforeNodes) {
     if (filingNodes(current).some((n) => sameEntity(n.name, prior.name))) continue;
-    if (isDescriptive(prior) ? containsPassage(afterText, prior.sourceQuote) : mentions(afterText.sentences, prior.name)) continue;
+    if (
+      isDescriptive(prior)
+        ? containsPassage(afterText, prior.sourceQuote) || similarPassage(afterText, prior.sourceQuote)
+        : mentions(afterText.sentences, prior.name)
+    ) {
+      continue;
+    }
     // Removal is the stronger claim, so it also needs most of the name's words to be gone from the current filings.
     const key = keyWords(prior.name);
     if (key.filter((w) => afterText.joined.includes(` ${w} `)).length * 2 >= key.length) continue;

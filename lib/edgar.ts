@@ -347,7 +347,7 @@ export function excerptFiling(filing: FilingRef, documents: DocumentText[], budg
     const share = Math.floor(budget / documents.length);
     return documents.map((doc, i) => ({
       label: i === 0 ? "Current report" : "Exhibit",
-      text: doc.text.slice(0, share),
+      text: withoutSafeHarbor(doc.text).slice(0, share),
       url: doc.url,
     }));
   }
@@ -408,4 +408,16 @@ export function extractDebtNotes(text: string): Section[] {
     notes.push({ label, text: body });
   }
   return notes;
+}
+
+const SAFE_HARBOR = /\n\s*(?:Forward[- ]Looking Statements|Cautionary (?:Note|Statement)[^\n]{0,80}|Safe Harbor[^\n]{0,80})\s*\n/i;
+
+/**
+ * Drops the forward-looking statements disclaimer at the end of a press release.
+ * It lists every conceivable risk in boilerplate, which is not a disclosure that
+ * something is happening.
+ */
+export function withoutSafeHarbor(text: string): string {
+  const match = SAFE_HARBOR.exec(text);
+  return match && match.index > text.length * 0.3 ? text.slice(0, match.index) : text;
 }

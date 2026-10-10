@@ -33,7 +33,7 @@ export class AnalyzeError extends Error {}
  * Bumped when extraction or verification changes, so stored baselines built by
  * older code are rebuilt rather than compared against.
  */
-export const PIPELINE_VERSION = 3;
+export const PIPELINE_VERSION = 4;
 
 export type StepReporter = (step: string) => void;
 
