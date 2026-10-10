@@ -1,5 +1,5 @@
 import { cachedFetchText } from "./fetch-cache";
-import { addDays, toIsoDate } from "./dates";
+import { toIsoDate } from "./dates";
 
 export interface NewsItem {
   id: string;
@@ -37,46 +37,48 @@ function tag(block: string, name: string): string {
   return match ? decode(match[1]) : "";
 }
 
-/**
- * Pulls headlines from Google News RSS in fixed date windows. Google caps each
- * response at 100 items, so windows keep coverage even across the full range.
- */
-export async function fetchNews(query: string, startIso: string, endIso: string, windowDays = 15): Promise<NewsItem[]> {
-  const items = new Map<string, NewsItem>();
-  for (let from = startIso; from <= endIso; from = addDays(from, windowDays)) {
-    const to = addDays(from, windowDays);
-    const q = encodeURIComponent(`${query} after:${from} before:${to}`);
-    const url = `https://news.google.com/rss/search?q=${q}&hl=en-US&gl=US&ceid=US:en`;
-    const isRecent = to >= toIsoDate(new Date());
-    const xml = await cachedFetchText(url, {
-      throttleKey: "google-news",
-      minIntervalMs: 1200,
-      maxAgeMs: isRecent ? 6 * 3_600_000 : undefined,
+function parseItems(xml: string): NewsItem[] {
+  const items: NewsItem[] = [];
+  for (const match of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+    const block = match[1];
+    const publisher = tag(block, "source");
+    const rawTitle = tag(block, "title");
+    const headline =
+      publisher && rawTitle.endsWith(` - ${publisher}`) ? rawTitle.slice(0, -(publisher.length + 3)) : rawTitle;
+    const published = new Date(tag(block, "pubDate"));
+    if (Number.isNaN(published.getTime()) || !headline) continue;
+    items.push({
+      id: tag(block, "guid") || tag(block, "link"),
+      date: toIsoDate(published),
+      headline,
+      publisher,
+      url: tag(block, "link"),
+      credibility: credibilityOf(publisher),
     });
-    for (const match of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
-      const block = match[1];
-      const publisher = tag(block, "source");
-      const rawTitle = tag(block, "title");
-      const headline = publisher && rawTitle.endsWith(` - ${publisher}`)
-        ? rawTitle.slice(0, -(publisher.length + 3))
-        : rawTitle;
-      const published = new Date(tag(block, "pubDate"));
-      if (Number.isNaN(published.getTime())) continue;
-      const date = toIsoDate(published);
-      if (date < startIso || date > endIso) continue;
-      const id = tag(block, "guid") || tag(block, "link");
-      const dedupeKey = headline.toLowerCase();
-      if (!items.has(dedupeKey)) {
-        items.set(dedupeKey, {
-          id,
-          date,
-          headline,
-          publisher,
-          url: tag(block, "link"),
-          credibility: credibilityOf(publisher),
-        });
-      }
-    }
   }
-  return Array.from(items.values()).sort((a, b) => a.date.localeCompare(b.date));
+  return items;
+}
+
+/**
+ * The most relevant recent headlines from Google News RSS, ranked by publisher
+ * credibility and then recency, de-duplicated by headline.
+ */
+export async function fetchRecentNews(query: string, limit = 10, days = 45): Promise<NewsItem[]> {
+  const q = encodeURIComponent(`${query} when:${days}d`);
+  const xml = await cachedFetchText(`https://news.google.com/rss/search?q=${q}&hl=en-US&gl=US&ceid=US:en`, {
+    throttleKey: "google-news",
+    minIntervalMs: 500,
+    maxAgeMs: 3 * 3_600_000,
+    timeoutMs: 15_000,
+  });
+  const seen = new Set<string>();
+  return parseItems(xml)
+    .filter((item) => {
+      const key = item.headline.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => b.credibility - a.credibility || b.date.localeCompare(a.date))
+    .slice(0, limit);
 }

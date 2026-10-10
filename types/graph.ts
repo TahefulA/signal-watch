@@ -28,8 +28,8 @@ export interface MarketSnapshot {
   low52w: number;
   marketCap: number | null;
   averageVolume90d: number;
-  sectorEtf: string | null;
-  sectorReturn90d: number | null;
+  benchmark: string | null;
+  benchmarkReturn90d: number | null;
 }
 
 export interface SourceDocument {

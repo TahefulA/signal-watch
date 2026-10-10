@@ -1,4 +1,5 @@
 import YahooFinance from "yahoo-finance2";
+import type { MarketSnapshot } from "@/types";
 import { toIsoDate } from "./dates";
 
 export interface PriceBar {
@@ -69,4 +70,38 @@ export function forwardReturn(series: PriceSeries, iso: string, endIso: string):
 
 export function yahooQuoteUrl(symbol: string): string {
   return `https://finance.yahoo.com/quote/${encodeURIComponent(symbol)}/history/`;
+}
+
+/**
+ * Price context for the memo: 90-day return against the S&P 500, the 52-week
+ * range and market capitalization. Daily granularity only.
+ */
+export async function fetchMarketSnapshot(symbol: string, today: string): Promise<MarketSnapshot | null> {
+  const yearAgo = toIsoDate(new Date(Date.parse(`${today}T00:00:00Z`) - 372 * 86_400_000));
+  const ninety = toIsoDate(new Date(Date.parse(`${today}T00:00:00Z`) - 90 * 86_400_000));
+  const withTimeout = <T,>(p: Promise<T>) =>
+    Promise.race([p, new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Market data timed out")), 15_000))]);
+
+  const [series, benchmark, quote] = await Promise.all([
+    withTimeout(fetchPrices(symbol, yearAgo)),
+    withTimeout(fetchPrices("SPY", yearAgo)).catch(() => null),
+    withTimeout(yahoo.quote(symbol)).catch(() => null),
+  ]);
+  if (series.length < 2) return null;
+  const last = series[series.length - 1];
+  const start = series.find((bar) => bar.date >= ninety) ?? series[0];
+  const recent = series.filter((bar) => bar.date >= ninety);
+  const benchStart = benchmark?.find((bar) => bar.date >= ninety);
+  const benchEnd = benchmark?.at(-1);
+  return {
+    price: last.close,
+    priceDate: last.date,
+    return90d: last.close / start.close - 1,
+    high52w: Math.max(...series.map((b) => b.close)),
+    low52w: Math.min(...series.map((b) => b.close)),
+    marketCap: typeof quote?.marketCap === "number" ? quote.marketCap : null,
+    averageVolume90d: recent.reduce((sum, b) => sum + b.volume, 0) / Math.max(recent.length, 1),
+    benchmark: benchStart && benchEnd ? "SPY" : null,
+    benchmarkReturn90d: benchStart && benchEnd ? benchEnd.close / benchStart.close - 1 : null,
+  };
 }
