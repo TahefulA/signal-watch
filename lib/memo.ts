@@ -66,9 +66,12 @@ export function entityFacts(nodes: Entity[]): string {
 /** Splits {{id|text}} markers into linked spans, keeping only ids on the map. */
 export function toSpans(text: string, ids: Set<string>, names: Map<string, string>): MemoSpan[] {
   // Gemini sometimes writes a bare id such as kentucky-power-company; turn it into a link with the entity's name.
-  const marked = text.replace(/\{\{[^}]*\}\}|\b[a-z0-9]+(?:-[a-z0-9]+)+\b/g, (token) =>
-    !token.startsWith("{{") && ids.has(token) ? `{{${token}|${names.get(token) ?? token}}}` : token,
-  );
+  // A lowercase single word counts only when it is exactly an entity's name written in lowercase ("anthropic").
+  const marked = text.replace(/\{\{[^}]*\}\}|\b[a-z0-9]+(?:-[a-z0-9]+)*\b/g, (token) => {
+    if (token.startsWith("{{") || !ids.has(token)) return token;
+    if (!token.includes("-") && (names.get(token) ?? "").toLowerCase() !== token) return token;
+    return `{{${token}|${names.get(token) ?? token}}}`;
+  });
   return marked
     .split(/(\{\{[^}]+\}\})/)
     .filter(Boolean)
@@ -77,7 +80,9 @@ export function toSpans(text: string, ids: Set<string>, names: Map<string, strin
       if (!match) return { text: part };
       // Accept "new-york governor kathy hochul" for new-york-governor-kathy-hochul.
       const loose = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      const id = ids.has(match[1]) ? match[1] : Array.from(ids).find((x) => x === loose(match[1])) ?? match[1];
+      const byId = (t: string) => (ids.has(t) ? t : Array.from(ids).find((x) => x === loose(t)));
+      // Gemini sometimes copies the placeholder: {{entity_id|governor-kathy-hochul}}. Then the label is the id.
+      const id = byId(match[1]) ?? (match[2] ? byId(match[2]) : undefined) ?? match[1];
       const written = match[2];
       // A label that is just the id, in any form, reads badly; show the entity's name instead.
       const label = written && loose(written) !== loose(id) ? written : (names.get(id) ?? written ?? id);
