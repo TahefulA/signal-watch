@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AnalyzeEvent, Entity, Report } from "@/types";
+import { CapitalStructurePanel } from "@/components/capital/capital-structure-panel";
 import { TickerInput } from "@/components/input/ticker-input";
 import { Header } from "@/components/layout/header";
 import { PIPELINE_STEPS, StatusBar } from "@/components/layout/status-bar";
@@ -36,6 +37,7 @@ export default function HomePage() {
   const [focusRequest, setFocusRequest] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
+  const capitalRef = useRef<HTMLElement>(null);
 
   const showReport = useCallback((next: Report, wasCached: boolean) => {
     setReport(next);
@@ -124,7 +126,13 @@ export default function HomePage() {
     [report],
   );
 
+  const showCapital = useCallback(() => {
+    setSelected(null);
+    capitalRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   const graph = report?.graph ?? null;
+  const totalDebt = report?.capital?.metrics.find((m) => m.key === "total_debt")?.display ?? null;
   const links = useMemo(() => (graph ? viewGraph(graph).links : new Map<string, EntityLink[]>()), [graph]);
 
   return (
@@ -183,8 +191,21 @@ export default function HomePage() {
                 {note}
               </p>
             ))}
-            <div className="h-[70vh] min-h-[480px] border border-zinc-800">
-              <EntityMap graph={graph} selectedId={selected?.id ?? null} focusRequest={focusRequest} onSelect={setSelected} />
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+              <div className="h-[70vh] min-h-[480px] border border-zinc-800">
+                <EntityMap
+                  graph={graph}
+                  totalDebt={totalDebt !== "Not available" ? totalDebt : null}
+                  selectedId={selected?.id ?? null}
+                  focusRequest={focusRequest}
+                  onSelect={setSelected}
+                />
+              </div>
+              <CapitalStructurePanel
+                ref={capitalRef}
+                capital={report.capital}
+                className="scroll-mt-4 xl:h-[70vh] xl:min-h-[480px] xl:overflow-y-auto"
+              />
             </div>
           </section>
           <MemoContainer
@@ -202,7 +223,9 @@ export default function HomePage() {
         companyName={graph?.company.name ?? ""}
         links={selected ? (links.get(selected.id) ?? []) : []}
         nodes={graph?.nodes ?? []}
+        capital={report?.capital}
         onSelectEntity={focusEntity}
+        onShowCapital={showCapital}
         onClose={() => setSelected(null)}
         onToast={setToast}
       />

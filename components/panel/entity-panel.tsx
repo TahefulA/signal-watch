@@ -2,18 +2,21 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Copy, ExternalLink, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { Entity } from "@/types";
+import { type ReactNode, useEffect, useState } from "react";
+import type { CapitalStructure, Entity, MagnitudeKind, RelationType, Trend } from "@/types";
 import type { EntityLink } from "@/lib/graph-view";
 import { SEVERITY_LABELS, SEVERITY_STRIP, TYPE_BORDER, TYPE_LABELS } from "@/lib/entity-style";
 import { Button } from "@/components/ui/button";
+import { CitationBlock, citationLine } from "@/components/ui/citation";
 
 interface EntityPanelProps {
   entity: Entity | null;
   companyName: string;
   links: EntityLink[];
   nodes: Entity[];
+  capital: CapitalStructure | null | undefined;
   onSelectEntity: (id: string) => void;
+  onShowCapital: () => void;
   onClose: () => void;
   onToast: (message: string) => void;
 }
@@ -38,7 +41,278 @@ function readWatchlist(): WatchlistItem[] {
   }
 }
 
-export function EntityPanel({ entity, companyName, links, nodes, onSelectEntity, onClose, onToast }: EntityPanelProps) {
+const RELATION_PLURAL: Record<RelationType, string> = {
+  CUSTOMER_OF: "Other customers and tenants",
+  SUPPLIES_TO: "Other suppliers",
+  LENDS_TO: "Other lenders and debt",
+  GUARANTEES: "Other guarantors",
+  REGULATES: "Other regulators",
+  COMPETES_WITH: "Other competitors",
+  OWNED_BY: "Other owned entities",
+  PARTNERS_WITH: "Other partners",
+  IMPACTS: "Other risks and factors",
+};
+
+const TREND_TEXT: Record<Trend, string> = {
+  increasing: "Increasing",
+  decreasing: "Decreasing",
+  stable: "Stable",
+  unknown: "Not disclosed",
+};
+
+/** Magnitude rows the spec asks for, plus a row for figures of other kinds. */
+const IMPACT_ROWS: { kind: MagnitudeKind; label: string }[] = [
+  { kind: "revenue", label: "Revenue impact" },
+  { kind: "cost", label: "Cost impact" },
+  { kind: "balance_sheet", label: "Balance sheet impact" },
+];
+
+const OTHER_KIND_LABEL: Record<MagnitudeKind, string> = {
+  revenue: "Revenue impact",
+  cost: "Cost impact",
+  balance_sheet: "Balance sheet impact",
+  contract: "Contract",
+  capacity: "Capacity",
+  other: "Disclosed figure",
+};
+
+const NOT_EXTRACTED = "Not extracted for this report. Read the filings again to add context.";
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="border-t border-zinc-800 pt-5 first:border-t-0 first:pt-0">
+      <h3 className="text-xs font-medium uppercase tracking-widest text-zinc-500">{title}</h3>
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 py-1.5 text-sm">
+      <dt className="text-zinc-500">{label}</dt>
+      <dd className="text-zinc-200">{children}</dd>
+    </div>
+  );
+}
+
+function Missing({ children = "Not disclosed" }: { children?: ReactNode }) {
+  return <span className="text-zinc-500">{children}</span>;
+}
+
+function Evidence({ entity }: { entity: Entity }) {
+  const [showContext, setShowContext] = useState(false);
+  const context = entity.sourceContext && entity.sourceContext !== entity.sourceQuote ? entity.sourceContext : null;
+  return (
+    <Section title="Evidence">
+      <blockquote className="border-l-2 border-zinc-600 pl-3 text-sm italic leading-relaxed text-zinc-300">{entity.sourceQuote}</blockquote>
+      <p className="mt-2 font-mono text-[10px] text-zinc-500">
+        {citationLine({ sourceType: entity.sourceType, sourceDate: entity.sourceDate, sourceLabel: entity.sourceLabel, page: entity.sourcePage })}
+      </p>
+      {context ? (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setShowContext((v) => !v)}
+            className="text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-100"
+            aria-expanded={showContext}
+          >
+            {showContext ? "Hide surrounding paragraph" : "Show surrounding paragraph"}
+          </button>
+          {showContext ? <p className="mt-2 text-xs leading-relaxed text-zinc-400">{context}</p> : null}
+        </div>
+      ) : null}
+      <a
+        href={entity.sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-3 flex items-center gap-1.5 text-xs font-medium text-zinc-300 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-50"
+      >
+        {entity.sourceType === "News" ? "View full article" : "View full filing on SEC EDGAR"}
+        <ExternalLink className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
+      </a>
+    </Section>
+  );
+}
+
+function MagnitudeSection({ entity }: { entity: Entity }) {
+  if (entity.magnitude === undefined) {
+    return (
+      <Section title="Magnitude">
+        <p className="text-sm text-zinc-500">{NOT_EXTRACTED}</p>
+      </Section>
+    );
+  }
+  const m = entity.magnitude;
+  const otherKind = m && !IMPACT_ROWS.some((r) => r.kind === m.kind) ? m : null;
+  return (
+    <Section title="Magnitude">
+      <dl>
+        {IMPACT_ROWS.map((row) => (
+          <Row key={row.kind} label={row.label}>
+            {m && m.kind === row.kind ? <span className="font-mono">{m.label}</span> : <Missing />}
+          </Row>
+        ))}
+        {otherKind ? (
+          <Row label={OTHER_KIND_LABEL[otherKind.kind]}>
+            <span className="font-mono">{otherKind.label}</span>
+          </Row>
+        ) : null}
+        <Row label="Trend">{entity.trend && entity.trend !== "unknown" ? TREND_TEXT[entity.trend] : <Missing />}</Row>
+      </dl>
+      {m ? <CitationBlock citation={m.citation} compact /> : null}
+      {entity.trendCitation && entity.trendCitation.quote !== m?.citation.quote ? (
+        <CitationBlock citation={entity.trendCitation} compact />
+      ) : null}
+      {!m ? (
+        <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+          The filings read for this report give no figure for this entity. Signal Watch shows a number only when the
+          filing states it.
+        </p>
+      ) : null}
+    </Section>
+  );
+}
+
+function StrategicSection({ entity }: { entity: Entity }) {
+  const s = entity.strategic;
+  if (!s) {
+    return (
+      <Section title="Strategic context">
+        <p className="text-sm text-zinc-500">{NOT_EXTRACTED}</p>
+      </Section>
+    );
+  }
+  return (
+    <Section title="Strategic context">
+      <dl>
+        <Row label="Why it matters">{s.whyItMatters ?? <Missing />}</Row>
+        <Row label="If it disappeared">{s.ifItDisappeared ?? <Missing />}</Row>
+        <Row label="Structural protection">{s.protection ? s.protection.text : <Missing />}</Row>
+      </dl>
+      {s.protection ? <CitationBlock citation={s.protection.citation} compact /> : null}
+      <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+        The first two rows are Gemini&rsquo;s reading of the filings, not quotations. Protection is shown only with the
+        sentence that describes it.
+      </p>
+    </Section>
+  );
+}
+
+function ComparisonSection() {
+  return (
+    <Section title="Comparison">
+      <dl>
+        <Row label="Peer exposure">
+          <Missing>No peer reports loaded</Missing>
+        </Row>
+        <Row label="Sector norm">
+          <Missing>No peer reports loaded</Missing>
+        </Row>
+        <Row label="Differentiation">
+          <Missing>No peer reports loaded</Missing>
+        </Row>
+      </dl>
+      <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+        Comparison is filled from other companies&rsquo; reports, never from general knowledge.
+      </p>
+    </Section>
+  );
+}
+
+function RelatedSection({
+  entity,
+  links,
+  nodes,
+  onSelectEntity,
+}: {
+  entity: Entity;
+  links: EntityLink[];
+  nodes: Entity[];
+  onSelectEntity: (id: string) => void;
+}) {
+  const siblings = entity.relationType
+    ? nodes.filter((n) => !n.isCentral && n.id !== entity.id && n.relationType === entity.relationType)
+    : [];
+  const linkButton = (other: Entity) => (
+    <button
+      type="button"
+      onClick={() => onSelectEntity(other.id)}
+      className="text-zinc-100 underline decoration-zinc-600 underline-offset-4 hover:decoration-zinc-300"
+    >
+      {other.name}
+    </button>
+  );
+  return (
+    <Section title="Related nodes">
+      {links.length === 0 && siblings.length === 0 ? <p className="text-sm text-zinc-500">No other entity on the map is linked to this one.</p> : null}
+      {links.length > 0 ? (
+        <ul className="space-y-1.5">
+          {links.map((link) => {
+            const other = nodes.find((n) => n.id === link.entityId);
+            if (!other) return null;
+            return (
+              <li key={`${link.direction}-${link.entityId}`} className="text-sm text-zinc-300">
+                {link.direction === "out" ? <>{link.relationship} </> : null}
+                {linkButton(other)}
+                {link.direction === "in" ? <span className="text-zinc-400"> {link.relationship.toLowerCase()} this</span> : null}
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+      {siblings.length > 0 && entity.relationType ? (
+        <div className={links.length > 0 ? "mt-4" : ""}>
+          <p className="text-xs text-zinc-500">{RELATION_PLURAL[entity.relationType]}</p>
+          <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
+            {siblings.map((s) => (
+              <li key={s.id}>{linkButton(s)}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </Section>
+  );
+}
+
+function CompanySummary({ capital, onShowCapital }: { capital: CapitalStructure | null | undefined; onShowCapital: () => void }) {
+  if (!capital) {
+    return (
+      <Section title="Capital structure">
+        <p className="text-sm text-zinc-500">{capital === undefined ? NOT_EXTRACTED : "No debt note was found in the latest periodic filing."}</p>
+      </Section>
+    );
+  }
+  const keys = ["total_debt", "net_debt", "debt_to_ebitda", "interest_coverage", "liquidity"];
+  return (
+    <Section title="Capital structure">
+      <dl>
+        {capital.metrics
+          .filter((m) => keys.includes(m.key))
+          .map((m) => (
+            <Row key={m.key} label={m.label}>
+              <span className="font-mono">{m.display}</span>
+            </Row>
+          ))}
+      </dl>
+      <Button className="mt-3" onClick={onShowCapital}>
+        Open capital structure
+      </Button>
+    </Section>
+  );
+}
+
+export function EntityPanel({
+  entity,
+  companyName,
+  links,
+  nodes,
+  capital,
+  onSelectEntity,
+  onShowCapital,
+  onClose,
+  onToast,
+}: EntityPanelProps) {
   const [watched, setWatched] = useState(false);
 
   useEffect(() => {
@@ -53,8 +327,9 @@ export function EntityPanel({ entity, companyName, links, nodes, onSelectEntity,
 
   async function copyQuote() {
     if (!entity) return;
+    const page = entity.sourcePage ? `, p. ${entity.sourcePage}` : "";
     try {
-      await navigator.clipboard.writeText(`"${entity.sourceQuote}" (${entity.sourceType}, ${entity.sourceDate}, ${entity.sourceUrl})`);
+      await navigator.clipboard.writeText(`"${entity.sourceQuote}" (${entity.sourceType}, ${entity.sourceDate}${page}, ${entity.sourceUrl})`);
       onToast("Quote copied");
     } catch {
       onToast("Copy failed. Select the quote and copy it manually.");
@@ -83,7 +358,7 @@ export function EntityPanel({ entity, companyName, links, nodes, onSelectEntity,
           key={entity.id}
           role="dialog"
           aria-labelledby="entity-panel-title"
-          className="fixed inset-y-0 right-0 z-40 flex w-full max-w-[420px] flex-col border-l border-zinc-800 bg-zinc-900"
+          className="fixed inset-y-0 right-0 z-40 flex w-full max-w-[460px] flex-col border-l border-zinc-800 bg-zinc-900"
           initial={{ x: "100%" }}
           animate={{ x: 0 }}
           exit={{ x: "100%" }}
@@ -94,9 +369,17 @@ export function EntityPanel({ entity, companyName, links, nodes, onSelectEntity,
               <h2 id="entity-panel-title" className="text-lg font-semibold leading-snug text-zinc-100">
                 {entity.name}
               </h2>
-              <span className={`mt-2 inline-block rounded-sm border px-1.5 py-0.5 text-[11px] text-zinc-300 ${TYPE_BORDER[entity.type]}`}>
-                {TYPE_LABELS[entity.type]}
-              </span>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className={`inline-block rounded-xs border px-1.5 py-0.5 text-[11px] text-zinc-300 ${TYPE_BORDER[entity.type]}`}>
+                  {TYPE_LABELS[entity.type]}
+                </span>
+                {entity.change ? (
+                  <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-400">
+                    <span className={`h-2 w-2 rounded-full ${entity.change.kind === "new" ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden />
+                    {entity.change.kind === "new" ? "New since the previous report" : "Changed since the previous report"}
+                  </span>
+                ) : null}
+              </div>
             </div>
             <button
               type="button"
@@ -108,68 +391,51 @@ export function EntityPanel({ entity, companyName, links, nodes, onSelectEntity,
             </button>
           </div>
 
-          <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
-            {entity.isCentral ? null : (
-              <section>
-                <h3 className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-                  Relationship to {companyName}
-                </h3>
-                <p className="mt-2 text-sm text-zinc-200">{entity.relationship}</p>
-                <p className="mt-2 inline-flex items-center gap-2 text-sm text-zinc-400">
-                  <span className={`h-3.5 w-1 ${SEVERITY_STRIP[entity.severity]}`} aria-hidden />
-                  {SEVERITY_LABELS[entity.severity]}
-                </p>
-              </section>
-            )}
-
-            {links.length > 0 ? (
-              <section>
-                <h3 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Linked on the map</h3>
-                <ul className="mt-2 space-y-1.5">
-                  {links.map((link) => {
-                    const other = nodes.find((n) => n.id === link.entityId);
-                    if (!other) return null;
-                    return (
-                      <li key={`${link.direction}-${link.entityId}`} className="text-sm text-zinc-300">
-                        {link.direction === "out" ? (
-                          <>
-                            {link.relationship}{" "}
-                          </>
-                        ) : null}
-                        <button
-                          type="button"
-                          onClick={() => onSelectEntity(other.id)}
-                          className="text-zinc-100 underline decoration-zinc-600 underline-offset-4 hover:decoration-zinc-300"
-                        >
-                          {other.name}
-                        </button>
-                        {link.direction === "in" ? <span className="text-zinc-400"> {link.relationship.toLowerCase()} this</span> : null}
-                      </li>
-                    );
-                  })}
+          <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
+            <Section title="Identity">
+              <dl>
+                {entity.isCentral ? (
+                  <Row label="Ticker">
+                    <span className="font-mono">{entity.relationship}</span>
+                  </Row>
+                ) : (
+                  <>
+                    <Row label="Relationship">{entity.relationship}</Row>
+                    {entity.relationType ? (
+                      <Row label="Relationship type">
+                        <span className="font-mono text-xs">{entity.relationType.replace(/_/g, " ")}</span>
+                      </Row>
+                    ) : null}
+                    <Row label="Severity">
+                      <span className="inline-flex items-center gap-2">
+                        <span className={`h-3.5 w-1 ${SEVERITY_STRIP[entity.severity]}`} aria-hidden />
+                        {SEVERITY_LABELS[entity.severity]}
+                      </span>
+                    </Row>
+                  </>
+                )}
+              </dl>
+              {entity.change && entity.change.details.length > 0 ? (
+                <ul className="mt-2 space-y-1 text-xs text-zinc-400">
+                  {entity.change.details.map((d) => (
+                    <li key={d}>{d}</li>
+                  ))}
                 </ul>
-              </section>
-            ) : null}
+              ) : null}
+            </Section>
 
-            <section>
-              <h3 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Source</h3>
-              <p className="mt-2 font-mono text-xs text-zinc-400">
-                {entity.sourceType} · {entity.sourceDate}
-              </p>
-              <p className="mt-1 text-xs text-zinc-500">{entity.sourceLabel}</p>
-              <blockquote className="mt-3 border-l-2 border-zinc-600 pl-3 text-sm italic leading-relaxed text-zinc-300">
-                {entity.sourceQuote}
-              </blockquote>
-              <a
-                href={entity.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-50"
-              >
-                {entity.sourceType === "News" ? "View full article" : "View full filing"}
-                <ExternalLink className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
-              </a>
-            </section>
+            <Evidence entity={entity} />
+
+            {entity.isCentral ? (
+              <CompanySummary capital={capital} onShowCapital={onShowCapital} />
+            ) : (
+              <>
+                <MagnitudeSection entity={entity} />
+                <StrategicSection entity={entity} />
+                <ComparisonSection />
+                <RelatedSection entity={entity} links={links} nodes={nodes} onSelectEntity={onSelectEntity} />
+              </>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2 border-t border-zinc-800 px-6 py-4">

@@ -46,7 +46,7 @@ Rules:
 - Only use what the provided text states. Never add knowledge from outside the text.
 - Every *_quote field must be copied exactly from the text, character for character, one sentence or less, at most 250 characters. Every *_doc field is the bracketed id of the block that quote came from, such as D3.
 - name is short (1 to 5 words). relationship is 2 to 5 words, written from the main company's point of view, for example "HPC tenant", "Secured by", "Competes with", "Regulated by", "Exposed to".
-- relation_type is the typed relationship from the entity to the main company: CUSTOMER_OF (tenants and customers), SUPPLIES_TO, LENDS_TO (lenders, notes, credit facilities), GUARANTEES, REGULATES, COMPETES_WITH, OWNED_BY (subsidiaries, joint ventures, sites the company owns), PARTNERS_WITH, IMPACTS (risks and macro factors).
+- relation_type is the typed relationship from the entity to the main company: CUSTOMER_OF (the entity buys from or leases from the main company: tenants and customers), SUPPLIES_TO (the entity sells power, equipment, land or services to the main company, including utilities), LENDS_TO (lenders, notes, credit facilities), GUARANTEES, REGULATES, COMPETES_WITH, OWNED_BY (subsidiaries, joint ventures, sites the company owns), PARTNERS_WITH, IMPACTS (risks and macro factors).
 - type: company for other businesses, financial for debt, equity, liquidity and capital items, risk for risks, macro for economy-wide factors and policy, regulatory for regulators and rules, neutral for sites, people and anything else.
 - severity reflects how material the entity is to the company's credit: high, medium, low, or none.
 
