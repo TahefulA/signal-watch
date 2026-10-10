@@ -74,6 +74,7 @@ async function secFetch(url: string): Promise<string> {
     headers: { "User-Agent": USER_AGENT, "Accept-Encoding": "gzip, deflate" },
     throttleKey: "sec",
     minIntervalMs: SEC_INTERVAL_MS,
+    timeoutMs: 15_000,
   });
 }
 
@@ -84,6 +85,7 @@ async function secFetchFresh(url: string): Promise<string> {
     throttleKey: "sec",
     minIntervalMs: SEC_INTERVAL_MS,
     maxAgeMs: 12 * 3_600_000,
+    timeoutMs: 15_000,
   });
 }
 
@@ -212,6 +214,7 @@ export interface Section {
 }
 
 const SECTION_PATTERNS: { label: string; start: RegExp }[] = [
+  { label: "Item 1. Business", start: /\n\s*Item\s*1\.?\s*[\-\u2013\u2014:]?\s*Business\s*\n/gi },
   { label: "Item 1A. Risk Factors", start: /\n\s*Item\s*1A\.?\s*[\-–—:]?\s*Risk Factors\s*\n/gi },
   {
     label: "Item 7. Management’s Discussion and Analysis",
@@ -301,4 +304,53 @@ export async function fetchInsiderTransactions(filing: FilingRef): Promise<Insid
     });
   }
   return transactions;
+}
+
+const FORM_PRIORITY = ["10-K", "10-Q", "8-K"] as const;
+
+/** The latest 10-K, 10-Q and 8-K filed in the last two years, newest first. */
+export function selectRecentFilings(submissions: CompanySubmissions, today: string): FilingRef[] {
+  const cutoff = `${Number(today.slice(0, 4)) - 2}${today.slice(4)}`;
+  const picks: FilingRef[] = [];
+  for (const form of FORM_PRIORITY) {
+    const latest = submissions.filings.find((f) => f.form === form && f.filingDate >= cutoff);
+    if (latest) picks.push(latest);
+  }
+  return picks.sort((a, b) => b.filingDate.localeCompare(a.filingDate));
+}
+
+export interface FilingExcerpt {
+  label: string;
+  text: string;
+  url: string;
+}
+
+const SECTION_BUDGET: Record<string, string[]> = {
+  "10-K": ["Item 1. Business", "Item 1A. Risk Factors", "Item 7. Management"],
+  "10-Q": ["Item 2. Management", "Item 1A. Risk Factors"],
+};
+
+/**
+ * Cuts a filing down to the sections that carry counterparties and risks, within
+ * a character budget. 8-Ks use the cover document and exhibits as filed.
+ */
+export function excerptFiling(filing: FilingRef, documents: DocumentText[], budget = 40_000): FilingExcerpt[] {
+  const primary = documents[0];
+  if (!primary) return [];
+  const wanted = SECTION_BUDGET[filing.form];
+  if (!wanted) {
+    const share = Math.floor(budget / documents.length);
+    return documents.map((doc, i) => ({
+      label: i === 0 ? "Current report" : "Exhibit",
+      text: doc.text.slice(0, share),
+      url: doc.url,
+    }));
+  }
+  const sections = extractSections(primary.text);
+  const chosen = wanted
+    .map((prefix) => sections.find((s) => s.label.startsWith(prefix)))
+    .filter((s): s is Section => s !== undefined);
+  if (chosen.length === 0) return [{ label: filing.form, text: primary.text.slice(0, budget), url: primary.url }];
+  const share = Math.floor(budget / chosen.length);
+  return chosen.map((s) => ({ label: s.label, text: s.text.slice(0, share), url: primary.url }));
 }

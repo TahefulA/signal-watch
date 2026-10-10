@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const CACHE_DIR = path.join(process.cwd(), ".cache", "http");
+/** Serverless functions can only write to /tmp. */
+const CACHE_DIR = process.env.VERCEL ? "/tmp/signal-watch-http" : path.join(process.cwd(), ".cache", "http");
 
 interface ThrottleState {
   last: number;
@@ -25,6 +26,8 @@ export interface CachedFetchOptions {
   minIntervalMs: number;
   /** Skip the disk cache, e.g. for feeds that change daily. */
   maxAgeMs?: number;
+  /** Per-request timeout. */
+  timeoutMs?: number;
 }
 
 /**
@@ -44,24 +47,29 @@ export async function cachedFetchText(
     const fresh = options.maxAgeMs === undefined || Date.now() - meta.fetchedAt < options.maxAgeMs;
     if (fresh) return await readFile(file, "utf8");
   } catch {
-    // Cache miss.
+    // Cache miss, or a read-only file system.
   }
 
-  for (let attempt = 0; attempt < 5; attempt++) {
+  const attempts = options.timeoutMs !== undefined ? 2 : 5;
+  for (let attempt = 0; attempt < attempts; attempt++) {
     await throttle(options.throttleKey, options.minIntervalMs);
     let response: Response;
     try {
-      response = await fetch(url, { headers: options.headers, signal: AbortSignal.timeout(30_000) });
+      response = await fetch(url, { headers: options.headers, signal: AbortSignal.timeout(options.timeoutMs ?? 30_000) });
     } catch {
       // Dropped connection or timeout: back off and retry.
-      await new Promise((resolve) => setTimeout(resolve, 3000 * (attempt + 1)));
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
       continue;
     }
     if (response.ok) {
       const body = await response.text();
-      await mkdir(CACHE_DIR, { recursive: true });
-      await writeFile(file, body);
-      await writeFile(metaFile, JSON.stringify({ url, fetchedAt: Date.now() }));
+      try {
+        await mkdir(CACHE_DIR, { recursive: true });
+        await writeFile(file, body);
+        await writeFile(metaFile, JSON.stringify({ url, fetchedAt: Date.now() }));
+      } catch {
+        // Caching is best-effort.
+      }
       return body;
     }
     if (response.status === 404) throw new Error(`404 for ${url}`);
