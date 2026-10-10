@@ -39,3 +39,43 @@ export function viewGraph(graph: EntityGraph): GraphView {
   }
   return { spokes, links };
 }
+
+export interface HopLink {
+  entityId: string;
+  /** The relationship as stored on the edge, read from the first entity to the second. */
+  relationship: string;
+  /** Edge direction relative to the entity being viewed (direct) or the intermediate (second order). */
+  direction: "out" | "in";
+}
+
+export interface MultiHop {
+  direct: HopLink[];
+  /** Second-order connections grouped by the intermediate entity they come through. */
+  via: { throughId: string; links: HopLink[] }[];
+}
+
+/**
+ * First- and second-order connections for one entity. The subject company is
+ * left out as an intermediate, since every entity connects through it.
+ */
+export function multiHop(graph: EntityGraph, id: string): MultiHop {
+  const central = graph.nodes.find((n) => n.isCentral)?.id;
+  const neighbors = (of: string): HopLink[] =>
+    graph.edges
+      .filter((e) => e.source === of || e.target === of)
+      .map((e) => ({
+        entityId: e.source === of ? e.target : e.source,
+        relationship: e.relationship,
+        direction: e.source === of ? ("out" as const) : ("in" as const),
+      }));
+  const direct = neighbors(id);
+  const firstOrder = new Set(direct.map((d) => d.entityId));
+  const via = direct
+    .filter((d) => d.entityId !== central)
+    .map((d) => ({
+      throughId: d.entityId,
+      links: neighbors(d.entityId).filter((l) => l.entityId !== id && l.entityId !== central && !firstOrder.has(l.entityId)),
+    }))
+    .filter((g) => g.links.length > 0);
+  return { direct, via };
+}

@@ -39,8 +39,8 @@ export async function POST(request: Request): Promise<Response> {
           await saveReport(baseline);
         }
         send({ type: "step", step: "Comparing filings..." });
-        const { changes, removed } = await diffReports(current, baseline);
-        const updated = applyChanges(current, changes, removed);
+        const { changes, removed, trends } = await diffReports(current, baseline);
+        const updated = applyChanges(current, changes, removed, trends);
         await saveChanges(updated);
         send({ type: "result", report: updated, cached: true });
       } catch (error) {

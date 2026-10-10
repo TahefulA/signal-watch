@@ -65,25 +65,24 @@ function InstrumentRow({ instrument, scale }: { instrument: DebtInstrument; scal
   );
 }
 
+/** The maturity wall: one horizontal bar per year, scaled to the largest year. */
 function MaturityBars({ rows, note }: { rows: MaturityRow[]; note: string }) {
   const max = Math.max(...rows.map((r) => r.amount), 1);
   return (
-    <div>
-      <div className="mt-3 flex h-32 items-end gap-2">
+    <div className="mt-3">
+      <ul className="space-y-1.5">
         {rows.map((r) => (
-          <div key={r.period} className="flex min-w-0 flex-1 flex-col items-center justify-end gap-1">
-            <span className="font-mono text-[10px] text-zinc-300">{compact(r.amount)}</span>
-            <div className="w-full bg-emerald-600" style={{ height: `${Math.max(2, (r.amount / max) * 88)}px` }} />
-          </div>
+          <li key={r.period} className="grid grid-cols-[4.5rem_minmax(0,1fr)_4.5rem] items-center gap-2">
+            <span className="truncate font-mono text-[10px] text-zinc-400" title={r.period}>
+              {r.period.replace("Remainder of ", "Rest of ")}
+            </span>
+            <span className="h-3 bg-zinc-900">
+              <span className="block h-3 bg-emerald-600" style={{ width: `${Math.max(1, (r.amount / max) * 100)}%` }} />
+            </span>
+            <span className="text-right font-mono text-[10px] text-zinc-200">{compact(r.amount)}</span>
+          </li>
         ))}
-      </div>
-      <div className="mt-1 flex gap-2 border-t border-zinc-700 pt-1">
-        {rows.map((r) => (
-          <span key={r.period} className="min-w-0 flex-1 truncate text-center font-mono text-[10px] text-zinc-500" title={r.period}>
-            {r.period.replace("Remainder of ", "Rest of ")}
-          </span>
-        ))}
-      </div>
+      </ul>
       <p className="mt-2 text-xs text-zinc-500">{note}</p>
     </div>
   );
@@ -113,7 +112,7 @@ export const CapitalStructurePanel = forwardRef<HTMLElement, CapitalStructurePan
 ) {
   if (!capital) {
     return (
-      <aside ref={ref} className={`border border-zinc-800 p-5 ${className}`} aria-labelledby="capital-title">
+      <aside ref={ref} className={`p-5 ${className}`} aria-labelledby="capital-title">
         <h2 id="capital-title" className="text-xs font-medium uppercase tracking-widest text-zinc-500">
           Capital structure
         </h2>
@@ -134,7 +133,7 @@ export const CapitalStructurePanel = forwardRef<HTMLElement, CapitalStructurePan
   const derivedRows = rowsFromInstruments(capital.instruments);
 
   return (
-    <aside ref={ref} className={`border border-zinc-800 ${className}`} aria-labelledby="capital-title">
+    <aside ref={ref} className={className} aria-labelledby="capital-title">
       <div className="border-b border-zinc-800 px-5 py-4">
         <h2 id="capital-title" className="font-display text-base font-bold text-zinc-100">
           Capital structure
@@ -155,19 +154,6 @@ export const CapitalStructurePanel = forwardRef<HTMLElement, CapitalStructurePan
 
       <div className="space-y-6 px-5 py-5">
         <section>
-          <Heading>Key metrics</Heading>
-          <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-4">
-            {capital.metrics.map((m) => (
-              <div key={m.key} className="min-w-0">
-                <dt className="text-[11px] text-zinc-500">{m.label}</dt>
-                <dd className="mt-0.5 font-mono text-sm text-zinc-100">{m.display}</dd>
-                <dd className="mt-1 text-[11px] leading-snug text-zinc-500">{m.note}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section>
           <Heading>Debt stack</Heading>
           {capital.instruments.length === 0 ? (
             <p className="mt-3 text-sm text-zinc-500">No instrument could be matched to a sentence in the debt note.</p>
@@ -187,7 +173,7 @@ export const CapitalStructurePanel = forwardRef<HTMLElement, CapitalStructurePan
         </section>
 
         <section>
-          <Heading>Maturity profile</Heading>
+          <Heading>Maturity wall</Heading>
           {capital.maturitySchedule ? (
             <>
               <MaturityBars

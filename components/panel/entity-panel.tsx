@@ -3,8 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Copy, ExternalLink, X } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
-import type { CapitalStructure, Entity, EntityChange, MagnitudeKind, RelationType, Trend } from "@/types";
-import type { EntityLink } from "@/lib/graph-view";
+import type { CapitalStructure, Confidence, Entity, EntityChange, EntityGraph, MagnitudeKind, RelationType, Trend } from "@/types";
+import { multiHop } from "@/lib/graph-view";
 import type { PeerContext } from "@/lib/peer-view";
 import { SEVERITY_LABELS, SEVERITY_STRIP, TYPE_BORDER, TYPE_LABELS } from "@/lib/entity-style";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,7 @@ import { CitationBlock, citationLine } from "@/components/ui/citation";
 interface EntityPanelProps {
   entity: Entity | null;
   companyName: string;
-  links: EntityLink[];
-  nodes: Entity[];
+  graph: EntityGraph | null;
   capital: CapitalStructure | null | undefined;
   peerContext: PeerContext | null;
   onSelectEntity: (id: string) => void;
@@ -91,6 +90,14 @@ const CHANGE_LABEL: Record<EntityChange["kind"], string> = {
   removed: "No longer mentioned in the current filings",
 };
 
+const CONFIDENCE_MARK: Record<Confidence, string> = {
+  high: "bg-emerald-500",
+  medium: "border border-emerald-500",
+  low: "border border-dashed border-amber-500",
+};
+
+const CONFIDENCE_TEXT: Record<Confidence, string> = { high: "High", medium: "Medium", low: "Low" };
+
 const NOT_EXTRACTED = "Not extracted for this report. Read the filings again to add context.";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -122,7 +129,12 @@ function Evidence({ entity }: { entity: Entity }) {
     <Section title="Evidence">
       <blockquote className="border-l-2 border-zinc-600 pl-3 text-sm italic leading-relaxed text-zinc-300">{entity.sourceQuote}</blockquote>
       <p className="mt-2 font-mono text-[10px] text-zinc-500">
-        {citationLine({ sourceType: entity.sourceType, sourceDate: entity.sourceDate, sourceLabel: entity.sourceLabel, page: entity.sourcePage })}
+        {citationLine({
+          sourceType: entity.fiscalPeriod ? `${entity.sourceType} ${entity.fiscalPeriod}` : entity.sourceType,
+          sourceDate: entity.sourceType === "News" ? entity.sourceDate : `filed ${entity.sourceDate}`,
+          sourceLabel: entity.sourceLabel,
+          page: entity.sourcePage,
+        })}
       </p>
       {context ? (
         <div className="mt-3">
@@ -173,7 +185,10 @@ function MagnitudeSection({ entity }: { entity: Entity }) {
             <span className="font-mono">{otherKind.label}</span>
           </Row>
         ) : null}
-        <Row label="Trend">{entity.trend && entity.trend !== "unknown" ? TREND_TEXT[entity.trend] : <Missing />}</Row>
+        <Row label="Trend">
+          {entity.trend && entity.trend !== "unknown" ? TREND_TEXT[entity.trend] : <Missing>{entity.trendBasis ?? "Not disclosed"}</Missing>}
+          {entity.trend && entity.trend !== "unknown" && entity.trendBasis ? <span className="block text-xs text-zinc-500">{entity.trendBasis}</span> : null}
+        </Row>
       </dl>
       {m ? <CitationBlock citation={m.citation} compact /> : null}
       {entity.trendCitation && entity.trendCitation.quote !== m?.citation.quote ? (
@@ -251,17 +266,19 @@ function ComparisonSection({ context }: { context: PeerContext | null }) {
 
 function RelatedSection({
   entity,
-  links,
-  nodes,
+  graph,
   onSelectEntity,
 }: {
   entity: Entity;
-  links: EntityLink[];
-  nodes: Entity[];
+  graph: EntityGraph | null;
   onSelectEntity: (id: string) => void;
 }) {
+  if (!graph) return null;
+  const nodes = graph.nodes;
+  const hop = multiHop(graph, entity.id);
+  const byId = (id: string) => nodes.find((n) => n.id === id);
   const siblings = entity.relationType
-    ? nodes.filter((n) => !n.isCentral && n.id !== entity.id && n.relationType === entity.relationType)
+    ? nodes.filter((n) => !n.isCentral && n.id !== entity.id && n.relationType === entity.relationType && n.change?.kind !== "removed")
     : [];
   const linkButton = (other: Entity) => (
     <button
@@ -273,25 +290,63 @@ function RelatedSection({
     </button>
   );
   return (
-    <Section title="Related nodes">
-      {links.length === 0 && siblings.length === 0 ? <p className="text-sm text-zinc-500">No other entity on the map is linked to this one.</p> : null}
-      {links.length > 0 ? (
-        <ul className="space-y-1.5">
-          {links.map((link) => {
-            const other = nodes.find((n) => n.id === link.entityId);
-            if (!other) return null;
-            return (
-              <li key={`${link.direction}-${link.entityId}`} className="text-sm text-zinc-300">
-                {link.direction === "out" ? <>{link.relationship} </> : null}
-                {linkButton(other)}
-                {link.direction === "in" ? <span className="text-zinc-400"> {link.relationship.toLowerCase()} this</span> : null}
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+    <Section title="Connections">
+      <p className="text-xs text-zinc-500">Direct</p>
+      <ul className="mt-1.5 space-y-1.5">
+        {hop.direct.map((link) => {
+          const other = byId(link.entityId);
+          if (!other) return null;
+          return (
+            <li key={`${link.direction}-${link.entityId}`} className="text-sm text-zinc-300">
+              {other.isCentral ? (
+                <span className="text-zinc-100">{other.name}</span>
+              ) : (
+                linkButton(other)
+              )}
+              <span className="text-zinc-500">
+                {" "}
+                · {other.isCentral ? (entity.relationDetail ?? entity.relationType ?? link.relationship).replace(/_/g, " ").toLowerCase() : link.relationship.toLowerCase()}
+              </span>
+            </li>
+          );
+        })}
+        {entity.parent ? (
+          <li className="text-sm text-zinc-300">
+            <span className="text-zinc-100">{entity.parent.name}</span>
+            <span className="text-zinc-500"> · parent, per the filing</span>
+          </li>
+        ) : null}
+      </ul>
+
+      {hop.via.map((group) => {
+        const through = byId(group.throughId);
+        if (!through) return null;
+        return (
+          <div key={group.throughId} className="mt-4">
+            <p className="text-xs text-zinc-500">Related via {through.name}</p>
+            <ul className="mt-1.5 space-y-2">
+              {group.links.map((link) => {
+                const other = byId(link.entityId);
+                if (!other) return null;
+                const [from, to] = link.direction === "out" ? [through, other] : [other, through];
+                return (
+                  <li key={link.entityId} className="text-sm text-zinc-300">
+                    {linkButton(other)}
+                    <p className="mt-0.5 text-xs text-zinc-500">
+                      {from.name} {link.relationship.toLowerCase()} {to.name}.
+                    </p>
+                    <p className="mt-0.5 text-xs italic leading-relaxed text-zinc-500">&ldquo;{other.sourceQuote}&rdquo;</p>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      })}
+      {hop.via.length === 0 ? <p className="mt-3 text-xs text-zinc-500">No second-order connection on the map beyond the subject company.</p> : null}
+
       {siblings.length > 0 && entity.relationType ? (
-        <div className={links.length > 0 ? "mt-4" : ""}>
+        <div className="mt-4">
           <p className="text-xs text-zinc-500">{RELATION_PLURAL[entity.relationType]}</p>
           <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
             {siblings.map((s) => (
@@ -334,8 +389,7 @@ function CompanySummary({ capital, onShowCapital }: { capital: CapitalStructure 
 export function EntityPanel({
   entity,
   companyName,
-  links,
-  nodes,
+  graph,
   capital,
   peerContext,
   onSelectEntity,
@@ -431,11 +485,22 @@ export function EntityPanel({
                 ) : (
                   <>
                     <Row label="Relationship">{entity.relationship}</Row>
-                    {entity.relationType ? (
+                    {entity.relationDetail || entity.relationType ? (
                       <Row label="Relationship type">
-                        <span className="font-mono text-xs">{entity.relationType.replace(/_/g, " ")}</span>
+                        <span className="font-mono text-xs">{(entity.relationDetail ?? entity.relationType ?? "").replace(/_/g, " ")}</span>
                       </Row>
                     ) : null}
+                    {entity.headline ? <Row label="Headline">{entity.headline}</Row> : null}
+                    {entity.confidence ? (
+                      <Row label="Confidence">
+                        <span className="inline-flex items-center gap-2">
+                          <span className={`h-2 w-2 rounded-xs ${CONFIDENCE_MARK[entity.confidence]}`} aria-hidden />
+                          {CONFIDENCE_TEXT[entity.confidence]}
+                        </span>
+                        {entity.confidenceBasis ? <span className="block text-xs text-zinc-500">{entity.confidenceBasis}</span> : null}
+                      </Row>
+                    ) : null}
+                    {entity.aliases?.length ? <Row label="Also named">{entity.aliases.join(", ")}</Row> : null}
                     <Row label="Severity">
                       <span className="inline-flex items-center gap-2">
                         <span className={`h-3.5 w-1 ${SEVERITY_STRIP[entity.severity]}`} aria-hidden />
@@ -463,7 +528,7 @@ export function EntityPanel({
                 <MagnitudeSection entity={entity} />
                 <StrategicSection entity={entity} />
                 <ComparisonSection context={peerContext} />
-                <RelatedSection entity={entity} links={links} nodes={nodes} onSelectEntity={onSelectEntity} />
+                <RelatedSection entity={entity} graph={graph} onSelectEntity={onSelectEntity} />
               </>
             )}
           </div>

@@ -153,6 +153,39 @@ CREATE TABLE IF NOT EXISTS debt_instruments (
 );
 CREATE INDEX IF NOT EXISTS debt_instruments_report ON debt_instruments (report_id);
 
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS relation_detail text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS confidence text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS headline text;
+ALTER TABLE entities ADD COLUMN IF NOT EXISTS fiscal_period text;
+ALTER TABLE relationships ADD COLUMN IF NOT EXISTS relationship_detail text;
+
+-- Citation validation and entity resolution, one row per decision.
+CREATE TABLE IF NOT EXISTS rejected_entities (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_id uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  name text NOT NULL,
+  reason text NOT NULL,
+  proposed_quote text
+);
+CREATE TABLE IF NOT EXISTS entity_merges (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_id uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  kept_name text NOT NULL,
+  merged_name text NOT NULL,
+  reason text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS financial_snapshots (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_id uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  metric_key text NOT NULL,
+  label text NOT NULL,
+  display text NOT NULL,
+  note text NOT NULL,
+  fiscal_period text,
+  as_of date
+);
+CREATE INDEX IF NOT EXISTS financial_snapshots_report ON financial_snapshots (report_id);
+
 CREATE TABLE IF NOT EXISTS watchlist (
   ticker text PRIMARY KEY,
   added_at timestamptz NOT NULL DEFAULT NOW()
@@ -195,8 +228,9 @@ export async function writeGraph(client: PoolClient, report: Report): Promise<vo
     const result = await client.query<{ id: string }>(
       `INSERT INTO entities (report_id, entity_key, node_label, name, type, relationship, severity, source_quote, source_url,
          source_type, source_date, properties, revenue_impact, cost_impact, balance_sheet_impact, magnitude_label, trend,
-         why_it_matters, what_if_disappeared, structural_protection, source_page, source_section)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+         why_it_matters, what_if_disappeared, structural_protection, source_page, source_section,
+         relation_detail, confidence, headline, fiscal_period)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
        RETURNING id`,
       [
         report.id,
@@ -221,6 +255,10 @@ export async function writeGraph(client: PoolClient, report: Report): Promise<vo
         e.strategic?.protection?.text ?? null,
         e.sourcePage ?? null,
         e.sourceLabel,
+        e.relationDetail ?? null,
+        e.confidence ?? null,
+        e.headline ?? null,
+        e.fiscalPeriod ?? null,
       ],
     );
     uuidOf.set(e.id, result.rows[0].id);
@@ -239,8 +277,31 @@ export async function writeGraph(client: PoolClient, report: Report): Promise<vo
     if (!from || !to) continue;
     const type = fromCompany ? (target?.relationType ?? "IMPACTS") : relationshipType(edge.relationship);
     await client.query(
-      "INSERT INTO relationships (report_id, from_node_id, to_node_id, relationship_type, properties) VALUES ($1, $2, $3, $4, $5)",
-      [report.id, from, to, type, JSON.stringify({ label: edge.relationship })],
+      "INSERT INTO relationships (report_id, from_node_id, to_node_id, relationship_type, relationship_detail, properties) VALUES ($1, $2, $3, $4, $5, $6)",
+      [report.id, from, to, type, fromCompany ? (target?.relationDetail ?? null) : null, JSON.stringify({ label: edge.relationship })],
+    );
+  }
+
+  for (const r of report.validation?.rejected ?? []) {
+    await client.query("INSERT INTO rejected_entities (report_id, name, reason, proposed_quote) VALUES ($1, $2, $3, $4)", [
+      report.id,
+      r.name,
+      r.reason,
+      r.quote,
+    ]);
+  }
+  for (const m of report.validation?.merges ?? []) {
+    await client.query("INSERT INTO entity_merges (report_id, kept_name, merged_name, reason) VALUES ($1, $2, $3, $4)", [
+      report.id,
+      m.kept,
+      m.merged,
+      m.reason,
+    ]);
+  }
+  for (const m of report.capital?.metrics ?? []) {
+    await client.query(
+      "INSERT INTO financial_snapshots (report_id, metric_key, label, display, note, fiscal_period, as_of) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+      [report.id, m.key, m.label, m.display, m.note, report.capital?.fiscalPeriod ?? null, report.capital?.asOf ?? null],
     );
   }
 
@@ -379,6 +440,9 @@ export async function backfillGraph(report: Report): Promise<void> {
     await client.query("DELETE FROM relationships WHERE report_id = $1", [report.id]);
     await client.query("DELETE FROM entities WHERE report_id = $1", [report.id]);
     await client.query("DELETE FROM debt_instruments WHERE report_id = $1", [report.id]);
+    await client.query("DELETE FROM rejected_entities WHERE report_id = $1", [report.id]);
+    await client.query("DELETE FROM entity_merges WHERE report_id = $1", [report.id]);
+    await client.query("DELETE FROM financial_snapshots WHERE report_id = $1", [report.id]);
     await writeGraph(client, report);
     await client.query("COMMIT");
   } catch (error) {

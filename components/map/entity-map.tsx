@@ -12,10 +12,12 @@ import {
 import { useEffect, useMemo } from "react";
 import type { Entity, EntityGraph } from "@/types";
 import { viewGraph } from "@/lib/graph-view";
-import { CENTRAL_WIDTH, NODE_HEIGHT, NODE_WIDTH, type Positioned, layoutGraph } from "@/lib/layout";
+import { CENTRAL_WIDTH, NODE_HEIGHT, NODE_WIDTH, type Positioned, type Side, layoutGraph } from "@/lib/layout";
 import { EntityNode, type EntityFlowNode } from "./entity-node";
 
 const nodeTypes = { entityNode: EntityNode };
+
+const OPPOSITE: Record<Side, Side> = { left: "right", right: "left", top: "bottom", bottom: "top" };
 
 const EDGE_COLOR = "#52525b";
 
@@ -33,31 +35,41 @@ interface EntityMapProps {
   graph: EntityGraph;
   /** Shown on the subject company's box when the capital structure is known. */
   totalDebt?: string | null;
+  /** Fades boxes below high confidence. */
+  highConfidenceOnly?: boolean;
   selectedId: string | null;
   /** Bumped each time the memo asks the map to focus a node. */
   focusRequest: number;
   onSelect: (entity: Entity) => void;
 }
 
-function toFlowNodes(graph: EntityGraph, positions: Map<string, Positioned>, totalDebt: string | null): EntityFlowNode[] {
+function toFlowNodes(graph: EntityGraph, positions: Map<string, Positioned>, totalDebt: string | null, highOnly: boolean): EntityFlowNode[] {
   return graph.nodes.map((entity) => {
     const position = positions.get(entity.id) ?? { x: 0, y: 0 };
     return {
       id: entity.id,
       type: "entityNode",
       position: { x: position.x, y: position.y },
-      data: { entity, totalDebt: entity.isCentral ? totalDebt : null },
+      data: {
+        entity,
+        totalDebt: entity.isCentral ? totalDebt : null,
+        company: entity.isCentral ? graph.company : null,
+        dimmed: highOnly && !entity.isCentral && entity.confidence !== undefined && entity.confidence !== "high",
+      },
       width: entity.isCentral ? CENTRAL_WIDTH : NODE_WIDTH,
       height: NODE_HEIGHT,
     };
   });
 }
 
-function Canvas({ graph, totalDebt = null, selectedId, focusRequest, onSelect }: EntityMapProps) {
+function Canvas({ graph, totalDebt = null, highConfidenceOnly = false, selectedId, focusRequest, onSelect }: EntityMapProps) {
   const spokes = useMemo(() => viewGraph(graph).spokes, [graph]);
-  const relationTypes = useMemo(() => new Map(graph.nodes.map((n) => [n.id, n.relationType])), [graph.nodes]);
-  const positions = useMemo(() => layoutGraph(graph.nodes, spokes), [graph.nodes, spokes]);
-  const initialNodes = useMemo(() => toFlowNodes(graph, positions, totalDebt), [graph, positions, totalDebt]);
+  const relationLabels = useMemo(() => new Map(graph.nodes.map((n) => [n.id, n.relationDetail ?? n.relationType])), [graph.nodes]);
+  const positions = useMemo(() => layoutGraph(graph.nodes), [graph.nodes]);
+  const initialNodes = useMemo(
+    () => toFlowNodes(graph, positions, totalDebt, highConfidenceOnly),
+    [graph, positions, totalDebt, highConfidenceOnly],
+  );
   const [nodes, setNodes, onNodesChange] = useNodesState<EntityFlowNode>(initialNodes);
   const { setCenter, getNode } = useReactFlow<EntityFlowNode>();
 
@@ -88,14 +100,14 @@ function Canvas({ graph, totalDebt = null, selectedId, focusRequest, onSelect }:
           id: e.id,
           source: e.source,
           target: e.target,
-          sourceHandle: side === "right" ? "right-out" : "left-out",
-          targetHandle: side === "right" ? "left-in" : "right-in",
-          label: relationTypes.get(e.target)?.replace(/_/g, " "),
+          sourceHandle: `${side}-out`,
+          targetHandle: `${OPPOSITE[side]}-in`,
+          label: relationLabels.get(e.target)?.replace(/_/g, " "),
           // Entities that dropped out of the filings hang off a dashed line.
           ...(e.target.startsWith("removed-") ? { style: { stroke: EDGE_COLOR, strokeWidth: 1, strokeDasharray: "4 4", opacity: 0.6 } } : {}),
         };
       }),
-    [spokes, positions, relationTypes],
+    [spokes, positions, relationLabels],
   );
 
   return (
@@ -107,7 +119,7 @@ function Canvas({ graph, totalDebt = null, selectedId, focusRequest, onSelect }:
       onNodeClick={(_, node) => onSelect(node.data.entity)}
       defaultEdgeOptions={defaultEdgeOptions}
       fitView
-      fitViewOptions={{ padding: 0.15 }}
+      fitViewOptions={{ padding: 0.06 }}
       minZoom={0.15}
       maxZoom={2}
       proOptions={{ hideAttribution: true }}

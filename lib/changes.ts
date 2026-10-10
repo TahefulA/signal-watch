@@ -1,4 +1,4 @@
-import type { ChangeReport, Citation, DebtInstrument, Entity, EntityDiff, Report, SourceDocument } from "@/types";
+import type { ChangeReport, Citation, DebtInstrument, Entity, EntityDiff, Report, SourceDocument, Trend } from "@/types";
 import { money } from "./capital";
 import { addDays } from "./dates";
 import { type FilingRef, fetchFilingText, getSubmissions } from "./edgar";
@@ -185,12 +185,16 @@ function diffDebt(before: DebtInstrument[], after: DebtInstrument[], beforeText:
 }
 
 /** Compares the current report with a baseline built from earlier filings, and marks the current map. */
-export async function diffReports(current: Report, baseline: Report): Promise<{ changes: ChangeReport; removed: Entity[] }> {
+export async function diffReports(
+  current: Report,
+  baseline: Report,
+): Promise<{ changes: ChangeReport; removed: Entity[]; trends: Map<string, { trend: Trend; basis: string }> }> {
   const cik = current.graph.company.cik;
   const [beforeText, afterText] = await Promise.all([filingSentences(cik, baseline.sources), filingSentences(cik, current.sources)]);
 
   const changes: EntityDiff[] = [];
   const mentionedBefore: string[] = [];
+  const trends = new Map<string, { trend: Trend; basis: string }>();
   const removed: Entity[] = [];
   // Debt boxes are compared through the debt note below, not by name.
   const filingNodes = (r: Report) => r.graph.nodes.filter((n) => !n.isCentral && n.sourceType !== "News" && !n.id.startsWith("debt-"));
@@ -212,6 +216,15 @@ export async function diffReports(current: Report, baseline: Report): Promise<{ 
       continue;
     }
     const sourceMoved = prior.sourceDate !== node.sourceDate;
+    // Trend: the same kind of disclosed figure in both quarters, in the same units.
+    if (prior.magnitude && node.magnitude && prior.magnitude.kind === node.magnitude.kind && unitsOf(prior.magnitude.label) === unitsOf(node.magnitude.label)) {
+      const before = Number(extractFigures(prior.magnitude.label)[0]);
+      const after = Number(extractFigures(node.magnitude.label)[0]);
+      if (Number.isFinite(before) && Number.isFinite(after)) {
+        const trend: Trend = after > before ? "increasing" : after < before ? "decreasing" : "stable";
+        trends.set(node.id, { trend, basis: `Previous quarter: ${prior.magnitude.label}; now: ${node.magnitude.label}` });
+      }
+    }
     if (
       prior.magnitude &&
       node.magnitude &&
@@ -271,6 +284,7 @@ export async function diffReports(current: Report, baseline: Report): Promise<{ 
 
   const baselineIds = new Set(baseline.sources.map((s) => s.id));
   return {
+    trends,
     changes: {
       baselineId: baseline.id,
       baselineAsOf: baseline.asOf ?? baseline.generatedAt.slice(0, 10),
@@ -285,9 +299,18 @@ export async function diffReports(current: Report, baseline: Report): Promise<{ 
 }
 
 /** Writes change markers onto the current map's boxes and adds faded boxes for removed entities. */
-export function applyChanges(report: Report, changes: ChangeReport, removed: Entity[]): Report {
+export function applyChanges(
+  report: Report,
+  changes: ChangeReport,
+  removed: Entity[],
+  trends: Map<string, { trend: Trend; basis: string }> = new Map(),
+): Report {
   const central = report.graph.nodes.find((n) => n.isCentral);
-  const nodes = report.graph.nodes.map((n) => {
+  const withTrends = report.graph.nodes.map((n) => {
+    const t = trends.get(n.id);
+    return t ? { ...n, trend: t.trend, trendBasis: t.basis } : n;
+  });
+  const nodes = withTrends.map((n) => {
     // Only changes in the filings' facts mark a box; changes in Gemini's ratings are listed in the change panel.
     const own = changes.changes.filter((c) => c.entityId === n.id && !c.judgment);
     if (own.length === 0) return { ...n, change: null };

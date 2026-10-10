@@ -5,6 +5,10 @@ import type { AnalyzeEvent, Entity, MeetingBrief, PeerComparison, Report } from 
 import { MeetingPrepPanel } from "@/components/brief/meeting-prep-panel";
 import { CapitalStructurePanel } from "@/components/capital/capital-structure-panel";
 import { ChangePanel } from "@/components/changes/change-panel";
+import { FinancialMetricsPanel } from "@/components/capital/financial-metrics-panel";
+import { AskBar } from "@/components/insight/ask-bar";
+import { MapHeader } from "@/components/insight/map-header";
+import { SignalSummary } from "@/components/insight/signal-summary";
 import { TickerInput } from "@/components/input/ticker-input";
 import { Header } from "@/components/layout/header";
 import { PIPELINE_STEPS, StatusBar } from "@/components/layout/status-bar";
@@ -14,7 +18,6 @@ import { MemoContainer } from "@/components/memo/memo-container";
 import { EntityPanel } from "@/components/panel/entity-panel";
 import { PeerPanel } from "@/components/peers/peer-panel";
 import { Toast } from "@/components/ui/toast";
-import { type EntityLink, viewGraph } from "@/lib/graph-view";
 import { peerContextFor } from "@/lib/peer-view";
 
 type Status = "idle" | "loading" | "ready" | "error";
@@ -73,6 +76,7 @@ export default function HomePage() {
   const [peerStep, setPeerStep] = useState<string | null>(null);
   const [peerError, setPeerError] = useState<string | null>(null);
   const [briefBusy, setBriefBusy] = useState(false);
+  const [highConfidenceOnly, setHighConfidenceOnly] = useState(false);
   const [briefError, setBriefError] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
   const capitalRef = useRef<HTMLElement>(null);
@@ -295,7 +299,6 @@ export default function HomePage() {
 
   const graph = report?.graph ?? null;
   const totalDebt = report?.capital?.metrics.find((m) => m.key === "total_debt")?.display ?? null;
-  const links = useMemo(() => (graph ? viewGraph(graph).links : new Map<string, EntityLink[]>()), [graph]);
 
   return (
     <div className="min-h-screen">
@@ -351,10 +354,13 @@ export default function HomePage() {
       {graph && report && status !== "loading" ? (
         <>
           <section ref={mapRef} className="scroll-mt-4 px-6 py-8">
-            <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+            {report.signal?.length ? <SignalSummary spans={report.signal} onEntityClick={focusEntity} /> : null}
+            <AskBar reportId={report.id} nodes={graph.nodes} onEntityClick={focusEntity} onCapitalClick={showCapital} />
+            <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
               <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Entity map</h2>
-              <Legend />
+              <Legend highConfidenceOnly={highConfidenceOnly} onToggleConfidence={setHighConfidenceOnly} />
             </div>
+            <MapHeader report={report} />
             <ChangePanel
               changes={report.changes}
               busy={comparing}
@@ -369,20 +375,20 @@ export default function HomePage() {
               </p>
             ))}
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
-              <div className="h-[70vh] min-h-[480px] border border-zinc-800">
+              <div className="h-[78vh] min-h-[520px] border border-zinc-800">
                 <EntityMap
                   graph={graph}
+                  highConfidenceOnly={highConfidenceOnly}
                   totalDebt={totalDebt !== "Not available" ? totalDebt : null}
                   selectedId={selected?.id ?? null}
                   focusRequest={focusRequest}
                   onSelect={setSelected}
                 />
               </div>
-              <CapitalStructurePanel
-                ref={capitalRef}
-                capital={report.capital}
-                className="scroll-mt-4 xl:h-[70vh] xl:min-h-[480px] xl:overflow-y-auto"
-              />
+              <div className="border border-zinc-800 xl:h-[78vh] xl:min-h-[520px] xl:overflow-y-auto">
+                <FinancialMetricsPanel capital={report.capital} company={graph.company} />
+                <CapitalStructurePanel ref={capitalRef} capital={report.capital} className="scroll-mt-4" />
+              </div>
             </div>
           </section>
           <MemoContainer
@@ -416,8 +422,7 @@ export default function HomePage() {
       <EntityPanel
         entity={selected}
         companyName={graph?.company.name ?? ""}
-        links={selected ? (links.get(selected.id) ?? []) : []}
-        nodes={graph?.nodes ?? []}
+        graph={graph}
         capital={report?.capital}
         peerContext={peerContext}
         onSelectEntity={focusEntity}

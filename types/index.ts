@@ -55,3 +55,15 @@ export type AnalyzeEvent =
   | { type: "step"; step: string }
   | { type: "result"; report: Report; cached: boolean }
   | { type: "error"; message: string };
+
+/** An answer to a natural-language question, drawn only from one report. */
+export interface AskAnswer {
+  question: string;
+  /** Entity mentions link to their boxes; "capital" links to the capital structure. */
+  spans: MemoSpan[];
+  /** Entities whose quotes support the answer, shown as clickable chips. */
+  citedIds: string[];
+  notFound: boolean;
+  /** Sentences removed because they used a figure not in the report. */
+  removed: number;
+}

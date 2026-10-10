@@ -2,7 +2,7 @@ import { ExternalLink } from "lucide-react";
 import type { Citation } from "@/types";
 
 /** "10-Q · 2026-08-05 · Note 10. DEBT · p. 36" */
-export function citationLine(c: Pick<Citation, "sourceType" | "sourceDate" | "sourceLabel" | "page">): string {
+export function citationLine(c: { sourceType: string; sourceDate: string; sourceLabel: string; page?: string | null }): string {
   return [c.sourceType, c.sourceDate, c.sourceLabel, c.page ? `p. ${c.page}` : null].filter(Boolean).join(" · ");
 }
 
