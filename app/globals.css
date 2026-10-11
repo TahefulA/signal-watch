@@ -6,7 +6,8 @@
  * light cards with dark text either way.
  */
 :root,
-.entity-box {
+.entity-box,
+.map-card {
   --zinc-50: 250 250 250;
   --zinc-100: 244 244 245;
   --zinc-200: 228 228 231;
@@ -46,7 +47,8 @@
 }
 
 /* Map boxes and tooltips are not inverted. */
-:root[data-theme="light"] .entity-box {
+:root[data-theme="light"] .entity-box,
+:root[data-theme="light"] .map-card {
   --zinc-50: 250 250 250;
   --zinc-100: 244 244 245;
   --zinc-200: 228 228 231;
@@ -394,7 +396,58 @@
   animation: counter-in 400ms ease-out 100ms backwards;
 }
 
+/* Hover cards draw in once beside the box; their bars and quarter cells grow in after. */
+@keyframes hover-card-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.hover-card {
+  animation: hover-card-in 160ms ease-out both;
+}
+
+.hover-card-left {
+  animation-name: hover-card-in-left;
+}
+
+@keyframes hover-card-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.quarter-bar {
+  animation: bar-grow 300ms ease-out backwards;
+}
+
+.quarter-cell {
+  animation: fade-in 200ms ease-out backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .hover-card,
+  .quarter-bar,
+  .quarter-cell,
   .node-enter,
   .node-enter-central,
   .icon-pulse,

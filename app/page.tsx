@@ -516,6 +516,7 @@ export default function HomePage() {
                     asOf={asOf}
                     devil={report.devil}
                     devilBusy={devilBusy}
+                    capital={report.capital ?? null}
                   />
                 </div>
               ) : null}

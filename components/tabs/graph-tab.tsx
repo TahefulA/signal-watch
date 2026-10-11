@@ -2,7 +2,7 @@
 
 import { Check, FileText, HelpCircle, Newspaper, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import type { DevilsAdvocate, Entity, EntityGraph, EntityType, Timeline } from "@/types";
+import type { CapitalStructure, DevilsAdvocate, Entity, EntityGraph, EntityType, Timeline } from "@/types";
 import { DevilsAdvocateToggle } from "@/components/graph/devils-advocate-toggle";
 import { concernCount, flaggedIds } from "@/lib/counter-view";
 import { ENTITY_TYPES, SEVERITIES } from "@/types/entity";
@@ -28,6 +28,8 @@ interface GraphTabProps {
   asOf: string | null;
   devil: DevilsAdvocate | null | undefined;
   devilBusy: boolean;
+  /** The debt note and ratios, for the hover cards and debt due dates on the map. */
+  capital?: CapitalStructure | null;
 }
 
 function Dots({ filled, color, size = 6 }: { filled: number; color: string; size?: number }) {
@@ -162,6 +164,7 @@ export function GraphTab({
   asOf,
   devil,
   devilBusy,
+  capital = null,
 }: GraphTabProps) {
   const [counter, setCounter] = useState(false);
   const counterIds = useMemo(() => (counter && devil ? flaggedIds(devil) : null), [counter, devil]);
@@ -241,6 +244,7 @@ export function GraphTab({
           onClearSelection={onClearSelection}
           time={timeline && win ? { timeline, window: win } : null}
           counterIds={counterIds}
+          capital={capital}
         />
         <LegendPopover highConfidenceOnly={highConfidenceOnly} onToggleConfidence={setHighConfidenceOnly} />
       </div>

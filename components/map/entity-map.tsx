@@ -1,12 +1,14 @@
 "use client";
 
 import { Background, BackgroundVariant, Controls, ReactFlow, ReactFlowProvider, ViewportPortal, useNodesState, useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Entity, EntityGraph, EntityType, Severity, Timeline } from "@/types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { CapitalStructure, DebtInstrument, Entity, EntityGraph, EntityType, Severity, Timeline } from "@/types";
+import { useHistory } from "@/components/capital/financial-metrics-panel";
 import { viewGraph } from "@/lib/graph-view";
 import { useTheme } from "@/lib/theme";
 import { CENTRAL_WIDTH, NODE_HEIGHT, type Positioned, type Side, layoutGraph } from "@/lib/layout";
-import { arrowTowardCompany, figureBars, materialityOf, parseDisplayMoney, widthFor } from "@/lib/node-visuals";
+import { arrowTowardCompany, figureBars, materialityOf, parseDisplayMoney, primaryFigure, widthFor } from "@/lib/node-visuals";
+import { HoverCard, type HoverCardProps } from "./hover-card";
 import { EntityNode, type EntityFlowNode, NODE_ENTER_MS, enterDelayOf } from "./entity-node";
 import { SignalEdge, type SignalFlowEdge, SignalMarkers } from "./signal-edge";
 
@@ -18,6 +20,20 @@ const SEVERITY_RANK: Record<Severity, number> = { high: 0, medium: 1, low: 2, no
 const EDGES_START_MS = 1200;
 const EDGE_STAGGER_MS = 80;
 const EDGE_WIDTH: Record<Severity, number> = { high: 2.5, medium: 1.5, low: 1, none: 1 };
+/** Lines carrying a dollar figure run from 1px to 6px wide by the square root of the amount. */
+const MONEY_MIN = 1;
+const MONEY_MAX = 6;
+/** How long the pointer rests on a box before its card opens. */
+const CARD_DELAY_MS = 140;
+
+const slug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+/** The debt note's instrument behind a box, by name or alias. */
+function instrumentOf(entity: Entity, capital: CapitalStructure | null): DebtInstrument | null {
+  if (!capital || entity.isCentral) return null;
+  const names = [entity.name, ...(entity.aliases ?? [])].map(slug);
+  return capital.instruments.find((i) => names.includes(slug(i.name))) ?? null;
+}
 
 export interface MapFilters {
   types: EntityType[];
@@ -39,6 +55,8 @@ interface EntityMapProps {
   time?: { timeline: Timeline; window: { start: number; end: number } } | null;
   /** Counter view: the boxes the Devil's Advocate flags. Null when the view is off. */
   counterIds?: Set<string> | null;
+  /** The debt note and ratios, for the hover cards and the due dates on debt lines. */
+  capital?: CapitalStructure | null;
 }
 
 /** Legend filters fade boxes to 15%; boxes are never hidden, so the layout holds. */
@@ -50,8 +68,11 @@ function passesFilters(entity: Entity, filters: MapFilters): boolean {
   return true;
 }
 
-function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, onSelect, onClearSelection, time = null, counterIds = null }: EntityMapProps) {
+function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, onSelect, onClearSelection, time = null, counterIds = null, capital = null }: EntityMapProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [card, setCard] = useState<{ id: string; anchor: HoverCardProps["anchor"] } | null>(null);
+  const cardTimer = useRef<number | null>(null);
+  const history = useHistory(graph.company.cik, capital?.asOf);
   const [theme] = useTheme();
   const central = useMemo(() => graph.nodes.find((n) => n.isCentral) ?? null, [graph.nodes]);
   const spokes = useMemo(() => viewGraph(graph).spokes, [graph]);
@@ -167,6 +188,7 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
             entity,
             totalDebt: entity.isCentral ? totalDebt : null,
             company: entity.isCentral ? graph.company : null,
+            revenue: entity.isCentral ? (history?.revenue.slice(-8) ?? null) : null,
             bar: v?.bar ?? null,
             materiality: v?.materiality ?? null,
             width: v?.width,
@@ -182,10 +204,32 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
           height: NODE_HEIGHT,
         };
       }),
-    [graph, positions, visuals, totalDebt, selectedId, opacityOf, focusId, related, order, fan, timeData, time, counterIds],
+    [graph, positions, visuals, totalDebt, selectedId, opacityOf, focusId, related, order, fan, timeData, time, counterIds, history],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState<EntityFlowNode>(flowNodes);
-  const { setCenter, getNode } = useReactFlow<EntityFlowNode, SignalFlowEdge>();
+  const { setCenter, getNode, flowToScreenPosition } = useReactFlow<EntityFlowNode, SignalFlowEdge>();
+
+  const closeCard = useCallback(() => {
+    if (cardTimer.current) window.clearTimeout(cardTimer.current);
+    cardTimer.current = null;
+    setCard(null);
+  }, []);
+  const openCard = useCallback(
+    (id: string) => {
+      if (cardTimer.current) window.clearTimeout(cardTimer.current);
+      cardTimer.current = window.setTimeout(() => {
+        const node = getNode(id);
+        if (!node) return;
+        const width = node.width ?? CENTRAL_WIDTH;
+        const a = flowToScreenPosition({ x: node.position.x, y: node.position.y });
+        const b = flowToScreenPosition({ x: node.position.x + width, y: node.position.y });
+        setCard({ id, anchor: { left: a.x, right: b.x, top: a.y } });
+      }, CARD_DELAY_MS);
+    },
+    [getNode, flowToScreenPosition],
+  );
+  useEffect(() => () => closeCard(), [closeCard]);
+  const cardEntity = card && card.id !== selectedId ? graph.nodes.find((n) => n.id === card.id) ?? null : null;
 
   // Keep dragged positions when only the styling changes.
   useEffect(() => {
@@ -219,6 +263,13 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
   // which way it reads. Reports made before typing existed show no label.
   const edges = useMemo<SignalFlowEdge[]>(() => {
     const byId = new Map(graph.nodes.map((n) => [n.id, n]));
+    const dollars = new Map<string, number>();
+    for (const n of graph.nodes) {
+      const f = n.magnitude ? primaryFigure(n.magnitude.label) : null;
+      if (!n.isCentral && f?.unit === "$" && f.value > 0) dollars.set(n.id, f.value);
+    }
+    const largest = Math.max(0, ...dollars.values());
+    const soon = new Date(Date.now() + 2 * 365 * 86_400_000).toISOString().slice(0, 10);
     const ranked = [...spokes].sort((a, b) => SEVERITY_RANK[byId.get(a.target)?.severity ?? "none"] - SEVERITY_RANK[byId.get(b.target)?.severity ?? "none"]);
     return ranked.map((e, i) => {
       const side = positions.get(e.target)?.side ?? "right";
@@ -226,6 +277,9 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
       const active = Boolean(focusId && related?.has(e.target) && (focusId === e.target || focusId === e.source));
       const filteredOut = target ? !passesFilters(target, filters) || Boolean(timeData.get(target.id)?.absent) : false;
       const flagged = Boolean(counterIds?.has(e.target));
+      const amount = dollars.get(e.target);
+      const figure = target?.magnitude ? (visuals.get(e.target)?.bar?.figure.text ?? primaryFigure(target.magnitude.label)?.text ?? null) : null;
+      const maturity = target ? (instrumentOf(target, capital)?.maturity ?? target.relationship.match(/\bdue (20\d\d)\b/)?.[1] ?? null) : null;
       const opacity = filteredOut ? 0.15 : related && !active ? 0.1 : counterIds && !flagged ? 0.1 : 1;
       return {
         id: e.id,
@@ -244,13 +298,17 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
           opacity,
           drawIn: !settled,
           delayMs: EDGES_START_MS + i * EDGE_STAGGER_MS,
-          width: EDGE_WIDTH[target?.severity ?? "none"],
+          width: amount && largest ? MONEY_MIN + (MONEY_MAX - MONEY_MIN) * Math.sqrt(amount / largest) : EDGE_WIDTH[target?.severity ?? "none"],
+          figure,
+          due: maturity ? maturity.slice(0, 4) : null,
+          // A date is due soon when it falls within two years; a bare year when that year ends within two years.
+          urgent: maturity ? (maturity.length === 4 ? `${maturity}-12-31` : maturity) <= soon : false,
           energy: target?.severity === "high",
           counterDash: flagged,
         },
       };
     });
-  }, [graph.nodes, spokes, positions, focusId, related, filters, fan, relationLabels, selectedId, settled, timeData, counterIds]);
+  }, [graph.nodes, spokes, positions, focusId, related, filters, fan, relationLabels, selectedId, settled, timeData, counterIds, visuals, capital]);
 
   return (
     <div className="relative h-full w-full">
@@ -262,8 +320,16 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodeClick={(_, node) => onSelect(node.data.entity)}
-        onNodeMouseEnter={(_, node) => setHoveredId(node.id)}
-        onNodeMouseLeave={() => setHoveredId(null)}
+        onNodeMouseEnter={(_, node) => {
+          setHoveredId(node.id);
+          openCard(node.id);
+        }}
+        onNodeMouseLeave={() => {
+          setHoveredId(null);
+          closeCard();
+        }}
+        onNodeDragStart={closeCard}
+        onMoveStart={closeCard}
         onPaneClick={() => onClearSelection?.()}
         fitView
         fitViewOptions={{ padding: 0.05 }}
@@ -295,6 +361,21 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
         <p className="pointer-events-none absolute left-4 top-4 z-10 rounded-xs border border-red-600 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-zinc-50" style={{ background: "var(--devil-bg)" }}>
           Showing: counter-arguments &middot; {counterIds.size} flagged
         </p>
+      ) : null}
+      {cardEntity && card ? (
+        <HoverCard
+          key={cardEntity.id}
+          entity={cardEntity}
+          company={graph.company}
+          anchor={card.anchor}
+          capital={capital}
+          history={history}
+          timeline={time?.timeline ?? null}
+          bar={visuals.get(cardEntity.id)?.bar ?? null}
+          materiality={visuals.get(cardEntity.id)?.materiality ?? null}
+          severityBefore={time?.timeline.severityBefore[cardEntity.id] ?? null}
+          instrument={instrumentOf(cardEntity, capital)}
+        />
       ) : null}
       {/* The one ambient motion in the app: a faint blue wash at the middle that widens and narrows over eight seconds. */}
       <div className="canvas-breathe pointer-events-none absolute inset-0" aria-hidden />

@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { type CSSProperties, memo } from "react";
 import type { CompanyProfile, Confidence, Entity, Severity, Trend } from "@/types";
+import type { SeriesPoint } from "@/lib/xbrl";
+import { QuarterBars } from "./quarter-bars";
 import { TYPE_LABELS } from "@/lib/entity-style";
 import {
   CONFIDENCE_DOTS,
@@ -28,6 +30,7 @@ import {
   TYPE_HEX,
   TYPE_HEX_DARK,
   TYPE_TINT,
+  compactMoney,
   relationIcon,
   relationText,
 } from "@/lib/node-visuals";
@@ -56,6 +59,8 @@ export interface EntityNodeData extends Record<string, unknown> {
   severityBefore?: { quarter: string; severity: Severity } | null;
   /** Counter view: the company box and the boxes the Devil's Advocate flags turn red. */
   counter?: "central" | "flagged" | null;
+  /** The company box: revenue for the last eight quarters, from XBRL. */
+  revenue?: SeriesPoint[] | null;
 }
 
 export type EntityFlowNode = Node<EntityNodeData, "entityNode">;
@@ -162,7 +167,19 @@ function sourceTip(entity: Entity): string {
   return parts.filter(Boolean).join(", ");
 }
 
-function CentralBox({ entity, totalDebt, company, counter }: { entity: Entity; totalDebt?: string | null; company?: CompanyProfile | null; counter: boolean }) {
+function CentralBox({
+  entity,
+  totalDebt,
+  company,
+  counter,
+  revenue,
+}: {
+  entity: Entity;
+  totalDebt?: string | null;
+  company?: CompanyProfile | null;
+  counter: boolean;
+  revenue?: SeriesPoint[] | null;
+}) {
   const ratings = company?.ratings ?? [];
   return (
     <div className="flex h-full flex-col gap-1.5">
@@ -176,8 +193,20 @@ function CentralBox({ entity, totalDebt, company, counter }: { entity: Entity; t
       </div>
       {counter ? <span className="w-fit rounded-xs bg-red-600 px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase leading-none tracking-[0.12em] text-white">Counter view</span> : null}
       <div className="line-clamp-1 text-lg font-semibold leading-tight tracking-[-0.01em] text-zinc-900">{entity.name}</div>
-      <div className="text-[11px] uppercase leading-snug tracking-[0.08em] text-zinc-500">Subject company</div>
-      {company?.industry ? (
+      {revenue && revenue.length >= 2 ? (
+        <div className="flex items-end gap-2.5" title="Revenue for the last eight quarters, from XBRL. Hover the box for more.">
+          <div className="min-w-0 flex-1">
+            <QuarterBars points={revenue} color={counter ? "#dc2626" : "#1d4ed8"} height={20} format={compactMoney} label="Revenue" delayMs={300} />
+          </div>
+          <div className="shrink-0 text-right leading-none">
+            <div className="font-mono text-[13px] font-semibold text-zinc-900">{compactMoney(revenue[revenue.length - 1].value)}</div>
+            <div className="mt-0.5 text-[9px] uppercase tracking-[0.08em] text-zinc-500">Revenue, last qtr</div>
+          </div>
+        </div>
+      ) : (
+        <div className="text-[11px] uppercase leading-snug tracking-[0.08em] text-zinc-500">Subject company</div>
+      )}
+      {company?.industry && !(revenue && revenue.length >= 2) ? (
         <div className="line-clamp-1 text-xs leading-snug text-zinc-700" title={`How the company describes itself in its 10-K: ${company.industry}`}>
           {company.industry.charAt(0).toUpperCase()}
           {company.industry.slice(1)}
@@ -202,10 +231,10 @@ function Figure({ entity, bar, color }: { entity: Entity; bar?: FigureBar | null
       <div className="tip flex flex-col gap-1" data-tip={`${bar.basis}. ${quote}`}>
         <span className="truncate text-[10px] uppercase leading-none tracking-[0.08em] text-zinc-500">{magnitude.label}</span>
         <span className="flex items-center gap-2">
-          <span className="h-1 flex-1 overflow-hidden rounded-xs bg-zinc-200">
+          <span className="h-1.5 flex-1 overflow-hidden rounded-xs bg-zinc-200">
             <span className="bar-fill block h-full rounded-xs" style={{ width: `${Math.max(2, Math.min(100, bar.fill * 100))}%`, background: color }} />
           </span>
-          <span className="shrink-0 font-mono text-xs font-medium leading-none text-zinc-900">{bar.figure.text}</span>
+          <span className="shrink-0 font-display text-[15px] font-semibold leading-none tracking-[-0.01em] text-zinc-900">{bar.figure.text}</span>
         </span>
       </div>
     );
@@ -213,7 +242,7 @@ function Figure({ entity, bar, color }: { entity: Entity; bar?: FigureBar | null
   if (magnitude) {
     return (
       <div className="tip" data-tip={quote}>
-        <div className="truncate font-mono text-xs font-medium leading-tight text-zinc-900">{magnitude.label}</div>
+        <div className="truncate font-display text-[13px] font-semibold leading-tight text-zinc-900">{magnitude.label}</div>
       </div>
     );
   }
@@ -298,7 +327,7 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
         <Handles fan={fan} />
 
         {entity.isCentral ? (
-          <CentralBox entity={entity} totalDebt={totalDebt} company={company} counter={counter === "central"} />
+          <CentralBox entity={entity} totalDebt={totalDebt} company={company} counter={counter === "central"} revenue={data.revenue} />
         ) : (
           <div className="flex h-full flex-col gap-1.5">
             <TypeBadge entity={entity} />

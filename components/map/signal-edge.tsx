@@ -24,6 +24,12 @@ export interface SignalEdgeData extends Record<string, unknown> {
   energy?: boolean;
   /** Counter view: lines to the boxes the Devil's Advocate flags are dashed. */
   counterDash?: boolean;
+  /** The entity's figure, e.g. "$3.20B" or "401 MW", shown after the relationship. */
+  figure?: string | null;
+  /** Year a debt instrument is due. */
+  due?: string | null;
+  /** Due within two years: the label turns red. */
+  urgent?: boolean;
 }
 
 export type SignalFlowEdge = Edge<SignalEdgeData, "signal">;
@@ -34,7 +40,7 @@ export const EDGE_ACTIVE = "rgb(var(--zinc-400))";
 
 function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: EdgeProps<SignalFlowEdge>) {
   const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
-  const { label, arrowAtSource = false, dashed = false, active = false, flashKey = null, opacity = 1, drawIn = false, delayMs = 0, width = 1.5, energy = false, counterDash = false } = data ?? {};
+  const { label, arrowAtSource = false, dashed = false, active = false, flashKey = null, opacity = 1, drawIn = false, delayMs = 0, width = 1.5, energy = false, counterDash = false, figure = null, due = null, urgent = false } = data ?? {};
   const stroke = active ? EDGE_ACTIVE : EDGE_IDLE;
   const marker = `url(#signal-arrow-${active ? "active" : "idle"})`;
 
@@ -70,7 +76,7 @@ function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: E
       {label ? (
         <EdgeLabelRenderer>
           <div
-            className={`edge-pill nodrag nopan pointer-events-none absolute rounded-xs border px-2 py-1 font-sans text-[10px] font-medium uppercase leading-none tracking-[0.06em] text-zinc-200 ${active ? "border-zinc-600 bg-zinc-800" : "border-zinc-700 bg-zinc-900"}`}
+            className={`edge-pill nodrag nopan pointer-events-none absolute flex items-center gap-1.5 whitespace-nowrap rounded-xs border px-2 py-1 font-sans text-[10px] font-medium uppercase leading-none tracking-[0.06em] text-zinc-200 ${urgent ? "border-red-600 bg-zinc-900" : active ? "border-zinc-600 bg-zinc-800" : "border-zinc-700 bg-zinc-900"}`}
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
               opacity,
@@ -78,7 +84,9 @@ function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: E
               animationDelay: `${delayMs + 200}ms`,
             }}
           >
-            {label}
+            <span>{label}</span>
+            {figure ? <span className="edge-figure font-mono normal-case tracking-normal text-zinc-50">{figure}</span> : null}
+            {due ? <span className={`font-mono tracking-normal ${urgent ? "text-red-500" : "text-zinc-400"}`}>due {due}</span> : null}
           </div>
         </EdgeLabelRenderer>
       ) : null}
