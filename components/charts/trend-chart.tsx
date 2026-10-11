@@ -27,6 +27,8 @@ export interface TrendChartProps {
   note?: string;
   height?: number;
   className?: string;
+  /** Hide the latest value and change in the header, e.g. for projections. */
+  hideSummary?: boolean;
 }
 
 const NEGATIVE = "#dc2626";
@@ -80,7 +82,7 @@ function useWidth() {
  * quarter to see its exact figures and the change against the prior quarter and
  * the same quarter a year earlier. Bars grow once on load; nothing loops.
  */
-export function TrendChart({ title, series, kind, format, tick = format, change, quarterLabel, reference = null, note, height = 210, className = "" }: TrendChartProps) {
+export function TrendChart({ title, series, kind, format, tick = format, change, quarterLabel, reference = null, note, height = 210, className = "", hideSummary = false }: TrendChartProps) {
   const [ref, width] = useWidth();
   const [hover, setHover] = useState<number | null>(null);
   const primary = series[0];
@@ -120,13 +122,13 @@ export function TrendChart({ title, series, kind, format, tick = format, change,
       <figcaption className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{title}</p>
-          <p className="mt-1.5 flex items-baseline gap-2">
+          <p className={`mt-1.5 flex items-baseline gap-2 ${hideSummary ? "hidden" : ""}`}>
             <span className={`font-display text-2xl font-semibold tabular-nums ${latest.value < 0 ? "text-red-400" : "text-zinc-50"}`}>{format(latest.value)}</span>
             <span className="font-mono text-[11px] text-zinc-500">{quarterLabel(latest.end)}</span>
           </p>
         </div>
         <div className="text-right">
-          {yoy ? (
+          {yoy && !hideSummary ? (
             <p className={`font-mono text-xs ${yoyUp ? "text-emerald-500" : "text-red-400"}`}>
               {yoy} <span className="text-zinc-500">vs a year earlier</span>
             </p>
@@ -174,7 +176,7 @@ export function TrendChart({ title, series, kind, format, tick = format, change,
             {reference ? (
               <g>
                 <line x1={PAD.left} x2={width - PAD.right} y1={y(reference.value)} y2={y(reference.value)} stroke="#d97706" strokeDasharray="4 3" />
-                <text x={PAD.left + 6} y={y(reference.value) - 5} textAnchor="start" className="font-mono text-[10px]" style={{ fill: "#d97706" }}>
+                <text x={PAD.left + 6} y={y(reference.value) + 13} textAnchor="start" className="font-mono text-[10px]" style={{ fill: "#d97706" }}>
                   {reference.label}
                 </text>
               </g>

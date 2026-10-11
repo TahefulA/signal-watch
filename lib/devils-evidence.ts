@@ -11,6 +11,7 @@ import type {
 import { CAPEX, CASH, DEPRECIATION, INTEREST, OPERATING_CASH, OPERATING_INCOME, REVENUE, money } from "./capital";
 import { daysBetween } from "./dates";
 import type { PatternContext } from "./devils-advocate-patterns";
+import { buildForecast } from "./forecast";
 import { padCik } from "./edgar";
 import { type FactBook, type SeriesPoint, instantSeries, latestInstantDate, quarterlySeries } from "./xbrl";
 
@@ -236,6 +237,30 @@ export function buildEvidence(report: Report, ctx: PatternContext, peers: Report
         ];
       }),
       note: "Current ratio is current assets over current liabilities: above 1.0x means short-term assets cover bills due within a year. Free cash flow is operating cash flow less capital spending.",
+      source: xbrlSource,
+    });
+  }
+  // Step 4, forecasting: three cases from the company's own quarters, computed here, never by the model.
+  const fcfPoints = ocf
+    .map((o) => {
+      const c = at(capex, o.end);
+      return c === undefined ? null : { end: o.end, value: o.value - c };
+    })
+    .filter((p): p is SeriesPoint => p !== null);
+  const forecast = buildForecast({ fcf: fcfPoints, cash, schedule: capital?.maturitySchedule?.rows ?? null });
+  if (forecast) {
+    exhibits.liquidity.push({
+      title: `Cash over the next ${forecast.quarters} quarters, three cases (no new borrowing or share sales)`,
+      columns: ["Case", "How it is built", "Free cash flow per quarter", `Debt principal due in ${forecast.quarters} quarters`, `Cash after ${forecast.quarters} quarters`, "Cash runs out"],
+      rows: forecast.cases.map((c) => [
+        c.label,
+        `The company's ${c.assumption}`,
+        usd(c.quarterlyFcf),
+        usd(forecast.debtDue),
+        usd(c.endingCash),
+        c.runsOutAt ? `Quarter ending ${c.runsOutAt}` : `Not within ${forecast.quarters} quarters`,
+      ]),
+      note: `Starts from cash of ${usd(forecast.start.cash)} at ${forecast.start.end}. Scenarios built from quarters the company has already reported, not predictions.`,
       source: xbrlSource,
     });
   }

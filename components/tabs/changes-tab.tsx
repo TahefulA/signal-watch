@@ -9,6 +9,7 @@ import { relationText } from "@/lib/node-visuals";
 import { changesItems, sectionItems } from "@/lib/counter-view";
 import { CounterArgumentsCard } from "./counter-arguments-card";
 import { TabHeader } from "./financial-tab";
+import { ForecastPanel } from "@/components/forecast/forecast-panel";
 
 const GROUPS: { title: string; kinds: ChangeKind[]; color: string; bar: string }[] = [
   { title: "New entities", kinds: ["new", "new_debt"], color: "text-emerald-600", bar: "bg-emerald-600" },
@@ -148,6 +149,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
       empty={report.devil ? "No new risk language, insider selling cluster, officer departures, auditor change or new debt was found." : "The counter-argument has not been written yet."}
     />
   );
+  const forecastBlock = <ForecastPanel report={report} timeline={timeline} />;
   const timelineBlock = timeline && timeline.quarters.length ? <ChangesTimeline report={report} timeline={timeline} onSelectEntity={onSelectEntity} /> : null;
   const changes = report.changes;
   const describe = (docs: { sourceType: string; date: string; fiscalPeriod?: string | null }[]) =>
@@ -161,6 +163,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
       <div className="mx-auto max-w-[1000px] px-6 py-8 lg:px-12">
         <TabHeader title="Changes since last filing" />
         {counterCard}
+        {forecastBlock}
         {timelineBlock}
         <p className="text-sm text-zinc-400">
           {busy
@@ -192,6 +195,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
         </p>
       </div>
       {counterCard}
+      {forecastBlock}
       {timelineBlock}
       <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Latest quarter, full comparison</h3>
 

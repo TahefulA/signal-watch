@@ -220,6 +220,12 @@ it first. Everything later in the guide builds on it.
     wrong, and it does not show where each fact came from. Signal Watch reads
     today's official filings and links every claim to its sentence.
 
+  "Does the AI predict the future?"
+    No. The AI only reads and drafts. The forecast on the Changes tab is
+    arithmetic done by our code: it repeats the company's own best, average
+    and worst recent quarters of cash flow, subtracts debt as it comes due,
+    and shows when the cash would run out. Every input is from the filings.
+
   "Who would pay for this?"
     Credit funds, banks and anyone who lends to companies or buys their
     bonds: they already pay analysts to do this reading by hand.
@@ -1043,20 +1049,24 @@ STOP 10. WHAT IT OWES, AND WHEN   (Capital tab)
     "This is the calendar of when the company has to find money, and who
     stands first in line if it can't."
 
-STOP 11. WHAT CHANGED SINCE LAST QUARTER   (Changes tab)
+STOP 11. WHAT CHANGED, AND WHERE IT IS HEADING   (Changes tab)
   What you are looking at
-    New customers, lost customers, new debt, repaid debt and changed figures
-    since the previous report.
+    A forecast of the company's cash for the next two years under three cases,
+    then new customers, lost customers, new debt and changed figures since the
+    previous report.
   The fund's problem it solves
-    Things change between reviews, and deals arrive faster than anyone can
-    re-read every filing.
+    Things change between reviews, and lending decisions are made on the
+    downside case, which is where a credit fund makes or loses money.
   Why it is here
-    An analyst already knows the company from last quarter. What they need is
-    the difference. This tab is that difference, so a three-hour reread
-    becomes a five-minute review.
+    Gatto's Step 4 is forecasting with a management, base and downside case.
+    The AI does not predict anything: our code repeats the company's own best,
+    average and worst recent quarters of cash flow, subtracts debt as it comes
+    due, and shows when the cash runs out. Below it, the analyst sees only
+    what changed since last quarter.
   Say it like this
-    "Analysts don't need the whole story every quarter. They need what
-    changed. That's this tab."
+    "We don't let AI guess the future. If TeraWulf just keeps doing what it
+    did on average last year, the cash runs out by mid-2027, and every input
+    is from its own filings."
 
 STOP 12. STRONGER OR WEAKER THAN ITS PEERS?   (Peers tab)
   What you are looking at
@@ -1380,21 +1390,27 @@ STEP 3. FINANCIAL STATEMENT ANALYSIS                [FULL]  Financial and
   names: Channel Stuffing, Absorption Costing, Understated Bad Debt, plus
   receivables versus revenue, DSO, DIO, SG&A growth and restricted cash.
 
-STEP 4. FORECASTING                                 [PARTIAL]  Changes tab,
-                                                    time bar, Devil's Advocate
+STEP 4. FORECASTING                                  [FULL]  Changes tab,
+                                                     "Forecast" section
   The question: management case, base case, downside case. The downside case
   is where you make or lose money.
-  Where it is in the app
-    - Direction: Changes tab ("Step 4"), the time bar and quarterly charts
-      show where the trend is heading.
-    - The downside, argued: the Devil's Advocate is a written downside case,
-      built from the evidence, with "What to watch, and when" naming the
-      results that would confirm or weaken it. Cash runway on the watchlist
-      is the simplest downside number: quarters until the cash runs out at
-      the current burn.
-    - The management view: the memo and the filings' own outlook language.
-  Not yet: numeric three-case projections (revenue, EBITDA and cash flow
-  under each case). We chose not to have the AI invent future numbers.
+  Does the AI predict anything? No. The AI never produces a future number.
+  The forecast is computed by our code (lib/forecast.ts) from the company's
+  own last eight quarters:
+    Strong case    its best quarter of free cash flow repeats
+    Base case      its average quarter over the last four repeats
+    Downside case  its worst quarter repeats
+  Cash is carried forward quarter by quarter for two years, debt principal is
+  subtracted when the debt note says it is due, and no new borrowing or share
+  sales are assumed. The result: cash after two years and the quarter the
+  cash runs out, with every assumption printed beside it. For WULF: the base
+  case runs out by June 2027, the downside by March 2027.
+  The same table is an exhibit in the Devil's Advocate, so its downside
+  argument cites these numbers, and "What to watch" names the filings that
+  will confirm or break each case.
+  Honest note: the "strong case" stands in for Gatto's management case, which
+  would use management's own projections; most 10-Qs do not give numeric
+  guidance, so we use the company's best recent quarter instead and say so.
 
 STEP 5. CORPORATE VALUATION                         [PARTIAL]  Peers tab,
                                                                market data
@@ -1434,19 +1450,19 @@ STEP 7. INVESTMENT RECOMMENDATION                   [FULL]  Memo tab, "Step 7"
 
 WHAT TO SAY IF A JUDGE ASKS
   "We follow Gatto's seven steps, one tab per step. Qualitative analysis,
-  financial statements and the memo are fully covered, and his red flags
-  (channel stuffing, absorption costing, understated bad debt) are built in
-  as checks. Forecasting, valuation and structuring are partly covered: the
-  Devil's Advocate is our written downside case, peers are our comparable
-  companies, and seniority, subordination, covenants and guarantees are
-  checked. We did not build numeric forecasts, DCF or precedent
-  transactions, because we would not let the AI invent future numbers."
+  financial statements, forecasting and the memo are covered, and his red
+  flags (channel stuffing, absorption costing, understated bad debt) are
+  built in as checks. Forecasting is three cash cases computed from the
+  company's own quarters, not predicted by AI. Valuation and structuring are
+  partly covered: peers are our comparable companies, and seniority,
+  subordination, covenants and guarantees are checked. We did not build DCF
+  or precedent transactions."
 
   Coverage at a glance
     1 Sources and uses          PARTIAL   Capital tab, 8-K 2.03, Changes
     2 Qualitative analysis      FULL      Graph tab, 8 risk categories
     3 Financial statements      FULL      Financial + Capital, red-flag checks
-    4 Forecasting               PARTIAL   Changes, time, Devil's Advocate
+    4 Forecasting               FULL      Three cash cases, computed not guessed
     5 Valuation                 PARTIAL   Peers, market value
     6 Structuring               PARTIAL   Seniority, covenants, guarantees
     7 Recommendation            FULL      Memo in Gatto's five sections

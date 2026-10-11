@@ -99,13 +99,13 @@ export const TOUR_STEPS: TourStep[] = [
     say: "This is the calendar of when the company has to find money, and who stands first in line if it can't.",
   },
   {
-    title: "What changed since last quarter",
+    title: "What changed, and where it is heading",
     tab: "changes",
     target: "#panel-changes",
-    look: "New customers, lost customers, new debt, repaid debt and changed figures since the previous report.",
-    problem: "Things change between reviews, and deals arrive faster than anyone can re-read every filing.",
-    why: "An analyst already knows the company from last quarter. What they need is the difference. This tab is that difference, so a three-hour reread becomes a five-minute review.",
-    say: "Analysts don't need the whole story every quarter. They need what changed. That's this tab.",
+    look: "A forecast of the company's cash for the next two years under three cases, then new customers, lost customers, new debt and changed figures since the previous report.",
+    problem: "Things change between reviews, and lending decisions are made on the downside case, which is where a credit fund makes or loses money.",
+    why: "Gatto's Step 4 is forecasting with a management, base and downside case. The AI does not predict anything: our code repeats the company's own best, average and worst recent quarters of cash flow, subtracts debt as it comes due, and shows when the cash runs out. Below it, the analyst sees only what changed since last quarter.",
+    say: "We don't let AI guess the future. If TeraWulf just keeps doing what it did on average last year, the cash runs out by mid-2027, and every input is from its own filings.",
   },
   {
     title: "Stronger or weaker than its peers?",
