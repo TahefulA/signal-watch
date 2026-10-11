@@ -42,7 +42,7 @@ function citationOf(e: Entity): Citation {
   return { quote: e.sourceQuote, sourceType: e.sourceType, sourceDate: e.sourceDate, sourceUrl: e.sourceUrl, sourceLabel: e.sourceLabel, page: e.sourcePage ?? null };
 }
 
-function capitalFacts(report: Report): string {
+export function capitalFacts(report: Report): string {
   const c = report.capital;
   if (!c) return "Capital structure: not available.";
   const metrics = c.metrics.map((m) => `- ${m.label}: ${m.display} (${m.note})`).join("\n");
@@ -59,7 +59,7 @@ function capitalFacts(report: Report): string {
   return `Capital structure from the ${c.sourceType} filed ${c.sourceDate}:\n${metrics}\nInstruments:\n${instruments}`;
 }
 
-function changeFacts(report: Report): string {
+export function changeFacts(report: Report): string {
   const ch = report.changes;
   if (!ch) return "Changes since the previous quarter: not compared.";
   const lines = ch.changes.filter((c) => !c.judgment).map((c) => `- ${c.name}: ${c.detail}${c.before || c.after ? ` (${c.before ?? "none"} to ${c.after ?? "none"})` : ""}`);
