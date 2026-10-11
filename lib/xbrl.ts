@@ -128,3 +128,41 @@ export function trailingTwelveMonths(book: FactBook, cik: string, concepts: stri
   }
   return null;
 }
+
+export interface SeriesPoint {
+  /** Period end, YYYY-MM-DD. */
+  end: string;
+  value: number;
+}
+
+/** Balance sheet values at each reported date up to a cutoff, from the first concept with a history. */
+export function instantSeries(book: FactBook, concepts: string[], through: string, count = 8): SeriesPoint[] {
+  for (const concept of concepts) {
+    const points = latestByPeriod(book.get(concept) ?? [])
+      .filter((f) => !f.start && f.end <= through)
+      .map((f) => ({ end: f.end, value: f.val }))
+      .sort((a, b) => a.end.localeCompare(b.end));
+    if (points.length >= 2) return points.slice(-count);
+  }
+  return [];
+}
+
+/**
+ * Three-month values up to a cutoff. Fourth quarters are rarely tagged on their
+ * own, so they are the fiscal year less the nine months to the third quarter.
+ */
+export function quarterlySeries(book: FactBook, concepts: string[], through: string, count = 8): SeriesPoint[] {
+  for (const concept of concepts) {
+    const facts = latestByPeriod(book.get(concept) ?? []).filter((f) => f.start && f.end <= through);
+    const byEnd = new Map<string, number>();
+    for (const f of facts) if (months(f) > 2.5 && months(f) < 3.5) byEnd.set(f.end, f.val);
+    for (const year of facts.filter((f) => months(f) > 11 && months(f) < 13)) {
+      if (byEnd.has(year.end)) continue;
+      const nine = facts.find((f) => f.start === year.start && months(f) > 8.5 && months(f) < 9.5);
+      if (nine) byEnd.set(year.end, year.val - nine.val);
+    }
+    const points = Array.from(byEnd, ([end, value]) => ({ end, value })).sort((a, b) => a.end.localeCompare(b.end));
+    if (points.length >= 2) return points.slice(-count);
+  }
+  return [];
+}

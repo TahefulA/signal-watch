@@ -43,7 +43,7 @@ function InstrumentRow({ instrument, scale }: { instrument: DebtInstrument; scal
           {amount !== null ? compact(amount) : commitment !== null ? `${compact(commitment)} facility` : "Not disclosed"}
         </span>
       </div>
-      <div className="relative mt-1.5 h-2 bg-zinc-900" aria-hidden>
+      <div className="relative mt-1.5 h-2 bg-zinc-800" aria-hidden>
         {commitment !== null ? <div className="absolute inset-y-0 left-0 border border-emerald-600" style={{ width: barWidth(commitment) }} /> : null}
         {amount !== null ? <div className="absolute inset-y-0 left-0 bg-emerald-600" style={{ width: barWidth(amount) }} /> : null}
       </div>
@@ -76,7 +76,7 @@ function MaturityBars({ rows, note }: { rows: MaturityRow[]; note: string }) {
             <span className="truncate font-mono text-[10px] text-zinc-400" title={r.period}>
               {r.period.replace("Remainder of ", "Rest of ")}
             </span>
-            <span className="h-3 bg-zinc-900">
+            <span className="h-3 bg-zinc-800">
               <span className="block h-3 bg-emerald-600" style={{ width: `${Math.max(1, (r.amount / max) * 100)}%` }} />
             </span>
             <span className="text-right font-mono text-[10px] text-zinc-200">{compact(r.amount)}</span>

@@ -12,7 +12,7 @@ import { SignalSummary } from "@/components/insight/signal-summary";
 import { TickerInput } from "@/components/input/ticker-input";
 import { Header } from "@/components/layout/header";
 import { PIPELINE_STEPS, StatusBar } from "@/components/layout/status-bar";
-import { EntityMap } from "@/components/map/entity-map";
+import { EntityMap, type MapFilters } from "@/components/map/entity-map";
 import { Legend } from "@/components/map/legend";
 import { MemoContainer } from "@/components/memo/memo-container";
 import { EntityPanel } from "@/components/panel/entity-panel";
@@ -76,7 +76,7 @@ export default function HomePage() {
   const [peerStep, setPeerStep] = useState<string | null>(null);
   const [peerError, setPeerError] = useState<string | null>(null);
   const [briefBusy, setBriefBusy] = useState(false);
-  const [highConfidenceOnly, setHighConfidenceOnly] = useState(false);
+  const [mapFilters, setMapFilters] = useState<MapFilters>({ types: [], severities: [], highConfidenceOnly: false });
   const [briefError, setBriefError] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
   const capitalRef = useRef<HTMLElement>(null);
@@ -356,10 +356,7 @@ export default function HomePage() {
           <section ref={mapRef} className="scroll-mt-4 px-6 py-8">
             {report.signal?.length ? <SignalSummary spans={report.signal} onEntityClick={focusEntity} /> : null}
             <AskBar reportId={report.id} nodes={graph.nodes} onEntityClick={focusEntity} onCapitalClick={showCapital} />
-            <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
-              <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-500">Entity map</h2>
-              <Legend highConfidenceOnly={highConfidenceOnly} onToggleConfidence={setHighConfidenceOnly} />
-            </div>
+            <h2 className="mb-2 text-xs font-medium uppercase tracking-widest text-zinc-500">Entity map</h2>
             <MapHeader report={report} />
             <ChangePanel
               changes={report.changes}
@@ -374,19 +371,23 @@ export default function HomePage() {
                 {note}
               </p>
             ))}
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
-              <div className="h-[78vh] min-h-[520px] border border-zinc-800">
+            <div className="mb-3">
+              <Legend filters={mapFilters} onChange={setMapFilters} />
+            </div>
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+              <div className="h-[80vh] min-h-[560px] border border-zinc-800">
                 <EntityMap
                   graph={graph}
-                  highConfidenceOnly={highConfidenceOnly}
+                  filters={mapFilters}
+                  onClearSelection={() => setSelected(null)}
                   totalDebt={totalDebt !== "Not available" ? totalDebt : null}
                   selectedId={selected?.id ?? null}
                   focusRequest={focusRequest}
                   onSelect={setSelected}
                 />
               </div>
-              <div className="border border-zinc-800 xl:h-[78vh] xl:min-h-[520px] xl:overflow-y-auto">
-                <FinancialMetricsPanel capital={report.capital} company={graph.company} />
+              <div className="rounded-xs border border-zinc-800 bg-zinc-900 xl:h-[80vh] xl:min-h-[560px] xl:overflow-y-auto">
+                <FinancialMetricsPanel capital={report.capital} company={graph.company} peers={peerReports} />
                 <CapitalStructurePanel ref={capitalRef} capital={report.capital} className="scroll-mt-4" />
               </div>
             </div>

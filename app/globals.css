@@ -40,18 +40,181 @@
   background-color: #27272a;
 }
 
-.react-flow__edge-text {
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 10px;
-}
-
 .react-flow__handle {
   opacity: 0;
 }
 
+/* Map motion: every animation plays once on load and settles. */
+@keyframes node-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.node-enter {
+  animation: node-enter 200ms ease-out backwards;
+}
+
+.entity-box {
+  transition:
+    border-color 150ms ease-out,
+    opacity 200ms ease-out;
+}
+
+.entity-box:hover {
+  border-color: var(--hover-border) !important;
+}
+
 .react-flow__node.selected .entity-box {
-  outline: 1px solid #fafafa;
+  outline: 1px solid #a1a1aa;
   outline-offset: 2px;
+}
+
+/* The hovered box sits above its neighbours so its tooltips are not covered. */
+.react-flow__node:hover {
+  z-index: 1000 !important;
+}
+
+@keyframes edge-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.signal-edge {
+  transition:
+    stroke 150ms ease-out,
+    stroke-width 150ms ease-out;
+}
+
+.edge-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: edge-draw 400ms ease-out backwards;
+}
+
+@keyframes edge-flash {
+  0% {
+    stroke: #71717a;
+  }
+  50% {
+    stroke: #d4d4d8;
+  }
+  100% {
+    stroke: #a1a1aa;
+  }
+}
+
+.edge-flash {
+  animation: edge-flash 400ms ease-out 1;
+  animation-delay: 0ms !important;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.edge-pill {
+  animation: fade-in 250ms ease-out backwards;
+}
+
+.conf-in {
+  animation: fade-in 300ms ease-out backwards;
+}
+
+@keyframes bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.bar-fill {
+  transform-origin: left;
+  animation: bar-fill 400ms ease-out 200ms backwards;
+}
+
+/* The change dot fades in after its box, pulses once and stays still. */
+@keyframes change-dot {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    transform: scale(1.3);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.change-dot {
+  animation: change-dot 700ms ease-out backwards;
+}
+
+.legend-swatch {
+  transition: transform 120ms ease-out;
+}
+
+.legend-item:hover .legend-swatch {
+  transform: scale(1.08);
+}
+
+/* Hover notes on the map: a plain box above the element, no shadow. */
+.tip {
+  position: relative;
+}
+
+.tip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  z-index: 50;
+  width: max-content;
+  max-width: 280px;
+  white-space: normal;
+  padding: 6px 8px;
+  border: 1px solid #3f3f46;
+  border-radius: 2px;
+  background: #18181b;
+  color: #e4e4e7;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node-enter,
+  .edge-draw,
+  .edge-pill,
+  .conf-in,
+  .bar-fill,
+  .change-dot {
+    animation: none;
+  }
 }
 
 /* The meeting brief prints on one page in black on white. */

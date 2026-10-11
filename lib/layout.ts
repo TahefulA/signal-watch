@@ -1,8 +1,8 @@
 import type { Entity, EntityType } from "@/types";
 
-export const NODE_WIDTH = 250;
-export const NODE_HEIGHT = 156;
-export const CENTRAL_WIDTH = 290;
+export const NODE_WIDTH = 240;
+export const NODE_HEIGHT = 168;
+export const CENTRAL_WIDTH = 300;
 
 export type Side = "left" | "right" | "top" | "bottom";
 
@@ -12,10 +12,10 @@ export interface Positioned {
   side: Side | null;
 }
 
-const COLUMN_GAP_Y = 22;
-const ROW_GAP_X = 24;
+const COLUMN_GAP_Y = 24;
+const ROW_GAP_X = 28;
 /** Space between the subject company and the nearest boxes, so edge labels fit. */
-const CLEARANCE = 150;
+const CLEARANCE = 140;
 
 /**
  * Which side each type prefers, in order. Counterparties read left, exposures
@@ -52,10 +52,11 @@ function centerOut<T>(items: T[]): T[] {
 /**
  * A frame around the subject company: a column on each side and a row above
  * and below. Rows are no wider than the gap between the columns and sit beyond
- * the columns' height, so no straight edge crosses another box. Returns
+ * the columns' height, so no straight edge crosses another box. Boxes can be
+ * wider than standard (see widthOf); columns align on their inner edge. Returns
  * top-left positions.
  */
-export function layoutGraph(nodes: Entity[]): Map<string, Positioned> {
+export function layoutGraph(nodes: Entity[], widthOf: (e: Entity) => number = (e) => (e.isCentral ? CENTRAL_WIDTH : NODE_WIDTH)): Map<string, Positioned> {
   const central = nodes.find((n) => n.isCentral);
   const positions = new Map<string, Positioned>();
   if (!central) return positions;
@@ -71,27 +72,28 @@ export function layoutGraph(nodes: Entity[]): Map<string, Positioned> {
     bySide[side].push(e);
   }
 
-  const rowWidth = (count: number) => count * NODE_WIDTH + Math.max(0, count - 1) * ROW_GAP_X;
-  const widestRow = Math.max(rowWidth(bySide.top.length), rowWidth(bySide.bottom.length), CENTRAL_WIDTH);
-  const columnX = Math.max(widestRow / 2 + 40, CENTRAL_WIDTH / 2 + CLEARANCE);
+  const rowWidth = (items: Entity[]) => items.reduce((sum, e) => sum + widthOf(e), 0) + Math.max(0, items.length - 1) * ROW_GAP_X;
+  const widestRow = Math.max(rowWidth(bySide.top), rowWidth(bySide.bottom), CENTRAL_WIDTH);
+  const columnX = Math.max(widestRow / 2 + 30, CENTRAL_WIDTH / 2 + CLEARANCE);
   const columnHeight = (count: number) => count * NODE_HEIGHT + Math.max(0, count - 1) * COLUMN_GAP_Y;
   const tallest = Math.max(columnHeight(bySide.left.length), columnHeight(bySide.right.length), NODE_HEIGHT);
-  const rowY = Math.max(tallest / 2 + 70, NODE_HEIGHT / 2 + CLEARANCE);
+  const rowY = Math.max(tallest / 2 + 50, NODE_HEIGHT / 2 + CLEARANCE);
 
   const placeColumn = (items: Entity[], side: "left" | "right") => {
     const top = -columnHeight(items.length) / 2;
     items.forEach((e, i) => {
-      const x = side === "left" ? -columnX - NODE_WIDTH : columnX;
+      const x = side === "left" ? -columnX - widthOf(e) : columnX;
       positions.set(e.id, { x, y: top + i * (NODE_HEIGHT + COLUMN_GAP_Y), side });
     });
   };
   const placeRow = (items: Entity[], side: "top" | "bottom") => {
     const ordered = centerOut(items);
-    const left = -rowWidth(ordered.length) / 2;
-    ordered.forEach((e, i) => {
+    let x = -rowWidth(ordered) / 2;
+    for (const e of ordered) {
       const y = side === "top" ? -rowY - NODE_HEIGHT : rowY;
-      positions.set(e.id, { x: left + i * (NODE_WIDTH + ROW_GAP_X), y, side });
-    });
+      positions.set(e.id, { x, y, side });
+      x += widthOf(e) + ROW_GAP_X;
+    }
   };
   placeColumn(bySide.left, "left");
   placeColumn(bySide.right, "right");

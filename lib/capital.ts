@@ -242,7 +242,7 @@ function multiple(value: number): string {
   return `${value.toFixed(1)}x`;
 }
 
-const CASH = ["CashAndCashEquivalentsAtCarryingValue", "CashCashEquivalentsAndShortTermInvestments", "Cash"];
+export const CASH = ["CashAndCashEquivalentsAtCarryingValue", "CashCashEquivalentsAndShortTermInvestments", "Cash"];
 const OPERATING_INCOME = ["OperatingIncomeLoss"];
 const DEPRECIATION = [
   "DepreciationDepletionAndAmortization",
@@ -250,7 +250,7 @@ const DEPRECIATION = [
   "DepreciationAmortizationAndAccretionNet",
   "Depreciation",
 ];
-const REVENUE = [
+export const REVENUE = [
   "Revenues",
   "RevenueFromContractWithCustomerExcludingAssessedTax",
   "RevenueFromContractWithCustomerIncludingAssessedTax",

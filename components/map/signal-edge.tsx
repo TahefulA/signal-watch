@@ -1,0 +1,99 @@
+"use client";
+
+import { type Edge, EdgeLabelRenderer, type EdgeProps, getStraightPath } from "@xyflow/react";
+import { memo } from "react";
+
+export interface SignalEdgeData extends Record<string, unknown> {
+  label?: string;
+  /** Arrowhead at the subject company's end (true) or the entity's end (false). */
+  arrowAtSource?: boolean;
+  /** Entities that dropped out of the filings hang off a dashed line. */
+  dashed?: boolean;
+  /** Connected to the hovered or selected box. */
+  active?: boolean;
+  /** Changes each time a box is selected, so the one-time flash replays for the new selection. */
+  flashKey?: string | null;
+  opacity?: number;
+  /** Draw the line in on load; off once the map has settled, so a remount never redraws it. */
+  drawIn?: boolean;
+  /** Position in the entrance sequence, after all boxes. */
+  delayMs?: number;
+}
+
+export type SignalFlowEdge = Edge<SignalEdgeData, "signal">;
+
+export const EDGE_IDLE = "#71717a";
+export const EDGE_ACTIVE = "#a1a1aa";
+
+function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: EdgeProps<SignalFlowEdge>) {
+  const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
+  const { label, arrowAtSource = false, dashed = false, active = false, flashKey = null, opacity = 1, drawIn = false, delayMs = 0 } = data ?? {};
+  const stroke = active ? EDGE_ACTIVE : EDGE_IDLE;
+  const marker = `url(#signal-arrow-${active ? "active" : "idle"})`;
+
+  return (
+    <>
+      <g className="edge-fade" style={{ opacity, transition: "opacity 200ms ease-out" }}>
+        <path
+          key={flashKey ?? "idle"}
+          id={id}
+          d={path}
+          fill="none"
+          pathLength={1}
+          className={`signal-edge ${drawIn && !dashed ? "edge-draw" : ""} ${active && flashKey ? "edge-flash" : ""}`}
+          style={{
+            stroke,
+            strokeWidth: active ? 2 : 1.5,
+            strokeDasharray: dashed ? "0.01 0.01" : undefined,
+            animationDelay: `${delayMs}ms`,
+          }}
+          markerStart={arrowAtSource ? marker : undefined}
+          markerEnd={arrowAtSource ? undefined : marker}
+        />
+        {/* A wider invisible path makes the line easy to hover. */}
+        <path d={path} fill="none" stroke="transparent" strokeWidth={14} className="react-flow__edge-interaction" />
+      </g>
+      {label ? (
+        <EdgeLabelRenderer>
+          <div
+            className={`edge-pill nodrag nopan pointer-events-none absolute rounded-xs border px-2 py-1 font-sans text-[10px] font-medium uppercase leading-none tracking-[0.06em] text-zinc-200 ${active ? "border-zinc-600 bg-zinc-800" : "border-zinc-700 bg-zinc-900"}`}
+            style={{
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              opacity,
+              transition: "opacity 200ms ease-out, background-color 150ms ease-out",
+              animationDelay: `${delayMs + 200}ms`,
+            }}
+          >
+            {label}
+          </div>
+        </EdgeLabelRenderer>
+      ) : null}
+    </>
+  );
+}
+
+export const SignalEdge = memo(SignalEdgeComponent);
+
+/** Arrowheads for the map, about 14px on a 1.5px line. Rendered once inside the canvas. */
+export function SignalMarkers() {
+  return (
+    <svg className="absolute h-0 w-0" aria-hidden>
+      <defs>
+        {(["idle", "active"] as const).map((state) => (
+          <marker
+            key={state}
+            id={`signal-arrow-${state}`}
+            viewBox="0 0 10 10"
+            refX="10"
+            refY="5"
+            markerWidth="9"
+            markerHeight="9"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill={state === "active" ? EDGE_ACTIVE : EDGE_IDLE} />
+          </marker>
+        ))}
+      </defs>
+    </svg>
+  );
+}
