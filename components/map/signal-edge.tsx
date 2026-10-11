@@ -22,8 +22,9 @@ export interface SignalEdgeData extends Record<string, unknown> {
 
 export type SignalFlowEdge = Edge<SignalEdgeData, "signal">;
 
-export const EDGE_IDLE = "#71717a";
-export const EDGE_ACTIVE = "#a1a1aa";
+export const EDGE_IDLE = "rgb(var(--zinc-500))";
+/** zinc-400 in dark mode; the inverted scale makes it darker than idle in light mode. */
+export const EDGE_ACTIVE = "rgb(var(--zinc-400))";
 
 function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: EdgeProps<SignalFlowEdge>) {
   const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
@@ -90,7 +91,7 @@ export function SignalMarkers() {
             markerHeight="9"
             orient="auto-start-reverse"
           >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill={state === "active" ? EDGE_ACTIVE : EDGE_IDLE} />
+            <path d="M 0 0 L 10 5 L 0 10 z" style={{ fill: state === "active" ? EDGE_ACTIVE : EDGE_IDLE }} />
           </marker>
         ))}
       </defs>

@@ -5,9 +5,10 @@ import { useMemo } from "react";
 import type { Entity, PeerComparison, Report } from "@/types";
 import { EntityNode, type EntityFlowNode } from "@/components/map/entity-node";
 import { CENTRAL_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "@/lib/layout";
+import { useTheme } from "@/lib/theme";
 
 const nodeTypes = { entityNode: EntityNode };
-const EDGE_COLOR = "#52525b";
+const EDGE_COLOR = "rgb(var(--zinc-600))";
 const ROW = NODE_HEIGHT + 28;
 const COLUMN = NODE_WIDTH + 170;
 
@@ -29,6 +30,7 @@ function column(items: Entity[], x: number): { entity: Entity; x: number; y: num
  * company's filings but was not on its map.
  */
 function Canvas({ subject, peer, comparison, onSelect }: PeerMapProps) {
+  const [theme] = useTheme();
   const { nodes, edges } = useMemo(() => {
     const a = subject.graph;
     const b = peer.graph;
@@ -115,7 +117,7 @@ function Canvas({ subject, peer, comparison, onSelect }: PeerMapProps) {
       nodesConnectable={false}
       className="bg-zinc-950"
     >
-      <Background color="#27272a" gap={24} size={1} />
+      <Background color={theme === "light" ? "#d4d4d8" : "#27272a"} gap={24} size={1} />
       <Controls showInteractive={false} position="bottom-left" />
     </ReactFlow>
   );

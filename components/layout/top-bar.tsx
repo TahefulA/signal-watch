@@ -3,6 +3,7 @@
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
+import { ThemeToggle } from "./theme-toggle";
 
 interface TopBarProps {
   busy: boolean;
@@ -49,7 +50,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
         <button
           type="submit"
           disabled={busy || value.trim().length === 0}
-          className="h-8 shrink-0 rounded-xs bg-zinc-50 px-4 text-xs font-semibold text-zinc-950 hover:bg-white active:bg-zinc-200 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
+          className="h-8 shrink-0 rounded-xs bg-zinc-50 px-4 text-xs font-semibold text-zinc-950 hover:bg-zinc-100 active:bg-zinc-200 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
         >
           {busy ? "Analyzing" : "Analyze"}
         </button>
@@ -80,6 +81,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
         <Link href="/dashboard" className="text-xs text-zinc-400 hover:text-zinc-100">
           Dashboard
         </Link>
+        <ThemeToggle />
       </div>
     </header>
   );

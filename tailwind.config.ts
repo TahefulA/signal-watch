@@ -9,6 +9,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // The zinc scale reads CSS variables, so light mode can flip it (see globals.css).
+      colors: {
+        zinc: Object.fromEntries(
+          ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"].map((shade) => [shade, `rgb(var(--zinc-${shade}) / <alpha-value>)`]),
+        ),
+      },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],

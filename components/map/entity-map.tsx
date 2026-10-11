@@ -4,6 +4,7 @@ import { Background, Controls, ReactFlow, ReactFlowProvider, useNodesState, useR
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Entity, EntityGraph, EntityType, Severity } from "@/types";
 import { viewGraph } from "@/lib/graph-view";
+import { useTheme } from "@/lib/theme";
 import { CENTRAL_WIDTH, NODE_HEIGHT, type Positioned, type Side, layoutGraph } from "@/lib/layout";
 import { arrowTowardCompany, figureBars, materialityOf, parseDisplayMoney, widthFor } from "@/lib/node-visuals";
 import { EntityNode, type EntityFlowNode, NODE_ENTER_MS, NODE_STAGGER_MS } from "./entity-node";
@@ -45,6 +46,7 @@ function passesFilters(entity: Entity, filters: MapFilters): boolean {
 
 function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, onSelect, onClearSelection }: EntityMapProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [theme] = useTheme();
   const central = useMemo(() => graph.nodes.find((n) => n.isCentral) ?? null, [graph.nodes]);
   const spokes = useMemo(() => viewGraph(graph).spokes, [graph]);
   const relationLabels = useMemo(() => new Map(graph.nodes.map((n) => [n.id, n.relationDetail ?? n.relationType])), [graph.nodes]);
@@ -236,13 +238,13 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
         zoomOnScroll
         className="bg-zinc-950"
       >
-        <Background color="#27272a" gap={20} size={1} />
+        <Background color={theme === "light" ? "#d4d4d8" : "#27272a"} gap={20} size={1} />
         <Controls showInteractive={false} position="bottom-left" />
       </ReactFlow>
       {/* Darkens the edges of the canvas so the eye settles on the middle. */}
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(circle at 50% 50%, transparent 55%, rgba(0,0,0,0.3) 100%)" }}
+        style={{ background: "radial-gradient(circle at 50% 50%, transparent 55%, var(--canvas-vignette) 100%)" }}
         aria-hidden
       />
     </div>

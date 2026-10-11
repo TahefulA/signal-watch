@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Header({ active }: { active?: "analyze" | "dashboard" }) {
   const link = (href: string, label: string, key: "analyze" | "dashboard") => (
@@ -16,9 +17,10 @@ export function Header({ active }: { active?: "analyze" | "dashboard" }) {
           SIGNAL WATCH
         </Link>
         <span className="hidden text-xs text-zinc-500 sm:inline">Entity map and credit memo from SEC filings and news</span>
-        <nav className="ml-auto flex gap-5">
+        <nav className="ml-auto flex items-center gap-5">
           {link("/dashboard", "Dashboard", "dashboard")}
           {link("/", "Analyze", "analyze")}
+          <ThemeToggle />
         </nav>
       </div>
     </header>
