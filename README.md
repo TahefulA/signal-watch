@@ -54,6 +54,11 @@ Gemini reads and classifies; it never supplies a number or a quote that is not i
   whether the quote names the entity. Duplicates merge within a type by key words or acronym, and merges are logged.
 - Generated text (signal, memo, brief, answers) loses any sentence with a figure not in the report, or a ranking word
   such as largest, earliest or sole that the report's quotes do not use.
+- Debt comes from the whole footnote: named instruments, subsidiary debt, and, for issuers that report only by category
+  (large banks), each category row with its weighted average rate. Coupons, maturities and amounts the text leaves out
+  are filled from the filing's inline XBRL and marked XBRL; a face amount tagged more than once (add-on tranches) is not
+  used. The maturity wall comes from the note's table, then its sentences, then the company's tagged XBRL schedule.
+  When a 10-Q has no debt note, the Capital tab says which filing the detail comes from.
 - Credit ratings appear only when a filing or headline states them. There is no bond price feed, and the UI says so.
 
 ## Data model

@@ -21,6 +21,12 @@ export interface DebtInstrument {
   /** Issuance, amendment, repayment or refinancing in the twelve months before the filing. */
   recentChange: string | null;
   citations: Citation[];
+  /** Parent company or subsidiary debt, when the footnote separates them. */
+  issuer?: "parent" | "subsidiary" | null;
+  /** A category row ("Parent company senior debt, fixed rate") rather than one named instrument. */
+  aggregate?: boolean;
+  /** Fields filled from the filing's inline XBRL rather than its text. */
+  xbrlFields?: ("coupon" | "maturity" | "outstanding")[];
 }
 
 export interface XbrlValue {
@@ -69,6 +75,10 @@ export interface MaturitySchedule {
   /** The table as it appears in the filing text. */
   table: string;
   citation: Citation;
+  /** Where the rows came from: the note's table, sentences in the note, or tagged XBRL facts. */
+  source?: "table" | "text" | "xbrl";
+  /** As of date of the schedule, when it differs from the capital structure's. */
+  asOf?: string | null;
 }
 
 export interface CapitalStructure {
@@ -84,4 +94,8 @@ export interface CapitalStructure {
   metrics: CapitalMetric[];
   /** Twelve-month figures from XBRL used in the ratios. */
   financials: XbrlValue[];
+  /** "aggregate" when the footnote reports debt only by category, not by instrument. */
+  disclosure?: "instrument" | "aggregate";
+  /** Set when the newest periodic filing has no debt note and an earlier one was read. */
+  noteFallback?: string | null;
 }

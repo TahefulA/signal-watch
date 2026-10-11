@@ -6,6 +6,7 @@ import { toIsoDate } from "./dates";
 import {
   excerptFiling,
   extractDebtNotes,
+  fetchFilingHtml,
   fetchFilingText,
   getSubmissions,
   lookupCik,
@@ -25,7 +26,7 @@ const MIN_ENTITIES = 12;
 const MAX_REJECTED_SHARE = 0.3;
 
 /** Character budget for the debt notes sent to the capital structure call. */
-const DEBT_NOTE_BUDGET = 45_000;
+const DEBT_NOTE_BUDGET = 90_000;
 
 export class AnalyzeError extends Error {}
 
@@ -33,7 +34,7 @@ export class AnalyzeError extends Error {}
  * Bumped when extraction or verification changes, so stored baselines built by
  * older code are rebuilt rather than compared against.
  */
-export const PIPELINE_VERSION = 4;
+export const PIPELINE_VERSION = 5;
 
 export type StepReporter = (step: string) => void;
 
@@ -163,6 +164,14 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
   }
 
   report("Extracting entities and debt...");
+  // When the newest 10-Q has no debt note, say which filing the debt detail comes from.
+  const newestPeriodic = filings.find((f) => f.form === "10-Q" || f.form === "10-K") ?? null;
+  const periodLabel = (accession: string) => (facts ? fiscalPeriodOf(facts, accession) : null);
+  const noteFallback =
+    debtFiling && newestPeriodic && newestPeriodic.accession !== debtFiling.accession
+      ? `The ${newestPeriodic.form}${periodLabel(newestPeriodic.accession) ? ` for ${periodLabel(newestPeriodic.accession)}` : ""} filed ${newestPeriodic.filingDate} has no debt note, so the instrument detail comes from the ${debtFiling.form}${periodLabel(debtFiling.accession) ? ` for ${periodLabel(debtFiling.accession)}` : ""} filed ${debtFiling.filingDate}.`
+      : null;
+  const debtHtml = debtFiling ? await fetchFilingHtml(debtFiling).catch(() => null) : null;
   const capitalTask: Promise<CapitalStructure | null> =
     debtFiling && debtDocs.some((d) => d.sourceType !== "8-K")
       ? extractCapitalStructure({
@@ -174,6 +183,8 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
           sourceDate: debtFiling.filingDate,
           sourceUrl: debtDocs.find((d) => d.sourceType !== "8-K")?.url ?? "",
           facts,
+          html: debtHtml,
+          noteFallback,
         }).catch((error: unknown) => {
           console.error("Capital structure extraction failed", error);
           return null;

@@ -421,3 +421,8 @@ export function withoutSafeHarbor(text: string): string {
   const match = SAFE_HARBOR.exec(text);
   return match && match.index > text.length * 0.3 ? text.slice(0, match.index) : text;
 }
+
+/** The primary document's raw HTML, which carries the inline XBRL tags. */
+export async function fetchFilingHtml(filing: FilingRef): Promise<string> {
+  return secFetch(filingDocumentUrl(filing));
+}

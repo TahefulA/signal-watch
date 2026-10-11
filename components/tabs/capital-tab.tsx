@@ -62,16 +62,37 @@ export function CapitalTab({ report }: { report: Report }) {
   const max = Math.max(1, ...rows.map((r) => r.amount));
   const wam = weightedMaturity(capital.instruments, capital.asOf);
   const changes = capital.instruments.filter((i) => i.recentChange);
+  const aggregate = capital.disclosure === "aggregate";
+  const showIssuer = capital.instruments.some((i) => i.issuer);
+  // An aggregate issuer leaves most cells blank by design; say so once instead of in every cell.
+  const missing = aggregate ? <span className="text-zinc-600">&mdash;</span> : <span className="text-zinc-600">Not disclosed</span>;
+  const xbrlBadge = (i: DebtInstrument, field: "coupon" | "maturity" | "outstanding") =>
+    i.xbrlFields?.includes(field) ? (
+      <span className="ml-1.5 rounded-xs border border-zinc-700 px-1 align-middle font-mono text-[9px] text-zinc-400" title="From the filing's inline XBRL tags; the footnote text did not state it">
+        XBRL
+      </span>
+    ) : null;
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-8 lg:px-12">
       <TabHeader title="Capital structure" meta={`As of ${capital.fiscalPeriod ?? capital.asOf ?? "the latest filing"}${capital.asOf ? ` (period ending ${capital.asOf})` : ""} · ${capital.sourceType} filed ${capital.sourceDate}`} />
 
+      {capital.noteFallback ? <p className="mb-4 border-l-2 border-amber-600 pl-3 text-xs leading-relaxed text-zinc-400">{capital.noteFallback}</p> : null}
+      {aggregate ? (
+        <p className="mb-5 border-l-2 border-zinc-500 bg-zinc-900 px-4 py-3 text-sm leading-relaxed text-zinc-300">
+          This issuer discloses debt only in aggregate, by category, not instrument by instrument. Individual instrument-level detail (each note&rsquo;s coupon and maturity) is not
+          provided in the {capital.sourceType}. Rows marked &ldquo;category total&rdquo; are the footnote&rsquo;s own categories, and their rates are weighted averages; named notes come from
+          current reports filed since. Full detail, where published, is in the issuer&rsquo;s prospectus supplements rather than its periodic filings.
+        </p>
+      ) : null}
+      {capital.instruments.length === 0 ? <p className="mb-4 text-sm text-zinc-500">No debt line in the footnote could be matched to a quote.</p> : null}
+
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] text-left">
           <thead>
             <tr className="text-[11px] uppercase tracking-wider text-zinc-500">
-              <th className="pb-3 pr-4 font-semibold">Instrument</th>
+              <th className="pb-3 pr-4 font-semibold">{aggregate ? "Category" : "Instrument"}</th>
+              {showIssuer ? <th className="pb-3 pr-4 font-semibold">Issuer</th> : null}
               <th className="pb-3 pr-4 text-right font-semibold">Amount</th>
               <th className="pb-3 pr-4 font-semibold">Maturity</th>
               <th className="pb-3 pr-4 font-semibold">Coupon</th>
@@ -86,12 +107,23 @@ export function CapitalTab({ report }: { report: Report }) {
                   <p className="text-[13px] text-zinc-100">{i.name}</p>
                   <p className="text-[11px] text-zinc-500">
                     {KIND[i.kind]}
+                    {i.aggregate ? " · category total" : ""}
                     {i.commitment !== null && i.outstanding === null ? " · drawn amount not disclosed" : ""}
                   </p>
                 </td>
-                <td className="py-3 pr-4 text-right font-mono text-[13px] text-zinc-100">{amountOf(i)}</td>
-                <td className="py-3 pr-4 font-mono text-[13px] text-zinc-300">{i.maturity ?? <span className="text-zinc-600">Not disclosed</span>}</td>
-                <td className="py-3 pr-4 font-mono text-[13px] text-zinc-300">{i.coupon ?? <span className="text-zinc-600">Not disclosed</span>}</td>
+                {showIssuer ? <td className="py-3 pr-4 text-[13px] text-zinc-300">{i.issuer === "parent" ? "Parent" : i.issuer === "subsidiary" ? "Subsidiary" : "—"}</td> : null}
+                <td className="whitespace-nowrap py-3 pr-4 text-right font-mono text-[13px] text-zinc-100">
+                  {amountOf(i) === "Not disclosed" ? missing : amountOf(i)}
+                  {xbrlBadge(i, "outstanding")}
+                </td>
+                <td className="whitespace-nowrap py-3 pr-4 font-mono text-[13px] text-zinc-300">
+                  {i.maturity ?? (i.aggregate ? <span className="text-zinc-500">Various</span> : missing)}
+                  {xbrlBadge(i, "maturity")}
+                </td>
+                <td className="py-3 pr-4 font-mono text-[13px] text-zinc-300">
+                  {i.coupon ?? missing}
+                  {xbrlBadge(i, "coupon")}
+                </td>
                 <td className="py-3 pr-4 text-[13px] text-zinc-300">{SENIORITY[i.seniority]}</td>
                 <td className="py-3">
                   {i.citations[0] ? (
@@ -114,7 +146,7 @@ export function CapitalTab({ report }: { report: Report }) {
             <tr className="border-t border-zinc-700" title={total?.note}>
               <td className="py-3 pr-4 text-[13px] font-semibold text-zinc-50">Total debt</td>
               <td className="py-3 pr-4 text-right font-mono text-[13px] font-semibold text-zinc-50">{total?.display ?? "Not available"}</td>
-              <td colSpan={4} className="py-3 text-[11px] text-zinc-500">
+              <td colSpan={showIssuer ? 5 : 4} className="py-3 text-[11px] text-zinc-500">
                 {total?.note}
               </td>
             </tr>
@@ -139,9 +171,15 @@ export function CapitalTab({ report }: { report: Report }) {
             ))}
           </ul>
           <p className="mt-3 text-[11px] text-zinc-500">
-            {capital.maturitySchedule ? "Scheduled principal payments, read directly from the filing's maturities table." : "Principal by final maturity year, from the instruments above. The filing has no maturities table."}
+            {!capital.maturitySchedule
+              ? "Principal by final maturity year, from the instruments above. The filing has no maturities table."
+              : capital.maturitySchedule.source === "text"
+                ? "Amounts by year or bucket as the footnote states them, each matched to its sentence or table row."
+                : capital.maturitySchedule.source === "xbrl"
+                  ? `The footnote text gives no schedule; these are the maturities the company tags in XBRL as of ${capital.maturitySchedule.asOf ?? "its last 10-K"}.`
+                  : "Scheduled principal payments, read directly from the filing's maturities table."}
           </p>
-          {capital.maturitySchedule ? (
+          {capital.maturitySchedule && capital.maturitySchedule.source !== "xbrl" ? (
             <div className="mt-2 max-w-3xl">
               <CitationBlock citation={capital.maturitySchedule.citation} compact />
             </div>

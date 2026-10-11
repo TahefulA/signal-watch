@@ -14,6 +14,8 @@ import { locateQuote } from "./quotes";
 import { type CorpusDoc, renderCorpus } from "./corpus";
 import { type Schema, extractFigures, generateJson } from "./gemini";
 import { type FactBook, instantAt, latestInstantDate, trailingTwelveMonths } from "./xbrl";
+import { type XbrlInstrument, debtFromInlineXbrl } from "./ixbrl";
+import { keyWords, words } from "./names";
 
 const KINDS: DebtKind[] = ["revolver", "term_loan", "secured_notes", "unsecured_notes", "convertible_notes", "other"];
 const SENIORITIES: Seniority[] = ["senior_secured", "senior_unsecured", "subordinated", "other"];
@@ -21,18 +23,25 @@ const SENIORITY_ORDER: Seniority[] = ["senior_secured", "senior_unsecured", "sub
 
 const SYSTEM = `You are a credit analyst reading the debt footnotes of a company's latest SEC filing, plus any current reports filed after it.
 
-List every debt instrument the company has outstanding or available: revolving credit facilities, term loans, secured notes, unsecured notes, convertible notes, bridge facilities and similar. One row per instrument. Do not list totals, subtotals, debt issuance costs, leases or instruments the text says were fully repaid or terminated.
+Read the whole debt footnote, not only a summary table. Extract every line item it reports:
+- Each named instrument: revolving credit facilities, term loans, delayed-draw facilities, bridge facilities, secured notes, unsecured notes, convertible notes, commercial paper programs. Revolvers, term loans and notes are separate rows even when they share a credit agreement.
+- Debt at subsidiaries as well as at the parent; set issuer to "parent" or "subsidiary" when the footnote separates them, otherwise null.
+- When the footnote reports debt only by category (for example "Parent company, Senior debt: Fixed rate" or "Subsidiaries, Federal Home Loan Banks advances"), list each category row as its own line item with aggregate set to true, named with its issuer, category and rate type, for example "Parent company senior debt, fixed rate". Do not list subtotals or the grand total.
+Do not list debt issuance costs, discounts, leases, or instruments the text says were fully repaid or terminated.
 
-For each instrument:
+For each line item:
 - name: as the filing names it, for example "7.75% Senior Secured Notes due 2030".
-- kind and seniority: as the text describes it. Convertible notes are senior_unsecured unless the text says they are secured.
-- outstanding_text: the principal outstanding at the balance sheet date, written exactly as the text writes it. Prefer the principal amount column of a table dated at the balance sheet date, for example "$ 500,000" from a table in thousands; otherwise a sentence such as "$ 3,200.0 million". For instruments issued after the balance sheet date, the amount issued. Null if the text gives no such amount.
+- kind and seniority: as the text describes it. Convertible notes are senior_unsecured unless the text says they are secured. Subordinated and junior subordinated debt are subordinated.
+- outstanding_text: the principal or carrying amount outstanding at the balance sheet date, written exactly as the text writes it. Prefer the amount column of a table dated at the balance sheet date, for example "$ 500,000" from a table in thousands or "$ 226,071" from a table in millions; otherwise a sentence such as "$ 3,200.0 million". For instruments issued after the balance sheet date, the amount issued. Null if the text gives no such amount.
+  For a category row, use the table's total column at the balance sheet date, for example "$ 49,435" from "Fixed rate $ — $ 49,435 $ — $ 49,435 $ 49,208".
 - outstanding_scale: "thousands" or "millions" when outstanding_text comes from a table whose heading says amounts are in thousands or millions; "as_written" when the text itself includes the word million or billion.
 - commitment_text: for revolvers and delayed-draw facilities, the total commitment, written exactly as the text writes it. Otherwise null.
-- maturity: YYYY-MM-DD if the text gives a day, YYYY-MM if it gives a month, otherwise YYYY. Null if not stated.
-- coupon: the stated interest rate exactly as written, for example "7.75 %" or "SOFR plus 2.75 %". Null if not stated.
+- maturity: YYYY-MM-DD if the text gives a day, YYYY-MM if it gives a month, otherwise YYYY. Null if not stated or if the line item spans several maturities.
+- coupon: the interest rate from the footnote exactly as written, for example "7.75 %" or "SOFR plus 2.75 %". For a category row, the weighted average rate the table gives for it, followed by "weighted average", for example "3.90 % weighted average"; when one rate row covers both the fixed and variable rows of a category, use it for both. Null if not stated.
 - recent_change: if the text describes an issuance, amendment, repayment, exchange or refinancing of this instrument in the twelve months before the filing date, describe it in at most 20 words, with its date. Otherwise null.
-- quotes: one to three sentences or table rows copied exactly from the text that together state the amounts, maturity and coupon. When outstanding_text comes from a table, include that table row, for example "2030 Convertible notes $ 500,000 $ ( 9,054 ) $ 490,946". Each has the bracketed id of its block in doc.
+- quotes: one to three sentences or table rows copied exactly from the text that together state the amounts, maturity and coupon. When outstanding_text or coupon comes from a table, include those table rows, for example "2030 Convertible notes $ 500,000 $ ( 9,054 ) $ 490,946" or "2.84 % 3.74 % 4.14 % 3.90 % 3.71 %". Each has the bracketed id of its block in doc.
+
+maturity_schedule: if the footnote gives principal or carrying amounts by year or by maturity bucket, in a table or in a sentence such as "matures ... is $ 42.6 billion in 2026, $ 55.8 billion in 2027", one row per year or bucket in order: period as written ("2026", "Remainder of 2026", "After 5 years", "Thereafter"), amount_text exactly as written, scale as for outstanding_scale, and a quote copied exactly that contains the amount, with its doc id. Do not include the total row. Empty if there is none.
 
 as_of is the balance sheet date of the periodic filing, YYYY-MM-DD.
 Only use what the text states. Never compute or estimate a number.`;
@@ -57,6 +66,8 @@ const SCHEMA: Schema = {
           maturity: nullableString,
           coupon: nullableString,
           recent_change: nullableString,
+          issuer: { type: "STRING", enum: ["parent", "subsidiary"], nullable: true },
+          aggregate: { type: "BOOLEAN", nullable: true },
           quotes: {
             type: "ARRAY",
             items: {
@@ -67,6 +78,20 @@ const SCHEMA: Schema = {
           },
         },
         required: ["name", "kind", "seniority", "quotes"],
+      },
+    },
+    maturity_schedule: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          period: { type: "STRING" },
+          amount_text: { type: "STRING" },
+          scale: { type: "STRING", enum: ["as_written", "thousands", "millions"], nullable: true },
+          quote: { type: "STRING" },
+          doc: { type: "STRING" },
+        },
+        required: ["period", "amount_text", "quote", "doc"],
       },
     },
   },
@@ -83,6 +108,8 @@ interface RawInstrument {
   maturity?: unknown;
   coupon?: unknown;
   recent_change?: unknown;
+  issuer?: unknown;
+  aggregate?: unknown;
   quotes?: unknown;
 }
 
@@ -167,6 +194,7 @@ export function parseMaturitySchedule(doc: CorpusDoc): MaturitySchedule | null {
       sourceLabel: doc.label,
       page: pageOf(doc.fullText, heading[0].trim()),
     },
+    source: "table",
   };
 }
 
@@ -198,6 +226,7 @@ function parseInstrument(raw: RawInstrument, byId: Map<string, CorpusDoc>): Debt
   // A bare table figure counts only if the quote holding it sits under a table heading with the claimed
   // scale, or if a sentence about the same instrument states the same amount in words.
   let outstandingScale: Scale | null = null;
+  let fullDollars = false;
   if (outstandingText && parseAmount(outstandingText) === null) {
     const i = citations.findIndex((c) => figuresSupported(outstandingText, [c.quote]));
     const local = i >= 0 ? scaleAbove(citedDocs[i].text, citations[i].quote) : null;
@@ -208,6 +237,8 @@ function parseInstrument(raw: RawInstrument, byId: Map<string, CorpusDoc>): Debt
     );
     outstandingScale = local ?? consistent ?? null;
     if (local && consistent && local !== consistent) outstandingScale = null;
+    // A current report states amounts in full dollars ("$500,000,000"), not in a scaled table.
+    if (!outstandingScale && i >= 0 && citedDocs[i].sourceType === "8-K" && !scaleAbove(citedDocs[i].text, citations[i].quote)) fullDollars = true;
   }
   const commitmentText = supported(str(raw.commitment_text), quotes);
   const maturityRaw = str(raw.maturity);
@@ -219,7 +250,7 @@ function parseInstrument(raw: RawInstrument, byId: Map<string, CorpusDoc>): Debt
     name,
     kind: KINDS.includes(raw.kind as DebtKind) ? (raw.kind as DebtKind) : "other",
     seniority: SENIORITIES.includes(raw.seniority as Seniority) ? (raw.seniority as Seniority) : "other",
-    outstanding: parseAmount(outstandingText, outstandingScale),
+    outstanding: fullDollars && outstandingText ? Number(outstandingText.replace(/[^\d.]/g, "")) || null : parseAmount(outstandingText, outstandingScale),
     outstandingText,
     commitment: parseAmount(commitmentText),
     commitmentText,
@@ -227,6 +258,8 @@ function parseInstrument(raw: RawInstrument, byId: Map<string, CorpusDoc>): Debt
     coupon: supported(str(raw.coupon), quotes),
     recentChange: recentChange && figuresSupported(recentChange, quotes) ? recentChange : null,
     citations,
+    issuer: raw.issuer === "parent" || raw.issuer === "subsidiary" ? raw.issuer : null,
+    aggregate: raw.aggregate === true,
   };
 }
 
@@ -242,7 +275,13 @@ function multiple(value: number): string {
   return `${value.toFixed(1)}x`;
 }
 
-export const CASH = ["CashAndCashEquivalentsAtCarryingValue", "CashCashEquivalentsAndShortTermInvestments", "Cash"];
+export const CASH = [
+  "CashAndCashEquivalentsAtCarryingValue",
+  "CashCashEquivalentsAndShortTermInvestments",
+  "Cash",
+  "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+  "CashAndDueFromBanks",
+];
 export const OPERATING_INCOME = ["OperatingIncomeLoss"];
 export const DEPRECIATION = [
   "DepreciationDepletionAndAmortization",
@@ -255,6 +294,8 @@ export const REVENUE = [
   "RevenueFromContractWithCustomerExcludingAssessedTax",
   "RevenueFromContractWithCustomerIncludingAssessedTax",
   "SalesRevenueNet",
+  // Banks report revenue net of interest expense.
+  "RevenuesNetOfInterestExpense",
 ];
 const OPERATING_CASH = ["NetCashProvidedByUsedInOperatingActivities", "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"];
 const CAPEX = ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets"];
@@ -279,6 +320,7 @@ function xbrlDebt(book: FactBook, cik: string, date: string): { total: number; c
     ["DebtCurrent", "LongTermDebtAndCapitalLeaseObligations"],
     ["LongTermDebtCurrent", "LongTermDebtNoncurrent"],
     ["DebtLongtermAndShorttermCombinedAmount"],
+    ["LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities"],
     ["LongTermDebt"],
   ];
   for (const combo of combos) {
@@ -304,8 +346,13 @@ export function computeMetrics(
   const counted = instruments.filter((i) => i.outstanding !== null);
   const listedTotal = counted.reduce((sum, i) => sum + (i.outstanding ?? 0), 0);
   const secured = counted.filter((i) => i.seniority === "senior_secured").reduce((sum, i) => sum + (i.outstanding ?? 0), 0);
+  const unrankedTotal = counted.filter((i) => i.seniority === "other").reduce((sum, i) => sum + (i.outstanding ?? 0), 0);
+  const unranked = unrankedTotal > listedTotal * 0.01;
 
-  const date = book ? (asOf && instantAt(book, cik, CASH, asOf) ? asOf : latestInstantDate(book, CASH)) : null;
+  // The newest balance sheet date, from total assets, which every filer tags. Dating by a cash tag
+  // can land years back when a company stopped using that tag (JPMorgan's last
+  // CashAndCashEquivalentsAtCarryingValue is from 2018).
+  const date = book ? (latestInstantDate(book, ["Assets"]) ?? (asOf && instantAt(book, cik, CASH, asOf) ? asOf : latestInstantDate(book, CASH))) : null;
   const cash = book && date ? instantAt(book, cik, CASH, date) : null;
   const operating = book && date ? trailingTwelveMonths(book, cik, OPERATING_INCOME, date) : null;
   const depreciation = book && date ? trailingTwelveMonths(book, cik, DEPRECIATION, date) : null;
@@ -315,18 +362,21 @@ export function computeMetrics(
   // Total debt must reconcile with something the company reported: its maturities table, or its
   // tagged debt total within 15%. Otherwise the instruments Gemini found may be a fraction of the
   // debt, and leverage built on them would mislead, so it is not shown.
-  const scheduleMatches = schedule !== null && Math.abs(schedule.total - listedTotal) <= schedule.total * 0.005;
+  // Only the note's own table, dated at the balance sheet, stands in for total debt; schedules read from
+  // sentences or older XBRL tags may not cover every line or date.
+  const table = schedule && (schedule.source ?? "table") === "table" ? schedule : null;
+  const scheduleMatches = table !== null && Math.abs(table.total - listedTotal) <= table.total * 0.005;
   const taggedMatches = tagged !== null && listedTotal > 0 && Math.abs(tagged.total - listedTotal) <= tagged.total * 0.15;
   let totalDebt: number | null;
   let debtNote: string;
-  if (schedule) {
+  if (table) {
     // A table smaller than the listed instruments probably leaves something out, so the larger figure wins.
-    totalDebt = Math.max(schedule.total, listedTotal);
+    totalDebt = Math.max(table.total, listedTotal);
     debtNote = scheduleMatches
       ? `Matches the filing's maturities table and the ${counted.length} instruments below.`
-      : totalDebt === schedule.total
+      : totalDebt === table.total
         ? `From the filing's maturities table. The instruments matched to quotes below account for ${money(listedTotal)}.`
-        : `Principal of the instruments below. The filing's maturities table totals ${money(schedule.total)}.`;
+        : `Principal of the instruments below. The filing's maturities table totals ${money(table.total)}.`;
   } else if (taggedMatches && tagged) {
     totalDebt = listedTotal;
     debtNote = `Principal of the ${counted.length} instruments below, within 15% of the ${money(tagged.total)} carrying amount the company reports in XBRL.`;
@@ -411,8 +461,12 @@ export function computeMetrics(
   metrics.push({
     key: "secured_share",
     label: "Secured / total debt",
-    display: listedTotal > 0 && reconciles ? `${Math.round((secured / listedTotal) * 100)}%` : "Not available",
-    note: reconciles ? "Senior secured share of principal." : "The instruments matched to quotes do not account for all of the debt.",
+    display: listedTotal > 0 && reconciles && !unranked ? `${Math.round((secured / listedTotal) * 100)}%` : "Not available",
+    note: !reconciles
+      ? "The instruments matched to quotes do not account for all of the debt."
+      : unranked
+        ? `The footnote does not state the seniority of ${money(unrankedTotal)} of the debt, so the secured share cannot be read from it.`
+        : "Senior secured share of principal.",
     inputs: [],
   });
 
@@ -434,7 +488,11 @@ export function computeMetrics(
     key: "cash",
     label: "Cash and equivalents",
     display: cash ? money(cash.value) : "Not available",
-    note: cash ? `As of ${date}. Excludes restricted cash.` : "Cash was not found in the company's XBRL data.",
+    note: cash
+      ? `As of ${date}, ${cash.concept}. ${
+          /Restricted/.test(cash.concept) ? "Includes restricted cash." : cash.concept === "CashAndDueFromBanks" ? "Cash and due from banks only." : "Excludes restricted cash."
+        }`
+      : "Cash was not found in the company's XBRL data.",
     inputs: cash ? [cash] : [],
   });
   metrics.push({
@@ -498,6 +556,147 @@ export function sortInstruments(instruments: DebtInstrument[]): DebtInstrument[]
   );
 }
 
+/** Year-or-bucket schedule the model read from the note, kept only where each amount is in its verified quote. */
+function scheduleFromText(raw: unknown, byId: Map<string, CorpusDoc>): MaturitySchedule | null {
+  const items = Array.isArray(raw) ? raw : [];
+  const rows: MaturityRow[] = [];
+  const citations: Citation[] = [];
+  for (const item of items) {
+    if (typeof item !== "object" || item === null) continue;
+    const r = item as { period?: unknown; amount_text?: unknown; scale?: unknown; quote?: unknown; doc?: unknown };
+    const period = str(r.period);
+    const amountText = str(r.amount_text);
+    const source = byId.get(String(r.doc ?? "").replace(/[[\]]/g, "").trim());
+    const citation = cite(source, str(r.quote));
+    if (!period || !amountText || !source || !citation || !figuresSupported(amountText, [citation.quote])) continue;
+    // Worded amounts carry their own scale; table figures need the table's verified heading.
+    const scale = parseAmount(amountText) === null ? scaleAbove(source.text, citation.quote) : null;
+    const amount = parseAmount(amountText, scale);
+    if (amount === null || rows.some((x) => x.period === period)) continue;
+    rows.push({ period, amount });
+    if (!citations.some((c) => c.quote === citation.quote)) citations.push(citation);
+  }
+  // Annual rows and broad buckets ("Under 1 year", "1-5 years") cover the same principal; keep the annual rows.
+  const hasYears = rows.some((r) => /^(remainder of )?(19|20)\d{2}$/i.test(r.period.trim()));
+  const kept = hasYears ? rows.filter((r) => !/under\s*1|1\s*[-–]\s*5|one to five|within one/i.test(r.period)) : rows;
+  if (kept.length < 2) return null;
+  return {
+    rows: kept,
+    total: kept.reduce((a, r) => a + r.amount, 0),
+    table: citations.map((c) => c.quote).join("\n"),
+    citation: citations[0],
+    source: "text",
+  };
+}
+
+const XBRL_MATURITY: { label: (year: number) => string; concepts: string[] }[] = [
+  { label: (y) => String(y + 1), concepts: ["LongTermDebtMaturitiesRepaymentsOfPrincipalInNextTwelveMonths", "LongTermDebtMaturitiesRepaymentsOfPrincipalInNextRollingTwelveMonths"] },
+  { label: (y) => String(y + 2), concepts: ["LongTermDebtMaturitiesRepaymentsOfPrincipalInYearTwo", "LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingYearTwo"] },
+  { label: (y) => String(y + 3), concepts: ["LongTermDebtMaturitiesRepaymentsOfPrincipalInYearThree", "LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingYearThree"] },
+  { label: (y) => String(y + 4), concepts: ["LongTermDebtMaturitiesRepaymentsOfPrincipalInYearFour", "LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingYearFour"] },
+  { label: (y) => String(y + 5), concepts: ["LongTermDebtMaturitiesRepaymentsOfPrincipalInYearFive", "LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingYearFive"] },
+  { label: (y) => `After ${y + 5}`, concepts: ["LongTermDebtMaturitiesRepaymentsOfPrincipalAfterYearFive", "LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingAfterYearFive"] },
+];
+
+/**
+ * The maturity schedule the company tags in XBRL at a fiscal year end, used when the note's text gives
+ * none. Only a year-end schedule within about a year of the balance sheet date is used.
+ */
+function scheduleFromXbrl(book: FactBook | null, cik: string, asOf: string | null): MaturitySchedule | null {
+  if (!book || !asOf) return null;
+  const notBefore = `${Number(asOf.slice(0, 4)) - 1}${asOf.slice(4)}`;
+  const date = latestInstantDate(book, XBRL_MATURITY[0].concepts);
+  if (!date || date < notBefore || !date.endsWith("-12-31")) return null;
+  const year = Number(date.slice(0, 4));
+  const values = XBRL_MATURITY.map((m) => ({ period: m.label(year), value: instantAt(book, cik, m.concepts, date) }));
+  const rows = values.filter((v) => v.value !== null).map((v) => ({ period: v.period, amount: v.value?.value ?? 0 }));
+  const first = values.find((v) => v.value)?.value;
+  if (rows.length < 3 || !first) return null;
+  return {
+    rows,
+    total: rows.reduce((a, r) => a + r.amount, 0),
+    table: values.map((v) => `${v.period}: ${v.value ? `${v.value.concept} ${money(v.value.value)}` : "not tagged"}`).join("\n"),
+    citation: {
+      quote: `Long-term debt maturities tagged in XBRL (${first.concept} and the following years) as of ${date}.`,
+      sourceType: first.form.startsWith("10-K") ? "10-K" : "10-Q",
+      sourceDate: first.filed,
+      sourceUrl: first.url,
+      sourceLabel: "XBRL company facts",
+      page: null,
+    },
+    source: "xbrl",
+    asOf: date,
+  };
+}
+
+/** Maturity year and type words used to pair a tagged instrument with a footnote line. */
+function instrumentKey(name: string): string {
+  const years = name.match(/\b20\d{2}\b/g);
+  const kind = /convertible/i.test(name) ? "convertible" : /revolv|credit (?:facility|agreement)/i.test(name) ? "revolver" : /secured/i.test(name) ? "secured" : "other";
+  return `${years ? years[years.length - 1] : "?"}|${kind}`;
+}
+
+/**
+ * Fills a footnote line's missing coupon, maturity or amount from the filing's inline XBRL tags for the
+ * same instrument, and lists the tagged instruments when the text gave fewer than two. Every filled
+ * value is marked as coming from XBRL.
+ */
+function mergeInlineXbrl(instruments: DebtInstrument[], tagged: XbrlInstrument[], input: CapitalInput): DebtInstrument[] {
+  const usable = tagged.filter((t) => !/over ?allotment|option/i.test(t.name));
+  const xbrlCitation = (t: XbrlInstrument, what: string): Citation => ({
+    quote: `Inline XBRL in the ${input.sourceType}: ${what} tagged for ${t.member}.`,
+    sourceType: input.sourceType,
+    sourceDate: input.sourceDate,
+    sourceUrl: input.sourceUrl,
+    sourceLabel: "Inline XBRL",
+    page: null,
+  });
+  const out = instruments.map((i) => ({ ...i }));
+  for (const t of usable) {
+    const match = out.find((i) => !i.aggregate && instrumentKey(i.name) === instrumentKey(t.name) && !instrumentKey(t.name).startsWith("?"));
+    if (!match) continue;
+    const filled: NonNullable<DebtInstrument["xbrlFields"]> = [];
+    if (!match.coupon && t.couponPercent !== null) {
+      match.coupon = `${t.couponPercent.toFixed(2)} %`;
+      filled.push("coupon");
+      match.citations.push(xbrlCitation(t, `stated interest rate ${t.couponPercent.toFixed(2)}%`));
+    }
+    if (!match.maturity && t.maturity) {
+      match.maturity = t.maturity;
+      filled.push("maturity");
+      match.citations.push(xbrlCitation(t, `maturity date ${t.maturity}`));
+    }
+    if (match.outstanding === null && match.commitment === null && t.faceAmount !== null) {
+      match.outstanding = t.faceAmount;
+      match.outstandingText = `${money(t.faceAmount)} face amount`;
+      filled.push("outstanding");
+      match.citations.push(xbrlCitation(t, `face amount ${money(t.faceAmount)}${t.asOf ? ` (${t.asOf})` : ""}`));
+    }
+    if (filled.length) match.xbrlFields = [...(match.xbrlFields ?? []), ...filled];
+  }
+  if (out.length >= 2) return out;
+  for (const t of usable) {
+    if (out.some((i) => instrumentKey(i.name) === instrumentKey(t.name))) continue;
+    const amount = t.carrying ?? t.faceAmount;
+    out.push({
+      id: slug(t.name),
+      name: t.name,
+      kind: /convertible/i.test(t.name) ? "convertible_notes" : /revolv|credit facility/i.test(t.name) ? "revolver" : /secured/i.test(t.name) ? "secured_notes" : "other",
+      seniority: /secured/i.test(t.name) && !/unsecured/i.test(t.name) ? "senior_secured" : /subordinat/i.test(t.name) ? "subordinated" : "senior_unsecured",
+      outstanding: amount,
+      outstandingText: amount !== null ? `${money(amount)} ${t.carrying !== null ? "carrying amount" : "face amount"}` : null,
+      commitment: null,
+      commitmentText: null,
+      maturity: t.maturity,
+      coupon: t.couponPercent !== null ? `${t.couponPercent.toFixed(2)} %` : null,
+      recentChange: null,
+      citations: [xbrlCitation(t, "debt instrument facts")],
+      xbrlFields: ["outstanding", "coupon", "maturity"],
+    });
+  }
+  return out;
+}
+
 export interface CapitalInput {
   companyName: string;
   ticker: string;
@@ -507,26 +706,49 @@ export interface CapitalInput {
   sourceDate: string;
   sourceUrl: string;
   facts: FactBook | null;
+  /** The debt filing's raw HTML, for its inline XBRL tags. */
+  html?: string | null;
+  /** Set when the newest periodic filing has no debt note and this earlier one is read instead. */
+  noteFallback?: string | null;
 }
 
 /** Reads the debt notes into a capital structure. Every instrument carries at least one verified quote. */
 export async function extractCapitalStructure(input: CapitalInput): Promise<CapitalStructure> {
   const prompt = `Company: ${input.companyName} (${input.ticker}).\n\n${renderCorpus(input.docs)}`;
   const value = await generateJson(SYSTEM, prompt, SCHEMA, { thinking: "low" });
-  const v = (typeof value === "object" && value !== null ? value : {}) as { as_of?: unknown; instruments?: unknown };
+  const v = (typeof value === "object" && value !== null ? value : {}) as { as_of?: unknown; instruments?: unknown; maturity_schedule?: unknown };
   const byId = new Map(input.docs.map((d) => [d.id, d]));
   const parsed = (Array.isArray(v.instruments) ? v.instruments : [])
     .map((raw) => (typeof raw === "object" && raw !== null ? parseInstrument(raw as RawInstrument, byId) : null))
     .filter((i): i is DebtInstrument => i !== null);
 
-  const instruments: DebtInstrument[] = [];
-  for (const i of sortInstruments(parsed)) {
-    if (instruments.some((x) => x.id === i.id)) continue;
-    instruments.push(i);
+  const unique: DebtInstrument[] = [];
+  // A facility whose own quotes say it was repaid or terminated, and that has no amount at the
+  // balance sheet date, is history rather than debt.
+  const RETIRED = /\b(repaid|terminated|termination of|extinguish\w*|redeemed in full|paid off|paid in full)\b/i;
+  const noteSentences = input.docs.filter((d) => d.sourceType !== "8-K").flatMap((d) => d.text.split(/(?<=[.!?])\s+/));
+  const retired = (i: DebtInstrument) => {
+    if (i.outstanding !== null) return false;
+    if (i.citations.some((c) => RETIRED.test(c.quote))) return true;
+    // A facility with no drawn amount that the note elsewhere says was repaid or terminated.
+    const key = keyWords(i.name).filter((w) => !["credit", "facility", "agreement", "note", "notes"].includes(w));
+    return key.length > 0 && noteSentences.some((sentence) => RETIRED.test(sentence) && key.every((w) => words(sentence).includes(w)));
+  };
+  for (const i of sortInstruments(parsed.filter((x) => !retired(x)))) {
+    if (unique.some((x) => x.id === i.id)) continue;
+    unique.push(i);
   }
+  const tagged = input.html ? debtFromInlineXbrl(input.html) : [];
+  const instruments = sortInstruments(mergeInlineXbrl(unique, tagged, input));
   const asOfRaw = str(v.as_of);
   const asOf = asOfRaw && /^\d{4}-\d{2}-\d{2}$/.test(asOfRaw) ? asOfRaw : null;
-  const maturitySchedule = input.docs.map(parseMaturitySchedule).find((m): m is MaturitySchedule => m !== null) ?? null;
+  // The note's own table first, then a schedule stated in the note's text, then the company's XBRL tags.
+  const fromText = scheduleFromText(v.maturity_schedule, byId);
+  const fromXbrl = scheduleFromXbrl(input.facts, input.cik, asOf ?? input.sourceDate);
+  // A schedule stated in sentences often stops at five years; the tagged one for the same date may run further.
+  const sameDate = fromXbrl !== null && (fromXbrl.asOf ?? "") === (asOf ?? "");
+  const moreComplete = fromText && fromXbrl && sameDate && fromXbrl.total > fromText.total * 1.01 ? fromXbrl : (fromText ?? fromXbrl);
+  const maturitySchedule = input.docs.map(parseMaturitySchedule).find((m): m is MaturitySchedule => m !== null) ?? moreComplete;
   const { metrics, financials } = computeMetrics(instruments, input.facts, input.cik, asOf, maturitySchedule);
   return {
     asOf,
@@ -537,5 +759,7 @@ export async function extractCapitalStructure(input: CapitalInput): Promise<Capi
     maturitySchedule,
     metrics,
     financials,
+    disclosure: instruments.length > 0 && instruments.filter((i) => i.aggregate).length * 2 >= instruments.length ? "aggregate" : "instrument",
+    noteFallback: input.noteFallback ?? null,
   };
 }
