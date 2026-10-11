@@ -28,7 +28,10 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const ticker = value.trim().toUpperCase();
-    if (ticker && !busy) onAnalyze(ticker);
+    if (!ticker || busy) return;
+    onAnalyze(ticker);
+    // Clear the box so the next ticker can be typed straight in.
+    setValue("");
   }
 
   return (
@@ -58,6 +61,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
           id="ticker"
           value={value}
           onChange={(e) => setValue(e.target.value.replace(/[^A-Za-z0-9.\-]/g, ""))}
+          onFocus={(e) => e.target.select()}
           placeholder="Enter ticker"
           autoComplete="off"
           spellCheck={false}
