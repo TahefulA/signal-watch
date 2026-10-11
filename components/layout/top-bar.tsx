@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, Star } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, type ReactNode, useState } from "react";
 import { TAGLINE } from "./tab-bar";
@@ -19,10 +19,14 @@ interface TopBarProps {
   verdict?: ReactNode;
   /** The wordmark returns to the home screen. */
   onHome?: () => void;
+  /** Watch button for the open report. */
+  watch?: { ticker: string; watched: boolean; onToggle: () => void } | null;
+  /** Watched companies in Act now or Review, shown beside the Watchlist link. */
+  attention?: number;
 }
 
 /** 48px header: wordmark, ticker search, changes badge, command palette hint. */
-export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette, hasReport, verdict = null, onHome }: TopBarProps) {
+export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette, hasReport, verdict = null, onHome, watch = null, attention = 0 }: TopBarProps) {
   const [value, setValue] = useState("");
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -100,8 +104,27 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
             ⌘K
           </button>
         ) : null}
-        <Link href="/dashboard" className="text-xs text-zinc-400 hover:text-zinc-100">
-          Dashboard
+        {watch ? (
+          <button
+            type="button"
+            onClick={watch.onToggle}
+            aria-pressed={watch.watched}
+            className={`inline-flex items-center gap-1.5 rounded-xs border px-2 py-1 text-[11px] font-medium transition-colors duration-100 ${
+              watch.watched ? "border-amber-600 text-amber-500 hover:bg-zinc-900" : "border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-50"
+            }`}
+            title={watch.watched ? `${watch.ticker} is on your watchlist; click to stop watching` : `Add ${watch.ticker} to your watchlist`}
+          >
+            <Star className="h-3 w-3" fill={watch.watched ? "currentColor" : "none"} aria-hidden />
+            {watch.watched ? "Watching" : "Watch"}
+          </button>
+        ) : null}
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100" title="Your watchlist: which companies need you today">
+          Watchlist
+          {attention > 0 ? (
+            <span className="rounded-xs bg-red-600 px-1.5 py-px font-mono text-[10px] font-semibold text-white" aria-label={`${attention} need attention`}>
+              {attention}
+            </span>
+          ) : null}
         </Link>
         <ThemeToggle />
       </div>

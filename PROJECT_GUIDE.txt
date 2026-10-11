@@ -29,7 +29,7 @@ Contents
   Part 14  Scripts and everyday tasks
   Part 15  A suggested reading order for your first two days
   Part 16  Glossary
-  Part 17  59 questions judges will ask, with answers
+  Part 17  60 questions judges will ask, with answers
 
 
 ------------------------------------------------------------------------------
@@ -225,8 +225,11 @@ TOP BAR AND NAVIGATION
                         the company wants.
   Cmd+K (Ask)           Speed. A quick question ("who guarantees the leases?")
                         answered only from this report, with citations.
-  Dashboard             Analysts cover 50-70 names; the watchlist shows which
-                        companies filed something new since their last report.
+  Watchlist             The morning queue (see "THE WATCHLIST" below): which
+                        watched companies need attention today, and why. The
+                        top bar shows how many are in Act now or Review.
+  Watch button          On every report: one click adds the company to the
+                        queue.
   Light/dark theme      Analysts work long hours; printing and projecting at a
                         demo need the light theme.
   URL holds the state   ?report=...&tab=... means any view can be shared as a
@@ -330,6 +333,57 @@ THE MEMO TAB
   The five-section memo is the deliverable an analyst actually hands to the
   investment committee. The Devil's Advocate sits beside it and below it
   (Part 10.5 explains why). "Copy memo" exports both as text.
+
+THE WATCHLIST (/dashboard): HOW IT HELPS A HEDGE-FUND ANALYST
+  The job it does
+    A credit analyst covers 50-70 companies. Each morning the real question is
+    not "tell me about WULF" but "which of my 60 companies changed overnight,
+    and which one do I deal with first?". Missing an 8-K about a debt
+    acceleration, or not noticing a borrower running out of cash, is how
+    losses start. The watchlist answers that question in one screen.
+  How it works
+    - Each watched company is checked against EDGAR (new 10-Qs, 10-Ks and
+      8-Ks since its report, with 8-K item codes in words) and its XBRL
+      figures (cash and free cash flow by quarter).
+    - Written rules place it in Act now, Review or Quiet, and every rule that
+      applies is shown as a reason with its date and a link to the source:
+        Act now: an 8-K for bankruptcy, debt acceleration, a delisting notice
+          or unreliable earlier statements; cash covering fewer than four
+          quarters of the latest burn; debt due within a year exceeding cash.
+        Review: a new 10-Q or 10-K; an 8-K about new debt, an auditor change,
+          an officer leaving, a material agreement or an impairment; four to
+          eight quarters of runway; debt due within two years; the memo saying
+          Stable while the Devil's Advocate makes three or more strong points;
+          the stock down 20% and well behind the S&P 500; cash down 25% in a
+          quarter; a watch item now checkable.
+      There is no score; the reasons are the explanation. On real data WULF and
+      CIFR land in Act now (about 2.6 and 1.3 quarters of cash at the current
+      burn), Apple in Review (Stable memo, four strong counter-points), Ford in
+      Quiet.
+    - Runway (quarters of cash at the latest burn rate) is computed by code:
+      cash at quarter end divided by the latest quarter's negative free cash
+      flow. It is the plainest measure of "how long until they need money".
+    - The "What to watch, and when" items from each company's Devil's
+      Advocate case are tracked: Pending until a filing that can settle them
+      arrives (or their date passes), then "Ready to check", which moves the
+      company into Review. The case written last quarter becomes this
+      quarter's checklist.
+    - The activity feed lists, across every watched company, new filings,
+      important 8-Ks, insider trades (grouped per person per day) and debt
+      due dates coming up, with a "new since your last visit" marker.
+    - "Re-read filings and argue again" rebuilds the report from the new
+      filings and rewrites the Devil's Advocate case.
+  Why it is built this way
+    - A queue, not a grid of cards: the analyst's question is "what first?".
+    - Rules, not a score: an analyst must be able to say why a name is at the
+      top, and check it against the filing.
+    - Tied to the Devil's Advocate: the watchlist is where the case against
+      each memo keeps working after the memo is written.
+    - Built into the app: a Watch button on every report, a count in the top
+      bar, and the queue on the home page, so it is part of the daily flow,
+      not a page you have to remember to visit.
+  Code: lib/dashboard.ts (rules, feed), app/api/watchlist/route.ts (cached for
+  five minutes), app/dashboard/page.tsx (the page).
 
 MEETING BRIEF
   One printable page: three things to know, the key numbers, questions to ask
@@ -1541,7 +1595,7 @@ PART 16. GLOSSARY OF PROJECT TERMS
 
 
 ------------------------------------------------------------------------------
-PART 17. 59 QUESTIONS JUDGES WILL ASK, WITH ANSWERS
+PART 17. 60 QUESTIONS JUDGES WILL ASK, WITH ANSWERS
 ------------------------------------------------------------------------------
 
 Answer in your own words; these are the facts to stand on. If you do not know
@@ -1877,3 +1931,12 @@ G. DESIGN AND THE NEWER FEATURES
     REGULATED BY the Kentucky PSC" points at the regulator. Without a
     direction, "CUSTOMER OF" could mean money in or money out. Part 0.7 lists
     every other symbol.
+
+60. How does the watchlist help a hedge-fund analyst?
+    An analyst covers 50-70 companies; each morning they need to know which
+    changed and which to deal with first. The watchlist checks each company
+    against EDGAR and its XBRL figures and sorts it into Act now, Review or
+    Quiet by written rules (a dangerous 8-K, cash covering under four quarters
+    of burn, debt due soon, the Devil's Advocate disagreeing with a Stable
+    memo), each with its dated, linked reason. It tracks each case's "what to
+    watch" items until the filing that settles them arrives.

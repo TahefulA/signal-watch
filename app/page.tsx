@@ -2,7 +2,7 @@
 
 import { Sword } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { AnalyzeEvent, DevilsAdvocate, Entity, MeetingBrief, PeerComparison, Report, Timeline } from "@/types";
+import type { AnalyzeEvent, DevilsAdvocate, Entity, MeetingBrief, PeerComparison, Report, Timeline, WatchCard, WatchlistResponse } from "@/types";
 import { CommandPalette } from "@/components/command-palette";
 import { PIPELINE_STEPS, PipelineProgress } from "@/components/layout/pipeline-progress";
 import { StatusBar } from "@/components/layout/status-bar";
@@ -438,18 +438,44 @@ export default function HomePage() {
     if (!report.devil?.sections) void argue();
   }, [report, status, devilBusy, argue]);
 
-  const watchCompany = useCallback(async (ticker: string) => {
+  // The watchlist queue: who is watched, and who needs attention (top bar count, home page).
+  const [queue, setQueue] = useState<WatchCard[] | null>(null);
+  const loadQueue = useCallback(async () => {
     try {
-      const response = await fetch("/api/watchlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticker, action: "add" }),
-      });
-      setToast(response.ok ? `${ticker} is on the dashboard` : "The dashboard could not be updated.");
+      const response = await fetch("/api/watchlist", { cache: "no-store" });
+      const body = (await response.json()) as WatchlistResponse;
+      if (response.ok && body.cards) setQueue(body.cards);
     } catch {
-      setToast("The dashboard could not be updated.");
+      // The queue is a convenience here; the watchlist page reports its own errors.
     }
   }, []);
+  useEffect(() => {
+    void loadQueue();
+  }, [loadQueue]);
+  const watched = useMemo(() => new Set((queue ?? []).map((c) => c.ticker)), [queue]);
+  const attention = (queue ?? []).filter((c) => c.status === "act" || c.status === "review").length;
+
+  const toggleWatch = useCallback(
+    async (ticker: string, add = !watched.has(ticker)) => {
+      try {
+        const response = await fetch("/api/watchlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ticker, action: add ? "add" : "remove" }),
+        });
+        setToast(response.ok ? (add ? `${ticker} is on your watchlist` : `${ticker} is off your watchlist`) : "The watchlist could not be updated.");
+        if (response.ok) {
+          // Show the change at once; the full queue (reasons, feed) follows.
+          setQueue((q) => (add ? [...(q ?? []), { ticker } as WatchCard] : (q ?? []).filter((c) => c.ticker !== ticker)));
+          void loadQueue();
+        }
+      } catch {
+        setToast("The watchlist could not be updated.");
+      }
+    },
+    [watched, loadQueue],
+  );
+  const watchCompany = useCallback((ticker: string) => toggleWatch(ticker, true), [toggleWatch]);
 
   const showCapital = useCallback(() => {
     setSelected(null);
@@ -475,6 +501,12 @@ export default function HomePage() {
         onOpenChanges={() => openTab("changes")}
         onOpenPalette={() => setPaletteOpen(true)}
         onHome={goHome}
+        attention={attention}
+        watch={
+          ready && report
+            ? { ticker: report.graph.company.ticker, watched: watched.has(report.graph.company.ticker), onToggle: () => void toggleWatch(report.graph.company.ticker) }
+            : null
+        }
         verdict={
           ready && report ? (
             <DualVerdictBadge memoVerdict={stanceWord(report.devil)} concernCount={concernCount(report.devil)} busy={devilBusy} onClick={() => openTab("memo")} />
@@ -639,6 +671,35 @@ export default function HomePage() {
               <p className="mt-3 text-zinc-500">
                 Analysis takes 15 to 40 seconds. Each box on the map opens the filing sentence it is based on.
               </p>
+              {queue && queue.some((c) => c.status === "act" || c.status === "review") ? (
+                <div className="surface mt-10 rounded-xs border border-zinc-800 p-5 text-left">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                      <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> Your watchlist today
+                    </p>
+                    <a href="/dashboard" className="text-xs text-zinc-400 hover:text-zinc-100">
+                      Open the queue &rarr;
+                    </a>
+                  </div>
+                  <ul className="mt-3 divide-y divide-zinc-800">
+                    {queue
+                      .filter((c) => c.status === "act" || c.status === "review")
+                      .slice(0, 5)
+                      .map((c) => (
+                        <li key={c.ticker} className="flex items-start gap-3 py-2.5">
+                          <span className={`mt-1 h-2 w-2 shrink-0 rounded-[1px] ${c.status === "act" ? "bg-red-600" : "bg-amber-500"}`} aria-hidden />
+                          <a href={c.reportId ? `/?report=${c.reportId}` : `/?ticker=${c.ticker}`} className="w-14 shrink-0 font-mono text-sm font-semibold text-zinc-50 hover:underline">
+                            {c.ticker}
+                          </a>
+                          <span className="min-w-0 flex-1 text-[13px] leading-snug text-zinc-300">{c.reasons?.[0]?.text ?? ""}</span>
+                          <span className={`shrink-0 text-[10px] font-semibold uppercase tracking-wider ${c.status === "act" ? "text-red-500" : "text-amber-500"}`}>
+                            {c.status === "act" ? "Act now" : "Review"}
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              ) : null}
             </section>
           ) : null}
         </main>

@@ -71,7 +71,7 @@ export function StatusBar({ report, cached, onWatch, onRefresh }: StatusBarProps
       <span className="text-zinc-600">Source: SEC EDGAR{report.newsAnalyzed ? ", Google News" : ""}, Yahoo Finance</span>
       <span className="ml-auto flex items-center gap-3 pl-4 font-sans">
         <button type="button" onClick={onWatch} className="text-zinc-400 hover:text-zinc-100">
-          Add to dashboard
+          Add to watchlist
         </button>
         <button type="button" onClick={onRefresh} className="text-zinc-400 hover:text-zinc-100" title={cached ? "This is a saved report" : undefined}>
           Read the filings again

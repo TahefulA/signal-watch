@@ -62,7 +62,7 @@ const EIGHT_K_ITEMS: Record<string, string> = {
   "8.01": "other events",
 };
 
-function describeItems(items: string): string {
+export function describeItems(items: string): string {
   const codes = items.split(/[,\s]+/).filter((c) => c && c !== "9.01");
   const words = codes.map((c) => EIGHT_K_ITEMS[c] ?? `item ${c}`);
   return words.length ? `${words.join("; ")} (items ${codes.join(", ")})` : "exhibits only";
