@@ -1,0 +1,538 @@
+SIGNAL WATCH: A GUIDED TOUR OF THE PROJECT
+==========================================
+
+Who this is for: someone joining the project who wants to understand it from
+the beginning. Read it top to bottom. Each part tells you what the piece does,
+why it exists, and which files to open next. You do not need to read every
+file; the "Read" lines point to the ones that matter, in order.
+
+Contents
+  Part 0   The idea in one page
+  Part 1   Credit analysis vocabulary you will see everywhere
+  Part 2   The tech stack and how to run it
+  Part 3   A map of the folders
+  Part 4   The journey of one ticker (the most important part)
+  Part 5   The data sources: SEC EDGAR, XBRL, news, market
+  Part 6   Gemini, and how we stop it from making things up
+  Part 7   The data types (what a "Report" contains)
+  Part 8   The capital structure (debt)
+  Part 9   Changes, the timeline, peers, the brief, the dashboard
+  Part 10  The Devil's Advocate and its 35 patterns
+  Part 11  The front end: page, tabs, map
+  Part 12  Storage (Tiger Postgres)
+  Part 13  Design rules and the honesty rules
+  Part 14  Scripts and everyday tasks
+  Part 15  A suggested reading order for your first two days
+  Part 16  Glossary
+
+
+------------------------------------------------------------------------------
+PART 0. THE IDEA IN ONE PAGE
+------------------------------------------------------------------------------
+
+Signal Watch is a research tool for a credit analyst at a hedge fund (the
+hackathon track was Diameter Capital, a credit fund).
+
+A credit analyst asks one question about a company: will it pay back its
+debt? To answer it they read the company's SEC filings (10-K, 10-Q, 8-K), map
+who the company depends on (customers, lenders, suppliers, regulators), look
+at its debt and cash, and write a memo for the investment committee. It takes
+hours per company and they cover 50 to 70 companies.
+
+You type a ticker (for example WULF, TeraWulf). Signal Watch:
+  1. downloads the company's latest filings, headlines and market data,
+  2. asks Gemini (Google's AI model) to find the entities that matter and to
+     quote the sentence each one came from,
+  3. checks every quote against the actual filing and throws away anything
+     that is not really there,
+  4. draws the result as a map (the Graph tab), with the company in the middle,
+  5. builds the debt picture, a five-section memo, a comparison with last
+     quarter, a peer comparison, and a "Devil's Advocate" that argues against
+     the memo.
+
+The one rule behind everything: every claim on screen must link back to the
+exact sentence or tagged number in a filing. If the data is not there, the app
+says "Not disclosed" instead of guessing.
+
+
+------------------------------------------------------------------------------
+PART 1. CREDIT ANALYSIS VOCABULARY
+------------------------------------------------------------------------------
+
+You will see these words in the code and in the UI.
+
+  10-K           Annual report filed with the SEC. Longest, most complete.
+  10-Q           Quarterly report. Shorter; often says "no material changes".
+  8-K            Report of a specific event (new loan, CEO leaves, etc.).
+                 Has "item codes": 5.02 = officer/director change,
+                 4.01 = auditor change, 2.03 = new debt obligation.
+  Form 4         Filed when an insider (officer, director) buys or sells stock.
+  EDGAR          The SEC's public filing database. Free. Our main source.
+  XBRL           Machine-readable tags inside filings. Every number in the
+                 financial statements is tagged with a concept name such as
+                 "Revenues" or "AccountsReceivableNetCurrent".
+  Inline XBRL    The same tags embedded in the filing's HTML.
+  Debt footnote  The note in a filing that lists the company's loans and bonds
+  (debt note)    with amounts, interest rates (coupons) and due dates.
+  Maturity       When a loan must be repaid. A "maturity wall" is a chart of
+                 how much debt comes due each year.
+  Coupon         The interest rate on a bond.
+  Secured        Debt backed by collateral (paid first if things go wrong).
+  Revolver       A credit line the company can draw on, like a credit card.
+  EBITDA         Earnings before interest, tax, depreciation and amortization.
+                 Rough proxy for cash the business generates.
+  Leverage       Total debt / EBITDA. Higher = riskier.
+  Coverage       EBITDA / interest expense. Lower = riskier.
+  Liquidity      Cash plus undrawn revolver: what the company can pay with now.
+  TTM / LTM      Trailing (last) twelve months.
+  DSO            Days sales outstanding: how long customers take to pay.
+  Counterparty   Any other party the company deals with.
+  Gatto          Michael Gatto, author of a credit analysis book whose
+                 seven-step process the tab labels follow.
+
+
+------------------------------------------------------------------------------
+PART 2. THE TECH STACK AND HOW TO RUN IT
+------------------------------------------------------------------------------
+
+  Next.js 14 (App Router)   React framework. Pages in app/, server API routes
+                            in app/api/*/route.ts.
+  TypeScript (strict)       Everything is typed. No "any".
+  Tailwind CSS              Styling with class names. Colors in
+                            tailwind.config.ts and app/globals.css.
+  @xyflow/react (v12)       React Flow, draws the entity map.
+  lucide-react              Icons.
+  Gemini REST API           AI model, called with plain fetch in lib/gemini.ts.
+  yahoo-finance2            Market prices.
+  Tiger Data (Postgres)     Database where reports are saved.
+  Vercel                    Hosting. Production: signal-watch-phi.vercel.app
+
+Run it locally:
+  npm install
+  create .env.local with GEMINI_API_KEY=... and DATABASE_URL=...
+      (ask a teammate for values; never commit this file)
+  npx tsx --env-file=.env.local scripts/migrate.ts     (creates tables once)
+  npm run dev                                          (http://localhost:3000)
+
+Check your work:
+  npx tsc --noEmit -p .        type check
+  npx next lint                lint
+
+Try it without waiting for an analysis: open a saved report, for example
+  http://localhost:3000/?report=36e359a9-052f-4e17-8afc-b29d2403f4c1  (WULF)
+
+
+------------------------------------------------------------------------------
+PART 3. A MAP OF THE FOLDERS
+------------------------------------------------------------------------------
+
+  app/                     Pages and API routes (Next.js)
+    page.tsx               THE main screen: top bar, tabs, all the state.
+    layout.tsx             Fonts, theme script, <html>.
+    globals.css            Theme colors (dark/light) and every animation.
+    dashboard/page.tsx     The watchlist page.
+    brief/[id]/            Printable one-page meeting brief.
+    api/                   Server endpoints (see Part 4 and Part 9).
+
+  lib/                     All the logic. No React here.
+    analyze.ts             The pipeline that turns a ticker into a Report.
+    edgar.ts               Talks to SEC EDGAR, turns HTML into text.
+    xbrl.ts                Reads XBRL numbers (company facts JSON).
+    ixbrl.ts               Reads inline XBRL debt tags from filing HTML.
+    news.ts, market.ts     Google News RSS, Yahoo Finance.
+    gemini.ts              The Gemini client.
+    extraction.ts          The Gemini prompt that finds entities.
+    quotes.ts, citations.ts  Verifies quotes against the filing text.
+    graph.ts, names.ts     Builds the graph, merges duplicate names.
+    capital.ts             Debt instruments, metrics, maturity wall.
+    memo.ts                The five-section memo.
+    changes.ts             Compare with the previous quarter.
+    timeline.ts            Which quarters name each entity.
+    peers.ts               Peer comparison.
+    brief.ts               Meeting brief.
+    devils-advocate*.ts    The counter-argument and its 35 patterns.
+    counter-view.ts        Front-end helpers for the Devil's Advocate.
+    tiger.ts               Database reads and writes.
+    layout.ts              Where each box goes on the map.
+    node-visuals.ts        Colors, bars, icons for map boxes.
+    time-range.ts, theme.ts  Small UI helpers.
+
+  components/              React components.
+    layout/                Top bar, tab bar, status bar, progress.
+    tabs/                  One file per tab (graph, financial, capital...).
+    map/                   The map: entity-map, entity-node, signal-edge.
+    memo/                  The Devil's Advocate column.
+    panel/entity-panel.tsx The side panel when you click a box.
+    peers/, time/, ui/, graph/, capital/, brief/
+
+  types/                   TypeScript shapes of the data (start here when
+                           a variable confuses you).
+  scripts/                 Command-line tools (Part 14).
+  README.md, DEMO.md       Overview and the demo walkthrough.
+
+
+------------------------------------------------------------------------------
+PART 4. THE JOURNEY OF ONE TICKER  (read this part twice)
+------------------------------------------------------------------------------
+
+Follow "WULF" from the keyboard to the screen.
+
+Step 1. The user types WULF in the top bar.
+  Read: components/layout/top-bar.tsx  (the form calls onAnalyze)
+        app/page.tsx, function analyze()
+
+  page.tsx sends POST /api/analyze { ticker: "WULF" }. The response is a
+  stream of lines, each a small JSON event: {"type":"step",...} for progress,
+  then {"type":"result","report":{...}} at the end. readEvents() in page.tsx
+  reads that stream and shows progress in components/layout/pipeline-progress.tsx.
+
+Step 2. The server route.
+  Read: app/api/analyze/route.ts
+  It checks the database for a recent report for this ticker (a cache). If none,
+  it calls the pipeline in lib/analyze.ts and streams progress.
+
+Step 3. The pipeline (lib/analyze.ts). In order:
+  a. Look up the company's CIK (SEC id) from the ticker.     lib/edgar.ts
+  b. Pick the latest 10-K, 10-Q and 8-K and download them.     lib/edgar.ts
+     HTML is turned into plain text; sections such as Risk Factors and MD&A
+     are cut out (extractSections) so we send Gemini the useful parts.
+  c. Headlines from Google News, prices from Yahoo.            lib/news.ts, lib/market.ts
+  d. XBRL numbers: revenue, cash, operating income...          lib/xbrl.ts
+  e. Gemini call 1: "find the entities, with a quote for each" lib/extraction.ts
+     Gemini call 2: "read the debt footnote"                   lib/capital.ts
+  f. Verification: every quote must actually appear in the     lib/quotes.ts,
+     document; every number in a label must be in its quote.     lib/citations.ts
+     Rejected items are counted ("17/20 verified" in the status bar).
+  g. Build the graph: merge duplicates, add debt boxes.        lib/graph.ts, lib/names.ts
+  h. Gemini call 3: the memo and the signal summary.           lib/memo.ts
+     Any sentence with a number not in the facts is deleted.
+  i. Save to the database.                                     lib/tiger.ts
+
+Step 4. Back in the browser.
+  showReport() in page.tsx stores the Report in React state and puts
+  ?report=<id> in the URL, so the link can be shared and reopened.
+  The Graph tab draws it (Part 11). Other tabs read the same Report object.
+
+Step 5. Things that load afterwards, on demand:
+  - the timeline            GET  /api/timeline?reportId=...
+  - the counter-argument    POST /api/devils-advocate  (runs automatically)
+  - change comparison       POST /api/changes          (button on Changes tab)
+  - peers                   POST /api/peers            (Peers tab)
+  - meeting brief           POST /api/brief            (Memo tab)
+  - questions (Cmd+K)       POST /api/ask
+
+If you understand Step 3, you understand the project.
+
+
+------------------------------------------------------------------------------
+PART 5. THE DATA SOURCES
+------------------------------------------------------------------------------
+
+SEC EDGAR (lib/edgar.ts)
+  - getSubmissions(cik): list of every filing with form type, date, items.
+  - fetchFilingText(filing): downloads the filing and returns plain text.
+    For 8-Ks it also downloads exhibits (press releases).
+  - The SEC asks for at most 10 requests per second and a User-Agent header;
+    lib/fetch-cache.ts throttles and caches every request.
+
+XBRL company facts (lib/xbrl.ts)
+  - One JSON file per company with every tagged number it ever reported.
+  - Companies switch tag names over the years (Revenues ->
+    RevenueFromContractWithCustomer...). mostRecent() picks the series that
+    reaches the latest date and fills older quarters from the other names.
+  - quarterlySeries() turns year-to-date numbers into single quarters by
+    subtraction (six months minus three months, and so on).
+  - trailingTwelveMonths() builds TTM figures.
+
+Inline XBRL (lib/ixbrl.ts)
+  - Reads debt tags (coupon, face amount, maturity) straight from the filing
+    HTML, to fill gaps the footnote text leaves.
+
+News (lib/news.ts) and market data (lib/market.ts)
+  - Ten recent headlines; 90-day price change against the S&P 500.
+
+
+------------------------------------------------------------------------------
+PART 6. GEMINI, AND HOW WE STOP IT FROM MAKING THINGS UP
+------------------------------------------------------------------------------
+
+Read: lib/gemini.ts, then lib/extraction.ts, then lib/quotes.ts.
+
+  - generateJson(system, prompt, schema) sends a prompt and a JSON schema, and
+    Gemini must answer in that shape. If the main model is busy (HTTP 429/503)
+    it retries, then falls back to a lighter model.
+  - Gemini only READS and CLASSIFIES. It never supplies a number or a quote
+    we keep without checking.
+
+The checks, which you will see again and again:
+  1. Quote check: the quoted sentence must be found in the source document
+     (allowing for whitespace and punctuation differences). Otherwise the
+     entity is rejected.
+  2. Figure check: extractFigures() pulls every number out of a label; each one
+     must appear in the quote.
+  3. Generated text check: dropUnsupported() in lib/memo.ts deletes any memo
+     sentence containing a number that is not in the facts Gemini was given.
+  4. Ranking words: "largest", "sole", "primary" are dropped unless a quote
+     uses them.
+  5. Severity and confidence are categories (high/medium/low), never numeric
+     scores.
+
+
+------------------------------------------------------------------------------
+PART 7. THE DATA TYPES
+------------------------------------------------------------------------------
+
+Open types/index.ts. The central object is Report:
+
+  Report
+    id, generatedAt
+    graph: EntityGraph
+      company      ticker, name, cik, industry, ratings (only if stated)
+      nodes        Entity[]   one per box on the map
+      edges        links between entities
+    memo           five sections of text "spans" (text + optional entity link)
+    signal         three or four sentences above the memo
+    capital        CapitalStructure: debt instruments, metrics, maturity wall
+    changes        comparison with last quarter (once requested)
+    timeline       which quarters name each entity (once built)
+    brief          meeting brief (once requested)
+    devil          the Devil's Advocate (once written)
+    market, sources, validation, notes
+
+Entity (types/entity.ts) is the most important shape:
+  name, type (company, risk, macro, financial, regulatory, neutral),
+  relationType (CUSTOMER_OF, LENDS_TO, GUARANTEES, REGULATES...),
+  severity, confidence, magnitude (a disclosed figure with its own quote),
+  sourceQuote, sourceType, sourceDate, sourceUrl, sourcePage.
+
+A "span" (MemoSpan) is a piece of text with an optional entityId. That is how
+names in the memo become clickable links to boxes on the map.
+
+
+------------------------------------------------------------------------------
+PART 8. THE CAPITAL STRUCTURE (DEBT)
+------------------------------------------------------------------------------
+
+Read: lib/capital.ts (long; start with extractCapitalStructure at the bottom),
+      types/capital.ts, components/tabs/capital-tab.tsx.
+
+  - Gemini reads the whole debt footnote and lists every instrument with a
+    quote. Large banks such as JPMorgan only report debt by category; those
+    rows are marked "aggregate" and the tab says so.
+  - Missing coupons, amounts and maturities are filled from inline XBRL and
+    shown with a small "XBRL" badge.
+  - The maturity wall comes from the footnote's table first, then sentences,
+    then XBRL tags.
+  - computeMetrics() builds total debt, net debt, EBITDA, leverage, coverage,
+    liquidity, secured share. If EBITDA is negative, ratios show "n/m".
+  - Total debt must reconcile with the filing's own table or XBRL total.
+
+
+------------------------------------------------------------------------------
+PART 9. CHANGES, TIMELINE, PEERS, BRIEF, DASHBOARD
+------------------------------------------------------------------------------
+
+Changes (lib/changes.ts, app/api/changes, components/tabs/changes-tab.tsx)
+  Rebuilds the map from the filings available the day before the newest
+  10-Q/10-K (the "baseline"), then compares. An entity is "new" only if the
+  old filings never mention it.
+
+Timeline (lib/timeline.ts, app/api/timeline)
+  Searches the last 12 quarterly/annual filings for each entity's name, to
+  draw the small bars under each box and the time slider on the Graph tab.
+  No AI here; just text search.
+
+Peers (lib/peers.ts, components/peers/)
+  Analyzes up to three other tickers the same way and lines them up: shared
+  counterparties, shared risk themes, side-by-side metrics.
+
+Brief (lib/brief.ts, app/brief/[id])
+  One printable page: three things to know, key numbers, questions to ask
+  management.
+
+Dashboard (app/dashboard/page.tsx, lib/dashboard.ts, app/api/watchlist)
+  A watchlist saved in the database. Each card says if the company filed
+  something new since its last report.
+
+Ask (Cmd+K) (lib/ask.ts, components/command-palette.tsx)
+  Answers a question only from the current report, with citations.
+
+
+------------------------------------------------------------------------------
+PART 10. THE DEVIL'S ADVOCATE
+------------------------------------------------------------------------------
+
+The project's signature feature: the app argues against its own memo.
+
+Read in this order:
+  types/devils-advocate.ts
+  lib/devils-advocate-patterns.ts   the 35 checks
+  lib/devils-advocate.ts            the Gemini call
+  app/api/devils-advocate/route.ts
+  lib/counter-view.ts               helpers for the UI
+  components/memo/counter-argument-column.tsx
+
+How it works:
+  1. loadPatternContext() gathers data: the latest filing and the one before,
+     the latest 10-K, 8-K item codes, Form 4 insider trades, XBRL facts.
+  2. runPatterns() runs 35 checks. Each returns "fired", "clear" or
+     "not_evaluated" (when the data does not exist). Examples:
+       - Receivables growing faster than revenue (XBRL)
+       - DSO increase (XBRL)
+       - Guarantee scope narrower ("only", "solely" next to "guarantee")
+       - Insider selling cluster (3+ insiders selling within ~30 days, Form 4)
+       - Auditor change (8-K item 4.01)
+       - New risk language versus the previous filing
+  3. Gemini gets the memo, the map, the fired patterns and the filing text,
+     and writes a ~200-word counter-argument. Each citation must point to an
+     entity, a pattern or the capital structure, so the source labels and
+     links are built by our code, never invented by the model.
+  4. It also classifies the memo's own stance (Stable, Caution, At risk,
+     Distressed) for the badge in the top bar.
+
+Where it shows: the top-bar badge, the right column of the Memo tab, the
+"Counter view" toggle on the Graph tab, and a red card at the top of the
+Financial, Capital, Changes and Peers tabs.
+
+Test it from the command line:
+  npx tsx --env-file=.env.local scripts/run-patterns.ts <report id>
+
+
+------------------------------------------------------------------------------
+PART 11. THE FRONT END
+------------------------------------------------------------------------------
+
+app/page.tsx is the conductor. It holds the state (the report, the active
+tab, peers, the selected box, busy flags) and passes pieces down. Long file;
+read it in this order: the useState lines at the top, analyze(), showReport(),
+then the JSX at the bottom.
+
+Layout of the screen (components/layout/):
+  Top bar (48px)    logo, ticker box, verdict badge, changes badge, Cmd+K
+  Tab bar (40px)    Graph, Financial, Capital, Changes, Peers, Memo
+  Step label        "Step 2 · Qualitative Analysis" (Gatto's steps)
+  Tab content
+  Status bar (32px) verified count, node/edge count, sources
+
+The URL is the source of truth: ?report=<id>&tab=capital&peers=<ids>.
+Opening a new company adds a browser history entry, so Back works.
+
+The map (components/map/):
+  entity-map.tsx    Builds React Flow nodes and edges from the graph, handles
+                    hover focus (others fade), filters, counter view, timeline.
+  entity-node.tsx   One box: type badge, name, relation, figure bar, severity
+                    dots and strip, source, confidence, time strip.
+  signal-edge.tsx   One line with its label pill and arrow.
+  lib/layout.ts     Positions: company in the middle, boxes on four sides.
+  lib/node-visuals.ts  The six entity colors and the figure bars.
+
+Each tab is one file in components/tabs/. The side panel when you click a box
+is components/panel/entity-panel.tsx (shows the full quote and source link).
+
+Theme: app/globals.css defines the zinc gray scale as CSS variables and flips
+them for light mode, so a class like text-zinc-100 works in both modes. Map
+boxes are always light cards.
+
+
+------------------------------------------------------------------------------
+PART 12. STORAGE (TIGER POSTGRES)
+------------------------------------------------------------------------------
+
+Read: lib/tiger.ts (SCHEMA_SQL near the top shows every table).
+
+  reports            the whole Report as JSON
+  entities           one row per box (a "node store")
+  relationships      typed edges (CUSTOMER_OF, LENDS_TO...) between entities
+  debt_instruments, changes, peer_comparisons, watchlist
+
+Functions you will use: saveReport, findReportById, updateReport,
+findRecentReport (the cache), listWatchlist.
+
+
+------------------------------------------------------------------------------
+PART 13. THE RULES
+------------------------------------------------------------------------------
+
+Honesty rules (most important):
+  - Never invent data. No made-up numbers, ratings, spreads or examples.
+  - Every box has a verified source quote.
+  - Missing data is labeled ("Not disclosed", "No bond price feed",
+    "not evaluated") instead of hidden or guessed.
+  - Severity and confidence are categories, not numeric scores.
+  - No price predictions.
+
+Design rules:
+  - Fonts: Geist, Geist Mono, Space Grotesk only.
+  - Colors: zinc grays plus the six entity colors (blue company, red risk,
+    amber macro, emerald financial, violet regulatory, gray other).
+  - Boxes, not circles. No drop shadows, no emoji, no gradient text.
+  - Animations play once and settle (the faint canvas wash is the only loop,
+    and it is off for users who prefer reduced motion).
+
+Working rules: commit after each step, run the type check, test with WULF.
+
+
+------------------------------------------------------------------------------
+PART 14. SCRIPTS AND EVERYDAY TASKS
+------------------------------------------------------------------------------
+
+All run as: npx tsx --env-file=.env.local scripts/<name>.ts ...
+
+  migrate.ts            create database tables
+  analyze.ts            run the pipeline for a ticker from the terminal
+  refresh-capital.ts    rebuild only the debt section of saved reports
+  run-patterns.ts       print the 35 Devil's Advocate checks for a report
+  graph-query.ts        query the graph, e.g. every CUSTOMER_OF edge
+  backfill-graph.ts     rewrite node/edge rows for saved reports
+  check-alerts.ts       test the new-filing alert against a baseline report
+
+Deploy: push to main, then "npx vercel --prod". Secrets live in Vercel
+environment variables and in .env.local, never in git.
+
+
+------------------------------------------------------------------------------
+PART 15. A READING ORDER FOR YOUR FIRST TWO DAYS
+------------------------------------------------------------------------------
+
+Day 1: understand what it does
+  1. Open the live app with the WULF report. Click every tab. Click a box,
+     read its quote, follow the link to the SEC filing.
+  2. Read README.md and DEMO.md.
+  3. Read types/index.ts, types/entity.ts, types/capital.ts.
+  4. Read Part 4 of this guide again, then lib/analyze.ts top to bottom.
+  5. Read lib/edgar.ts (just the function names and comments).
+
+Day 2: understand how it does it
+  6. lib/gemini.ts, then lib/extraction.ts (the main prompt).
+  7. lib/quotes.ts and lib/memo.ts (dropUnsupported): the honesty checks.
+  8. app/page.tsx, then components/tabs/graph-tab.tsx and components/map/.
+  9. lib/capital.ts (extractCapitalStructure and computeMetrics only).
+  10. lib/devils-advocate-patterns.ts: pick five patterns and read them.
+  11. Make a small change (for example, a label in a tab), run the type check,
+      and see it in the browser.
+
+When something confuses you: find the type in types/, then search for where
+it is created (grep for the field name in lib/).
+
+
+------------------------------------------------------------------------------
+PART 16. GLOSSARY OF PROJECT TERMS
+------------------------------------------------------------------------------
+
+  Report          Everything built for one ticker at one time.
+  Entity / node   One box on the map.
+  Central node    The company itself, in the middle.
+  Spoke           A line from the company to an entity.
+  Magnitude       A disclosed figure attached to an entity, with its quote.
+  Severity        How much an entity matters to credit (high/medium/low/none),
+                  rated by Gemini.
+  Confidence      How sure we are the relationship is real (high/medium/low),
+                  from the source and wording.
+  Validation      Counts of entities Gemini proposed, kept and rejected.
+  Baseline        The report rebuilt from last quarter's filings, for Changes.
+  Timeline        Which past filings name each entity.
+  Pattern         One of the 35 Devil's Advocate checks.
+  Counter view    The Graph tab mode that highlights flagged boxes in red.
+  Stance          The memo's own position: Stable, Caution, At risk, Distressed.
+  Aggregate debt  Debt reported only by category (banks), not per bond.
+  n/m             Not meaningful (e.g. leverage when EBITDA is negative).

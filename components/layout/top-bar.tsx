@@ -17,10 +17,12 @@ interface TopBarProps {
   hasReport: boolean;
   /** The memo's stance and the Devil's Advocate's concerns, once there is a report. */
   verdict?: ReactNode;
+  /** The wordmark returns to the home screen. */
+  onHome?: () => void;
 }
 
 /** 48px header: wordmark, ticker search, changes badge, command palette hint. */
-export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette, hasReport, verdict = null }: TopBarProps) {
+export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette, hasReport, verdict = null, onHome }: TopBarProps) {
   const [value, setValue] = useState("");
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -31,7 +33,16 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-zinc-800 bg-zinc-950 px-4 print:hidden">
-      <Link href="/" className="flex shrink-0 items-center gap-2">
+      <Link
+        href="/"
+        onClick={(event) => {
+          if (!onHome || event.metaKey || event.ctrlKey || event.shiftKey) return;
+          event.preventDefault();
+          onHome();
+        }}
+        className="flex shrink-0 items-center gap-2"
+        title="Home"
+      >
         <ShieldAlert className="h-[18px] w-[18px] text-red-600" aria-hidden />
         <span className="hidden flex-col leading-none sm:flex">
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-50">Signal Watch</span>

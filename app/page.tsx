@@ -132,7 +132,26 @@ export default function HomePage() {
     const keep = isTab(requested) ? requested : "graph";
     setTab(keep);
     setGraphMounted(keep === "graph");
-    window.history.replaceState(null, "", `?report=${next.id}${keep !== "graph" ? `&tab=${keep}` : ""}`);
+    // A different company gets its own history entry, so Back returns to the previous one.
+    const url = `?report=${next.id}${keep !== "graph" ? `&tab=${keep}` : ""}`;
+    const current = new URLSearchParams(window.location.search);
+    if (current.get("report") === next.id || current.has("ticker")) window.history.replaceState(null, "", url);
+    else window.history.pushState(null, "", url);
+  }, []);
+
+  /** Clears the report and shows the home screen. */
+  const resetHome = useCallback(() => {
+    setReport(null);
+    setStatus("idle");
+    setError(null);
+    setSelected(null);
+    setCompareError(null);
+    setPeerComparison(null);
+    setPeerReports([]);
+    setPeerError(null);
+    setTab("graph");
+    setGraphMounted(false);
+    setPaletteOpen(false);
   }, []);
 
   // Command palette on Cmd+K or Ctrl+K.
@@ -173,11 +192,25 @@ export default function HomePage() {
     );
   }, []);
 
-  // Reopen a saved report from a shared link, e.g. ?report=<id>.
-  useEffect(() => {
+  // The URL drives the page: ?report=<id> opens a saved report, ?ticker= runs an analysis, nothing shows the home
+  // screen. It is read on load and again on Back and Forward.
+  const currentId = useRef<string | null>(null);
+  currentId.current = report?.id ?? null;
+  const loadFromUrl = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("report");
     const tickerParam = params.get("ticker");
+    if (!id && !tickerParam) {
+      resetHome();
+      return;
+    }
+    if (id && id === currentId.current) {
+      const t = params.get("tab");
+      const keep = isTab(t) ? t : "graph";
+      setTab(keep);
+      if (keep === "graph") setGraphMounted(true);
+      return;
+    }
     if (!id && tickerParam && /^[A-Za-z][A-Za-z0-9.\-]{0,9}$/.test(tickerParam)) {
       // analyzeRef is filled by a later effect in the same commit, so wait for it.
       queueMicrotask(() => void analyzeRef.current?.(tickerParam.toUpperCase(), params.get("fresh") === "1"));
@@ -185,6 +218,10 @@ export default function HomePage() {
     }
     const peerIds = (params.get("peers") ?? "").split(",").filter((p) => /^[0-9a-f-]{36}$/i.test(p));
     if (!id) return;
+    setSelected(null);
+    setPeerComparison(null);
+    setPeerReports([]);
+    setPeerError(null);
     setStatus("loading");
     setStep(PIPELINE_STEPS[0]);
     setStartedAt(Date.now());
@@ -207,7 +244,20 @@ export default function HomePage() {
         setStatus("error");
         window.history.replaceState(null, "", window.location.pathname);
       });
-  }, [showReport, loadPeerComparison]);
+  }, [showReport, loadPeerComparison, resetHome]);
+
+  useEffect(() => {
+    loadFromUrl();
+    window.addEventListener("popstate", loadFromUrl);
+    return () => window.removeEventListener("popstate", loadFromUrl);
+    // Read the URL once on load; later reads come from Back and Forward.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const goHome = useCallback(() => {
+    resetHome();
+    if (window.location.search) window.history.pushState(null, "", "/");
+  }, [resetHome]);
 
   const analyze = useCallback(
     async (ticker: string, fresh = false) => {
@@ -423,6 +473,7 @@ export default function HomePage() {
         onAnalyze={(t) => void analyze(t)}
         onOpenChanges={() => openTab("changes")}
         onOpenPalette={() => setPaletteOpen(true)}
+        onHome={goHome}
         verdict={
           ready && report ? (
             <DualVerdictBadge memoVerdict={stanceWord(report.devil)} concernCount={concernCount(report.devil)} busy={devilBusy} onClick={() => openTab("memo")} />
