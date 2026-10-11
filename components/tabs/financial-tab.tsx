@@ -153,7 +153,7 @@ export function FinancialTab({
           <p className="-mt-2 mb-4 font-mono text-[11px] text-zinc-500">
             {windowed ? rangeText : "Last 8 quarters"} · three-month figures from the company&rsquo;s XBRL tags · hover a quarter for its figures and changes
           </p>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div data-tour="charts" className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <TrendChart
               title="Revenue and EBITDA"
               kind="bar"

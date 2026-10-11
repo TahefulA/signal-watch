@@ -217,11 +217,13 @@ export function GraphTab({
         <div className="ml-auto flex shrink-0 items-center gap-3 pl-4">
           {asOf ? <span className="hidden font-mono text-[11px] text-zinc-500 lg:inline">{asOf}</span> : null}
           <RangeSelect range={range} quarters={timeline?.quarters ?? []} onChange={onRangeChange} />
+          <span data-tour="counter" className="inline-flex">
           <DevilsAdvocateToggle enabled={counter && Boolean(devil)} onToggle={setCounter} concernCount={concernCount(devil)} disabled={!devil || devilBusy} />
+          </span>
         </div>
       </div>
       {/* Fixed height, so the map is sized once and does not jump when the timeline arrives. */}
-      <div className="h-[104px] shrink-0 overflow-hidden border-b border-zinc-800">
+      <div data-tour="time" className="h-[104px] shrink-0 overflow-hidden border-b border-zinc-800">
         {timeline && win ? (
           <>
             <TimeContextBar quarters={timeline.quarters} window={win} onChange={onRangeChange} />

@@ -11,6 +11,7 @@ import { DEFAULT_RANGE, type TimeRange, readRange, saveRange } from "@/lib/time-
 import { TopBar } from "@/components/layout/top-bar";
 import { EntityPanel } from "@/components/panel/entity-panel";
 import { PeerPanel } from "@/components/peers/peer-panel";
+import { Tour } from "@/components/tour/tour";
 import { CapitalTab } from "@/components/tabs/capital-tab";
 import { ChangesTab } from "@/components/tabs/changes-tab";
 import { FinancialTab } from "@/components/tabs/financial-tab";
@@ -477,6 +478,27 @@ export default function HomePage() {
   );
   const watchCompany = useCallback((ticker: string) => toggleWatch(ticker, true), [toggleWatch]);
 
+  // Presentation tour. It always runs on the example report, so its script matches the screen.
+  const [tourStep, setTourStep] = useState<number | null>(null);
+  const startTour = useCallback(() => {
+    if (report?.id === EXAMPLE_REPORT_ID) {
+      setSelected(null);
+      setTourStep(0);
+    } else {
+      window.location.href = `/?report=${EXAMPLE_REPORT_ID}&tab=graph&tour=1`;
+    }
+  }, [report?.id]);
+  // "?tour=1" is read once on arrival, because loading the report rewrites the URL.
+  const tourRequested = useRef(false);
+  useEffect(() => {
+    tourRequested.current = new URLSearchParams(window.location.search).get("tour") === "1";
+  }, []);
+  useEffect(() => {
+    if (status !== "ready" || !report || !tourRequested.current) return;
+    tourRequested.current = false;
+    setTourStep(0);
+  }, [status, report]);
+
   const showCapital = useCallback(() => {
     setSelected(null);
     openTab("capital");
@@ -502,6 +524,7 @@ export default function HomePage() {
         onOpenPalette={() => setPaletteOpen(true)}
         onHome={goHome}
         attention={attention}
+        onTour={startTour}
         watch={
           ready && report
             ? { ticker: report.graph.company.ticker, watched: watched.has(report.graph.company.ticker), onToggle: () => void toggleWatch(report.graph.company.ticker) }
@@ -608,6 +631,9 @@ export default function HomePage() {
               ) : null}
             </div>
           </main>
+          {tourStep !== null && ready ? (
+            <Tour step={tourStep} onStep={setTourStep} onClose={() => setTourStep(null)} onTab={openTab} activeTab={tab} />
+          ) : null}
           <StatusBar
             report={report}
             cached={cached}
@@ -656,6 +682,12 @@ export default function HomePage() {
                   className="mt-4 inline-flex rounded-xs border border-red-600 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors duration-100 ease-out hover:bg-red-600 hover:text-white"
                 >
                   See example: WULF
+                </a>
+                <a
+                  href={`/?report=${EXAMPLE_REPORT_ID}&tab=graph&tour=1`}
+                  className="ml-2 mt-4 inline-flex rounded-xs border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors duration-100 ease-out hover:border-zinc-500 hover:text-zinc-50"
+                >
+                  Take the 2-minute tour
                 </a>
                 <a
                   href="/private"

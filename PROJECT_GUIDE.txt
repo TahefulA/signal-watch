@@ -13,6 +13,7 @@ Contents
   Part 0.5 WHY every piece exists and how it all comes together (read first)
   Part 0.6 WHY each feature is included, feature by feature
   Part 0.7 Every arrow, symbol and color: what it means and why it is there
+  Part 0.8 The presentation tour: what to say at each stop, and why
   Part 1   Credit analysis vocabulary you will see everywhere
   Part 2   The tech stack and how to run it
   Part 2.5 WHY this stack, tied to the goal of the project
@@ -840,6 +841,250 @@ H. QUICK QUESTIONS PEOPLE ASK WHILE CLICKING
                                  reads as marketing.
   "Why do animations stop?"      They show what loads first (what matters
                                  most) and then get out of the way.
+
+
+------------------------------------------------------------------------------
+PART 0.8  THE PRESENTATION TOUR (what to say at each stop, and why it is there)
+------------------------------------------------------------------------------
+
+The app has a presentation mode. Click "Tour" in the top bar, or "Take the
+2-minute tour" on the home page. It opens the WULF example, switches tabs for
+you, outlines the part being discussed in red, and shows a card with three
+things: what you are looking at, why it is there, and a line to say. Use the
+arrow keys (or Back and Next) to move; Esc ends it. The page stays usable
+during the tour, so you can hover the map or click a box while you talk.
+
+It always runs on the WULF example, so the lines (for example "7 concerns",
+"17/20 verified", "minus $992 million") match what is on screen.
+
+How to use it in a demo
+  - Read the "Say it like this" line, then point at the outlined part.
+  - The "Why it is here" text is the answer if a judge asks "why did you
+    include this?". It is about the reason, not the technology.
+  - Stop 4: hover the company box while you talk; the charts appear.
+  - Stop 12: scroll the full case a little to show the evidence tables.
+  - The whole tour takes about two minutes at a calm pace.
+
+The script (the same text the tour shows; it lives in lib/tour-steps.ts)
+
+STOP 1. THE PROBLEM WE ARE SOLVING
+  What you are looking at
+    TeraWulf (WULF), a company building data centers for AI, which has
+    borrowed about $5.7 billion.
+  Why it is here
+    A lender's best case is getting paid back with interest; the worst case is
+    losing most of the loan. Lenders lose money when they miss a warning sign
+    buried in hundreds of pages of company reports. An analyst covers 50 to 70
+    companies and cannot read everything.
+  Say it like this
+    "Lenders don't lose money on the headline. They lose it on the footnote
+    nobody had time to read. Signal Watch reads every footnote, for every
+    company, in about a minute."
+
+STOP 2. THE STEPS AN ANALYST ALREADY FOLLOWS
+  What you are looking at
+    Six tabs, each labeled with a step: qualitative analysis, profitability,
+    capital structure, forecasting, valuation, recommendation.
+  Why it is here
+    Credit analysts are trained on a standard seven-step process. We laid the
+    app out in that order so a professional recognizes it at once and nothing
+    feels new to learn. Each tab answers one question, in the order they would
+    ask it.
+  Say it like this
+    "We didn't invent a new workflow. We automated the one credit analysts are
+    already trained on, one step per tab."
+
+STOP 3. WHO THE COMPANY DEPENDS ON   (Graph tab)
+  What you are looking at
+    The company in the middle. Around it: its customers, lenders, regulators
+    and risks, each pulled from its official reports.
+  Why it is here
+    A company's risk lives in its relationships: one customer paying most of
+    the bills, a guarantee with conditions, a regulator that can freeze
+    permits. A list hides that; a picture shows it at a glance. Color tells
+    you the type, the left strip how serious it is.
+  Say it like this
+    "Before any number, you see who can hurt this borrower. Every box is a
+    sentence from the company's own filing, and you can click through to it."
+
+STOP 4. THE NUMBERS, ONE HOVER AWAY   (Graph tab)
+  What you are looking at
+    Hover the company box: eight quarters of revenue, profit margin and cash
+    appear beside it. Hover any other box for its figure, its terms and when
+    it first appeared.
+  Why it is here
+    The map shows relationships; the hover brings the money to them, so the
+    picture is never just a diagram. Thicker lines carry more money, and debt
+    due within two years is marked in red because that is when companies most
+    often fail to pay.
+  Say it like this
+    "The map isn't decoration. Hover anything and it tells you how much money
+    is involved and how that has changed over time."
+
+STOP 5. TIME: IS IT GETTING BETTER OR WORSE?   (Graph tab)
+  What you are looking at
+    The last twelve quarterly reports along the top, and the market over the
+    same period.
+  Why it is here
+    Lending is about direction. The same risk means something very different
+    if it appeared this quarter or has been there for three years. Every
+    screen says which report and which quarter its numbers come from, so
+    nobody mistakes old news for new.
+  Say it like this
+    "Every number on screen is dated. You always know which quarter you are
+    looking at, and whether a risk is new."
+
+STOP 6. CAN THE BUSINESS PAY ITS DEBTS?   (Financial tab)
+  What you are looking at
+    Revenue, profit, cash flow, cash and short-term bills, quarter by quarter.
+    Red bars are quarters that lost money or burned cash.
+  Why it is here
+    A company repays debt from the cash it generates. These charts answer the
+    first question any lender asks. Free cash flow is here because a company
+    can grow sales while running out of money; for WULF the red bars make that
+    impossible to miss.
+  Say it like this
+    "Revenue went up last quarter. Free cash flow was minus $992 million. That
+    gap is the story a lender needs to see."
+
+STOP 7. WHAT IT OWES, AND WHEN   (Capital tab)
+  What you are looking at
+    Every loan and bond: how much, the interest rate, who gets paid first, and
+    the year it is due.
+  Why it is here
+    Companies rarely fail on an ordinary day; they fail when a large debt
+    comes due and nobody will lend again. Knowing the amounts and dates, and
+    who is repaid first if things go wrong, is the core of credit.
+  Say it like this
+    "This is the calendar of when the company has to find money, and who
+    stands first in line if it can't."
+
+STOP 8. WHAT CHANGED SINCE LAST QUARTER   (Changes tab)
+  What you are looking at
+    New customers, lost customers, new debt, repaid debt and changed figures
+    since the previous report.
+  Why it is here
+    An analyst already knows the company from last quarter. What they need is
+    the difference. This tab is that difference, so a three-hour reread
+    becomes a five-minute review.
+  Say it like this
+    "Analysts don't need the whole story every quarter. They need what
+    changed. That's this tab."
+
+STOP 9. STRONGER OR WEAKER THAN ITS PEERS?   (Peers tab)
+  What you are looking at
+    Similar companies side by side: debt, earnings, cash and the customers and
+    risks they share.
+  Why it is here
+    A number means little alone. Debt of five times earnings is high in one
+    industry and normal in another. Comparing with similar companies turns a
+    number into a judgment, and shared customers show risk across a whole
+    sector.
+  Say it like this
+    "Is this borrower the weakest in its group or the strongest? You can't
+    tell from one company alone."
+
+STOP 10. THE RECOMMENDATION   (Memo tab)
+  What you are looking at
+    A short written memo: summary, thesis, key risks, what offsets them, and
+    how the market sees it.
+  Why it is here
+    The memo is what an analyst actually hands to the people who decide. Most
+    tools stop at showing data; we produce the deliverable itself, and every
+    name in it links back to its evidence.
+  Say it like this
+    "This is the actual work product. Not another dashboard: the memo the
+    analyst would write, with every claim linked to its source."
+
+STOP 11. THE DEVIL'S ADVOCATE: THE CASE AGAINST   (Memo tab)
+  What you are looking at
+    Beside the memo, a critic that argues against it: the bottom line, each
+    point and how strong it is, and what to watch.
+  Why it is here
+    People look for evidence that agrees with what they already believe, and
+    an AI that writes a confident memo makes that worse. Investment committees
+    already ask one person to argue against every deal. We built that person
+    in, so the case against is always on the table.
+  Say it like this
+    "Every AI tool agrees with you. Ours argues against its own memo, because
+    the reasons a loan fails matter more than the reasons it succeeds."
+
+STOP 12. THE FULL CASE, WITH PROOF AND PLAIN ENGLISH   (Memo tab)
+  What you are looking at
+    Each point with what the memo said, the argument with dates and quarters,
+    a plain-English version, why it matters to a lender, and the evidence
+    tables.
+  Why it is here
+    A warning nobody understands gets ignored, so every point is explained for
+    someone with no finance background. A warning nobody can check gets
+    dismissed, so every point shows its evidence. And it includes the best
+    answer to itself, because a critic that only attacks is easy to wave away.
+  Say it like this
+    "It found that Google's guarantee only starts once the buildings are
+    finished, so the riskiest period, construction, isn't covered. The memo,
+    written from the same filings, said Stable."
+
+STOP 13. BOTH VIEWS, ALWAYS VISIBLE
+  What you are looking at
+    "Memo: Stable · 7 concerns" in the top bar, on every tab.
+  Why it is here
+    Nobody should read the word Stable without also seeing how many strong
+    objections exist. The two views travel together wherever the analyst goes.
+  Say it like this
+    "You can never see the memo's verdict without seeing the case against it
+    right next to it."
+
+STOP 14. WHERE THE RISK SITS ON THE MAP   (Graph tab)
+  What you are looking at
+    Counter view turns the boxes the critic cites red and fades the rest.
+  Why it is here
+    The objections are not abstract: they point at specific customers, lenders
+    and guarantees. Showing them on the map connects the argument to the
+    relationships behind it.
+  Say it like this
+    "One click and the map shows you exactly which relationships the case
+    against is about."
+
+STOP 15. PROOF, INCLUDING OUR OWN MISTAKES
+  What you are looking at
+    "17/20 verified · 3 rejected": how many of the AI's findings passed our
+    quote check, and how many we threw away.
+  Why it is here
+    Finance professionals will not act on anything they cannot check. Every
+    box links to its exact sentence, numbers come from the government's tagged
+    data, and when something is not disclosed the app says so instead of
+    guessing. Showing what we rejected is what makes the rest believable.
+  Say it like this
+    "We show our failures on purpose. Three findings didn't match the filing
+    word for word, so we threw them out, and we tell you that."
+
+STOP 16. EVERY MORNING: WHO NEEDS ME TODAY?
+  What you are looking at
+    The watchlist: every company you follow, sorted into Act now, Review and
+    Quiet, with the reason for each.
+  Why it is here
+    An analyst follows dozens of companies. The real morning question is which
+    one changed overnight and which to deal with first. Each company is placed
+    by plain rules (running low on cash, a dangerous filing, debt due soon,
+    the critic disagreeing with the memo) and the reason is always shown.
+  Say it like this
+    "This is the to-do list a credit analyst actually needs: which companies
+    need me today, and exactly why."
+
+STOP 17. PRIVATE COMPANIES, AND THE TAKEAWAY
+  What you are looking at
+    Many borrowers file nothing publicly. The analyst can upload the company's
+    own documents and still get the case against the deal, with nothing
+    stored.
+  Why it is here
+    Some of the most painful credit losses happen at private companies, where
+    there are no public filings to read. The critic works on whatever
+    documents the lender has.
+  Say it like this
+    "Signal Watch reads every report, shows who the borrower depends on and
+    what it owes, writes the memo, argues against it with proof, and keeps
+    watching. So the lender sees the warning signs before they lend, not
+    after."
 
 
 ------------------------------------------------------------------------------
@@ -1697,6 +1942,8 @@ The map (components/map/):
   lib/layout.ts     Positions: company in the middle, boxes on four sides.
   lib/node-visuals.ts  The six entity colors and the figure bars.
 
+Tour: components/tour/tour.tsx draws the presentation mode; its script is
+lib/tour-steps.ts (Part 0.8).
 Charts: components/charts/trend-chart.tsx draws the Financial tab charts
 (axes, quarter labels, hover readout). Each tab is one file in
 components/tabs/. The side panel when you click a box is

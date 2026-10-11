@@ -550,7 +550,40 @@
   animation: fade-in 200ms ease-out backwards;
 }
 
+/* Presentation tour: the page outside the outlined part is dimmed; the dim and
+   the outline glide to each new stop, and the card fades in once per stop. */
+.tour-dim {
+  background: rgb(9 9 11 / 0.62);
+  pointer-events: none;
+  transition:
+    top 250ms ease-out,
+    left 250ms ease-out,
+    width 250ms ease-out,
+    height 250ms ease-out;
+}
+
+:root[data-theme="light"] .tour-dim {
+  background: rgb(9 9 11 / 0.35);
+}
+
+.tour-ring {
+  transition:
+    top 250ms ease-out,
+    left 250ms ease-out,
+    width 250ms ease-out,
+    height 250ms ease-out;
+}
+
+.tour-card {
+  animation: fade-in 200ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .tour-dim,
+  .tour-ring {
+    transition: none;
+  }
+  .tour-card,
   .chart-bar,
   .chart-line,
   .chart-readout,

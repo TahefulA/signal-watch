@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldAlert, Star } from "lucide-react";
+import { Presentation, ShieldAlert, Star } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, type ReactNode, useState } from "react";
 import { TAGLINE } from "./tab-bar";
@@ -23,10 +23,12 @@ interface TopBarProps {
   watch?: { ticker: string; watched: boolean; onToggle: () => void } | null;
   /** Watched companies in Act now or Review, shown beside the Watchlist link. */
   attention?: number;
+  /** Starts the presentation tour. */
+  onTour?: () => void;
 }
 
 /** 48px header: wordmark, ticker search, changes badge, command palette hint. */
-export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette, hasReport, verdict = null, onHome, watch = null, attention = 0 }: TopBarProps) {
+export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette, hasReport, verdict = null, onHome, watch = null, attention = 0, onTour }: TopBarProps) {
   const [value, setValue] = useState("");
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -116,6 +118,16 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
           >
             <Star className="h-3 w-3" fill={watch.watched ? "currentColor" : "none"} aria-hidden />
             {watch.watched ? "Watching" : "Watch"}
+          </button>
+        ) : null}
+        {onTour ? (
+          <button
+            type="button"
+            onClick={onTour}
+            className="hidden items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 md:inline-flex"
+            title="Presentation tour: what each part is and why it is there"
+          >
+            <Presentation className="h-3.5 w-3.5" aria-hidden /> Tour
           </button>
         ) : null}
         <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100" title="Your watchlist: which companies need you today">
