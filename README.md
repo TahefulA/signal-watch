@@ -1,19 +1,23 @@
 # Signal Watch
 
 Enter a ticker. Signal Watch reads the company's latest 10-K, 10-Q and 8-K from SEC EDGAR, its recent headlines and
-90 days of market data, and builds a sourced map of the entities that matter to its credit. Every box opens the exact
-sentence it came from. Around the map:
+90 days of market data, and builds a sourced credit file. A header with price, size, debt, liquidity, next maturity and
+rating stays above eight tabs, each a step in a credit analyst's workflow:
 
-- **Capital structure**: every debt instrument from the debt note, leverage, coverage and liquidity from XBRL, and the
-  maturity profile from the filing's own table.
-- **Change detection**: what the newest 10-Q or 10-K added or dropped compared with the previous quarter's filings.
-- **Peer comparison**: shared and unique counterparties, common risk themes, side-by-side metrics and divergences.
-- **Meeting prep**: a one-page brief with three things to know, the numbers, questions to ask and risks to watch.
-- **Dashboard**: a watchlist with an alert when a company files after its last report.
-- **Above the map**: a signal summary, a question bar that answers only from the report with clickable citations,
-  the last-updated line and the validation record (how many proposed entities were verified, rejected or merged).
-- **Beside the map**: a financial snapshot from XBRL (revenue, EBITDA and margin, free cash flow, current ratio, debt,
-  liquidity, next final maturity) and the debt stack with its maturity wall.
+- **Overview**: the signal summary, the credit numbers (plus liquidity runway, market loan-to-value and near-term
+  maturities derived from them), a question bar answered only from the report, who the cash flows depend on, what could
+  go wrong, what changed, and how much of it was verified.
+- **Map**: the entity map (focus on hover, filters by type and severity) or the same entities as a sortable table,
+  exported to CSV with every quote.
+- **Financials**: earnings and credit metrics from XBRL with reference bands and peer markers, quarterly sparklines,
+  the debt stack and maturity wall from the debt note, and the equity cushion at today's price.
+- **Changes**: what the newest 10-Q or 10-K added or dropped compared with the previous quarter's filings.
+- **Peers**: shared and unique counterparties, common risk themes, side-by-side metrics and divergences.
+- **Memo**: a five-section credit memo with the evidence for every name it uses beside it.
+- **Brief**: a one-page meeting brief, printable or copied as text, with the filing pages to have open.
+- **Sources**: the audit trail: documents read, every rejected or merged entity with its reason, and the rules applied.
+
+The **dashboard** is a watchlist with an alert when a company files after its last report.
 
 ## How it works
 

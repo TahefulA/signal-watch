@@ -186,7 +186,7 @@ export function FinancialMetricsPanel({ capital, company, peers = [] }: Financia
   const rows = (keys: Key[]) => keys.map((k) => byKey.get(k)).filter((m): m is CapitalMetric => m !== undefined);
 
   return (
-    <section aria-labelledby="snapshot-title" className="border-b border-zinc-800 p-4">
+    <section aria-labelledby="snapshot-title">
       <h2 id="snapshot-title" className="sr-only">
         Financial snapshot
       </h2>

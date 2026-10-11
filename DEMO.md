@@ -11,25 +11,28 @@ change comparison uses the filings available on Aug 4, 2026. Every line below is
 
 ## Before you go on
 
-1. Open the demo link and wait for the peer section to fill in (a few seconds). Zoom the browser to 80-90%.
+1. Open the demo link and wait a few seconds for the Peers tab badge to read CIFR. Zoom the browser to 80-90%.
 2. Open the dashboard and the printable brief in other tabs.
 3. The demo link is saved, so nothing needs Gemini except the question bar. If the Wi-Fi is bad, skip step 3 below.
 
 ## The walkthrough (about 2.5 minutes)
 
+The page opens on **Overview**. The header above the tabs stays put: price and 90-day move, market cap, debt, liquidity,
+next maturity, rating.
+
 | # | Do | Say |
 |---|----|-----|
-| 1 | Point at the **Signal** box at the top. | "Ten-second read. TeraWulf's story: about 401 megawatts leased to Anthropic and 378 to Fluidstack, Google's credit enhancement behind Fluidstack, $5.72 billion of debt against $2.62 billion of cash. Watch the Kentucky regulator's approvals." |
-| 2 | Click **Who provides credit support for the leases?** under the question bar. | "Ask in plain English. It answers only from this report. Google, behind Fluidstack's leases. Each chip opens the filing line, page 54 of the 10-Q." Click the **Google** chip. |
-| 3 | Close the panel. Point at the validation line above the change panel, open **Details**. | "Seventeen of twenty entities Gemini proposed were verified against the filings. Three were rejected: Core Scientific, IREN and Cipher were called competitors, but the sentences cited only list stock moves. We don't trust the AI, we check it." |
-| 4 | Point at the change panel. | "What changed since last quarter: Kentucky Power, the Kentucky Public Service Commission and Governor Hochul's Executive Order 62 appear in these filings and nowhere in the previous quarter's. The bridge facility is described as repaid." |
-| 5 | Scroll to the map. Hover **Anthropic**, then click it. | "Boxes are built to scan, not read: the colored square is the type, the arrow is which way the relationship runs, the bar is the figure against the largest of its kind on the map (Anthropic's 401 megawatts against Fluidstack's 378 and Core42's 60), dots for severity and confidence, then the fiscal period and page. Hover and everything unrelated fades. Revenue share: not disclosed, and we say so rather than guess." |
-| 6 | Scroll the panel to *Connections*. Close it. | "Connections show who else sits next to it: Fluidstack and Core42 are the other tenants." |
-| 7 | Point at **Financial snapshot** on the right. | "The numbers, from TeraWulf's own XBRL data: $165.2 million of revenue with eight quarters of history in the sparkline, EBITDA of negative $309.6 million, free cash flow of negative $2.50 billion. Leverage reads n/m, not a fake multiple. Current ratio 0.7x sits in the stress band, with Cipher's 3.0x marked beside it. Ratings: not stated in the filings, and no bond price feed, so we don't invent them." |
-| 8 | Scroll the right column to **Maturity wall**. | "The maturity wall, from the 10-Q's own table: $2.86 billion due in 2030." |
-| 9 | Scroll to **Peer comparison**. | "Against Cipher Mining: both lease to Fluidstack, both have Google credit support, and both buy from Bitmain. Each match is checked against the other company's filing text." |
-| 10 | Scroll to **Meeting prep**. | "And the one-page brief: three things to know, the numbers, risks with their filing lines, and questions such as what is drawn on the revolver and how Executive Order 62 affects the timeline." |
-| 11 | Close. | "Signal Watch. Every box has a receipt, every number has a source, and where a number would mislead, it says so." |
+| 1 | Point at the header, then the **Signal**. | "One company, one screen. TeraWulf: down 34% in 90 days, $5.72 billion of debt. The signal: about 401 megawatts leased to Anthropic and 378 to Fluidstack, Google's credit enhancement behind Fluidstack, and the Kentucky regulator to watch." |
+| 2 | Point at the two rows of tiles. | "The numbers that decide the credit. EBITDA is negative, so leverage reads n/m rather than a fake multiple. What we derive: liquidity runway up to 14 months at the current cash burn, market loan-to-value 31% (the equity cushion under the debt), and $237 million due through 2027." |
+| 3 | Click **Who provides credit support for the leases?** | "Ask in plain English; it answers only from this report. Google, behind Fluidstack's leases, with the filing line as a chip." |
+| 4 | Point at the four cards below. | "Who the cash flows depend on, what could go wrong, what changed since last quarter, and how much to trust it: 17 of 20 proposed entities verified, three rejected." |
+| 5 | Click **Anthropic** in the first card. | "Every row opens its evidence: the quote, page 54 of the 10-Q, the confidence and the connections." Close the panel. |
+| 6 | Open the **Map** tab. Hover **Google**, then **Table**, then **Export CSV with quotes**. | "The same entities as a map: hover one and everything unrelated fades. Or as a table, exported with every quote for the credit file." |
+| 7 | Open **Financials**. | "Metrics with reference bands and Cipher marked beside them; the debt stack and maturity wall from the 10-Q's own table, $2.86 billion due in 2030; and the market's view, with the 52-week range and enterprise value." |
+| 8 | Open **Changes**. | "Kentucky Power, the Kentucky PSC and Executive Order 62 are new this quarter; the bridge facility is described as repaid. A name counts as new only if the earlier filings never mention it." |
+| 9 | Open **Peers**. | "Against Cipher: both lease to Fluidstack, both have Google credit support, both buy from Bitmain, each checked against the other company's filings." |
+| 10 | Open **Brief**. Point at **Pages to have open** and **Copy as text**. | "The meeting brief: three things to know, risks with their filing lines, questions to ask, the pages to have open, and a copy button for the meeting notes." |
+| 11 | Open **Sources**. | "And the audit trail: every document read, every rejection with its reason, and the rules. Every box has a receipt." |
 
 Live run if time allows: type `IREN` or `CIFR` and press Analyze (20 to 40 seconds).
 

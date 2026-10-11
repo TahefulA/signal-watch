@@ -31,9 +31,9 @@ export function TickerInput({ busy, initial = "", onSubmit }: TickerInputProps) 
         autoComplete="off"
         spellCheck={false}
         maxLength={10}
-        className="h-10 min-w-0 flex-1 rounded-sm border border-zinc-800 bg-zinc-900 px-3 font-mono text-sm uppercase text-zinc-100 placeholder:font-sans placeholder:normal-case placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none"
+        className="h-9 min-w-0 flex-1 rounded-sm border border-zinc-800 bg-zinc-900 px-3 font-mono text-sm uppercase text-zinc-100 placeholder:font-sans placeholder:normal-case placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none"
       />
-      <Button type="submit" variant="primary" disabled={busy || value.trim().length === 0} className="h-10 px-4">
+      <Button type="submit" variant="primary" disabled={busy || value.trim().length === 0} className="h-9 px-4">
         {busy ? "Analyzing" : "Analyze"}
       </Button>
     </form>

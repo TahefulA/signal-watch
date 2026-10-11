@@ -47,7 +47,7 @@ export function AskBar({ reportId, nodes, onEntityClick, onCapitalClick }: AskBa
   const open = (id: string) => (id === "capital" ? onCapitalClick() : onEntityClick(id));
 
   return (
-    <div className="mb-4">
+    <div>
       <form onSubmit={submit} className="flex gap-2">
         <label htmlFor="ask-input" className="sr-only">
           Ask a question about this company

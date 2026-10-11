@@ -3,12 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AnalyzeEvent, Entity, MeetingBrief, PeerComparison, Report } from "@/types";
 import { MeetingPrepPanel } from "@/components/brief/meeting-prep-panel";
-import { CapitalStructurePanel } from "@/components/capital/capital-structure-panel";
 import { ChangePanel } from "@/components/changes/change-panel";
-import { FinancialMetricsPanel } from "@/components/capital/financial-metrics-panel";
-import { AskBar } from "@/components/insight/ask-bar";
-import { MapHeader } from "@/components/insight/map-header";
-import { SignalSummary } from "@/components/insight/signal-summary";
 import { TickerInput } from "@/components/input/ticker-input";
 import { Header } from "@/components/layout/header";
 import { PIPELINE_STEPS, StatusBar } from "@/components/layout/status-bar";
@@ -17,6 +12,13 @@ import { Legend } from "@/components/map/legend";
 import { MemoContainer } from "@/components/memo/memo-container";
 import { EntityPanel } from "@/components/panel/entity-panel";
 import { PeerPanel } from "@/components/peers/peer-panel";
+import { CompanyHeader } from "@/components/report/company-header";
+import { EntityTable } from "@/components/report/entity-table";
+import { FinancialsTab } from "@/components/report/financials-tab";
+import { OverviewTab } from "@/components/report/overview-tab";
+import { ReportTabs, type TabKey, isTab } from "@/components/report/report-tabs";
+import { SourcesTab } from "@/components/report/sources-tab";
+import { TabIntro } from "@/components/ui/section";
 import { Toast } from "@/components/ui/toast";
 import { peerContextFor } from "@/lib/peer-view";
 
@@ -50,13 +52,6 @@ async function readEvents(response: Response, onEvent: (event: AnalyzeEvent) => 
   return finished;
 }
 
-function ago(iso: string): string {
-  const minutes = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60_000));
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes} min ago`;
-  return `${Math.round(minutes / 60)} h ago`;
-}
-
 export default function HomePage() {
   const [status, setStatus] = useState<Status>("idle");
   const [step, setStep] = useState(PIPELINE_STEPS[0]);
@@ -78,15 +73,30 @@ export default function HomePage() {
   const [briefBusy, setBriefBusy] = useState(false);
   const [mapFilters, setMapFilters] = useState<MapFilters>({ types: [], severities: [], highConfidenceOnly: false });
   const [briefError, setBriefError] = useState<string | null>(null);
-  const mapRef = useRef<HTMLElement>(null);
-  const capitalRef = useRef<HTMLElement>(null);
+  const [tab, setTab] = useState<TabKey>("overview");
+  const [mapVisited, setMapVisited] = useState(false);
+  const [mapView, setMapView] = useState<"map" | "table">("map");
   const analyzeRef = useRef<((ticker: string, fresh?: boolean) => Promise<void>) | null>(null);
+
+  /** Switches tab and records it in the URL, keeping the report and peers. */
+  const openTab = useCallback((next: TabKey) => {
+    setTab(next);
+    if (next === "map") setMapVisited(true);
+    const params = new URLSearchParams(window.location.search);
+    if (next === "overview") params.delete("tab");
+    else params.set("tab", next);
+    window.history.replaceState(null, "", `?${params.toString()}`);
+  }, []);
 
   const showReport = useCallback((next: Report, wasCached: boolean) => {
     setReport(next);
     setCached(wasCached);
     setStatus("ready");
-    window.history.replaceState(null, "", `?report=${next.id}`);
+    const requested = new URLSearchParams(window.location.search).get("tab");
+    const keep = isTab(requested) ? requested : "overview";
+    setTab(keep);
+    setMapVisited(keep === "map");
+    window.history.replaceState(null, "", `?report=${next.id}${keep !== "overview" ? `&tab=${keep}` : ""}`);
   }, []);
 
   /** Builds the comparison from saved report ids and records the peers in the URL. */
@@ -104,7 +114,8 @@ export default function HomePage() {
     const { comparison, peers } = body as { comparison: PeerComparison; peers: Report[] };
     setPeerComparison(comparison);
     setPeerReports(peers);
-    window.history.replaceState(null, "", `?report=${subjectId}&peers=${peers.map((p) => p.id).join(",")}`);
+    const tabParam = new URLSearchParams(window.location.search).get("tab");
+    window.history.replaceState(null, "", `?report=${subjectId}&peers=${peers.map((p) => p.id).join(",")}${tabParam ? `&tab=${tabParam}` : ""}`);
   }, []);
 
   // Reopen a saved report from a shared link, e.g. ?report=<id>.
@@ -181,10 +192,12 @@ export default function HomePage() {
       const entity = report?.graph.nodes.find((n) => n.id === id);
       if (!entity) return;
       setSelected(entity);
+      setMapView("map");
+      openTab("map");
       setFocusRequest((n) => n + 1);
-      mapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    [report],
+    [report, openTab],
   );
 
   const compare = useCallback(async () => {
@@ -294,129 +307,201 @@ export default function HomePage() {
 
   const showCapital = useCallback(() => {
     setSelected(null);
-    capitalRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+    openTab("financials");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [openTab]);
 
   const graph = report?.graph ?? null;
   const totalDebt = report?.capital?.metrics.find((m) => m.key === "total_debt")?.display ?? null;
+  const factChanges = report?.changes?.changes.filter((c) => !c.judgment).length ?? null;
 
   return (
     <div className="min-h-screen">
-      <Header active="analyze" />
+      <Header active="analyze">
+        <TickerInput busy={status === "loading"} onSubmit={(t) => void analyze(t)} />
+      </Header>
 
-      <section className="border-b border-zinc-800 px-6 py-4">
-        <div className="flex min-h-[80px] flex-col justify-center gap-3">
-          <TickerInput busy={status === "loading"} onSubmit={(t) => void analyze(t)} />
-          {status === "loading" ? <StatusBar step={step} startedAt={startedAt} /> : null}
-          {status === "error" && error ? <p className="text-sm text-red-400" role="alert">{error}</p> : null}
-          {status === "ready" && report ? (
-            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-              <span className="font-mono text-zinc-300">{report.graph.company.ticker}</span>
-              <span>
-                {report.filingsAnalyzed} filings and {report.newsAnalyzed} headlines read, {report.graph.nodes.length - 1} entities
-                with sources
-              </span>
-              <span>{cached ? `Saved report from ${ago(report.generatedAt)}` : `Generated ${ago(report.generatedAt)}`}</span>
-              <button
-                type="button"
-                onClick={() => void watchCompany(report.graph.company.ticker)}
-                className="text-zinc-300 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-50"
-              >
-                Add {report.graph.company.ticker} to dashboard
-              </button>
-              {cached ? (
-                <button
-                  type="button"
-                  onClick={() => void analyze(report.graph.company.ticker, true)}
-                  className="text-zinc-300 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-50"
-                >
-                  Read the filings again
-                </button>
-              ) : null}
-            </p>
-          ) : null}
-        </div>
-      </section>
+      {status === "loading" ? (
+        <section className="border-b border-zinc-800 px-6 py-4">
+          <StatusBar step={step} startedAt={startedAt} />
+        </section>
+      ) : null}
+      {status === "error" && error ? (
+        <p className="border-b border-zinc-800 px-6 py-4 text-sm text-red-400" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       {status === "idle" ? (
-        <section className="max-w-2xl px-6 py-8 text-sm leading-relaxed text-zinc-400">
-          <p>
+        <section className="max-w-2xl px-6 py-10 text-sm leading-relaxed text-zinc-400">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-zinc-50">Credit research from the filings, with a receipt for every claim</h1>
+          <p className="mt-4">
             Enter a ticker to read the company&rsquo;s latest 10-K, 10-Q and 8-K, its recent headlines and 90 days of
             market data. Signal Watch maps every counterparty, financing, regulator and risk it finds, with the sentence
-            each one came from, and drafts a five-part credit memo underneath.
+            each one came from, builds the capital structure from the debt note and drafts a credit memo and meeting brief.
           </p>
           <p className="mt-3 text-zinc-500">
-            Analysis takes 15 to 40 seconds. Each box on the map opens the filing sentence it is based on.
+            Analysis takes 15 to 40 seconds. Saved companies are on the{" "}
+            <a href="/dashboard" className="text-zinc-300 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-50">
+              dashboard
+            </a>
+            .
           </p>
         </section>
       ) : null}
 
       {graph && report && status !== "loading" ? (
         <>
-          <section ref={mapRef} className="scroll-mt-4 px-6 py-8">
-            {report.signal?.length ? <SignalSummary spans={report.signal} onEntityClick={focusEntity} /> : null}
-            <AskBar reportId={report.id} nodes={graph.nodes} onEntityClick={focusEntity} onCapitalClick={showCapital} />
-            <h2 className="mb-2 text-xs font-medium uppercase tracking-widest text-zinc-500">Entity map</h2>
-            <MapHeader report={report} />
-            <ChangePanel
-              changes={report.changes}
-              busy={comparing}
-              step={compareStep}
-              error={compareError}
-              onCompare={() => void compare()}
-              onSelectEntity={focusEntity}
-            />
-            {report.notes.map((note) => (
-              <p key={note} className="mb-3 text-sm text-amber-500">
-                {note}
-              </p>
-            ))}
-            <div className="mb-3">
-              <Legend filters={mapFilters} onChange={setMapFilters} />
-            </div>
-            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-              <div className="h-[80vh] min-h-[560px] border border-zinc-800">
-                <EntityMap
-                  graph={graph}
-                  filters={mapFilters}
-                  onClearSelection={() => setSelected(null)}
-                  totalDebt={totalDebt !== "Not available" ? totalDebt : null}
-                  selectedId={selected?.id ?? null}
-                  focusRequest={focusRequest}
-                  onSelect={setSelected}
+          <CompanyHeader
+            report={report}
+            cached={cached}
+            onWatch={() => void watchCompany(report.graph.company.ticker)}
+            onRefresh={() => void analyze(report.graph.company.ticker, true)}
+          />
+          <ReportTabs
+            active={tab}
+            onChange={openTab}
+            badges={{
+              map: String(graph.nodes.length - 1),
+              changes: factChanges === null ? null : String(factChanges),
+              peers: peerReports.length ? peerReports.map((p) => p.graph.company.ticker).join(", ") : null,
+              brief: report.brief ? "Ready" : null,
+              sources: String(report.sources.length),
+            }}
+          />
+
+          <main className="px-6 py-6">
+            {tab === "overview" ? (
+              <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview">
+                <OverviewTab report={report} onSelectEntity={setSelected} onFocusEntity={focusEntity} onOpenTab={openTab} />
+              </div>
+            ) : null}
+
+            {mapVisited ? (
+              <div role="tabpanel" id="panel-map" aria-labelledby="tab-map" hidden={tab !== "map"}>
+                <TabIntro
+                  title="Entity map"
+                  actions={
+                    <div className="inline-flex rounded-sm border border-zinc-700 p-0.5" role="group" aria-label="View">
+                      {(["map", "table"] as const).map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          aria-pressed={mapView === v}
+                          onClick={() => setMapView(v)}
+                          className={`rounded-xs px-3 py-1 text-xs ${mapView === v ? "bg-zinc-100 font-medium text-zinc-900" : "text-zinc-400 hover:text-zinc-100"}`}
+                        >
+                          {v === "map" ? "Map" : "Table"}
+                        </button>
+                      ))}
+                    </div>
+                  }
+                >
+                  Everything the filings say {graph.company.name} depends on or is exposed to. Hover a box to isolate its links, click it for
+                  the quote; the legend filters by type and severity. The table view exports every entity with its quote.
+                </TabIntro>
+                {report.notes.map((note) => (
+                  <p key={note} className="mb-3 text-sm text-amber-500">
+                    {note}
+                  </p>
+                ))}
+                <div hidden={mapView !== "map"}>
+                  <div className="mb-3">
+                    <Legend filters={mapFilters} onChange={setMapFilters} />
+                  </div>
+                  <div className="h-[78vh] min-h-[560px] rounded-xs border border-zinc-800">
+                    <EntityMap
+                      graph={graph}
+                      filters={mapFilters}
+                      onClearSelection={() => setSelected(null)}
+                      totalDebt={totalDebt !== "Not available" ? totalDebt : null}
+                      selectedId={selected?.id ?? null}
+                      focusRequest={focusRequest}
+                      onSelect={setSelected}
+                    />
+                  </div>
+                </div>
+                {mapView === "table" ? <EntityTable report={report} onSelect={setSelected} /> : null}
+              </div>
+            ) : null}
+
+            {tab === "financials" ? (
+              <div role="tabpanel" id="panel-financials" aria-labelledby="tab-financials">
+                <TabIntro title="Financials">
+                  Earnings, leverage, coverage and liquidity from the company&rsquo;s own XBRL data; the debt stack and maturity wall from
+                  its debt note; and the equity cushion at today&rsquo;s share price. Hover any figure for how it was built.
+                </TabIntro>
+                <FinancialsTab report={report} peers={peerReports} />
+              </div>
+            ) : null}
+
+            {tab === "changes" ? (
+              <div role="tabpanel" id="panel-changes" aria-labelledby="tab-changes">
+                <TabIntro title="Changes since the previous quarter">
+                  The map rebuilt from the filings available the day before the newest 10-Q or 10-K, then compared. A name counts as
+                  new only if the earlier filings never mention it; figures are compared only when both quotes describe the same thing.
+                </TabIntro>
+                <ChangePanel
+                  changes={report.changes}
+                  busy={comparing}
+                  step={compareStep}
+                  error={compareError}
+                  onCompare={() => void compare()}
+                  onSelectEntity={focusEntity}
                 />
               </div>
-              <div className="rounded-xs border border-zinc-800 bg-zinc-900 xl:h-[80vh] xl:min-h-[560px] xl:overflow-y-auto">
-                <FinancialMetricsPanel capital={report.capital} company={graph.company} peers={peerReports} />
-                <CapitalStructurePanel ref={capitalRef} capital={report.capital} className="scroll-mt-4" />
+            ) : null}
+
+            {tab === "peers" ? (
+              <div role="tabpanel" id="panel-peers" aria-labelledby="tab-peers">
+                <PeerPanel
+                  subject={report}
+                  comparison={peerComparison}
+                  peers={peerReports}
+                  busy={peerBusy}
+                  step={peerStep}
+                  error={peerError}
+                  onCompare={(tickers) => void comparePeerTickers(tickers)}
+                  onSelectEntity={focusEntity}
+                  onSelectPeerEntity={setSelected}
+                />
               </div>
-            </div>
-          </section>
-          <MemoContainer
-            memo={report.memo}
-            company={graph.company}
-            generatedAt={report.generatedAt}
-            sourceCount={report.sources.length}
-            onEntityClick={focusEntity}
-          />
-          <PeerPanel
-            subject={report}
-            comparison={peerComparison}
-            peers={peerReports}
-            busy={peerBusy}
-            step={peerStep}
-            error={peerError}
-            onCompare={(tickers) => void comparePeerTickers(tickers)}
-            onSelectEntity={focusEntity}
-            onSelectPeerEntity={setSelected}
-          />
-          <MeetingPrepPanel
-            report={report}
-            busy={briefBusy}
-            error={briefError}
-            hasPeers={peerReports.length > 0}
-            onPrepare={() => void prepareBrief()}
-          />
+            ) : null}
+
+            {tab === "memo" ? (
+              <div role="tabpanel" id="panel-memo" aria-labelledby="tab-memo">
+                <MemoContainer
+                  memo={report.memo}
+                  company={graph.company}
+                  generatedAt={report.generatedAt}
+                  sourceCount={report.sources.length}
+                  onEntityClick={focusEntity}
+                  nodes={graph.nodes}
+                />
+              </div>
+            ) : null}
+
+            {tab === "brief" ? (
+              <div role="tabpanel" id="panel-brief" aria-labelledby="tab-brief">
+                <MeetingPrepPanel
+                  report={report}
+                  busy={briefBusy}
+                  error={briefError}
+                  hasPeers={peerReports.length > 0}
+                  onPrepare={() => void prepareBrief()}
+                />
+              </div>
+            ) : null}
+
+            {tab === "sources" ? (
+              <div role="tabpanel" id="panel-sources" aria-labelledby="tab-sources">
+                <TabIntro title="Sources and audit trail">
+                  Every document read, what verification kept and dropped, and the rules applied. Everything on the other tabs traces back here.
+                </TabIntro>
+                <SourcesTab report={report} />
+              </div>
+            ) : null}
+          </main>
         </>
       ) : null}
 
