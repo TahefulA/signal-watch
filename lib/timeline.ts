@@ -4,7 +4,7 @@ import { fetchFilingText, filingDocumentUrl, getSubmissions } from "./edgar";
 import { findReportById } from "./tiger";
 import { fetchFacts, fiscalPeriodOf, periodEndOf } from "./xbrl";
 
-export const TIMELINE_VERSION = 1;
+export const TIMELINE_VERSION = 2;
 
 /**
  * Searches the company's last periodic filings (10-Q and 10-K, oldest first)
@@ -33,7 +33,7 @@ export async function buildTimeline(report: Report, maxQuarters = 12): Promise<T
     const docs = await fetchFilingText(ref);
     texts.push(filingWordsOf(docs.map((d) => d.text)));
     quarters.push({
-      label: (book && fiscalPeriodOf(book, ref.accession)) ?? `${ref.form} ${ref.filingDate}`,
+      label: (book && fiscalPeriodOf(book, ref.accession)) ?? `${ref.form} filed ${ref.filingDate}`,
       periodEnd: (book && periodEndOf(book, ref.accession)) ?? ref.filingDate,
       form: ref.form as TimelineQuarter["form"],
       filed: ref.filingDate,
