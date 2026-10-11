@@ -3,6 +3,7 @@
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
+import { TAGLINE } from "./tab-bar";
 import { ThemeToggle } from "./theme-toggle";
 
 interface TopBarProps {
@@ -30,7 +31,10 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-zinc-800 bg-zinc-950 px-4 print:hidden">
       <Link href="/" className="flex shrink-0 items-center gap-2">
         <ShieldAlert className="h-[18px] w-[18px] text-red-600" aria-hidden />
-        <span className="hidden text-xs font-semibold uppercase tracking-wider text-zinc-50 sm:inline">Signal Watch</span>
+        <span className="hidden flex-col leading-none sm:flex">
+          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-50">Signal Watch</span>
+          <span className="mt-1 hidden text-[10px] text-zinc-500 lg:block">{TAGLINE}</span>
+        </span>
       </Link>
 
       <form onSubmit={submit} role="search" className="flex min-w-0 items-center gap-2 sm:ml-4">

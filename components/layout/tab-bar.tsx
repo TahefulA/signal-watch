@@ -11,6 +11,18 @@ export const TABS: { key: TabKey; label: string }[] = [
   { key: "memo", label: "Memo" },
 ];
 
+/** Where each view sits in Gatto's seven-step credit process. */
+export const STEP_LABELS: Record<TabKey, string> = {
+  graph: "Step 2 · Qualitative Analysis",
+  financial: "Step 3a · Profitability",
+  capital: "Step 3c · Capital Structure",
+  changes: "Step 4 · Forecasting",
+  peers: "Step 5 · Valuation",
+  memo: "Step 7 · Investment Recommendation",
+};
+
+export const TAGLINE = "The credit analyst\u2019s workflow, automated.";
+
 export function isTab(value: string | null): value is TabKey {
   return TABS.some((t) => t.key === value);
 }

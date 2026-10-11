@@ -5,7 +5,7 @@ import type { AnalyzeEvent, Entity, MeetingBrief, PeerComparison, Report, Timeli
 import { CommandPalette } from "@/components/command-palette";
 import { PIPELINE_STEPS, PipelineProgress } from "@/components/layout/pipeline-progress";
 import { StatusBar } from "@/components/layout/status-bar";
-import { TabBar, type TabKey, isTab } from "@/components/layout/tab-bar";
+import { STEP_LABELS, TAGLINE, TabBar, type TabKey, isTab } from "@/components/layout/tab-bar";
 import { DEFAULT_RANGE, type TimeRange, readRange, saveRange } from "@/lib/time-range";
 import { TopBar } from "@/components/layout/top-bar";
 import { EntityPanel } from "@/components/panel/entity-panel";
@@ -367,7 +367,9 @@ export default function HomePage() {
   const graph = report?.graph ?? null;
   const totalDebt = report?.capital?.metrics.find((m) => m.key === "total_debt")?.display ?? null;
   const factChanges = report?.changes?.changes.filter((c) => !c.judgment).length ?? 0;
-  const periodic = report?.sources.filter((s) => s.sourceType === "10-Q" || s.sourceType === "10-K").sort((a, b) => b.date.localeCompare(a.date))[0];
+  const periodic = report?.sources
+    .filter((s) => s.sourceType === "10-Q" || s.sourceType === "10-K")
+    .sort((a, b) => b.date.localeCompare(a.date))[0];
   const asOf = periodic ? `As of ${periodic.fiscalPeriod ?? periodic.sourceType} · ${periodic.sourceType} filed ${periodic.date}` : null;
   const ready = Boolean(graph && report && status !== "loading");
 
@@ -393,66 +395,72 @@ export default function HomePage() {
             }}
             dot={{ changes: factChanges > 0 && !changesSeen }}
           />
-          <main className="relative min-h-0 flex-1">
-            {graphMounted ? (
-              <div role="tabpanel" id="panel-graph" aria-labelledby="tab-graph" className={`h-full ${tab === "graph" ? "" : "hidden"}`}>
-                <GraphTab
-                  graph={graph}
-                  totalDebt={totalDebt && totalDebt !== "Not available" ? totalDebt : null}
-                  notes={report.notes}
-                  selectedId={selected?.id ?? null}
-                  focusRequest={focusRequest}
-                  onSelect={setSelected}
-                  onClearSelection={() => setSelected(null)}
-                  timeline={timeline}
-                  timelineError={timelineError}
-                  range={range}
-                  onRangeChange={setRange}
-                  asOf={asOf}
-                />
-              </div>
-            ) : null}
-            {tab !== "graph" ? (
-              <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="h-full overflow-y-auto">
-                {tab === "financial" ? <FinancialTab report={report} peers={peerReports} timeline={timeline} range={range} /> : null}
-                {tab === "capital" ? <CapitalTab report={report} /> : null}
-                {tab === "changes" ? (
-                  <ChangesTab
-                    report={report}
-                    busy={comparing}
-                    step={compareStep}
-                    error={compareError}
-                    onCompare={() => void compare()}
-                    onSelectEntity={focusEntity}
+          <main className="flex min-h-0 flex-1 flex-col">
+            <div className="flex h-6 shrink-0 items-center justify-between gap-4 border-b border-zinc-800 bg-zinc-950 px-4 print:hidden">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">{STEP_LABELS[tab]}</p>
+              {tab === "graph" ? <p className="hidden truncate text-[10px] text-zinc-600 sm:block">{TAGLINE}</p> : null}
+            </div>
+            <div className="relative min-h-0 flex-1">
+              {graphMounted ? (
+                <div role="tabpanel" id="panel-graph" aria-labelledby="tab-graph" className={`h-full ${tab === "graph" ? "" : "hidden"}`}>
+                  <GraphTab
+                    graph={graph}
+                    totalDebt={totalDebt && totalDebt !== "Not available" ? totalDebt : null}
+                    notes={report.notes}
+                    selectedId={selected?.id ?? null}
+                    focusRequest={focusRequest}
+                    onSelect={setSelected}
+                    onClearSelection={() => setSelected(null)}
                     timeline={timeline}
+                    timelineError={timelineError}
+                    range={range}
+                    onRangeChange={setRange}
+                    asOf={asOf}
                   />
-                ) : null}
-                {tab === "peers" ? (
-                  <div className="mx-auto max-w-[1200px] px-6 py-8 lg:px-12">
-                    <PeerPanel
-                      subject={report}
-                      comparison={peerComparison}
-                      peers={peerReports}
-                      busy={peerBusy}
-                      step={peerStep}
-                      error={peerError}
-                      onCompare={(tickers) => void comparePeerTickers(tickers)}
+                </div>
+              ) : null}
+              {tab !== "graph" ? (
+                <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="h-full overflow-y-auto">
+                  {tab === "financial" ? <FinancialTab report={report} peers={peerReports} timeline={timeline} range={range} /> : null}
+                  {tab === "capital" ? <CapitalTab report={report} /> : null}
+                  {tab === "changes" ? (
+                    <ChangesTab
+                      report={report}
+                      busy={comparing}
+                      step={compareStep}
+                      error={compareError}
+                      onCompare={() => void compare()}
                       onSelectEntity={focusEntity}
-                      onSelectPeerEntity={setSelected}
+                      timeline={timeline}
                     />
-                  </div>
-                ) : null}
-                {tab === "memo" ? (
-                  <MemoTab
-                    report={report}
-                    briefBusy={briefBusy}
-                    briefError={briefError}
-                    onPrepareBrief={() => void prepareBrief()}
-                    onEntityClick={focusEntity}
-                  />
-                ) : null}
-              </div>
-            ) : null}
+                  ) : null}
+                  {tab === "peers" ? (
+                    <div className="mx-auto max-w-[1200px] px-6 py-8 lg:px-12">
+                      <PeerPanel
+                        subject={report}
+                        comparison={peerComparison}
+                        peers={peerReports}
+                        busy={peerBusy}
+                        step={peerStep}
+                        error={peerError}
+                        onCompare={(tickers) => void comparePeerTickers(tickers)}
+                        onSelectEntity={focusEntity}
+                        onSelectPeerEntity={setSelected}
+                      />
+                    </div>
+                  ) : null}
+                  {tab === "memo" ? (
+                    <MemoTab
+                      report={report}
+                      briefBusy={briefBusy}
+                      briefError={briefError}
+                      onPrepareBrief={() => void prepareBrief()}
+                      onEntityClick={focusEntity}
+                    />
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           </main>
           <StatusBar
             report={report}
@@ -483,7 +491,12 @@ export default function HomePage() {
             </p>
           ) : null}
           {status === "idle" ? (
-            <section className="max-w-2xl px-6 py-10 text-sm leading-relaxed text-zinc-400">
+            <section className="mx-auto max-w-2xl px-6 py-16 text-sm leading-relaxed text-zinc-400">
+              <div className="mb-10 text-center">
+                <h1 className="font-display text-[32px] font-bold leading-tight text-zinc-50">Paste a ticker to write the credit memo.</h1>
+                <p className="mt-2 text-[15px] text-zinc-500">Gatto&rsquo;s seven-step process, automated.</p>
+                <p className="mt-1 text-xs text-zinc-600">{TAGLINE}</p>
+              </div>
               <p>
                 Enter a ticker to read the company&rsquo;s latest 10-K, 10-Q and 8-K, its recent headlines and 90 days of market data.
                 Signal Watch maps every counterparty, financing, regulator and risk it finds, with the sentence each one came from.
