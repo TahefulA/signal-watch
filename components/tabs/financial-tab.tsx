@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { CapitalMetric, Report, Timeline } from "@/types";
 import { RatingGauge, RatioBar, Sparkline, multipleOf, useHistory } from "@/components/capital/financial-metrics-panel";
 import { compactMoney } from "@/lib/node-visuals";
-import { firedPatterns, itemsFromPatterns } from "@/lib/counter-view";
+import { firedPatterns, itemsFromPatterns, sectionItems } from "@/lib/counter-view";
 import { CounterArgumentsCard } from "./counter-arguments-card";
 import { type TimeRange, describeWindow, windowOf } from "@/lib/time-range";
 
@@ -106,7 +106,7 @@ export function FinancialTab({
       />
       <CounterArgumentsCard
         title="what the statements hide"
-        items={itemsFromPatterns(firedPatterns(report.devil, ["financial"]))}
+        items={[...sectionItems(report.devil, ["earnings", "liquidity"]), ...itemsFromPatterns(firedPatterns(report.devil, ["financial"]))]}
         busy={devilBusy}
         empty={report.devil ? "No financial statement pattern fired on the XBRL facts that are tagged for this company." : "The counter-argument has not been written yet."}
       />

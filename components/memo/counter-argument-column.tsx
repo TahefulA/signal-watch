@@ -3,6 +3,7 @@
 import { ChevronDown, ExternalLink, Loader2, Sword } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import type { DevilsAdvocate, MemoSpan, PatternResult, PatternStatus } from "@/types";
+import { STRENGTH_STYLE } from "./devils-case";
 
 interface CounterArgumentColumnProps {
   devil: DevilsAdvocate | null | undefined;
@@ -46,7 +47,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 /** Every pattern and its result, so the reader can see what was checked and what could not be. */
-function PatternList({ patterns }: { patterns: PatternResult[] }) {
+export function PatternList({ patterns }: { patterns: PatternResult[] }) {
   const [open, setOpen] = useState(false);
   const counts = { fired: 0, clear: 0, not_evaluated: 0 };
   for (const p of patterns) counts[p.status]++;
@@ -99,6 +100,73 @@ function PatternList({ patterns }: { patterns: PatternResult[] }) {
   );
 }
 
+/** Beside the memo: the case in short, with links down to each section of the full case. */
+function StructuredSummary({ devil, onEntityClick }: { devil: DevilsAdvocate; onEntityClick: (id: string) => void }) {
+  const sections = devil.sections ?? [];
+  const period = devil.period;
+  return (
+    <>
+      {period?.quarter ? (
+        <p className="font-mono text-[11px] leading-relaxed text-zinc-500">
+          {period.quarter}
+          {period.periodEnd ? ` · quarter ended ${period.periodEnd}` : ""}
+          {period.form && period.filed ? ` · ${period.form} filed ${period.filed}` : ""}
+          {period.daysSinceFiling !== null ? ` · ${period.daysSinceFiling} days old` : ""}
+        </p>
+      ) : null}
+
+      {devil.primer ? (
+        <Section title="Read this first">
+          <p className="text-sm leading-relaxed text-zinc-300">{devil.primer}</p>
+        </Section>
+      ) : null}
+
+      <Section title="Bottom line">
+        <p className="text-[15px] leading-relaxed text-zinc-100">
+          <Argument spans={devil.bottomLine ?? devil.argument} onEntityClick={onEntityClick} />
+        </p>
+      </Section>
+
+      <Section title={`The case, point by point (${sections.length})`}>
+        <ol className="space-y-3">
+          {sections.map((s, i) => (
+            <li key={s.theme}>
+              <a href={`#case-${s.theme}`} className="group block">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-[11px] text-red-500">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-zinc-500">{s.themeLabel}</span>
+                  <span className={`rounded-xs border px-1.5 text-[9px] uppercase tracking-wider ${STRENGTH_STYLE[s.strength].className}`}>{s.strength}</span>
+                </span>
+                <span className="mt-1 block text-[13px] leading-snug text-zinc-200 group-hover:text-zinc-50 group-hover:underline">{s.headline}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      {devil.watchList?.length ? (
+        <Section title="What to watch">
+          <ul className="space-y-2">
+            {devil.watchList.slice(0, 3).map((w, i) => (
+              <li key={i} className="text-[13px] leading-snug text-zinc-200">
+                {w.item}
+                <span className="block font-mono text-[11px] text-zinc-500">{w.when}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      ) : null}
+
+      <a
+        href="#devils-case"
+        className="inline-flex items-center gap-1.5 rounded-xs border border-red-600 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-600 hover:text-white"
+      >
+        Read the full case, with the evidence tables &darr;
+      </a>
+    </>
+  );
+}
+
 /** The right column of the memo: the case against it, always beside the memo. */
 export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick }: CounterArgumentColumnProps) {
   const fired = devil?.patterns.filter((p) => p.status === "fired") ?? [];
@@ -127,9 +195,11 @@ export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick
       {!devil ? (
         <p className="font-mono text-xs text-zinc-500">
           {busy
-            ? "Analyzing... Reading the filings, Form 4s and XBRL facts and checking 35 contradiction patterns."
-            : "The counter-argument is written from the memo, the map, the filing text and 35 contradiction patterns. Every figure must come from those sources."}
+            ? "Analyzing... Reading the filings, Form 4s and XBRL facts, building the quarter-by-quarter tables and checking 35 contradiction patterns. The full case takes about a minute."
+            : "The case against the memo is written from the memo, the map, the quarterly figures, the debt, changes, insider trades, 8-Ks, peers, market data, the filing text and 35 contradiction patterns. Every figure must come from those sources."}
         </p>
+      ) : devil.sections ? (
+        <StructuredSummary devil={devil} onEntityClick={onEntityClick} />
       ) : (
         <>
           <Section title="Counter-argument">

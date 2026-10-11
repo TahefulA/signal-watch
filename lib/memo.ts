@@ -93,7 +93,8 @@ export function toSpans(text: string, ids: Set<string>, names: Map<string, strin
 /** Removes sentences containing a figure that is not in the facts. Returns the cleaned text and how many were removed. */
 export function dropUnsupported(text: string, allowed: Set<string>): { text: string; removed: number } {
   // Split only at sentence ends, so decimals such as 34.1% stay intact.
-  const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z{"\u201c])/);
+  // A single capital before the period is an initial ("Michael C. Bucella"), not a sentence end.
+  const sentences = text.split(/(?<=[.!?])(?<!\b[A-Z]\.)\s+(?=[A-Z{"\u201c])/);
   let removed = 0;
   const kept = sentences.filter((sentence) => {
     const plain = sentence.replace(/\{\{[^|}]+\|?/g, "").replace(/\}\}/g, "");

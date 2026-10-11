@@ -1,4 +1,4 @@
-import type { DevilsAdvocate, PatternCategory, PatternResult, PeerComparison, Report } from "@/types";
+import type { CaseTheme, DevilsAdvocate, PatternCategory, PatternResult, PeerComparison, Report } from "@/types";
 import { parseDisplayMoney } from "./node-visuals";
 
 /**
@@ -16,8 +16,9 @@ export function flaggedIds(devil: DevilsAdvocate | null | undefined): Set<string
   return ids;
 }
 
-/** One concern per sourced claim in the argument. */
+/** One concern per strong or moderate section of the case; older counter-arguments count their sourced claims. */
 export function concernCount(devil: DevilsAdvocate | null | undefined): number {
+  if (devil?.sections) return devil.sections.filter((s) => s.strength !== "weak").length;
   return devil?.citations.length ?? 0;
 }
 
@@ -87,7 +88,7 @@ export function itemsFromPatterns(patterns: PatternResult[]): CounterItemData[] 
 /** Debt patterns that fired, then the argument's claims that cite the capital structure. */
 export function capitalItems(devil: DevilsAdvocate | null | undefined): CounterItemData[] {
   const cited = (devil?.citations ?? [])
-    .filter((c) => !c.entityId && !c.patternId)
+    .filter((c) => !c.entityId && !c.patternId && c.source.endsWith("capital structure"))
     .map((c) => ({
       text: c.claim.charAt(0).toUpperCase() + c.claim.slice(1),
       source: c.url ? { label: c.source, url: c.url } : null,
@@ -125,4 +126,18 @@ export function changesItems(devil: DevilsAdvocate | null | undefined, report: R
       };
     });
   return [...itemsFromPatterns(firedPatterns(devil, [], CHANGE_PATTERNS)), ...worse];
+}
+
+/** The structured case's sections for these themes, each as its headline and plain-English explanation. */
+export function sectionItems(devil: DevilsAdvocate | null | undefined, themes: CaseTheme[]): CounterItemData[] {
+  return (devil?.sections ?? [])
+    .filter((s) => themes.includes(s.theme))
+    .map((s) => {
+      const cite = s.citations.find((c) => c.url);
+      return {
+        text: `${s.headline}${s.plainEnglish ? ` ${s.plainEnglish}` : ""}`,
+        source: cite?.url ? { label: cite.source, url: cite.url } : null,
+        quote: null,
+      };
+    });
 }

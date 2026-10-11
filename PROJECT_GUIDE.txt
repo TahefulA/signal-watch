@@ -145,9 +145,13 @@ DEVIL'S ADVOCATE
   Why: every AI tool agrees with you; this one argues against its own memo.
   Confirmation bias is how funds lose money: Diameter's biggest loss (First
   Brands) came from a missed detail. 35 checks (receivables, insider selling,
-  guarantee scope, maturities...) run on the real data, then Gemini writes the
-  case against the memo with citations. It appears in the top bar, beside the
-  memo, as a "Counter view" on the map, and at the top of each tab.
+  guarantee scope, maturities...) run on the real data. Then Gemini writes a
+  long, structured case against the memo that uses everything the app
+  gathered: the quarter-by-quarter figures, the debt, the map, what changed,
+  insider trades, 8-Ks, peers and the stock price. Each point is explained in
+  plain English for someone who does not know credit. It appears in the top
+  bar, beside the memo, below the memo as the full case, as a "Counter view"
+  on the map, and at the top of each tab.
 
 BRIEF, DASHBOARD, ASK
   Brief: analysts meet management; the brief turns the gaps in the report
@@ -488,10 +492,12 @@ The project's signature feature: the app argues against its own memo.
 Read in this order:
   types/devils-advocate.ts
   lib/devils-advocate-patterns.ts   the 35 checks
+  lib/devils-evidence.ts            the evidence tables, timeline, coverage
   lib/devils-advocate.ts            the Gemini call
   app/api/devils-advocate/route.ts
   lib/counter-view.ts               helpers for the UI
-  components/memo/counter-argument-column.tsx
+  components/memo/counter-argument-column.tsx   the summary beside the memo
+  components/memo/devils-case.tsx               the full case below the memo
 
 How it works:
   1. loadPatternContext() gathers data: the latest filing and the one before,
@@ -504,19 +510,42 @@ How it works:
        - Insider selling cluster (3+ insiders selling within ~30 days, Form 4)
        - Auditor change (8-K item 4.01)
        - New risk language versus the previous filing
-  3. Gemini gets the memo, the map, the fired patterns and the filing text,
-     and writes a ~200-word counter-argument. Each citation must point to an
-     entity, a pattern or the capital structure, so the source labels and
-     links are built by our code, never invented by the model.
-  4. It also classifies the memo's own stance (Stable, Caution, At risk,
+  3. buildEvidence() (lib/devils-evidence.ts) builds, without the model:
+       - the period: which quarter (e.g. Q2 2026), its end date, which filing,
+         when it was filed and how many days ago
+       - evidence tables ("exhibits") by theme, 8 quarters each, with the
+         change against the prior quarter and the year-earlier quarter
+         already computed: revenue, EBITDA, margin, interest, receivables,
+         cash, current ratio, operating cash flow, capital spending, free
+         cash flow, the debt and when it is due, the map's entities, what
+         changed, insider trades, 8-Ks (item codes in words), peers, market
+       - a dated timeline of filings, 8-Ks, insider trades and debt due dates
+       - "what was read": every source, and which ones were not available
+  4. Gemini gets all of that plus the memo, the patterns and the filing text,
+     and writes a long case in fixed themes, in this order:
+       earnings, liquidity, debt, counterparties, changes, behavior, peers,
+       market
+     Each section has: a headline, what the memo says, the counter-argument
+     (150-250 words, naming quarters and dates), "in plain English", "why it
+     matters to a lender", a strength (strong, moderate, weak) and sources.
+     Then: a primer ("read this first"), the bottom line, the other side (the
+     best answer to the case), and what to watch with when it will be known.
+  5. Checks: every sentence with a number not in the evidence is removed; a
+     theme with no evidence table gets no section; source labels and links
+     are built by our code, never written by the model. A glossary of the
+     terms the case actually uses is added from a fixed list.
+  6. It also classifies the memo's own stance (Stable, Caution, At risk,
      Distressed) for the badge in the top bar.
 
-Where it shows: the top-bar badge, the right column of the Memo tab, the
-"Counter view" toggle on the Graph tab, and a red card at the top of the
-Financial, Capital, Changes and Peers tabs.
+Where it shows: the top-bar badge, the right column of the Memo tab (a
+summary), the full case below the memo, the "Counter view" toggle on the
+Graph tab, and a red card at the top of the Financial, Capital, Changes and
+Peers tabs showing the matching section. Add peers on the Peers tab and press
+"Argue again" to bring them into the case.
 
 Test it from the command line:
   npx tsx --env-file=.env.local scripts/run-patterns.ts <report id>
+  npx tsx --env-file=.env.local scripts/run-case.ts <report id> [peer ids]
 
 
 ------------------------------------------------------------------------------
@@ -603,6 +632,7 @@ All run as: npx tsx --env-file=.env.local scripts/<name>.ts ...
   analyze.ts            run the pipeline for a ticker from the terminal
   refresh-capital.ts    rebuild only the debt section of saved reports
   run-patterns.ts       print the 35 Devil's Advocate checks for a report
+  run-case.ts           write the full Devil's Advocate case without saving it
   graph-query.ts        query the graph, e.g. every CUSTOMER_OF edge
   backfill-graph.ts     rewrite node/edge rows for saved reports
   check-alerts.ts       test the new-filing alert against a baseline report
@@ -819,8 +849,8 @@ D. ARCHITECTURE AND TECH
 
 29. How long does it take and how does it scale?
     15-40 seconds for a fresh analysis, near-instant for a saved one. The
-    timeline builds in seconds and is saved; the Devil's Advocate takes about
-    10 seconds. Analyses are independent, so they scale horizontally on
+    timeline builds in seconds and is saved; the full Devil's Advocate case
+    takes 30-60 seconds and is saved on the report. Analyses are independent, so they scale horizontally on
     serverless functions; the limits are SEC rate limits and model quotas.
 
 30. What does it cost to run?

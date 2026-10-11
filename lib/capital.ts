@@ -297,8 +297,8 @@ export const REVENUE = [
   // Banks report revenue net of interest expense.
   "RevenuesNetOfInterestExpense",
 ];
-const OPERATING_CASH = ["NetCashProvidedByUsedInOperatingActivities", "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"];
-const CAPEX = ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets"];
+export const OPERATING_CASH = ["NetCashProvidedByUsedInOperatingActivities", "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"];
+export const CAPEX = ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets"];
 
 /** The first instrument maturing after a date: days away when the day is known, otherwise the month or year. */
 function nextMaturity(instruments: DebtInstrument[], from: string | null): { name: string; maturity: string; display: string } | null {
@@ -333,7 +333,7 @@ function xbrlDebt(book: FactBook, cik: string, date: string): { total: number; c
   return null;
 }
 
-const INTEREST = ["InterestExpenseNonoperating", "InterestExpense", "InterestExpenseDebt", "InterestAndDebtExpense"];
+export const INTEREST = ["InterestExpenseNonoperating", "InterestExpense", "InterestExpenseDebt", "InterestAndDebtExpense"];
 
 /** Ratios built from the instruments and the company's XBRL figures. Any input that is missing shows as not available. */
 export function computeMetrics(

@@ -47,6 +47,8 @@ interface GeminiResponse {
 export interface GenerateOptions {
   /** Lower reasoning effort for drafting tasks where latency matters more than depth. */
   thinking?: "low" | "high";
+  /** Per-call timeout for long outputs; defaults to GEMINI_TIMEOUT_MS. */
+  timeoutMs?: number;
 }
 
 export async function generateJson(system: string, prompt: string, schema: Schema, options: GenerateOptions = {}): Promise<unknown> {
@@ -81,7 +83,7 @@ async function callModel(model: string, system: string, prompt: string, schema: 
     response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-      signal: AbortSignal.timeout(TIMEOUT_MS),
+      signal: AbortSignal.timeout(options.timeoutMs ?? TIMEOUT_MS),
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],

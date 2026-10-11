@@ -19,7 +19,7 @@ import { MemoTab } from "@/components/tabs/memo-tab";
 import { Toast } from "@/components/ui/toast";
 import { DualVerdictBadge } from "@/components/ui/dual-verdict-badge";
 import { CounterArgumentsCard } from "@/components/tabs/counter-arguments-card";
-import { concernCount, peerConcerns, stanceWord } from "@/lib/counter-view";
+import { concernCount, peerConcerns, stanceWord, sectionItems } from "@/lib/counter-view";
 import { peerContextFor } from "@/lib/peer-view";
 
 type Status = "idle" | "loading" | "ready" | "error";
@@ -414,7 +414,7 @@ export default function HomePage() {
       const response = await fetch("/api/devils-advocate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportId: report.id }),
+        body: JSON.stringify({ reportId: report.id, peerReportIds: peerReports.map((p) => p.id) }),
       });
       const body: unknown = await response.json();
       if (!response.ok || typeof body !== "object" || body === null || !("devil" in body)) {
@@ -427,14 +427,15 @@ export default function HomePage() {
     } finally {
       setDevilBusy(false);
     }
-  }, [report]);
+  }, [report, peerReports]);
 
   // Every report gets its counter-argument as soon as it loads, so it is beside the memo and on every tab.
   const argued = useRef<string | null>(null);
   useEffect(() => {
     if (!report || status !== "ready" || devilBusy || argued.current === report.id) return;
     argued.current = report.id;
-    if (!report.devil?.memoStance) void argue();
+    // Counter-arguments written before the structured case are rewritten once.
+    if (!report.devil?.sections) void argue();
   }, [report, status, devilBusy, argue]);
 
   const watchCompany = useCallback(async (ticker: string) => {
@@ -551,7 +552,7 @@ export default function HomePage() {
                         <div className="mt-10">
                           <CounterArgumentsCard
                             title="peer comparison"
-                            items={peerConcerns(peerComparison).map((text) => ({ text }))}
+                            items={[...sectionItems(report.devil, ["peers"]), ...peerConcerns(peerComparison).map((text) => ({ text }))]}
                             empty={`${report.graph.company.ticker} is not the weakest of the companies compared on debt to EBITDA, interest coverage, liquidity or revenue concentration.`}
                           />
                         </div>

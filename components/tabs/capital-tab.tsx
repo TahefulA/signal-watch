@@ -4,7 +4,7 @@ import { ExternalLink } from "lucide-react";
 import type { DebtInstrument, DebtKind, MaturityRow, Report, Seniority } from "@/types";
 import { CitationBlock } from "@/components/ui/citation";
 import { compactMoney } from "@/lib/node-visuals";
-import { capitalItems } from "@/lib/counter-view";
+import { capitalItems, sectionItems, itemsFromPatterns, firedPatterns } from "@/lib/counter-view";
 import { CounterArgumentsCard } from "./counter-arguments-card";
 import { SectionTitle, TabHeader } from "./financial-tab";
 
@@ -81,7 +81,7 @@ export function CapitalTab({ report, devilBusy = false }: { report: Report; devi
 
       <CounterArgumentsCard
         title="capital structure concerns"
-        items={capitalItems(report.devil)}
+        items={[...sectionItems(report.devil, ["debt"]), ...itemsFromPatterns(firedPatterns(report.devil, ["debt"], ["off_balance_sheet", "restricted_cash"])).concat(report.devil?.sections ? [] : capitalItems(report.devil))]}
         busy={devilBusy}
         empty={report.devil ? "No debt pattern fired: maturities, floating rate share, guarantees, subordination and pension funding were checked." : "The counter-argument has not been written yet."}
       />

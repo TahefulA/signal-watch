@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { MemoSpan, Report } from "@/types";
 import { Button } from "@/components/ui/button";
 import { CounterArgumentColumn } from "@/components/memo/counter-argument-column";
+import { DevilsCase } from "@/components/memo/devils-case";
 
 interface MemoTabProps {
   report: Report;
@@ -41,6 +42,38 @@ function Spans({ spans, onEntityClick }: { spans: MemoSpan[]; onEntityClick: (id
 
 const text = (spans: MemoSpan[]) => spans.map((s) => s.text).join("");
 
+/** The Devil's Advocate as plain text for Copy memo, with every section and its evidence tables. */
+function devilText(report: Report): string[] {
+  const d = report.devil;
+  if (!d?.argument.length) return [];
+  if (!d.sections) return ["DEVIL'S ADVOCATE", text(d.argument), ...(d.whatToWatch ? [`What to watch: ${d.whatToWatch}`] : []), ""];
+  const p = d.period;
+  return [
+    "DEVIL'S ADVOCATE: THE CASE AGAINST THE MEMO",
+    ...(p ? [`Based on ${p.quarter ?? "the latest quarter"}${p.periodEnd ? `, quarter ended ${p.periodEnd}` : ""}${p.form && p.filed ? `, ${p.form} filed ${p.filed}` : ""}. Written ${p.writtenOn}.`] : []),
+    "",
+    ...(d.primer ? ["READ THIS FIRST", d.primer, ""] : []),
+    "BOTTOM LINE",
+    text(d.bottomLine ?? d.argument),
+    "",
+    ...d.sections.flatMap((s, i) => [
+      `${i + 1}. ${s.themeLabel.toUpperCase()} (${s.strength})`,
+      s.headline,
+      ...(s.memoSays ? [`What the memo says: ${s.memoSays}`] : []),
+      text(s.argument),
+      ...(s.plainEnglish ? [`In plain English: ${s.plainEnglish}`] : []),
+      ...(s.whyItMatters ? [`Why it matters to a lender: ${s.whyItMatters}`] : []),
+      ...s.exhibits.flatMap((x) => ["", `  ${x.title}`, `  ${x.columns.join(" | ")}`, ...x.rows.map((r) => `  ${r.join(" | ")}`)]),
+      ...(s.citations.length ? [`Sources: ${s.citations.map((c) => c.source).join("; ")}`] : []),
+      "",
+    ]),
+    ...(d.events?.length ? ["TIMELINE", ...d.events.map((e) => `${e.date}  ${e.text}`), ""] : []),
+    ...(d.rebuttal ? ["THE OTHER SIDE", d.rebuttal, ""] : []),
+    ...(d.watchList?.length ? ["WHAT TO WATCH", ...d.watchList.map((w) => `- ${w.item} (${w.when}): ${w.signal}`), ""] : []),
+    ...(d.glossary?.length ? ["TERMS", ...d.glossary.map((g) => `${g.term}: ${g.meaning}`), ""] : []),
+  ];
+}
+
 /** The written output in a reading column: signal summary, the five memo sections and meeting prep. */
 export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, devilBusy, devilError, onArgue, onEntityClick }: MemoTabProps) {
   const [copied, setCopied] = useState(false);
@@ -54,14 +87,7 @@ export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, devilBu
       "",
       ...(report.signal?.length ? ["SIGNAL SUMMARY", text(report.signal), ""] : []),
       ...report.memo.sections.flatMap((s) => [s.title.toUpperCase(), text(s.spans), ""]),
-      ...(report.devil?.argument.length
-        ? [
-            "DEVIL'S ADVOCATE",
-            text(report.devil.argument),
-            ...(report.devil.whatToWatch ? [`What to watch: ${report.devil.whatToWatch}`] : []),
-            "",
-          ]
-        : []),
+      ...devilText(report),
       ...(brief?.questions.length ? ["MEETING PREP", ...brief.questions.map((q, i) => `${i + 1}. ${text(q.spans)}`)] : []),
     ];
     try {
@@ -170,6 +196,8 @@ export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, devilBu
           <CounterArgumentColumn devil={report.devil} busy={devilBusy} error={devilError} onRun={onArgue} onEntityClick={onEntityClick} />
         </div>
       </div>
+
+      {report.devil?.sections?.length ? <DevilsCase devil={report.devil} onEntityClick={onEntityClick} /> : null}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CitationBlock } from "@/components/ui/citation";
 import { TYPE_LABELS } from "@/lib/entity-style";
 import { relationText } from "@/lib/node-visuals";
-import { changesItems } from "@/lib/counter-view";
+import { changesItems, sectionItems } from "@/lib/counter-view";
 import { CounterArgumentsCard } from "./counter-arguments-card";
 import { TabHeader } from "./financial-tab";
 
@@ -143,7 +143,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
   const counterCard = (
     <CounterArgumentsCard
       title="what changed for the worse"
-      items={changesItems(report.devil, report)}
+      items={[...sectionItems(report.devil, ["changes", "behavior"]), ...changesItems(report.devil, report)]}
       busy={devilBusy}
       empty={report.devil ? "No new risk language, insider selling cluster, officer departures, auditor change or new debt was found." : "The counter-argument has not been written yet."}
     />
