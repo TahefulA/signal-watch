@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { CASH, DEPRECIATION, OPERATING_INCOME, REVENUE } from "@/lib/capital";
+import { CAPEX, CASH, DEPRECIATION, OPERATING_CASH, OPERATING_INCOME, REVENUE } from "@/lib/capital";
 import { type SeriesPoint, fetchFacts, instantSeries, quarterlySeries } from "@/lib/xbrl";
 
 export const runtime = "nodejs";
@@ -14,6 +14,8 @@ export interface HistoryResponse {
   cash: SeriesPoint[];
   /** Current assets over current liabilities at each balance sheet date. */
   currentRatio: SeriesPoint[];
+  /** Three-month operating cash flow less capital spending, where both are tagged. */
+  fcf: SeriesPoint[];
 }
 
 const QUARTERS = 12;
@@ -59,6 +61,15 @@ export async function GET(request: Request) {
     })
     .filter((p): p is SeriesPoint => p !== null);
 
-  const body: HistoryResponse = { revenue, ebitda, ebitdaMargin, cash: instantSeries(book, CASH, through, QUARTERS), currentRatio };
+  const ocf = quarterlySeries(book, OPERATING_CASH, through, QUARTERS);
+  const capex = quarterlySeries(book, CAPEX, through, QUARTERS);
+  const fcf = ocf
+    .map((o) => {
+      const c = capex.find((x) => x.end === o.end);
+      return c ? { end: o.end, value: o.value - c.value } : null;
+    })
+    .filter((p): p is SeriesPoint => p !== null);
+
+  const body: HistoryResponse = { revenue, ebitda, ebitdaMargin, cash: instantSeries(book, CASH, through, QUARTERS), currentRatio, fcf };
   return NextResponse.json(body, { headers: { "Cache-Control": "public, s-maxage=43200" } });
 }

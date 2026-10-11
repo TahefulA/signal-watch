@@ -2,25 +2,31 @@
 
 import type { ReactNode } from "react";
 import type { CapitalMetric, Report, Timeline } from "@/types";
-import { RatingGauge, RatioBar, Sparkline, multipleOf, useHistory } from "@/components/capital/financial-metrics-panel";
+import { RatingGauge, RatioBar, multipleOf, useHistory } from "@/components/capital/financial-metrics-panel";
 import { compactMoney } from "@/lib/node-visuals";
 import { firedPatterns, itemsFromPatterns, sectionItems } from "@/lib/counter-view";
 import { CounterArgumentsCard } from "./counter-arguments-card";
+import { TrendChart } from "@/components/charts/trend-chart";
 import { type TimeRange, describeWindow, windowOf } from "@/lib/time-range";
 
 type Key = CapitalMetric["key"];
 
 export function TabHeader({ title, meta }: { title: string; meta?: string | null }) {
   return (
-    <div className="mb-6 flex flex-wrap items-baseline justify-between gap-2 border-b border-zinc-800 pb-4">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{title}</h2>
-      {meta ? <p className="font-mono text-[11px] text-zinc-600">{meta}</p> : null}
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-2 border-b border-zinc-800 pb-4">
+      <h2 className="font-display text-[22px] font-semibold leading-none tracking-[-0.01em] text-zinc-50 first-letter:uppercase">{title}</h2>
+      {meta ? <p className="font-mono text-[11px] text-zinc-500">{meta}</p> : null}
     </div>
   );
 }
 
 export function SectionTitle({ children }: { children: string }) {
-  return <h3 className="mb-4 mt-10 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{children}</h3>;
+  return (
+    <h3 className="mb-4 mt-10 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+      <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden />
+      {children}
+    </h3>
+  );
 }
 
 function pctChange(now: number, before: number): string | null {
@@ -33,7 +39,7 @@ function MetricCard({ metric, delta, deltaTone, spark }: { metric: CapitalMetric
   if (!metric) return null;
   const missing = metric.display === "Not available" || metric.display === "Not reconciled" || metric.display === "n/m";
   return (
-    <div className="rounded-xs border border-zinc-800 bg-zinc-900 p-5" title={metric.note}>
+    <div className="surface rounded-xs border border-zinc-800 p-5" title={metric.note}>
       <p className="text-[11px] uppercase tracking-wider text-zinc-500">{metric.label}</p>
       <p className={`mt-2 font-mono text-2xl font-semibold ${missing ? "text-zinc-500" : "text-zinc-50"}`}>{metric.display}</p>
       {delta ? <p className={`mt-1 font-mono text-[11px] ${deltaTone === "up" ? "text-emerald-500" : deltaTone === "down" ? "text-red-400" : "text-zinc-500"}`}>{delta}</p> : null}
@@ -84,13 +90,20 @@ export function FinancialTab({
       .map((p) => ({ ticker: p.graph.company.ticker, value: multipleOf(p.capital?.metrics.find((x) => x.key === key)?.display ?? "") }))
       .filter((p): p is { ticker: string; value: number } => p.value !== null);
 
+  // Charts need a run of quarters: a window shorter than four falls back to the last eight.
+  const windowed = inWindow(history?.revenue ?? []).length >= 4;
+  const chartPoints = <T extends { end: string }>(points: T[]) => (windowed ? inWindow(points) : points.slice(-8));
+  const quarterLabel = (end: string) =>
+    timeline?.quarters.find((q) => q.periodEnd === end)?.label ??
+    new Date(`${end}T00:00:00Z`).toLocaleString("en-US", { month: "short", year: "2-digit", timeZone: "UTC" }).replace(" ", " '");
+  const pctText = (v: number) => `${v.toFixed(1)}%`;
+  const multipleText = (v: number) => `${v.toFixed(2)}x`;
   const rev = inWindow(history?.revenue ?? []);
   const cash = inWindow(history?.cash ?? []);
   const ebitdaQ = inWindow(history?.ebitda ?? []);
   const marginQ = inWindow(history?.ebitdaMargin ?? []);
   const ratioQ = inWindow(history?.currentRatio ?? []);
   const ratioAvg = ratioQ.length >= 2 ? { value: ratioQ.reduce((a, p) => a + p.value, 0) / ratioQ.length, label: `over ${ratioQ.length} quarter ends` } : null;
-  const trendHint = rev.length < 2 ? "Choose a longer time range on the Graph tab for quarterly trends." : null;
   const lastTwo = <T,>(a: T[]) => (a.length >= 2 ? [a[a.length - 2], a[a.length - 1]] : null);
   const revPair = lastTwo(rev);
   const cashPair = lastTwo(cash);
@@ -110,27 +123,20 @@ export function FinancialTab({
         busy={devilBusy}
         empty={report.devil ? "No financial statement pattern fired on the XBRL facts that are tagged for this company." : "The counter-argument has not been written yet."}
       />
-      <p className="-mt-3 mb-5 font-mono text-[11px] text-zinc-500">
-        Trends: {rangeText}
-        {trendHint ? <span className="text-zinc-600"> · {trendHint}</span> : null}
-      </p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard
           metric={m("revenue")}
           delta={revPair && revDelta ? `Latest quarter ${compactMoney(revPair[1].value)}, ${revDelta} vs prior quarter` : null}
           deltaTone={revPair ? (revPair[1].value >= revPair[0].value ? "up" : "down") : null}
-          spark={rev.length >= 2 ? <Sparkline points={rev} label="Quarterly revenue" large /> : null}
         />
         <MetricCard
           metric={m("ebitda")}
           delta={ebitdaQ.length >= 2 ? `Latest quarter ${compactMoney(ebitdaQ[ebitdaQ.length - 1].value)} · operating income plus D&A` : "Operating income plus depreciation and amortization"}
-          spark={ebitdaQ.length >= 2 ? <Sparkline points={ebitdaQ} label="Quarterly EBITDA" large /> : null}
         />
         <MetricCard
           metric={m("ebitda_margin")}
           delta={marginQ.length >= 2 ? `Latest quarter ${marginQ[marginQ.length - 1].value.toFixed(1)}% · EBITDA over revenue` : "EBITDA over revenue, last 12 months"}
-          spark={marginQ.length >= 2 ? <Sparkline points={marginQ} label="Quarterly EBITDA margin (%)" large percent /> : null}
         />
         <MetricCard metric={m("total_debt")} />
         <MetricCard metric={m("net_debt")} delta="Total debt less cash" />
@@ -138,9 +144,73 @@ export function FinancialTab({
           metric={m("cash")}
           delta={cashMove !== null ? `${cashMove >= 0 ? "+" : "-"}${compactMoney(Math.abs(cashMove))} vs prior quarter end` : null}
           deltaTone={cashMove === null ? null : cashMove >= 0 ? "up" : "down"}
-          spark={cash.length >= 2 ? <Sparkline points={cash} label="Quarter-end cash" large /> : null}
         />
       </div>
+
+      <SectionTitle>Quarter by quarter</SectionTitle>
+      {history ? (
+        <>
+          <p className="-mt-2 mb-4 font-mono text-[11px] text-zinc-500">
+            {windowed ? rangeText : "Last 8 quarters"} · three-month figures from the company&rsquo;s XBRL tags · hover a quarter for its figures and changes
+          </p>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <TrendChart
+              title="Revenue and EBITDA"
+              kind="bar"
+              series={[
+                { label: "Revenue", color: "#2563eb", points: chartPoints(history.revenue) },
+                { label: "EBITDA", color: "#059669", points: chartPoints(history.ebitda) },
+              ]}
+              format={compactMoney}
+              change="pct"
+              quarterLabel={quarterLabel}
+              note="EBITDA is operating income plus depreciation and amortization, where both are tagged. Red bars are losses."
+            />
+            <TrendChart
+              title="EBITDA margin"
+              kind="line"
+              series={[{ label: "EBITDA margin", color: "#7c3aed", points: chartPoints(history.ebitdaMargin) }]}
+              format={pctText}
+              tick={(v) => `${v.toFixed(0)}%`}
+              change="pts"
+              quarterLabel={quarterLabel}
+              note="How much of each dollar of revenue is left as EBITDA. Below zero, operations lose money before interest."
+            />
+            <TrendChart
+              title="Free cash flow"
+              kind="bar"
+              series={[{ label: "Free cash flow", color: "#059669", points: chartPoints(history.fcf ?? []) }]}
+              format={compactMoney}
+              change="diff"
+              quarterLabel={quarterLabel}
+              note="Operating cash flow less capital spending: cash left to repay lenders. Red quarters burned cash."
+            />
+            <TrendChart
+              title="Cash at quarter end"
+              kind="bar"
+              series={[{ label: "Cash", color: "#2563eb", points: chartPoints(history.cash) }]}
+              format={compactMoney}
+              change="pct"
+              quarterLabel={quarterLabel}
+              note="Cash and equivalents on the balance sheet at each quarter end."
+            />
+            <TrendChart
+              title="Current ratio"
+              kind="line"
+              series={[{ label: "Current ratio", color: "#2563eb", points: chartPoints(history.currentRatio) }]}
+              format={multipleText}
+              tick={(v) => `${v.toFixed(1)}x`}
+              change="diff"
+              quarterLabel={quarterLabel}
+              reference={{ value: 1, label: "1.0x: short-term bills covered" }}
+              className="lg:col-span-2"
+              note="Current assets over current liabilities. Below 1.0x, bills due within a year exceed assets that turn into cash within a year."
+            />
+          </div>
+        </>
+      ) : (
+        <p className="font-mono text-xs text-zinc-500">Loading quarterly figures from XBRL...</p>
+      )}
 
       <SectionTitle>Credit metrics</SectionTitle>
       <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">

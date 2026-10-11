@@ -66,14 +66,120 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Page texture: a fine grain over a faint 48px grid, fixed to the window so
+ * it does not scroll. Both sit on the background colour, behind everything.
+ */
+:root {
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.045 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --grid-line: rgb(var(--zinc-800) / 0.35);
+}
+
+:root[data-theme="light"] {
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.035 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --grid-line: rgb(var(--zinc-800) / 0.5);
+}
+
 @layer base {
   body {
     @apply bg-zinc-950 font-sans text-zinc-100 antialiased;
+    background-image:
+      var(--grain),
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size:
+      180px 180px,
+      48px 48px,
+      48px 48px;
+    background-attachment: fixed;
+  }
+
+  /* The brand line: 2px of red across the top of every page. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: #dc2626;
+    z-index: 60;
+    pointer-events: none;
+  }
+
+  /* Figures line up in columns. */
+  .font-mono,
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 1px solid rgb(var(--zinc-400));
+    outline-offset: 2px;
+  }
+
+  /* Thin scrollbars in the zinc scale. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--zinc-700)) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--zinc-700));
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   ::selection {
     @apply bg-zinc-700 text-zinc-50;
   }
+}
+
+/* Cards: a translucent panel over the page texture, with a lighter top edge for depth. No shadow. */
+.surface {
+  background-color: rgb(var(--zinc-900) / 0.7);
+  border-top-color: rgb(var(--zinc-700));
+  transition: border-color 150ms ease-out;
+}
+
+.surface:hover {
+  border-color: rgb(var(--zinc-700));
+}
+
+/* The active tab sits on a faint panel above its red underline. */
+.tab-active {
+  background: linear-gradient(to top, rgb(220 38 38 / 0.1), transparent 70%);
+}
+
+/* Charts: bars grow once from the zero line, lines draw once. */
+.chart-bar {
+  transform-box: fill-box;
+  animation: bar-grow 400ms ease-out backwards;
+}
+
+@keyframes line-draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+.chart-line {
+  animation: line-draw 700ms ease-out both;
+}
+
+.chart-readout {
+  animation: fade-in 120ms ease-out both;
 }
 
 .react-flow__attribution {
@@ -445,6 +551,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .chart-bar,
+  .chart-line,
+  .chart-readout,
   .hover-card,
   .quarter-bar,
   .quarter-cell,

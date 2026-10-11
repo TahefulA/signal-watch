@@ -54,7 +54,7 @@ export function TabBar({ active, empty, dot, onChange }: TabBarProps) {
               onClick={() => onChange(t.key)}
               className={`-mb-px inline-flex shrink-0 items-center gap-1.5 rounded-t-xs border-b-2 px-4 text-[13px] transition-colors duration-150 ease-out ${
                 selected
-                  ? "border-red-600 font-semibold text-zinc-50"
+                  ? "tab-active border-red-600 font-semibold text-zinc-50"
                   : `border-transparent font-medium hover:bg-zinc-900 hover:text-zinc-200 ${empty[t.key] ? "text-zinc-600" : "text-zinc-400"}`
               }`}
             >
