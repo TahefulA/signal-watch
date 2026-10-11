@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { AnalyzeEvent, Entity, MeetingBrief, PeerComparison, Report, Timeline } from "@/types";
+import type { AnalyzeEvent, DevilsAdvocate, Entity, MeetingBrief, PeerComparison, Report, Timeline } from "@/types";
 import { CommandPalette } from "@/components/command-palette";
 import { PIPELINE_STEPS, PipelineProgress } from "@/components/layout/pipeline-progress";
 import { StatusBar } from "@/components/layout/status-bar";
@@ -346,6 +346,32 @@ export default function HomePage() {
     }
   }, [report, peerReports]);
 
+  const [devilBusy, setDevilBusy] = useState(false);
+  const [devilError, setDevilError] = useState<string | null>(null);
+
+  const argue = useCallback(async () => {
+    if (!report) return;
+    setDevilBusy(true);
+    setDevilError(null);
+    try {
+      const response = await fetch("/api/devils-advocate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reportId: report.id }),
+      });
+      const body: unknown = await response.json();
+      if (!response.ok || typeof body !== "object" || body === null || !("devil" in body)) {
+        throw new Error(typeof body === "object" && body !== null && "error" in body ? String((body as { error: unknown }).error) : "");
+      }
+      const { devil } = body as { devil: DevilsAdvocate };
+      setReport((current) => (current ? { ...current, devil } : current));
+    } catch (error) {
+      setDevilError(error instanceof Error && error.message ? error.message : "The counter-argument could not be written. Please try again.");
+    } finally {
+      setDevilBusy(false);
+    }
+  }, [report]);
+
   const watchCompany = useCallback(async (ticker: string) => {
     try {
       const response = await fetch("/api/watchlist", {
@@ -455,6 +481,9 @@ export default function HomePage() {
                       briefBusy={briefBusy}
                       briefError={briefError}
                       onPrepareBrief={() => void prepareBrief()}
+                    devilBusy={devilBusy}
+                    devilError={devilError}
+                    onArgue={() => void argue()}
                       onEntityClick={focusEntity}
                     />
                   ) : null}

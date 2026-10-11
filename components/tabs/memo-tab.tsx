@@ -4,12 +4,16 @@ import { Copy, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import type { MemoSpan, Report } from "@/types";
 import { Button } from "@/components/ui/button";
+import { DevilsAdvocatePanel } from "@/components/memo/devils-advocate-panel";
 
 interface MemoTabProps {
   report: Report;
   briefBusy: boolean;
   briefError: string | null;
   onPrepareBrief: () => void;
+  devilBusy: boolean;
+  devilError: string | null;
+  onArgue: () => void;
   /** Opens an entity on the Graph tab. */
   onEntityClick: (id: string) => void;
 }
@@ -38,7 +42,7 @@ function Spans({ spans, onEntityClick }: { spans: MemoSpan[]; onEntityClick: (id
 const text = (spans: MemoSpan[]) => spans.map((s) => s.text).join("");
 
 /** The written output in a reading column: signal summary, the five memo sections and meeting prep. */
-export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, onEntityClick }: MemoTabProps) {
+export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, devilBusy, devilError, onArgue, onEntityClick }: MemoTabProps) {
   const [copied, setCopied] = useState(false);
   const company = report.graph.company;
   const brief = report.brief;
@@ -50,6 +54,9 @@ export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, onEntit
       "",
       ...(report.signal?.length ? ["SIGNAL SUMMARY", text(report.signal), ""] : []),
       ...report.memo.sections.flatMap((s) => [s.title.toUpperCase(), text(s.spans), ""]),
+      ...(report.devil?.argument.length
+        ? ["DEVIL'S ADVOCATE", text(report.devil.argument), ...(report.devil.whatToWatch ? [`What to watch: ${report.devil.whatToWatch}`] : []), ""]
+        : []),
       ...(brief?.questions.length ? ["MEETING PREP", ...brief.questions.map((q, i) => `${i + 1}. ${text(q.spans)}`)] : []),
     ];
     try {
@@ -98,6 +105,8 @@ export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, onEntit
           </p>
         </section>
       ))}
+
+      <DevilsAdvocatePanel devil={report.devil} busy={devilBusy} error={devilError} onRun={onArgue} onEntityClick={onEntityClick} />
 
       <section className="mt-10 border-t border-zinc-800 pt-10">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

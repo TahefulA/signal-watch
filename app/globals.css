@@ -22,6 +22,7 @@
 
 :root {
   --canvas-vignette: rgba(0, 0, 0, 0.3);
+  --devil-bg: #1c0a0a;
   color-scheme: dark;
 }
 
@@ -38,6 +39,7 @@
   --zinc-900: 244 244 245;
   --zinc-950: 250 250 250;
   --canvas-vignette: rgba(0, 0, 0, 0.05);
+  --devil-bg: #fef2f2;
   color-scheme: light;
 }
 
