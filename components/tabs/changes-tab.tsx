@@ -1,6 +1,7 @@
 "use client";
 
-import type { ChangeKind, EntityDiff, Report } from "@/types";
+import { useState } from "react";
+import type { ChangeKind, EntityDiff, Report, Timeline } from "@/types";
 import { Button } from "@/components/ui/button";
 import { CitationBlock } from "@/components/ui/citation";
 import { TYPE_LABELS } from "@/lib/entity-style";
@@ -20,6 +21,78 @@ interface ChangesTabProps {
   error: string | null;
   onCompare: () => void;
   onSelectEntity: (id: string) => void;
+  timeline: Timeline | null;
+}
+
+/**
+ * Every periodic filing as a dot. Selecting one lists the entities on today's
+ * map that its filing names for the first time, and those the previous filing
+ * named but this one does not. Mentions only: the full comparison below covers
+ * the latest quarter.
+ */
+function ChangesTimeline({ report, timeline, onSelectEntity }: { report: Report; timeline: Timeline; onSelectEntity: (id: string) => void }) {
+  const q = timeline.quarters;
+  const [selected, setSelected] = useState(q.length - 1);
+  const nodes = report.graph.nodes.filter((n) => !n.isCentral);
+  const first = (id: string) => timeline.presence[id]?.findIndex(Boolean) ?? -1;
+  const firstNamed = nodes.filter((n) => first(n.id) === selected);
+  const dropped = selected > 0 ? nodes.filter((n) => timeline.presence[n.id]?.[selected - 1] && !timeline.presence[n.id]?.[selected]) : [];
+  const counts = q.map((_, i) => nodes.filter((n) => first(n.id) === i).length);
+  const at = (i: number) => (q.length <= 1 ? 50 : (i / (q.length - 1)) * 100);
+  const name = (id: string, label: string) => (
+    <button key={id} type="button" onClick={() => onSelectEntity(id)} className="text-zinc-100 underline decoration-zinc-700 underline-offset-4 hover:decoration-zinc-400">
+      {label}
+    </button>
+  );
+  return (
+    <section className="mb-10 rounded-xs border border-zinc-800 bg-zinc-900 px-5 py-4">
+      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Changes timeline</h3>
+      <div className="relative mx-4 mt-6 h-6">
+        <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-zinc-700" aria-hidden />
+        {q.map((quarter, i) => (
+          <button
+            key={quarter.label}
+            type="button"
+            onClick={() => setSelected(i)}
+            aria-pressed={selected === i}
+            title={`${quarter.label}: ${counts[i]} entities on today's map first named in this ${quarter.form}`}
+            className={`absolute top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border ${selected === i ? "h-3.5 w-3.5 border-red-600 bg-red-600" : counts[i] ? "h-2.5 w-2.5 border-zinc-300 bg-zinc-300" : "h-2.5 w-2.5 border-zinc-600 bg-zinc-900"}`}
+            style={{ left: `${at(i)}%` }}
+          />
+        ))}
+      </div>
+      <div className="relative mx-4 h-4">
+        {q.map((quarter, i) =>
+          (q.length - 1 - i) % 2 === 0 || i === selected ? (
+            <span key={quarter.label} className={`absolute -translate-x-1/2 whitespace-nowrap font-mono text-[10px] ${i === selected ? "text-zinc-100" : "text-zinc-500"}`} style={{ left: `${at(i)}%` }}>
+              {quarter.label}
+            </span>
+          ) : null,
+        )}
+      </div>
+      <div className="mt-4 grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">
+            First named in the {q[selected].label} {q[selected].form} ({firstNamed.length})
+          </p>
+          <p className="mt-2 leading-relaxed text-zinc-400">
+            {firstNamed.length ? firstNamed.map((n, i) => <span key={n.id}>{i ? ", " : ""}{name(n.id, n.name)}</span>) : "None of today's entities."}
+          </p>
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-red-600">
+            Named the filing before, not in this one ({dropped.length})
+          </p>
+          <p className="mt-2 leading-relaxed text-zinc-400">
+            {selected === 0 ? "No earlier filing in the timeline." : dropped.length ? dropped.map((n, i) => <span key={n.id}>{i ? ", " : ""}{name(n.id, n.name)}</span>) : "None."}
+          </p>
+        </div>
+      </div>
+      <p className="mt-3 text-[11px] text-zinc-500">
+        From a search of each filing&rsquo;s text for today&rsquo;s entities. Risk factors are printed in full mostly in 10-Ks, so risks often show only in FY filings.
+      </p>
+    </section>
+  );
 }
 
 function ChangeCard({ diff, report, bar, onSelectEntity }: { diff: EntityDiff; report: Report; bar: string; onSelectEntity: (id: string) => void }) {
@@ -63,7 +136,8 @@ function ChangeCard({ diff, report, bar, onSelectEntity }: { diff: EntityDiff; r
 }
 
 /** What the newest filings added, changed or dropped compared with the previous quarter's. */
-export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntity }: ChangesTabProps) {
+export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntity, timeline }: ChangesTabProps) {
+  const timelineBlock = timeline && timeline.quarters.length ? <ChangesTimeline report={report} timeline={timeline} onSelectEntity={onSelectEntity} /> : null;
   const changes = report.changes;
   const describe = (docs: { sourceType: string; date: string; fiscalPeriod?: string | null }[]) =>
     docs
@@ -75,6 +149,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
     return (
       <div className="mx-auto max-w-[1000px] px-6 py-8 lg:px-12">
         <TabHeader title="Changes since last filing" />
+        {timelineBlock}
         <p className="text-sm text-zinc-400">
           {busy
             ? (step ?? "Reading the previous quarter's filings...")
@@ -104,6 +179,8 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
           {describe(changes.baselineFilings)} → {describe(changes.newFilings) || "no new filings"}
         </p>
       </div>
+      {timelineBlock}
+      <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Latest quarter, full comparison</h3>
 
       {facts.length === 0 ? (
         <p className="py-12 text-center text-sm text-zinc-500">No changes detected since last filing.</p>

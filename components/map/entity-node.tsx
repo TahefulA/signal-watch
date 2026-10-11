@@ -49,6 +49,10 @@ export interface EntityNodeData extends Record<string, unknown> {
   order?: number;
   /** Spokes leaving the subject company on each side, so lines fan out along its edge. */
   fan?: Partial<Record<Side, number>>;
+  /** Quarters in the selected window and whether that quarter's 10-Q or 10-K names the entity. */
+  time?: { segments: { label: string; present: boolean }[]; later: string | null } | null;
+  /** Gemini's severity on the previous quarter's map, for the trend arrow. */
+  severityBefore?: { quarter: string; severity: Severity } | null;
 }
 
 export type EntityFlowNode = Node<EntityNodeData, "entityNode">;
@@ -71,7 +75,7 @@ const TREND_WORD: Record<Exclude<Trend, "unknown">, string> = { increasing: "Up"
 
 export const NODE_ENTER_MS = 200;
 /** Matches NODE_HEIGHT in lib/layout. */
-const NODE_BOX_HEIGHT = 168;
+const NODE_BOX_HEIGHT = 178;
 export const NODE_STAGGER_MS = 40;
 
 const POSITION: Record<Side, Position> = { left: Position.Left, right: Position.Right, top: Position.Top, bottom: Position.Bottom };
@@ -204,8 +208,24 @@ function Figure({ entity, bar, color }: { entity: Entity; bar?: FigureBar | null
   return null;
 }
 
+/** One segment per quarter in the window, filled where that quarter's filing names the entity. */
+function TimeStrip({ time, color }: { time: NonNullable<EntityNodeData["time"]>; color: string }) {
+  const named = time.segments.filter((s) => s.present).map((s) => s.label);
+  const tip = `${named.length ? `Named in: ${named.join(", ")}` : "Not named in the 10-Q or 10-K of these quarters"}${
+    time.later ? `. On the map from ${time.later}, filed after the latest quarter` : ""
+  }`;
+  return (
+    <span className="tip -mb-1 flex h-[3px] gap-px" data-tip={tip}>
+      {time.segments.map((s) => (
+        <span key={s.label} className="h-full flex-1 rounded-[1px]" style={{ background: s.present ? color : "#e4e4e7" }} />
+      ))}
+      {time.later ? <span className="h-full w-1.5 rounded-[1px] border border-dashed" style={{ borderColor: color }} /> : null}
+    </span>
+  );
+}
+
 function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
-  const { entity, totalDebt, company, bar, materiality, width, opacity = 1, emphasis, order = 0, fan } = data;
+  const { entity, totalDebt, company, bar, materiality, width, opacity = 1, emphasis, order = 0, fan, time, severityBefore } = data;
   const removed = entity.change?.kind === "removed";
   const change = entity.change && !removed ? entity.change : null;
   const color = TYPE_HEX[entity.type];
@@ -214,7 +234,11 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
   const icon = relationIcon(entity);
   const Icon = icon ? RELATION_ICON[icon] : null;
   const trend = entity.trend && entity.trend !== "unknown" ? entity.trend : null;
-  const severityTip = `${SEVERITY_WORD[entity.severity]} severity${entity.strategic?.whyItMatters ? `. Gemini's reading: ${entity.strategic.whyItMatters}` : ""}`;
+  const rank = { none: 0, low: 1, medium: 2, high: 3 } as const;
+  const severityMove = severityBefore ? Math.sign(rank[entity.severity] - rank[severityBefore.severity]) : null;
+  const severityTip = `${SEVERITY_WORD[entity.severity]} severity${
+    severityBefore ? `. ${severityBefore.quarter}: ${SEVERITY_WORD[severityBefore.severity]} · now: ${SEVERITY_WORD[entity.severity]} (Gemini's rating on each quarter's map)` : ""
+  }${entity.strategic?.whyItMatters ? `. Gemini's reading: ${entity.strategic.whyItMatters}` : ""}`;
 
   return (
     <div className="node-enter" style={{ animationDelay: `${enterDelay}ms` }}>
@@ -261,6 +285,11 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
               <span className="tip inline-flex items-center gap-1.5" data-tip={severityTip}>
                 <Dots filled={SEVERITY_DOTS[entity.severity]} color={SEVERITY_HEX[entity.severity] === "#d4d4d8" ? "#a1a1aa" : SEVERITY_HEX[entity.severity]} size={6} label={`${SEVERITY_WORD[entity.severity]} severity`} />
                 <span className="text-[10px] uppercase leading-none tracking-[0.08em] text-zinc-500">{SEVERITY_WORD[entity.severity]}</span>
+                {severityMove !== null ? (
+                  <span className="text-[9px] leading-none text-zinc-600" aria-label={severityMove > 0 ? "Severity up" : severityMove < 0 ? "Severity down" : "Severity unchanged"}>
+                    {severityMove > 0 ? "\u25B2" : severityMove < 0 ? "\u25BC" : "\u2014"}
+                  </span>
+                ) : null}
               </span>
               {trend ? (
                 <span className="tip inline-flex items-center gap-1 text-zinc-700" data-tip={entity.trendBasis ?? `Trend: ${TREND_WORD[trend]}`}>
@@ -294,6 +323,7 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
                 </span>
               ) : null}
             </div>
+            {time && time.segments.length ? <TimeStrip time={time} color={color} /> : null}
           </div>
         )}
 

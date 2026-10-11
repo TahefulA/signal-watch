@@ -243,8 +243,8 @@ function multiple(value: number): string {
 }
 
 export const CASH = ["CashAndCashEquivalentsAtCarryingValue", "CashCashEquivalentsAndShortTermInvestments", "Cash"];
-const OPERATING_INCOME = ["OperatingIncomeLoss"];
-const DEPRECIATION = [
+export const OPERATING_INCOME = ["OperatingIncomeLoss"];
+export const DEPRECIATION = [
   "DepreciationDepletionAndAmortization",
   "DepreciationAndAmortization",
   "DepreciationAmortizationAndAccretionNet",

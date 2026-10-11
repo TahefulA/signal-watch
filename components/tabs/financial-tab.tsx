@@ -1,9 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { CapitalMetric, Report } from "@/types";
+import type { CapitalMetric, Report, Timeline } from "@/types";
 import { RatingGauge, RatioBar, Sparkline, multipleOf, useHistory } from "@/components/capital/financial-metrics-panel";
 import { compactMoney } from "@/lib/node-visuals";
+import { type TimeRange, describeWindow, windowOf } from "@/lib/time-range";
 
 type Key = CapitalMetric["key"];
 
@@ -51,9 +52,15 @@ function Row({ metric }: { metric: CapitalMetric | undefined }) {
 }
 
 /** The numbers: earnings, balance sheet, credit ratios against reference bands, rating and liquidity. */
-export function FinancialTab({ report, peers }: { report: Report; peers: Report[] }) {
+export function FinancialTab({ report, peers, timeline, range }: { report: Report; peers: Report[]; timeline: Timeline | null; range: TimeRange }) {
   const capital = report.capital;
   const history = useHistory(report.graph.company.cik, capital?.asOf);
+  // Trends cover the selected window of quarters; without the timeline, the last eight.
+  const win = timeline ? windowOf(timeline.quarters, range) : null;
+  const from = win && timeline && win.end >= 0 ? timeline.quarters[win.start].periodEnd : null;
+  const to = win && timeline && win.end >= 0 ? timeline.quarters[win.end].periodEnd : null;
+  const inWindow = <T extends { end: string }>(points: T[]) => (from && to ? points.filter((p) => p.end >= from && p.end <= to) : points.slice(-8));
+  const rangeText = win && timeline ? describeWindow(timeline.quarters, win) : "Last 8 quarters";
   if (!capital) {
     return <p className="text-sm text-zinc-500">This report predates the financial snapshot. Read the filings again to add it.</p>;
   }
@@ -63,8 +70,13 @@ export function FinancialTab({ report, peers }: { report: Report; peers: Report[
       .map((p) => ({ ticker: p.graph.company.ticker, value: multipleOf(p.capital?.metrics.find((x) => x.key === key)?.display ?? "") }))
       .filter((p): p is { ticker: string; value: number } => p.value !== null);
 
-  const rev = history?.revenue ?? [];
-  const cash = history?.cash ?? [];
+  const rev = inWindow(history?.revenue ?? []);
+  const cash = inWindow(history?.cash ?? []);
+  const ebitdaQ = inWindow(history?.ebitda ?? []);
+  const marginQ = inWindow(history?.ebitdaMargin ?? []);
+  const ratioQ = inWindow(history?.currentRatio ?? []);
+  const ratioAvg = ratioQ.length >= 2 ? { value: ratioQ.reduce((a, p) => a + p.value, 0) / ratioQ.length, label: `over ${ratioQ.length} quarter ends` } : null;
+  const trendHint = rev.length < 2 ? "Choose a longer time range on the Graph tab for quarterly trends." : null;
   const lastTwo = <T,>(a: T[]) => (a.length >= 2 ? [a[a.length - 2], a[a.length - 1]] : null);
   const revPair = lastTwo(rev);
   const cashPair = lastTwo(cash);
@@ -78,6 +90,10 @@ export function FinancialTab({ report, peers }: { report: Report; peers: Report[
         title="Financial snapshot"
         meta={`As of ${capital.fiscalPeriod ?? "the latest filing"} (period ending ${capital.asOf ?? "n/a"}) · ${capital.sourceType} filed ${capital.sourceDate}`}
       />
+      <p className="-mt-3 mb-5 font-mono text-[11px] text-zinc-500">
+        Trends: {rangeText}
+        {trendHint ? <span className="text-zinc-600"> · {trendHint}</span> : null}
+      </p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard
@@ -86,8 +102,16 @@ export function FinancialTab({ report, peers }: { report: Report; peers: Report[
           deltaTone={revPair ? (revPair[1].value >= revPair[0].value ? "up" : "down") : null}
           spark={rev.length >= 2 ? <Sparkline points={rev} label="Quarterly revenue" large /> : null}
         />
-        <MetricCard metric={m("ebitda")} delta="Operating income plus depreciation and amortization" />
-        <MetricCard metric={m("ebitda_margin")} delta="EBITDA over revenue, last 12 months" />
+        <MetricCard
+          metric={m("ebitda")}
+          delta={ebitdaQ.length >= 2 ? `Latest quarter ${compactMoney(ebitdaQ[ebitdaQ.length - 1].value)} · operating income plus D&A` : "Operating income plus depreciation and amortization"}
+          spark={ebitdaQ.length >= 2 ? <Sparkline points={ebitdaQ} label="Quarterly EBITDA" large /> : null}
+        />
+        <MetricCard
+          metric={m("ebitda_margin")}
+          delta={marginQ.length >= 2 ? `Latest quarter ${marginQ[marginQ.length - 1].value.toFixed(1)}% · EBITDA over revenue` : "EBITDA over revenue, last 12 months"}
+          spark={marginQ.length >= 2 ? <Sparkline points={marginQ} label="Quarterly EBITDA margin (%)" large percent /> : null}
+        />
         <MetricCard metric={m("total_debt")} />
         <MetricCard metric={m("net_debt")} delta="Total debt less cash" />
         <MetricCard
@@ -102,11 +126,11 @@ export function FinancialTab({ report, peers }: { report: Report; peers: Report[
       <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
         {(["debt_to_ebitda", "net_debt_to_ebitda", "interest_coverage", "current_ratio"] as Key[]).map((k) => {
           const metric = m(k);
-          return metric ? <RatioBar key={k} metric={metric} peers={peerValues(k)} /> : null;
+          return metric ? <RatioBar key={k} metric={metric} peers={peerValues(k)} average={k === "current_ratio" ? ratioAvg : null} /> : null;
         })}
       </div>
       <p className="mt-3 text-[11px] text-zinc-500">
-        Bands are common leveraged-credit rules of thumb, for orientation only. White dot: this company. Hollow: peers loaded on the Peers tab. n/m: EBITDA is negative.
+        Bands are common leveraged-credit rules of thumb, for orientation only. White dot: this company now. Tick: its average over the window, where the quarterly history exists. Hollow: peers loaded on the Peers tab. n/m: EBITDA is negative.
       </p>
 
       <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">

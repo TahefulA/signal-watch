@@ -47,6 +47,15 @@ export function PeerPanel({ subject, comparison, peers, busy, step, error, onCom
               ? `${comparison.companies.map((c) => c.ticker).join(" vs ")}, built only from each company's filings and market data.`
               : "Compare with up to three peers. Each peer is analyzed the same way, then matched entity by entity."}
           </p>
+          <p className="mt-1 font-mono text-[11px] text-zinc-500">
+            {[subject, ...peers]
+              .map((r) => {
+                const p = r.sources.filter((x) => x.sourceType === "10-Q" || x.sourceType === "10-K").sort((a, b) => b.date.localeCompare(a.date))[0];
+                return p ? `${r.graph.company.ticker} as of ${p.fiscalPeriod ?? p.sourceType} (filed ${p.date})` : null;
+              })
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
         </div>
         <form onSubmit={submit} className="flex gap-2">
           <label htmlFor="peer-input" className="sr-only">

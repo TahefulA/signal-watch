@@ -2,7 +2,7 @@
 
 import { Background, Controls, ReactFlow, ReactFlowProvider, useNodesState, useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Entity, EntityGraph, EntityType, Severity } from "@/types";
+import type { Entity, EntityGraph, EntityType, Severity, Timeline } from "@/types";
 import { viewGraph } from "@/lib/graph-view";
 import { useTheme } from "@/lib/theme";
 import { CENTRAL_WIDTH, NODE_HEIGHT, type Positioned, type Side, layoutGraph } from "@/lib/layout";
@@ -33,6 +33,8 @@ interface EntityMapProps {
   focusRequest: number;
   onSelect: (entity: Entity) => void;
   onClearSelection?: () => void;
+  /** The filing timeline and the selected window of quarters (indexes into timeline.quarters). */
+  time?: { timeline: Timeline; window: { start: number; end: number } } | null;
 }
 
 /** Legend filters fade boxes to 15%; boxes are never hidden, so the layout holds. */
@@ -44,7 +46,7 @@ function passesFilters(entity: Entity, filters: MapFilters): boolean {
   return true;
 }
 
-function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, onSelect, onClearSelection }: EntityMapProps) {
+function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, onSelect, onClearSelection, time = null }: EntityMapProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [theme] = useTheme();
   const central = useMemo(() => graph.nodes.find((n) => n.isCentral) ?? null, [graph.nodes]);
@@ -112,13 +114,32 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
   }, [focusId, central, graph.nodes, graph.edges]);
   const fadeTo = selectedId ? 0.2 : 0.3;
 
+  // Per box: the window's quarters and whether each names it. A window that ends
+  // before the latest quarter fades boxes its filings never name.
+  const timeData = useMemo(() => {
+    const out = new Map<string, { segments: { label: string; present: boolean }[]; later: string | null; absent: boolean }>();
+    if (!time || time.window.end < 0) return out;
+    const { quarters, presence } = time.timeline;
+    const lastFiled = quarters[quarters.length - 1]?.filed ?? "";
+    const includesLatest = time.window.end === quarters.length - 1;
+    for (const e of graph.nodes) {
+      const flags = presence[e.id];
+      if (!flags) continue;
+      const segments = quarters.slice(time.window.start, time.window.end + 1).map((q, i) => ({ label: q.label, present: flags[time.window.start + i] ?? false }));
+      const later = includesLatest && e.sourceDate > lastFiled ? `${e.sourceType === "News" ? e.sourceLabel : e.sourceType} ${e.sourceDate}` : null;
+      out.set(e.id, { segments, later, absent: !includesLatest && !segments.some((x) => x.present) });
+    }
+    return out;
+  }, [time, graph.nodes]);
+
   const opacityOf = useCallback(
     (entity: Entity) => {
       if (!passesFilters(entity, filters)) return 0.15;
+      if (timeData.get(entity.id)?.absent) return 0.15;
       if (related && !related.has(entity.id)) return fadeTo;
       return 1;
     },
-    [filters, related, fadeTo],
+    [filters, related, fadeTo, timeData],
   );
 
   const flowNodes = useMemo<EntityFlowNode[]>(
@@ -142,12 +163,14 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
             emphasis: entity.id === focusId ? "focus" : related?.has(entity.id) ? "related" : null,
             order: order.get(entity.id) ?? 0,
             fan: entity.isCentral ? fan.counts : undefined,
+            time: timeData.get(entity.id) ?? null,
+            severityBefore: time?.timeline.severityBefore[entity.id] ?? null,
           },
           width: v?.width,
           height: NODE_HEIGHT,
         };
       }),
-    [graph, positions, visuals, totalDebt, selectedId, opacityOf, focusId, related, order, fan],
+    [graph, positions, visuals, totalDebt, selectedId, opacityOf, focusId, related, order, fan, timeData, time],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState<EntityFlowNode>(flowNodes);
   const { setCenter, getNode } = useReactFlow<EntityFlowNode, SignalFlowEdge>();
@@ -189,7 +212,7 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
       const side = positions.get(e.target)?.side ?? "right";
       const target = byId.get(e.target);
       const active = Boolean(focusId && related?.has(e.target) && (focusId === e.target || focusId === e.source));
-      const filteredOut = target ? !passesFilters(target, filters) : false;
+      const filteredOut = target ? !passesFilters(target, filters) || Boolean(timeData.get(target.id)?.absent) : false;
       const opacity = filteredOut ? 0.15 : related && !active ? fadeTo : 1;
       return {
         id: e.id,
@@ -211,7 +234,7 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
         },
       };
     });
-  }, [graph.nodes, spokes, positions, focusId, related, filters, fadeTo, fan, relationLabels, selectedId, nodesDoneMs, settled]);
+  }, [graph.nodes, spokes, positions, focusId, related, filters, fadeTo, fan, relationLabels, selectedId, nodesDoneMs, settled, timeData]);
 
   return (
     <div className="relative h-full w-full">

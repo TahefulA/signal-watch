@@ -6,12 +6,14 @@ export type * from "./changes";
 export type * from "./peers";
 export type * from "./brief";
 export type * from "./dashboard";
+export type * from "./timeline";
 
 import type { EntityGraph, MarketSnapshot, SourceDocument } from "./graph";
 import type { Memo, MemoSpan } from "./memo";
 import type { CapitalStructure } from "./capital";
 import type { ChangeReport } from "./changes";
 import type { MeetingBrief } from "./brief";
+import type { Timeline } from "./timeline";
 
 /** What citation validation and entity resolution did to Gemini's proposals. */
 export interface Validation {
@@ -49,6 +51,8 @@ export interface Report {
   validation?: Validation;
   /** Three or four sentences above the map; entity names link to their boxes. */
   signal?: MemoSpan[] | null;
+  /** Which quarters each entity is named in, built on first request. */
+  timeline?: Timeline | null;
 }
 
 export type AnalyzeEvent =

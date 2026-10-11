@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { AnalyzeEvent, Entity, MeetingBrief, PeerComparison, Report } from "@/types";
+import type { AnalyzeEvent, Entity, MeetingBrief, PeerComparison, Report, Timeline } from "@/types";
 import { CommandPalette } from "@/components/command-palette";
 import { PIPELINE_STEPS, PipelineProgress } from "@/components/layout/pipeline-progress";
 import { StatusBar } from "@/components/layout/status-bar";
 import { TabBar, type TabKey, isTab } from "@/components/layout/tab-bar";
+import { DEFAULT_RANGE, type TimeRange, readRange, saveRange } from "@/lib/time-range";
 import { TopBar } from "@/components/layout/top-bar";
 import { EntityPanel } from "@/components/panel/entity-panel";
 import { PeerPanel } from "@/components/peers/peer-panel";
@@ -73,6 +74,35 @@ export default function HomePage() {
   const [graphMounted, setGraphMounted] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const closePalette = useCallback(() => setPaletteOpen(false), []);
+  const [timeline, setTimeline] = useState<Timeline | null>(null);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
+  const [range, setRangeState] = useState<TimeRange>(DEFAULT_RANGE);
+  // The window is shared by every tab and remembered across visits.
+  useEffect(() => setRangeState(readRange()), []);
+  const setRange = useCallback((next: TimeRange) => {
+    setRangeState(next);
+    saveRange(next);
+  }, []);
+
+  // The filing timeline is built on the server the first time a report is opened, then saved with it.
+  const reportId = report?.id ?? null;
+  useEffect(() => {
+    setTimeline(null);
+    setTimelineError(null);
+    if (!reportId) return;
+    let live = true;
+    fetch(`/api/timeline?reportId=${encodeURIComponent(reportId)}`)
+      .then(async (r) => {
+        const body = (await r.json()) as { timeline?: Timeline; error?: string };
+        if (!live) return;
+        if (body.timeline) setTimeline(body.timeline);
+        else setTimelineError(body.error ?? "The filing history could not be read.");
+      })
+      .catch(() => live && setTimelineError("The filing history could not be read."));
+    return () => {
+      live = false;
+    };
+  }, [reportId]);
   const analyzeRef = useRef<((ticker: string, fresh?: boolean) => Promise<void>) | null>(null);
 
   /** Switches view and records it in the URL, keeping the report and peers. */
@@ -337,6 +367,8 @@ export default function HomePage() {
   const graph = report?.graph ?? null;
   const totalDebt = report?.capital?.metrics.find((m) => m.key === "total_debt")?.display ?? null;
   const factChanges = report?.changes?.changes.filter((c) => !c.judgment).length ?? 0;
+  const periodic = report?.sources.filter((s) => s.sourceType === "10-Q" || s.sourceType === "10-K").sort((a, b) => b.date.localeCompare(a.date))[0];
+  const asOf = periodic ? `As of ${periodic.fiscalPeriod ?? periodic.sourceType} · ${periodic.sourceType} filed ${periodic.date}` : null;
   const ready = Boolean(graph && report && status !== "loading");
 
   return (
@@ -372,12 +404,17 @@ export default function HomePage() {
                   focusRequest={focusRequest}
                   onSelect={setSelected}
                   onClearSelection={() => setSelected(null)}
+                  timeline={timeline}
+                  timelineError={timelineError}
+                  range={range}
+                  onRangeChange={setRange}
+                  asOf={asOf}
                 />
               </div>
             ) : null}
             {tab !== "graph" ? (
               <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="h-full overflow-y-auto">
-                {tab === "financial" ? <FinancialTab report={report} peers={peerReports} /> : null}
+                {tab === "financial" ? <FinancialTab report={report} peers={peerReports} timeline={timeline} range={range} /> : null}
                 {tab === "capital" ? <CapitalTab report={report} /> : null}
                 {tab === "changes" ? (
                   <ChangesTab
@@ -387,6 +424,7 @@ export default function HomePage() {
                     error={compareError}
                     onCompare={() => void compare()}
                     onSelectEntity={focusEntity}
+                    timeline={timeline}
                   />
                 ) : null}
                 {tab === "peers" ? (

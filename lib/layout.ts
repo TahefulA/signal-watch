@@ -1,7 +1,7 @@
 import type { Entity, EntityType } from "@/types";
 
 export const NODE_WIDTH = 240;
-export const NODE_HEIGHT = 168;
+export const NODE_HEIGHT = 178;
 export const CENTRAL_WIDTH = 300;
 
 export type Side = "left" | "right" | "top" | "bottom";

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { CASH, REVENUE } from "@/lib/capital";
+import { CASH, DEPRECIATION, OPERATING_INCOME, REVENUE } from "@/lib/capital";
 import { type SeriesPoint, fetchFacts, instantSeries, quarterlySeries } from "@/lib/xbrl";
 
 export const runtime = "nodejs";
@@ -7,13 +7,22 @@ export const runtime = "nodejs";
 export interface HistoryResponse {
   /** Three-month revenue by quarter end. */
   revenue: SeriesPoint[];
+  /** Three-month operating income plus depreciation and amortization, where both are tagged. */
+  ebitda: SeriesPoint[];
+  /** Quarterly EBITDA over quarterly revenue, in percent. */
+  ebitdaMargin: SeriesPoint[];
   cash: SeriesPoint[];
+  /** Current assets over current liabilities at each balance sheet date. */
+  currentRatio: SeriesPoint[];
 }
 
+const QUARTERS = 12;
+
 /**
- * Up to eight quarters of revenue and cash from the company's XBRL data, ending
- * at the report's balance sheet date. Debt is left out: companies switch debt
- * concepts between filings, so a tagged debt history jumps for no real reason.
+ * Up to twelve quarters of revenue, EBITDA, margin, cash and current ratio from
+ * the company's XBRL data, ending at the report's balance sheet date. Debt is
+ * left out: companies switch debt concepts between filings, so a tagged debt
+ * history jumps for no real reason.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -24,6 +33,32 @@ export async function GET(request: Request) {
   }
   const book = await fetchFacts(cik).catch(() => null);
   if (!book) return NextResponse.json({ error: "XBRL data is not available for this company." }, { status: 502 });
-  const body: HistoryResponse = { revenue: quarterlySeries(book, REVENUE, through), cash: instantSeries(book, CASH, through) };
+
+  const revenue = quarterlySeries(book, REVENUE, through, QUARTERS);
+  const operating = quarterlySeries(book, OPERATING_INCOME, through, QUARTERS + 4);
+  const depreciation = quarterlySeries(book, DEPRECIATION, through, QUARTERS + 4);
+  const ebitda = operating
+    .map((o) => {
+      const d = depreciation.find((x) => x.end === o.end);
+      return d ? { end: o.end, value: o.value + d.value } : null;
+    })
+    .filter((p): p is SeriesPoint => p !== null)
+    .slice(-QUARTERS);
+  const ebitdaMargin = ebitda
+    .map((e) => {
+      const r = revenue.find((x) => x.end === e.end);
+      return r && r.value > 0 ? { end: e.end, value: (e.value / r.value) * 100 } : null;
+    })
+    .filter((p): p is SeriesPoint => p !== null);
+  const assets = instantSeries(book, ["AssetsCurrent"], through, QUARTERS);
+  const liabilities = instantSeries(book, ["LiabilitiesCurrent"], through, QUARTERS);
+  const currentRatio = assets
+    .map((a) => {
+      const l = liabilities.find((x) => x.end === a.end);
+      return l && l.value > 0 ? { end: a.end, value: a.value / l.value } : null;
+    })
+    .filter((p): p is SeriesPoint => p !== null);
+
+  const body: HistoryResponse = { revenue, ebitda, ebitdaMargin, cash: instantSeries(book, CASH, through, QUARTERS), currentRatio };
   return NextResponse.json(body, { headers: { "Cache-Control": "public, s-maxage=43200" } });
 }

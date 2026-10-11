@@ -2,11 +2,13 @@
 
 import { Check, FileText, HelpCircle, Newspaper, X } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import type { Entity, EntityGraph, EntityType } from "@/types";
+import type { Entity, EntityGraph, EntityType, Timeline } from "@/types";
 import { ENTITY_TYPES, SEVERITIES } from "@/types/entity";
 import { EntityMap, type MapFilters } from "@/components/map/entity-map";
 import { TYPE_LABELS } from "@/lib/entity-style";
 import { CONFIDENCE_DOTS, SEVERITY_DOTS, SEVERITY_HEX, TYPE_HEX } from "@/lib/node-visuals";
+import { type TimeRange, windowOf } from "@/lib/time-range";
+import { MarketContextStrip, RangeSelect, TimeContextBar } from "@/components/time/time-controls";
 
 interface GraphTabProps {
   graph: EntityGraph;
@@ -16,6 +18,12 @@ interface GraphTabProps {
   focusRequest: number;
   onSelect: (entity: Entity) => void;
   onClearSelection: () => void;
+  timeline: Timeline | null;
+  timelineError: string | null;
+  range: TimeRange;
+  onRangeChange: (range: TimeRange) => void;
+  /** "As of Q2 2026 · 10-Q filed 2026-08-05". */
+  asOf: string | null;
 }
 
 function Dots({ filled, color, size = 6 }: { filled: number; color: string; size?: number }) {
@@ -135,7 +143,8 @@ function LegendPopover({ highConfidenceOnly, onToggleConfidence }: { highConfide
 }
 
 /** The hero view: type filter chips, then the map filling the rest of the screen. */
-export function GraphTab({ graph, totalDebt, notes, selectedId, focusRequest, onSelect, onClearSelection }: GraphTabProps) {
+export function GraphTab({ graph, totalDebt, notes, selectedId, focusRequest, onSelect, onClearSelection, timeline, timelineError, range, onRangeChange, asOf }: GraphTabProps) {
+  const win = timeline ? windowOf(timeline.quarters, range) : null;
   const [hidden, setHidden] = useState<EntityType[]>([]);
   const [highConfidenceOnly, setHighConfidenceOnly] = useState(false);
   const counts = new Map(ENTITY_TYPES.map((t) => [t, graph.nodes.filter((n) => !n.isCentral && n.type === t).length]));
@@ -180,7 +189,24 @@ export function GraphTab({ graph, totalDebt, notes, selectedId, focusRequest, on
             Reset
           </button>
         ) : null}
-        {notes.length ? <span className="ml-auto shrink-0 pl-4 text-[11px] text-amber-500">{notes[0]}</span> : null}
+        {notes.length ? <span className="shrink-0 pl-4 text-[11px] text-amber-500">{notes[0]}</span> : null}
+        <div className="ml-auto flex shrink-0 items-center gap-3 pl-4">
+          {asOf ? <span className="hidden font-mono text-[11px] text-zinc-500 lg:inline">{asOf}</span> : null}
+          <RangeSelect range={range} quarters={timeline?.quarters ?? []} onChange={onRangeChange} />
+        </div>
+      </div>
+      {/* Fixed height, so the map is sized once and does not jump when the timeline arrives. */}
+      <div className="h-[104px] shrink-0 overflow-hidden border-b border-zinc-800">
+        {timeline && win ? (
+          <>
+            <TimeContextBar quarters={timeline.quarters} window={win} onChange={onRangeChange} />
+            <MarketContextStrip ticker={graph.company.ticker} quarters={timeline.quarters} window={win} />
+          </>
+        ) : (
+          <p className="px-6 py-3 font-mono text-[11px] text-zinc-500">
+            {timelineError ?? "Reading the last twelve 10-Q and 10-K filings for the timeline. The first time takes up to a minute; after that it is saved with the report."}
+          </p>
+        )}
       </div>
       <div className="relative min-h-0 flex-1">
         <EntityMap
@@ -191,6 +217,7 @@ export function GraphTab({ graph, totalDebt, notes, selectedId, focusRequest, on
           focusRequest={focusRequest}
           onSelect={onSelect}
           onClearSelection={onClearSelection}
+          time={timeline && win ? { timeline, window: win } : null}
         />
         <LegendPopover highConfidenceOnly={highConfidenceOnly} onToggleConfidence={setHighConfidenceOnly} />
       </div>

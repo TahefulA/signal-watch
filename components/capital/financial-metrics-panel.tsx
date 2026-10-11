@@ -41,7 +41,7 @@ function SectionHeader({ children }: { children: string }) {
   return <h3 className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">{children}</h3>;
 }
 
-export function Sparkline({ points, label, large = false }: { points: { end: string; value: number }[]; label: string; large?: boolean }) {
+export function Sparkline({ points, label, large = false, percent = false }: { points: { end: string; value: number }[]; label: string; large?: boolean; percent?: boolean }) {
   if (points.length < 2) return null;
   const width = large ? 240 : 48;
   const height = large ? 60 : 18;
@@ -52,7 +52,7 @@ export function Sparkline({ points, label, large = false }: { points: { end: str
   const d = points
     .map((p, i) => `${i === 0 ? "M" : "L"}${((i / (points.length - 1)) * width).toFixed(1)},${(height - 1 - ((p.value - min) / span) * (height - 2)).toFixed(1)}`)
     .join(" ");
-  const tip = `${label}, quarter by quarter from XBRL: ${points.map((p) => `${p.end.slice(0, 7)} ${compactMoney(p.value)}`).join(", ")}`;
+  const tip = `${label}, quarter by quarter from XBRL: ${points.map((p) => `${p.end.slice(0, 7)} ${percent ? `${p.value.toFixed(1)}%` : compactMoney(p.value)}`).join(", ")}`;
   return (
     <span className={`tip ${large ? "block" : "shrink-0"}`} data-tip={tip}>
       <svg
@@ -86,7 +86,16 @@ function MetricRow({ metric, spark }: { metric: CapitalMetric; spark?: ReactNode
 }
 
 /** Where the ratio sits against the reference bands, with each peer's value as a hollow marker. */
-export function RatioBar({ metric, peers }: { metric: CapitalMetric; peers: { ticker: string; value: number }[] }) {
+export function RatioBar({
+  metric,
+  peers,
+  average = null,
+}: {
+  metric: CapitalMetric;
+  peers: { ticker: string; value: number }[];
+  /** The ratio's average over the selected quarters, drawn as a tick. */
+  average?: { value: number; label: string } | null;
+}) {
   const bands = BANDS[metric.key];
   const value = multipleOf(metric.display);
   if (!bands) return <MetricRow metric={metric} />;
@@ -112,13 +121,19 @@ export function RatioBar({ metric, peers }: { metric: CapitalMetric; peers: { ti
             title={`${p.ticker} ${p.value.toFixed(1)}x`}
           />
         ))}
+        {average ? (
+          <span className="absolute -top-1 h-3.5 w-0.5 -translate-x-1/2 bg-zinc-400" style={{ left: at(average.value) }} title={`Average ${average.label}: ${average.value.toFixed(1)}x`} />
+        ) : null}
         {value !== null ? (
           <span className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-100" style={{ left: at(value) }} />
         ) : null}
       </div>
       <div className="mt-1 flex justify-between gap-2 font-mono text-[10px] text-zinc-500">
         <span>{value === null ? (metric.display === "n/m" ? "Not meaningful: see note" : "No value") : `${bands.note.replace("Bands: ", "")}`}</span>
-        {peers.length ? <span>{peers.map((p) => `○ ${p.ticker} ${p.value.toFixed(1)}x`).join("  ")}</span> : null}
+        <span>
+          {average ? `| avg ${average.value.toFixed(1)}x  ` : ""}
+          {peers.map((p) => `○ ${p.ticker} ${p.value.toFixed(1)}x`).join("  ")}
+        </span>
       </div>
     </div>
   );

@@ -19,20 +19,20 @@ export { sameEntity };
  * True when a document mentions the entity: the full name, or every key word
  * within one sentence. Generic names such as "Construction Risks" are matched the same way.
  */
-function mentions(sentences: string[][], name: string): boolean {
+export function mentions(sentences: string[][], name: string): boolean {
   const key = keyWords(name);
   if (key.length === 0) return true;
   return sentences.some((sentence) => key.every((w) => sentence.includes(w)));
 }
 
-interface FilingWords {
+export interface FilingWords {
   sentences: string[][];
   /** Every filing's words joined, for finding a quote that spans line breaks. */
   joined: string;
 }
 
 /** True when the filings contain the passage, ignoring punctuation and spacing. */
-function containsPassage(text: FilingWords, quote: string): boolean {
+export function containsPassage(text: FilingWords, quote: string): boolean {
   const needle = words(quote).join(" ");
   return needle.length > 0 && text.joined.includes(needle);
 }
@@ -41,7 +41,7 @@ function containsPassage(text: FilingWords, quote: string): boolean {
  * True when the filings contain a sentence sharing at least 60% of the passage's
  * words: risk factors are reworded slightly from one filing to the next.
  */
-function similarPassage(text: FilingWords, quote: string): boolean {
+export function similarPassage(text: FilingWords, quote: string): boolean {
   const wanted = new Set(words(quote).filter((w) => w.length > 3));
   if (wanted.size < 5) return false;
   return text.sentences.some((sentence) => {
@@ -52,7 +52,7 @@ function similarPassage(text: FilingWords, quote: string): boolean {
 }
 
 /** Model-named entities such as "Construction Delays" are compared by their evidence, not their name. */
-function isDescriptive(e: Entity): boolean {
+export function isDescriptive(e: Entity): boolean {
   return e.type === "risk" || e.type === "macro";
 }
 
@@ -93,6 +93,17 @@ export function findMention(docs: FilingDoc[], name: string): Citation | null {
     }
   }
   return null;
+}
+
+/** Sentence word lists and joined words for a set of document texts. */
+export function filingWordsOf(texts: string[]): FilingWords {
+  const sentences: string[][] = [];
+  const all: string[] = [];
+  for (const text of texts) {
+    for (const s of text.split(/\n|(?<=[.!?])\s+/)) if (s.length > 20) sentences.push(words(s));
+    all.push(words(text).join(" "));
+  }
+  return { sentences, joined: all.join(" | ") };
 }
 
 async function filingSentences(cik: string, sources: SourceDocument[]): Promise<FilingWords> {
