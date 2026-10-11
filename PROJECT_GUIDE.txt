@@ -1344,8 +1344,8 @@ A. THE PRODUCT AND THE PROBLEM
    every claim linked to the filing sentence.
 
 2. Who is the user?
-   A credit analyst or portfolio manager at a credit fund, who reads 10-Ks, 10-Qs
-   and 8-Ks and writes memos for an investment committee.
+   A credit analyst or portfolio manager at a credit fund, who reads 10-Ks,
+   10-Qs and 8-Ks and writes memos for an investment committee.
 
 3. How is this different from asking ChatGPT about a company?
    A chatbot answers from memory and can invent numbers. Signal Watch reads
@@ -1486,11 +1486,11 @@ D. ARCHITECTURE AND TECH
     User-Agent, and responses are cached.
 
 29. How long does it take and how does it scale?
-    15-40 seconds for a fresh analysis, near-instant for a saved one. The timeline
-    builds in seconds and is saved; the full Devil's Advocate case takes 30-60
-    seconds and is saved on the report. Analyses are independent, so they
-    scale horizontally on serverless functions; the limits are SEC rate limits
-    and model quotas.
+    15-40 seconds for a fresh analysis, near-instant for a saved one. The
+    timeline builds in seconds and is saved; the full Devil's Advocate
+    case takes 30-60 seconds and is saved on the report. Analyses are
+    independent, so they scale horizontally on serverless functions; the
+    limits are SEC rate limits and model quotas.
 
 30. What does it cost to run?
     A handful of Gemini calls per company (entities, debt, memo, plus the
