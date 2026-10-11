@@ -242,9 +242,9 @@ export function DevilsCase({ devil, onEntityClick }: DevilsCaseProps) {
         </p>
         {period ? (
           <p className="mt-3 font-mono text-xs leading-relaxed text-zinc-400">
-            Based on {period.quarter ?? "the latest quarter"}
+            Based on {period.quarter ?? (period.filed ? "the latest quarter" : "the period in the documents")}
             {period.periodEnd ? `, the quarter ended ${period.periodEnd}` : ""}
-            {period.form && period.filed ? ` · ${period.form} filed ${period.filed}` : ""}
+            {period.form ? ` · ${period.form}${period.filed ? ` filed ${period.filed}` : ""}` : ""}
             {period.daysSinceFiling !== null ? `, ${period.daysSinceFiling} days before this case was written on ${period.writtenOn}` : ""}
             {period.historySpan ? ` · trend tables cover ${period.historySpan}` : ""}
           </p>

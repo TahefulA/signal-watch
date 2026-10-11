@@ -51,6 +51,8 @@ export interface PatternContext {
   /** Open-market purchases and sales from Form 4s in the last 90 days; null when they could not be read. */
   insiders: InsiderTransaction[] | null;
   today: string;
+  /** Documents uploaded for a private company: there is no map, debt note, 8-K or Form 4 to check. */
+  privateMode?: boolean;
 }
 
 export function filingText(form: string, filed: string, label: string, url: string, text: string): FilingText {
@@ -366,6 +368,24 @@ const PATTERNS: Pattern[] = [
         CASH,
         "Less of the cash is actually available.",
       ),
+  },
+  {
+    id: "receivables_sold",
+    name: "Receivables Sold or Supplier Finance",
+    category: "debt",
+    check: (ctx) => {
+      const hits = find(
+        ctx,
+        /\b(factor(?:ing|ed)\b[^.]{0,60}\breceivables?|sells? (?:certain |a portion of )?(?:of )?(?:its |our )?(?:trade )?(?:accounts )?receivables|receivables? (?:purchase|sale|securiti[sz]ation) (?:agreement|facility|program)|supply[- ]chain financ\w*|supplier financ\w* (?:program|arrangement|facilit\w*)|reverse factoring)\b/i,
+        3,
+      );
+      return hits.length
+        ? fired(
+            "The documents describe selling receivables or a supplier finance program. Both raise cash or stretch payments without being counted as debt, so reported leverage can understate what the company owes; the amounts outstanding and whether lenders count them need checking.",
+            hits.map(quoteOf),
+          )
+        : clear("No receivables sale, factoring or supplier finance program in the documents read.");
+    },
   },
   {
     id: "off_balance_sheet",
@@ -841,9 +861,21 @@ const PATTERNS: Pattern[] = [
   },
 ];
 
+/** Checks that read data a private company does not publish; in private mode they are not evaluated rather than clear. */
+const NEEDS_SEC: Record<string, string> = {
+  concentration_terms: "Needs revenue shares by customer from the entity map, which private mode does not build.",
+  insider_selling: "Private companies file no Form 4 insider trades.",
+  guidance_vs_selling: "Private companies file no Form 4 insider trades.",
+  departures: "Private companies file no 8-Ks; officer departures are not reported publicly.",
+  auditor_change: "Private companies file no 8-Ks; an auditor change is not reported publicly.",
+};
+
 /** Runs every pattern. A pattern that throws counts as not evaluated, never as fired. */
 export function runPatterns(ctx: PatternContext): PatternResult[] {
   return PATTERNS.map((p) => {
+    if (ctx.privateMode && NEEDS_SEC[p.id]) {
+      return { id: p.id, name: p.name, category: p.category, status: "not_evaluated" as const, detail: NEEDS_SEC[p.id], evidence: [] };
+    }
     try {
       return { id: p.id, name: p.name, category: p.category, ...p.check(ctx) };
     } catch (error) {

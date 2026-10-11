@@ -12,6 +12,8 @@ interface CounterArgumentColumnProps {
   onRun: () => void;
   /** Opens an entity on the Graph tab. */
   onEntityClick: (id: string) => void;
+  /** Text before a case exists, for pages that read other sources than SEC filings. */
+  notes?: { busy: string; idle: string };
 }
 
 const STATUS_WORD: Record<PatternStatus, string> = { fired: "Fired", clear: "Clear", not_evaluated: "Not evaluated" };
@@ -79,7 +81,12 @@ export function PatternList({ patterns }: { patterns: PatternResult[] }) {
                 </p>
                 <p className="text-zinc-500">{p.detail}</p>
                 {p.status === "fired"
-                  ? p.evidence.slice(0, 2).map((e, i) => (
+                  ? p.evidence.slice(0, 2).map((e, i) => !e.url ? (
+                      <p key={i} className="mt-1 text-zinc-500">
+                        {e.quote ? <span className="italic">&ldquo;{e.quote}&rdquo; </span> : null}
+                        <span className="font-mono text-[10px]">{e.label}</span>
+                      </p>
+                    ) : (
                       <a
                         key={i}
                         href={e.url}
@@ -168,7 +175,7 @@ function StructuredSummary({ devil, onEntityClick }: { devil: DevilsAdvocate; on
 }
 
 /** The right column of the memo: the case against it, always beside the memo. */
-export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick }: CounterArgumentColumnProps) {
+export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick, notes }: CounterArgumentColumnProps) {
   const fired = devil?.patterns.filter((p) => p.status === "fired") ?? [];
   return (
     <aside className="counter-column space-y-5 border-l-2 border-red-600 pl-5" aria-label="Devil's advocate">
@@ -194,9 +201,13 @@ export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick
 
       {!devil ? (
         <p className="font-mono text-xs text-zinc-500">
-          {busy
-            ? "Analyzing... Reading the filings, Form 4s and XBRL facts, building the quarter-by-quarter tables and checking 35 contradiction patterns. The full case takes about a minute."
-            : "The case against the memo is written from the memo, the map, the quarterly figures, the debt, changes, insider trades, 8-Ks, peers, market data, the filing text and 35 contradiction patterns. Every figure must come from those sources."}
+          {notes
+            ? busy
+              ? notes.busy
+              : notes.idle
+            : busy
+            ? "Analyzing... Reading the filings, Form 4s and XBRL facts, building the quarter-by-quarter tables and checking 36 contradiction patterns. The full case takes about a minute."
+            : "The case against the memo is written from the memo, the map, the quarterly figures, the debt, changes, insider trades, 8-Ks, peers, market data, the filing text and 36 contradiction patterns. Every figure must come from those sources."}
         </p>
       ) : devil.sections ? (
         <StructuredSummary devil={devil} onEntityClick={onEntityClick} />
@@ -229,7 +240,7 @@ export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-zinc-500">None of the 35 patterns fired on this company&rsquo;s data.</p>
+              <p className="text-xs text-zinc-500">None of the 36 patterns fired on this company&rsquo;s data.</p>
             )}
           </Section>
 

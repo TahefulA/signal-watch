@@ -27,14 +27,18 @@ export const THEME_LABELS: Record<CaseTheme, string> = {
   market: "What the stock market is saying",
 };
 
-function system(today: string): string {
-  return `You are a skeptical portfolio manager at a credit fund. Write the full case AGAINST the credit memo below, for an investment committee member who has not read the filings and does not know credit jargon. Today is ${today}.
+const PRIVATE_NOTE = `This is a PRIVATE company. The facts are the documents the user uploaded (credit agreements, lender reports, offering memoranda or similar) and figures extracted from them. There are no SEC filings, stock prices, insider trades or 8-Ks: never mention them. Write a section for each theme the documents give evidence on, even where no exhibit exists, and skip "peers" and "market". The memo is the user's own thesis. For refs, use "doc1", "doc2" and so on for the documents, or "pattern:<pattern id>".
+
+`;
+
+function system(today: string, privateMode = false): string {
+  return `${privateMode ? PRIVATE_NOTE : ""}You are a skeptical portfolio manager at a credit fund. Write the full case AGAINST the credit memo below, for an investment committee member who has not read the filings and does not know credit jargon. Today is ${today}.
 
 The facts give you the memo, the reporting period, the entity map, trend tables by quarter, the capital structure, changes since the previous quarter, insider trades, 8-K filings, peers, market data, contradiction patterns and filing text. Use all of it: every exhibit should be used by at least one section when it bears on the case.
 
 Write:
 - primer: 4 to 6 sentences for a reader with no context. Say what the company does (from the facts), which quarter and filing this case is based on, with the quarter-end and filing dates, what the memo concludes, and what this case argues instead.
-- sections: one per theme, in this order: earnings, liquidity, debt, counterparties, changes, behavior, peers, market. Write a section only for a theme that has at least one exhibit; skip the others entirely. For each section:
+- sections: one per theme, in this order: earnings, liquidity, debt, counterparties, changes, behavior, peers, market. ${privateMode ? "Write a section for each theme the documents give evidence on, except peers and market." : "Write a section only for a theme that has at least one exhibit; skip the others entirely."} For each section:
   - headline: the point as one declarative sentence.
   - memo_says: what the memo says that this point challenges, quoted or closely paraphrased. If the memo does not mention it, write "The memo does not address this."
   - argument: 150 to 250 words. Build an argument, not a recital: do not walk through every row of a table. Use the turning points in time order: where the trend started, the worst quarter, the latest quarter, and the change against the prior quarter and the year-earlier quarter. Name each quarter as the exhibits do and give its end date the first time (for example "Q2 2026, the quarter ended 2026-06-30"). Compare with the prior quarter and the year-earlier quarter where the exhibits give those changes. Use the figures in the exhibits and the findings of the fired patterns; describe what a pattern found rather than naming it as a "pattern". When you mention an entity from the entity list, write it as {{entity_id|name as it reads in the sentence}}.
@@ -151,10 +155,41 @@ function resolveCitation(ref: string, claim: string, report: Report, patterns: P
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 const unlink = (t: string) => t.replace(/\{\{[^|}]+\|([^}]+)\}\}/g, "$1").replace(/\{\{([^}]+)\}\}/g, "$1");
 
-export async function generateDevilsAdvocate(report: Report, ctx: PatternContext, peers: Report[] = []): Promise<DevilsAdvocate> {
+/** Every uploaded document, shortened in proportion to fit the budget. */
+function documentsExcerpt(ctx: PatternContext): string {
+  const total = ctx.filings.reduce((n, f) => n + f.text.length, 0) || 1;
+  return ctx.filings
+    .map((f, i) => `Document doc${i + 1}, ${f.label}:\n${f.text.slice(0, Math.max(4_000, Math.floor((PRIVATE_BUDGET * f.text.length) / total)))}`)
+    .join("\n\n");
+}
+
+const PRIVATE_BUDGET = 90_000;
+
+export interface CaseOptions {
+  /** Evidence built elsewhere, e.g. from uploaded documents. */
+  evidence?: Evidence;
+  /** Arguing from uploaded documents: sections need no exhibit, and the prompt says so. */
+  privateMode?: boolean;
+}
+
+export async function generateDevilsAdvocate(
+  report: Report,
+  ctx: PatternContext,
+  peers: Report[] = [],
+  options: CaseOptions = {},
+): Promise<DevilsAdvocate> {
   const patterns = runPatterns(ctx);
-  const evidence = buildEvidence(report, ctx, peers, patterns);
-  const facts = [
+  const privateMode = options.privateMode ?? false;
+  const evidence = options.evidence ?? buildEvidence(report, ctx, peers, patterns);
+  const facts = privateMode
+    ? [
+        `Company: ${report.graph.company.name} (private company)`,
+        `Memo (the user's thesis):\n${memoText(report)}`,
+        evidence.facts,
+        patternFacts(patterns),
+        documentsExcerpt(ctx),
+      ].join("\n\n")
+    : [
     `Company: ${report.graph.company.name} (${report.graph.company.ticker})${report.graph.company.sic ? `, SEC industry: ${report.graph.company.sic}` : ""}${report.graph.company.industry ? `. It describes itself as: "${report.graph.company.industry}"` : ""}`,
     `Memo:\n${memoText(report)}`,
     evidence.facts,
@@ -163,7 +198,7 @@ export async function generateDevilsAdvocate(report: Report, ctx: PatternContext
     marketFacts(report.market, report.graph.company.ticker),
     patternFacts(patterns),
     filingExcerpt(ctx),
-  ].join("\n\n");
+      ].join("\n\n");
   const allowed = new Set([...extractFigures(facts), ...report.graph.nodes.flatMap((n) => extractFigures(n.sourceDate))]);
   const ids = new Set(report.graph.nodes.map((n) => n.id));
   const names = new Map(report.graph.nodes.map((n) => [n.id, n.name]));
@@ -176,7 +211,7 @@ export async function generateDevilsAdvocate(report: Report, ctx: PatternContext
         : "";
     let raw: unknown;
     try {
-      raw = await generateJson(system(ctx.today) + reminder, facts, SCHEMA, { thinking: "low", timeoutMs: 120_000 });
+      raw = await generateJson(system(ctx.today, privateMode) + reminder, facts, SCHEMA, { thinking: "low", timeoutMs: 120_000 });
     } catch (error) {
       if (best) break;
       throw error;
@@ -196,7 +231,8 @@ export async function generateDevilsAdvocate(report: Report, ctx: PatternContext
       const x = s as Record<string, unknown>;
       const theme = CASE_THEMES.find((t) => t === x.theme);
       // A theme without evidence tables has nothing to argue from.
-      if (!theme || sections.some((y) => y.theme === theme) || evidence.exhibits[theme].length === 0) continue;
+      if (!theme || sections.some((y) => y.theme === theme)) continue;
+      if (privateMode ? theme === "peers" || theme === "market" : evidence.exhibits[theme].length === 0) continue;
       const argument = clean(x.argument);
       const headline = unlink(clean(x.headline));
       if (!argument || !headline) continue;

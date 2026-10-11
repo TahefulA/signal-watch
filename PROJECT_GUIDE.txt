@@ -18,7 +18,7 @@ Contents
   Part 7   The data types (what a "Report" contains)
   Part 8   The capital structure (debt)
   Part 9   Changes, the timeline, peers, the brief, the dashboard
-  Part 10  The Devil's Advocate and its 35 patterns
+  Part 10  The Devil's Advocate and its 36 patterns
   Part 11  The front end: page, tabs, map
   Part 12  Storage (Tiger Postgres)
   Part 13  Design rules and the honesty rules
@@ -144,7 +144,7 @@ MEMO (Step 7)
 DEVIL'S ADVOCATE
   Why: every AI tool agrees with you; this one argues against its own memo.
   Confirmation bias is how funds lose money: Diameter's biggest loss (First
-  Brands) came from a missed detail. 35 checks (receivables, insider selling,
+  Brands) came from a missed detail. 36 checks (receivables, insider selling,
   guarantee scope, maturities...) run on the real data. Then Gemini writes a
   long, structured case against the memo that uses everything the app
   gathered: the quarter-by-quarter figures, the debt, the map, what changed,
@@ -275,7 +275,7 @@ PART 3. A MAP OF THE FOLDERS
     timeline.ts            Which quarters name each entity.
     peers.ts               Peer comparison.
     brief.ts               Meeting brief.
-    devils-advocate*.ts    The counter-argument and its 35 patterns.
+    devils-advocate*.ts    The counter-argument and its 36 patterns.
     counter-view.ts        Front-end helpers for the Devil's Advocate.
     tiger.ts               Database reads and writes.
     layout.ts              Where each box goes on the map.
@@ -491,7 +491,7 @@ The project's signature feature: the app argues against its own memo.
 
 Read in this order:
   types/devils-advocate.ts
-  lib/devils-advocate-patterns.ts   the 35 checks
+  lib/devils-advocate-patterns.ts   the 36 checks
   lib/devils-evidence.ts            the evidence tables, timeline, coverage
   lib/devils-advocate.ts            the Gemini call
   app/api/devils-advocate/route.ts
@@ -502,7 +502,7 @@ Read in this order:
 How it works:
   1. loadPatternContext() gathers data: the latest filing and the one before,
      the latest 10-K, 8-K item codes, Form 4 insider trades, XBRL facts.
-  2. runPatterns() runs 35 checks. Each returns "fired", "clear" or
+  2. runPatterns() runs 36 checks. Each returns "fired", "clear" or
      "not_evaluated" (when the data does not exist). Examples:
        - Receivables growing faster than revenue (XBRL)
        - DSO increase (XBRL)
@@ -543,8 +543,21 @@ Graph tab, and a red card at the top of the Financial, Capital, Changes and
 Peers tabs showing the matching section. Add peers on the Peers tab and press
 "Argue again" to bring them into the case.
 
+Private companies (/private, lib/devils-private.ts):
+  Private companies file nothing with the SEC, so the user uploads their
+  documents (credit agreement, lender report, offering memorandum) and writes
+  the thesis. PDFs are read in the browser with unpdf; only the text is sent,
+  and nothing is saved. The text checks run on the documents; checks that need
+  public data (Form 4s, 8-Ks, XBRL, stock price) are marked not evaluated.
+  Gemini first lists the key figures and dated events; a figure is kept only
+  if its value is found in the document it names. Then the same structured
+  case is written, citing documents as doc1, doc2...
+  Check 36, "Receivables Sold or Supplier Finance", looks for factoring and
+  supplier finance: debt-like financing that does not show as debt.
+
 Test it from the command line:
   npx tsx --env-file=.env.local scripts/run-patterns.ts <report id>
+  npx tsx --env-file=.env.local scripts/run-private.ts "<company>" thesis.txt doc1.txt [doc2.txt]
   npx tsx --env-file=.env.local scripts/run-case.ts <report id> [peer ids]
 
 
@@ -631,7 +644,7 @@ All run as: npx tsx --env-file=.env.local scripts/<name>.ts ...
   migrate.ts            create database tables
   analyze.ts            run the pipeline for a ticker from the terminal
   refresh-capital.ts    rebuild only the debt section of saved reports
-  run-patterns.ts       print the 35 Devil's Advocate checks for a report
+  run-patterns.ts       print the 36 Devil's Advocate checks for a report
   run-case.ts           write the full Devil's Advocate case without saving it
   graph-query.ts        query the graph, e.g. every CUSTOMER_OF edge
   backfill-graph.ts     rewrite node/edge rows for saved reports
@@ -682,7 +695,7 @@ PART 16. GLOSSARY OF PROJECT TERMS
   Validation      Counts of entities Gemini proposed, kept and rejected.
   Baseline        The report rebuilt from last quarter's filings, for Changes.
   Timeline        Which past filings name each entity.
-  Pattern         One of the 35 Devil's Advocate checks.
+  Pattern         One of the 36 Devil's Advocate checks.
   Counter view    The Graph tab mode that highlights flagged boxes in red.
   Stance          The memo's own position: Stable, Caution, At risk, Distressed.
   Aggregate debt  Debt reported only by category (banks), not per bond.
@@ -725,7 +738,7 @@ A. THE PRODUCT AND THE PROBLEM
    Every box still opens its exact quote, so nothing is lost versus a table.
 
 6. What is the Devil's Advocate and why does it matter?
-   It argues against the memo. 35 checks run on real data (XBRL figures,
+   It argues against the memo. 36 checks run on real data (XBRL figures,
    filing text, 8-K item codes, Form 4 insider trades), then Gemini writes a
    cited counter-argument. It fights confirmation bias, which is how credit
    funds lose money.
