@@ -15,6 +15,7 @@ Contents
   Part 0.7 Every arrow, symbol and color: what it means and why it is there
   Part 0.8 The presentation tour: what to say at each stop, and why
   Part 0.9 The big picture: problems -> features -> stack -> flow
+  Part 0.10 How Signal Watch follows Gatto's seven-step credit process
   Part 1   Credit analysis vocabulary you will see everywhere
   Part 2   The tech stack and how to run it
   Part 2.5 WHY this stack, tied to the goal of the project
@@ -1318,6 +1319,137 @@ PART 0.9  THE BIG PICTURE ON ONE PAGE: PROBLEMS -> FEATURES -> STACK -> FLOW
   Credit funds lose money on details nobody had time to read and on
   conclusions nobody argued against; Signal Watch reads every detail, proves
   every claim, argues against its own conclusion, and keeps watching.
+
+
+------------------------------------------------------------------------------
+PART 0.10  HOW SIGNAL WATCH FOLLOWS GATTO'S SEVEN-STEP CREDIT PROCESS
+------------------------------------------------------------------------------
+
+Michael Gatto's seven steps are the standard way a credit analyst works a
+deal. Signal Watch is laid out in that order, and the tabs carry the step
+labels. Below is each step, what the app does for it, and an honest
+coverage mark:
+  [FULL]     the app does this step's work
+  [PARTIAL]  the app does part of it; the rest is noted
+  [NOT YET]  not built; say so if asked
+
+STEP 1. SOURCES AND USES                                         [PARTIAL]
+  The question: why is the company borrowing, where does the money go, and
+  what type of debt is it?
+  Where it is in the app
+    - Capital tab: every instrument with its type (revolver, term loan,
+      secured notes, unsecured notes, convertible notes), amount, rate and
+      maturity, and a "Recent change" line for issuances, amendments and
+      refinancings in the last twelve months, quoted from the debt note.
+    - 8-K item 2.03 ("took on a new debt obligation") in the watchlist feed
+      and the Devil's Advocate timeline; new and repaid debt on Changes.
+    - The map shows what the money is building: for WULF, the data center
+      campuses, tenants and power contracts.
+  Not yet: a formal sources-and-uses table (use of proceeds line by line).
+
+STEP 2. QUALITATIVE ANALYSIS                       [FULL]  Graph tab, "Step 2"
+  The question: what are the industry and business risks?
+  Where it is in the app: the entity map. Gatto's eight categories and where
+  each shows up:
+    Customer concentration     Customer boxes with revenue share; checks
+                               "Concentration with undisclosed terms",
+                               "Anchor tenant loss risk", "Rev % n/d".
+    Product concentration      Supplier and product boxes; "Supply chain
+                               concentration" (sole or single source).
+    Government regulation      Violet regulatory boxes (regulators, orders,
+                               licences); "Regulatory deadline approaching".
+    Commodity risk             Amber macro boxes; "Commodity price exposure".
+    Adverse competitive        COMPETES_WITH boxes for named competitors.
+      dynamics
+    Cyclicality, secular       Red risk and amber macro boxes when the
+    decline, fad/fashion       filings' risk factors name them; "Risk factor
+                               language change" flags new ones.
+  Honest note: the first four have dedicated checks; the last three come from
+  the filing's own risk factors, without a dedicated check.
+
+STEP 3. FINANCIAL STATEMENT ANALYSIS                [FULL]  Financial and
+                                                             Capital tabs
+  (a) Profitability: Financial tab ("Step 3a"): revenue, EBITDA, margin, with
+      eight quarters of charts.
+  (b) Cash flow and liquidity: Financial tab: free cash flow, cash, current
+      ratio against 1.0x, liquidity (cash plus revolver); runway on the
+      watchlist.
+  (c) Capital structure: Capital tab ("Step 3c"): debt, net debt, leverage,
+      coverage, maturity wall, secured share.
+  Gatto's red flags are built in as Devil's Advocate checks with the same
+  names: Channel Stuffing, Absorption Costing, Understated Bad Debt, plus
+  receivables versus revenue, DSO, DIO, SG&A growth and restricted cash.
+
+STEP 4. FORECASTING                                 [PARTIAL]  Changes tab,
+                                                    time bar, Devil's Advocate
+  The question: management case, base case, downside case. The downside case
+  is where you make or lose money.
+  Where it is in the app
+    - Direction: Changes tab ("Step 4"), the time bar and quarterly charts
+      show where the trend is heading.
+    - The downside, argued: the Devil's Advocate is a written downside case,
+      built from the evidence, with "What to watch, and when" naming the
+      results that would confirm or weaken it. Cash runway on the watchlist
+      is the simplest downside number: quarters until the cash runs out at
+      the current burn.
+    - The management view: the memo and the filings' own outlook language.
+  Not yet: numeric three-case projections (revenue, EBITDA and cash flow
+  under each case). We chose not to have the AI invent future numbers.
+
+STEP 5. CORPORATE VALUATION                         [PARTIAL]  Peers tab,
+                                                               market data
+  The question: comparable companies, precedent transactions, DCF,
+  liquidation analysis, used together for a range.
+  Where it is in the app
+    - Comparable company analysis: Peers tab ("Step 5") puts leverage,
+      coverage, liquidity and margins side by side.
+    - Market value: market capitalization and the share price, which is the
+      equity cushion beneath the lenders.
+  Not yet: precedent transactions, DCF and liquidation analysis.
+
+STEP 6. STRUCTURING AND DOCUMENTATION               [PARTIAL]  Capital tab,
+                                                    Devil's Advocate checks
+  The question: covenants, place in the capital structure, collateral,
+  seniority.
+  Where it is in the app
+    - Seniority: each instrument's ranking (senior secured, senior unsecured,
+      subordinated) and the secured share of total debt.
+    - Place in the structure: "Subordination surprise" check (structurally or
+      effectively subordinated debt).
+    - Covenants: "Covenant headroom narrowing" when a filing states a maximum
+      leverage ratio.
+    - Credit support: "Guarantee scope narrower" (for WULF, Google's backstop
+      starts only once each lease begins).
+    - Private-company mode reads credit agreements directly.
+  Not yet: a full covenant table and collateral description from the credit
+  agreement itself.
+
+STEP 7. INVESTMENT RECOMMENDATION                   [FULL]  Memo tab, "Step 7"
+  The question: write the credit committee memo.
+  Where it is in the app: the memo has exactly Gatto's five sections:
+  Executive Summary, Thesis, Key Risks, Mitigants, Relative Value. Every name
+  in it links to its evidence. Beyond the book: the Devil's Advocate case
+  sits beside it, the meeting brief turns the gaps into questions for
+  management, and "Copy memo" exports both.
+
+WHAT TO SAY IF A JUDGE ASKS
+  "We follow Gatto's seven steps, one tab per step. Qualitative analysis,
+  financial statements and the memo are fully covered, and his red flags
+  (channel stuffing, absorption costing, understated bad debt) are built in
+  as checks. Forecasting, valuation and structuring are partly covered: the
+  Devil's Advocate is our written downside case, peers are our comparable
+  companies, and seniority, subordination, covenants and guarantees are
+  checked. We did not build numeric forecasts, DCF or precedent
+  transactions, because we would not let the AI invent future numbers."
+
+  Coverage at a glance
+    1 Sources and uses          PARTIAL   Capital tab, 8-K 2.03, Changes
+    2 Qualitative analysis      FULL      Graph tab, 8 risk categories
+    3 Financial statements      FULL      Financial + Capital, red-flag checks
+    4 Forecasting               PARTIAL   Changes, time, Devil's Advocate
+    5 Valuation                 PARTIAL   Peers, market value
+    6 Structuring               PARTIAL   Seniority, covenants, guarantees
+    7 Recommendation            FULL      Memo in Gatto's five sections
 
 
 ------------------------------------------------------------------------------
