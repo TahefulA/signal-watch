@@ -7,6 +7,7 @@ export type * from "./peers";
 export type * from "./brief";
 export type * from "./dashboard";
 export type * from "./timeline";
+export type * from "./devils-advocate";
 
 import type { EntityGraph, MarketSnapshot, SourceDocument } from "./graph";
 import type { Memo, MemoSpan } from "./memo";
@@ -14,6 +15,7 @@ import type { CapitalStructure } from "./capital";
 import type { ChangeReport } from "./changes";
 import type { MeetingBrief } from "./brief";
 import type { Timeline } from "./timeline";
+import type { DevilsAdvocate } from "./devils-advocate";
 
 /** What citation validation and entity resolution did to Gemini's proposals. */
 export interface Validation {
@@ -53,6 +55,8 @@ export interface Report {
   signal?: MemoSpan[] | null;
   /** Which quarters each entity is named in, built on first request. */
   timeline?: Timeline | null;
+  /** The counter-argument to the memo, once requested. */
+  devil?: DevilsAdvocate | null;
 }
 
 export type AnalyzeEvent =
