@@ -9,8 +9,10 @@ file; the "Read" lines point to the ones that matter, in order.
 Contents
   Part 0   The idea in one page
   Part 0.5 WHY every piece exists and how it all comes together (read first)
+  Part 0.6 WHY each feature is included, feature by feature
   Part 1   Credit analysis vocabulary you will see everywhere
   Part 2   The tech stack and how to run it
+  Part 2.5 WHY this stack, tied to the goal of the project
   Part 3   A map of the folders
   Part 4   The journey of one ticker (the most important part)
   Part 5   The data sources: SEC EDGAR, XBRL, news, market
@@ -18,22 +20,22 @@ Contents
   Part 7   The data types (what a "Report" contains)
   Part 8   The capital structure (debt)
   Part 9   Changes, the timeline, peers, the brief, the dashboard
-  Part 10  The Devil's Advocate and its 36 patterns
+  Part 10  The Devil's Advocate and its 36 patterns (how it works)
+  Part 10.5 WHY the Devil's Advocate exists, and why every part of it is there
   Part 11  The front end: page, tabs, map
   Part 12  Storage (Tiger Postgres)
   Part 13  Design rules and the honesty rules
   Part 14  Scripts and everyday tasks
   Part 15  A suggested reading order for your first two days
   Part 16  Glossary
-  Part 17  40 questions judges will ask, with answers
+  Part 17  58 questions judges will ask, with answers
 
 
 ------------------------------------------------------------------------------
 PART 0. THE IDEA IN ONE PAGE
 ------------------------------------------------------------------------------
 
-Signal Watch is a research tool for a credit analyst at a hedge fund (the
-hackathon track was Diameter Capital, a credit fund).
+Signal Watch is a research tool for a credit analyst at a credit hedge fund.
 
 A credit analyst asks one question about a company: will it pay back its
 debt? To answer it they read the company's SEC filings (10-K, 10-Q, 8-K), map
@@ -93,8 +95,11 @@ THE GRAPH (Step 2, qualitative analysis)
     - The box's border color is the type (blue company, red risk, amber
       macro, green financial, violet regulatory).
     - The left strip and the dots are severity: how much it matters to credit.
-    - The line label is the relationship (CUSTOMER OF, LENDS TO, GUARANTEES),
-      and thicker lines go to more severe boxes, so the eye goes there first.
+    - The line label is the relationship (CUSTOMER OF, LENDS TO, GUARANTEES)
+      with its figure and, for debt, the year it is due (red within two
+      years). Lines with a dollar figure are thicker the bigger the amount;
+      others are thicker the more severe the box.
+    - Hovering a box opens a card with its numbers as charts (Part 0.6).
     - The bar inside a box compares its figure with the others (for example
       share of revenue); the thin line at the bottom is materiality.
     - Clicking a box opens the exact filing sentence it came from.
@@ -119,7 +124,10 @@ FINANCIAL (Step 3a, profitability)
   Why: a company repays debt from cash it generates. Revenue, EBITDA, margin,
   cash and the current ratio, with quarterly trends from XBRL, answer "can the
   business carry its debt?" Ratios such as debt/EBITDA and coverage are the
-  numbers a credit committee asks for first.
+  numbers a credit committee asks for first. Five charts (revenue and EBITDA,
+  margin, free cash flow, cash, current ratio) show eight quarters with value
+  axes and a readout of each quarter's change from the prior quarter and from
+  a year earlier.
 
 CAPITAL (Step 3c, capital structure)
   Why: "what does it owe" decides who gets paid if things go wrong. Every
@@ -143,8 +151,8 @@ MEMO (Step 7)
 
 DEVIL'S ADVOCATE
   Why: every AI tool agrees with you; this one argues against its own memo.
-  Confirmation bias is how funds lose money: Diameter's biggest loss (First
-  Brands) came from a missed detail. 36 checks (receivables, insider selling,
+  Confirmation bias is how funds lose money, and credit losses usually come
+  from a missed detail in a footnote. 36 checks (receivables, insider selling,
   guarantee scope, maturities...) run on the real data. Then Gemini writes a
   long, structured case against the memo that uses everything the app
   gathered: the quarter-by-quarter figures, the debt, the map, what changed,
@@ -179,6 +187,176 @@ HOW IT ALL COMES TOGETHER
   The data layer (EDGAR, XBRL, news, market) feeds the AI layer (Gemini reads
   and classifies), which feeds the verification layer (quotes and figures
   checked), which feeds storage (Tiger Postgres) and finally the screens.
+
+------------------------------------------------------------------------------
+PART 0.6  WHY EACH FEATURE IS INCLUDED (feature by feature)
+------------------------------------------------------------------------------
+
+The test for every feature in this app: does it help a credit analyst decide
+whether the company can repay its debt, faster, without having to trust the
+software blindly? If a feature failed that test it was left out. This part
+goes through what is on screen and gives the reason for each piece. Judges
+ask "why is this here?" about almost everything; this is the answer sheet.
+
+THE GOAL, IN ONE SENTENCE
+  Do the hours of filing-reading a credit analyst does for each company, show
+  the result in the order an analyst thinks, prove every claim, and then
+  argue against our own conclusion so the analyst does not fall for it.
+
+  Four principles follow from that sentence, and every feature serves one:
+    1. Speed:      hours of reading become about a minute.
+    2. Structure:  the screens follow the analyst's own process.
+    3. Proof:      every claim links to the sentence or number it came from.
+    4. Challenge:  the app argues against its own memo.
+
+TOP BAR AND NAVIGATION
+  Ticker box            Speed. One input; the analyst already knows the
+                        ticker. It clears after Analyze so the next ticker can
+                        be typed straight away.
+  Tagline and logo      The logo returns home; the tagline says the pitch in
+                        six words ("The credit analyst's workflow, automated").
+  Memo/concerns badge   "Memo: Stable · 7 concerns". Challenge. The memo's view
+                        and the number of sourced concerns against it are
+                        always visible together, on every tab, so nobody reads
+                        "Stable" without also reading "7 concerns".
+  Changes badge         Speed. A red count of facts that changed since last
+                        quarter: the first thing an analyst who already knows
+                        the company wants.
+  Cmd+K (Ask)           Speed. A quick question ("who guarantees the leases?")
+                        answered only from this report, with citations.
+  Dashboard             Analysts cover 50-70 names; the watchlist shows which
+                        companies filed something new since their last report.
+  Light/dark theme      Analysts work long hours; printing and projecting at a
+                        demo need the light theme.
+  URL holds the state   ?report=...&tab=... means any view can be shared as a
+                        link, and Back/Forward work between companies.
+  Step labels           "Step 2 · Qualitative Analysis". Structure. Each tab is
+                        one step of Gatto's seven-step credit process, so a
+                        credit professional recognizes the flow immediately.
+  Status bar            Proof. "17/20 verified · 3 rejected" shows how many AI
+                        proposals failed the quote check. Showing our own
+                        rejections is what makes the rest believable.
+
+THE GRAPH TAB (each visual element has a job)
+  Company in the middle       Every box is something the company depends on;
+                              the picture is literally "who can hurt this
+                              borrower".
+  Fixed layout (not physics)  Boxes are placed on four sides by type and never
+                              drift, so the map reads the same every time and
+                              in screenshots.
+  Border color = type         Blue company, red risk, amber macro, green
+                              financial, violet regulatory, gray other. Six
+                              colors only, so the color always means one thing.
+  Left strip + dots = severity  How much the item matters to credit, as a
+                              category (high/medium/low), never a fake score.
+  Figure and bar in the box   The number the filing gives (378 MW, $3.20B,
+                              23% of revenue) and how it compares to the other
+                              boxes: size matters more than names.
+  Thin line at the bottom     Materiality: share of revenue or of total debt,
+                              only when the filing gives the denominator.
+  Box width                   Material items are drawn wider, so the eye lands
+                              on what is big.
+  Time strip under each box   Which of the last twelve filings name it: new
+                              risk versus persistent risk.
+  Green/amber dot (corner)    New or changed since last quarter.
+  Confidence dots             How sure we are the relationship is real, from
+                              the source and wording.
+  Line label                  The typed relationship (CUSTOMER OF, LENDS TO,
+                              GUARANTEES), its figure, and for debt the year
+                              it is due. Red when debt is due within two years,
+                              because that is refinancing risk.
+  Line thickness = dollars    A $3.2B bond line is visibly heavier than a $13M
+                              one. Without money, thickness follows severity.
+  Hover card                  Rest on a box and its numbers appear as charts:
+                              for the company, eight quarters of revenue,
+                              margin and cash plus the credit ratios; for any
+                              other box, its figure and share, debt terms,
+                              which filings name it, its severity change and
+                              its quote. The map stops being a diagram and
+                              becomes a way into the numbers.
+  Revenue bars in the company box  The company's eight-quarter revenue trend
+                              is visible before you hover anything.
+  Click a box -> side panel   Proof. The exact filing sentence, page and link.
+  Legend filters              Fade types or severities to see one layer
+                              (only the risks, only the financing).
+  Counter view                Challenge. Turns the boxes the Devil's Advocate
+                              cites red and fades the rest: "where is the case
+                              against this company on the map?"
+  Load animation              The company appears, one ring spreads, boxes fade
+                              in by severity, lines draw outward. It plays once
+                              and stops: it shows the order of importance and
+                              never distracts afterwards.
+  Market strip                10-year Treasury, the share price and the S&P 500
+                              over the same window, so moves read in context.
+                              It says "no bond price feed" rather than invent
+                              a spread.
+
+THE FINANCIAL TAB
+  Summary tiles     Last-twelve-month revenue, EBITDA, margin, debt, net debt
+                    and cash: the six numbers a credit committee asks first.
+  Quarterly charts  Revenue and EBITDA, EBITDA margin, free cash flow, cash,
+                    and the current ratio against a 1.0x line. Credit is about
+                    direction, so each chart shows eight quarters, the latest
+                    figure, its change from a year earlier, the high and low,
+                    and a readout of any quarter you hover (value, change from
+                    the prior quarter and from a year earlier).
+  Why free cash flow  It is the cash left to repay lenders after running the
+                    business and building it. A company can show revenue
+                    growth while burning cash; this chart makes that visible.
+  Why the 1.0x line  Below it, bills due within a year exceed assets that turn
+                    into cash within a year. One glance tells you if short-
+                    term liquidity is a problem.
+  Credit metric bars  Leverage, coverage and current ratio against common
+                    rule-of-thumb bands, with peers as hollow markers.
+  "n/m"             When EBITDA is negative, leverage is not meaningful; we say
+                    so rather than print a nonsense ratio.
+
+THE CAPITAL TAB
+  Every instrument with amount, maturity, rate and ranking (who is repaid
+  first), the maturity wall (how much comes due each year), and secured share.
+  This is "what does it owe, to whom, and when", the core of credit.
+
+THE CHANGES TAB
+  New and dropped counterparties, new and repaid debt, changed figures since
+  the previous quarter's filings. Analysts already know the company; the
+  delta is what they need.
+
+THE PEERS TAB
+  Leverage, coverage and liquidity side by side, plus customers and risks the
+  companies share. A ratio means little until it is compared.
+
+THE MEMO TAB
+  The five-section memo is the deliverable an analyst actually hands to the
+  investment committee. The Devil's Advocate sits beside it and below it
+  (Part 10.5 explains why). "Copy memo" exports both as text.
+
+MEETING BRIEF
+  One printable page: three things to know, the key numbers, questions to ask
+  management built from the gaps in the report, and risks to watch.
+
+PRIVATE COMPANY PAGE (/private)
+  Many borrowers in credit funds are private and file nothing with the SEC.
+  The Devil's Advocate runs on documents the analyst uploads instead
+  (Part 10.5 has the details).
+
+DESIGN CHOICES, AND WHY
+  Sober, dense, no decoration      Finance users distrust tools that look
+                                   like marketing. Shadows, glow, emoji and
+                                   gradient text were banned; the look borrows
+                                   from terminals and research reports.
+  Boxes, not circles               Matches the brand (the shield logo, the
+                                   square markers) and keeps the map orderly.
+  Monospace, tabular figures       Numbers line up in columns so they can be
+                                   compared down a table.
+  Page texture (grain + faint grid)  Depth without decoration: it reads as
+                                   graph paper, the analyst's own medium.
+  Red as the only accent           Red means risk and the Devil's Advocate;
+                                   it is never used for decoration.
+  Animations play once             They show order (what loads first matters
+                                   most) and then get out of the way.
+  "Not disclosed" everywhere       An honest gap is more useful to a lender
+                                   than a confident guess.
+
 
 ------------------------------------------------------------------------------
 PART 1. CREDIT ANALYSIS VOCABULARY
@@ -245,6 +423,131 @@ Check your work:
 
 Try it without waiting for an analysis: open a saved report, for example
   http://localhost:3000/?report=36e359a9-052f-4e17-8afc-b29d2403f4c1  (WULF)
+
+
+------------------------------------------------------------------------------
+PART 2.5  WHY THIS STACK (each choice, tied to the goal of the project)
+------------------------------------------------------------------------------
+
+The constraints that decided the stack:
+  - A hackathon: a small team, a few days, one deployable app.
+  - Trust: every number must be traceable to a primary source.
+  - Zero paid data: judges must be able to run it, and a fund must be able to
+    try it without a data contract.
+  - Long, slow AI calls (30-60 seconds) that must not time out.
+  - Rich, custom visuals (a map of boxes, charts) that follow strict design
+    rules.
+
+  Choice                      Why it fits the goal
+  --------------------------  ----------------------------------------------
+  Next.js 14 (App Router)     One codebase for the screens and the server.
+                              The API routes (app/api/*) run the pipeline
+                              next to the UI, so there is no second service
+                              to build, deploy or keep in sync. Server code
+                              keeps the API keys off the browser.
+
+  TypeScript, strict          The Report object is large and every tab reads
+                              it. Strict types catch a renamed field before
+                              it breaks a screen; with no "any", the model's
+                              JSON is checked before it is trusted.
+
+  Tailwind CSS                Fast to build a consistent, dense UI. The
+                              colors are CSS variables (app/globals.css), so
+                              light and dark themes are one switch.
+
+  React Flow (@xyflow/react)  The map needs zoom, pan, custom box components
+                              and custom lines. React Flow gives the canvas;
+                              we wrote our own layout (lib/layout.ts) because
+                              physics layouts move every time and are hard to
+                              read, and an analyst needs the same picture
+                              every time.
+
+  Custom SVG charts           The Financial charts, hover cards and bars are
+                              drawn by our own components
+                              (components/charts/trend-chart.tsx,
+                              components/map/quarter-bars.tsx). That gives
+                              full control: boxes not circles, our colors,
+                              negative quarters in red, a hover readout with
+                              q/q and y/y, and no heavy dependency. (recharts
+                              and @dagrejs/dagre are still in package.json but
+                              unused; they can be removed.)
+
+  Google Gemini (REST, fetch) Gemini reads long filing sections in one call
+                              (long context), returns JSON that matches a
+                              schema we give it (structured output), and is
+                              fast and inexpensive per call. We call it with
+                              plain fetch in lib/gemini.ts, not an SDK or an
+                              agent framework, so every request is visible and
+                              easy to debug. A lighter fallback model takes
+                              over when the main one is overloaded.
+
+  No LangChain, no agents,    The model only reads and classifies; code does
+  no vector database          the fetching, checking, math and citations. A
+                              retrieval pipeline would add a layer that can
+                              lose the exact source sentence, and proof of
+                              source is the whole point. We send the relevant
+                              filing sections directly instead.
+
+  SEC EDGAR + XBRL            The primary source, free, legally required to be
+                              accurate, and every number is tagged with its
+                              filing. Paid data feeds summarize the same
+                              filings; going to the source is what lets every
+                              claim link to a sentence.
+
+  Form 4 and 8-K item codes   Free, structured signals of behavior: insiders
+                              selling, executives leaving, auditors changing.
+                              They feed the Devil's Advocate.
+
+  Google News RSS             Free, current headlines, so events between
+                              filings (a lawsuit, a permit freeze) reach the
+                              map. Headlines are labeled as news, never mixed
+                              up with filings.
+
+  yahoo-finance2              Free daily prices for the stock and the S&P 500.
+                              The stock is the first place trouble shows,
+                              before the next filing.
+
+  Tiger Data (managed         Reports are saved as JSON (fast to reload, so a
+  Postgres)                   repeat view costs nothing), and every box and
+                              line is also written to entity and relationship
+                              tables, so the graph can be queried across
+                              companies ("every CUSTOMER_OF edge to Google")
+                              without running a separate graph database.
+                              Managed, so no database to operate.
+
+  Vercel                      Deploys on every push, gives a public URL for
+                              judges, and allows long functions (we set
+                              maxDuration up to 300 seconds) for the Devil's
+                              Advocate and the timeline, which call Gemini
+                              for 30-60 seconds.
+
+  Streaming progress          /api/analyze sends newline-delimited JSON events
+                              as each step finishes, so a 15-40 second
+                              analysis shows progress instead of a blank wait.
+
+  unpdf (in the browser)      Private-company documents are read in the
+                              user's browser; only their text is sent to
+                              write the case, and nothing is stored. A lender's
+                              documents are confidential, so the design keeps
+                              the files on the user's machine.
+
+  lucide-react                Plain line icons that match the sober look.
+  framer-motion               Only for the side panel and toasts sliding in.
+
+  Fonts: Geist, Geist Mono,   Geist for reading, Geist Mono for figures (they
+  Space Grotesk               line up in columns), Space Grotesk for headings
+                              and big numbers. Three fonts, no more.
+
+What we deliberately did not choose, and why
+  Python backend   A second service and deployment; the work is mostly I/O
+                   (fetching, calling the model), which Node handles well.
+  Neo4j            A graph database is overkill for one company's map; node
+                   and edge tables in Postgres answer the queries we need.
+  Paid data APIs   Cost, contracts and keys judges cannot use; and they are
+                   one step removed from the source we want to cite.
+  An AI that writes numbers  The model never supplies a figure. Numbers come
+                   from XBRL, the debt note or the filing text, and generated
+                   sentences with unknown numbers are deleted.
 
 
 ------------------------------------------------------------------------------
@@ -562,6 +865,323 @@ Test it from the command line:
 
 
 ------------------------------------------------------------------------------
+PART 10.5  WHY THE DEVIL'S ADVOCATE EXISTS, AND WHY EVERY PART OF IT IS THERE
+           (read this before any demo; judges ask about it most)
+------------------------------------------------------------------------------
+
+1. WHY BUILD A DEVIL'S ADVOCATE AT ALL
+
+  The problem it solves
+    A credit memo is an argument for a conclusion. Whoever writes it, human or
+    AI, tends to collect the evidence that supports it and pass over the
+    evidence that does not. That is confirmation bias, and in credit it is
+    expensive: a lender's upside is capped at getting paid back with interest,
+    while the downside can be most of the loan. A credit fund makes its money
+    by avoiding the few bad loans, so the evidence against a deal is worth more
+    than the evidence for it.
+
+    Credit losses usually come from details, not headlines: a guarantee that
+    only starts after construction, debt-like financing that is not counted as
+    debt, receivables piling up faster than sales, insiders selling while the
+    memo says all is well. These sit in footnotes, 8-Ks and Form 4s that
+    nobody has time to read for 60 companies.
+
+  Why an AI tool especially needs one
+    Our own pipeline writes the memo. An AI that writes a confident memo and
+    stops there makes confirmation bias faster, not smaller. So the app argues
+    against its own conclusion, with the same sources, before the analyst
+    relies on it.
+
+  Why it is the centerpiece, not a side feature
+    Summarizing filings is something many tools do. Investment committees
+    already use a "red team" or a devil's advocate in the room: one person is
+    asked to make the case against the deal. Signal Watch automates that role,
+    which is the part of the process that is skipped first when people are
+    busy. It is what makes the product a decision tool rather than a reader.
+
+  What it is not
+    It is not a rating, a score, a price prediction or a "sell" signal. It is
+    the strongest honest case against the memo, with its evidence, so the
+    analyst can answer it or change their mind.
+
+2. WHY 36 CHECKS RUN IN CODE BEFORE THE AI WRITES ANYTHING
+
+  The checks (lib/devils-advocate-patterns.ts) are computed by our code from
+  XBRL figures, the filing text, 8-K item codes and Form 4 trades. Gemini
+  only writes the argument afterwards. Reasons:
+    - Repeatable: the same data always gives the same result.
+    - Auditable: each check shows its numbers or the sentence it matched, with
+      a link.
+    - Not invented: a check fires only when the numbers or words are actually
+      there.
+    - Expertise in code: each check encodes a known red flag that credit and
+      forensic-accounting analysts look for.
+
+  Three results, and why the third matters
+    Fired          The warning condition holds in the data.
+    Clear          The data was read and the condition does not hold.
+    Not evaluated  The data the check needs is not available.
+  Most tools would quietly treat "no data" as "no problem". We never do: a
+  missing number is shown as not evaluated, so the analyst knows exactly what
+  was not checked.
+
+3. EVERY CHECK, WHAT IT CATCHES, AND WHY A LENDER CARES
+
+  Financial statements (from XBRL, the company's own tagged numbers)
+    Receivables growing faster than revenue
+        Sales booked but not collected. Can mean aggressive revenue
+        recognition or customers who cannot pay; often precedes write-downs.
+    Inventory growing faster than cost of goods sold
+        Goods are not selling; inventory may need writing down, tying up cash.
+    SG&A growing faster than revenue
+        Overhead outrunning the business; margins will shrink.
+    DSO increase (days sales outstanding)
+        Customers are taking longer to pay: cash arrives later than profit.
+    DIO increase (days inventory outstanding)
+        Inventory sits longer: cash is stuck on shelves.
+    Absorption costing
+        Producing more than is sold parks costs in inventory and flatters
+        margins for a while.
+    Channel stuffing
+        A jump in receivables far beyond the quarter's revenue growth: sales
+        may have been pushed into the channel early.
+    Understated bad debt
+        Receivables growing while the allowance for bad debts does not: future
+        losses not yet recognized.
+    Restricted cash growth
+        Cash the company reports but cannot freely use; liquidity is smaller
+        than it looks.
+    Off-balance-sheet liabilities
+        Large lease obligations outside the debt total: reported leverage
+        understates what the company owes.
+
+  Customers and revenue
+    Concentration with undisclosed terms
+        A customer of 20% of revenue or more, with no stated contract term or
+        termination right: the biggest revenue line could leave.
+    Anchor tenant loss risk
+        An anchor tenant named without its lease expiry.
+    Customer churn mentioned but not quantified
+        Management says churn but gives no number: a gap to question.
+    Revenue per customer declining         (not evaluated: no standard tag)
+    Top customer rating risk               (not evaluated: no ratings feed)
+        Both are shown as not evaluated so the gap is visible.
+
+  Debt and capital structure
+    Covenant headroom narrowing
+        Leverage close to the loan agreement's maximum: a breach lets lenders
+        demand repayment or new terms.
+    Near-term maturity concentration
+        More than 40% of principal due within two years: refinancing risk.
+    Floating rate exposure
+        Most debt pays a floating rate; each 1% rate rise costs real cash.
+    Guarantee scope narrower
+        Wording such as "only", "solely" or "does not extend" next to a
+        guarantee or backstop. On WULF it found that Google's backstop of
+        Fluidstack's leases "is only effective following the commencement of
+        the relevant lease": the construction period is not covered.
+    Subordination surprise
+        Debt that is structurally or effectively subordinated: those lenders
+        are paid after others, whatever the bond's name says.
+    Pension underfunded
+        Pension obligations above plan assets: a debt-like claim.
+    Receivables sold or supplier finance
+        Factoring, receivables sales or supplier-finance programs. They raise
+        cash or stretch payments without being counted as debt, so leverage
+        can be understated. This kind of hidden financing is behind several
+        well-known private-credit collapses, which is why it was added.
+
+  Management and operations (filing language, 8-Ks, Form 4s)
+    Management tone shift
+        Growth words falling and caution words rising per 10,000 words against
+        the previous filing of the same form.
+    Risk factor language change
+        Risk sentences in this filing that were not in the previous one: what
+        management has newly started to worry about.
+    Insider selling cluster
+        Three or more insiders selling on the open market within about two
+        weeks of each other (Form 4s from the last 60 days).
+    Guidance raised but insiders selling
+        The company says things are better while insiders sell.
+    Key employee departures
+        Two or more 8-Ks (item 5.02) in a year reporting officers leaving.
+    Related-party transactions
+        Deals with insiders or affiliates, with amounts: check the terms.
+    Auditor change
+        An 8-K item 4.01. Changing auditors often comes before restatements.
+    Change in accounting estimate
+        For example longer useful lives for equipment, which lowers expenses
+        and lifts reported earnings without any change in the business.
+    Litigation reserve missing
+        Litigation disclosed with no amount set aside.
+
+  Industry and macro
+    Supply chain concentration
+        A sole or single-source supplier: one disruption stops the business.
+    Regulatory deadline approaching
+        A compliance date within twelve months.
+    Commodity price exposure
+        A named input cost that is 20% or more of cost of revenue.
+    Currency exposure
+        A large share of revenue in foreign currencies.
+    Customer concentration by sector      (not evaluated: needs customers'
+        industries, which the filings do not give)
+
+4. WHY THE EVIDENCE TABLES ARE BUILT BY CODE (lib/devils-evidence.ts)
+
+  Before Gemini writes, our code assembles "exhibits": quarter-by-quarter
+  tables of revenue, EBITDA, margin, interest, receivables, cash, current
+  ratio, operating cash flow, capital spending and free cash flow (8
+  quarters, with the change from the prior quarter and from a year earlier
+  already worked out), the debt and when it is due, the map's entities, what
+  changed, insider trades, 8-Ks with item codes in words, peers and market
+  data.
+  Why:
+    - The model is not allowed to calculate. Every percentage it may cite is
+      already in a table, so the number check can verify it.
+    - The same tables are shown on screen under each section ("The
+      evidence"), so the reader sees the data behind each claim.
+    - It is how "use all the data we gathered" is enforced: every tab's data
+      reaches the argument.
+
+5. WHY THE CASE IS SPLIT INTO THESE EIGHT THEMES, IN THIS ORDER
+
+  1 Revenue and earnings quality   Can the business generate money?
+  2 Cash and liquidity             Can it pay its bills now?
+  3 Debt, maturities, refinancing  What does it owe, and when?
+  4 Customers, suppliers, guarantors  Who could break the plan?
+  5 What changed this quarter      Is it getting better or worse?
+  6 Management and insider behavior  Do insiders act like they believe it?
+  7 Against the peers              Is it weak compared with similar companies?
+  8 What the stock market is saying  Is the market already pricing trouble?
+
+  The order follows how a lender judges repayment: first the ability to
+  generate cash, then the cushion, then the obligations, then the outside
+  dependencies, then direction, behavior and comparison. A theme with no
+  evidence table gets no section, so the case never pads itself with empty
+  claims.
+
+6. WHY EACH SECTION HAS THESE PARTS
+
+  Headline            The point as one sentence, so a reader skimming the
+                      section list gets the whole case.
+  What the memo says  The memo's own claim that this section answers (or "The
+                      memo does not address this"). It forces the case to
+                      engage with the memo, not argue with a straw man, and it
+                      shows the reader what the memo left out.
+  The counter-argument  150-250 words built from the evidence, naming quarters
+                      with their end dates ("Q2 2026, the quarter ended
+                      2026-06-30") and comparing with the prior quarter and the
+                      year-earlier quarter. Time is in every argument because
+                      credit is about direction: a loss that is shrinking and
+                      one that is growing are different credits.
+  In plain English    2-3 sentences for someone with no finance background,
+                      with every term defined. Investment committee members,
+                      judges and new teammates are not all credit specialists;
+                      a warning that cannot be understood is ignored.
+  Why it matters to a lender  1-2 sentences linking the point to repayment.
+                      Every finding is translated into "how could we lose
+                      money", which is the only question that matters here.
+  Strength            Strong, moderate or weak: a category, never a number, so
+                      the case ranks its own points without fake precision.
+                      The badge counts strong and moderate points as concerns.
+  Sources             Built by our code from the entity, check or document
+                      cited, never written by the model.
+  The evidence        The exhibit tables for that theme.
+
+7. WHY THE PARTS AROUND THE SECTIONS ARE THERE
+
+  The period line     "Based on Q2 2026, the quarter ended 2026-06-30 · 10-Q
+                      filed 2026-08-05, 67 days before this case was written."
+                      Stale information is a classic way to be wrong; the age
+                      of the data is stated up front.
+  Read this first     A short primer: what the company does, which filing, what
+                      the memo concludes, what the case argues instead. Someone
+                      who opens the page cold knows what they are reading.
+  Bottom line         The whole case in one paragraph, strongest points first,
+                      for the reader with one minute.
+  Timeline            Filings, important 8-Ks, insider trades and debt due
+                      dates, oldest first, with future dates marked upcoming.
+                      It shows when things happened in relation to each other
+                      (for example insiders selling after a filing).
+  The other side      The best answer to the case, from facts such as checks
+                      that came back clear. A tool that only attacks is easy
+                      to dismiss; showing the rebuttal is what makes it fair
+                      and credible.
+  What to watch, and when  Each item says what to check, when it will be known
+                      (the next 10-Q, a maturity date) and what result would
+                      confirm or weaken the case. It turns the argument into
+                      a monitoring plan.
+  Terms used          Definitions of only the terms the case uses, from a fixed
+                      list written by us, not the model.
+  What was read, and what was not  Every source read and every source that
+                      was not (for example "Peers: not compared"). A case is
+                      only as good as its inputs; we show the blind spots.
+  Every check         All 36 checks with fired, clear or not evaluated.
+
+8. WHY IT CAN BE TRUSTED (the safeguards)
+
+  - Numbers: any sentence containing a figure that is not in the evidence is
+    deleted, and the count of deleted sentences is shown.
+  - No hedging words: "likely", "probably" and "may" are rejected; the case
+    must state what the filings show or say a thing is not disclosed.
+  - Retries: if too many sentences are dropped or hedges appear, Gemini is
+    asked again with a reminder, and the better attempt is kept.
+  - Citations: the model names an entity id, a check or a source key; our code
+    turns that into the label and link. The model cannot invent a source.
+  - No ratings, scores or price predictions, by rule.
+  - The memo's stance (Stable, Caution, At risk, Distressed) is a category
+    describing the memo, shown beside the count of concerns against it.
+
+9. WHY IT APPEARS IN SO MANY PLACES
+
+  Top bar badge     "Memo: Stable · 7 concerns": the dual verdict follows the
+                    analyst to every tab.
+  Beside the memo   A summary column (period, primer, bottom line, the points
+                    with their strength, what to watch) next to the memo it
+                    argues with.
+  Below the memo    The full case with the evidence tables.
+  Counter view      On the map, the flagged boxes turn red: where the risk sits
+                    among the company's relationships.
+  Cards on tabs     Financial shows the earnings and liquidity points; Capital
+                    the debt points; Changes the change and behavior points;
+                    Peers the peer points. The challenge appears where the
+                    analyst is looking, not on a separate page they may skip.
+  Runs automatically  Every report gets its case when it loads; an analyst
+                    should not have to remember to ask for the counter-view.
+  Copy memo         Exports the memo and the full case together, so the
+                    challenge travels with the memo into the committee.
+
+10. WHY THE PRIVATE COMPANY MODE (/private)
+
+  Many borrowers in private credit and leveraged loans are private: no 10-K,
+  no XBRL, no Form 4s. Their information sits in credit agreements, lender
+  reports and offering memoranda. Without this mode, the tool would be blind
+  exactly where many credit losses happen.
+  How it is built, and why:
+    - Files are read in the browser and only text is sent; nothing is saved.
+      Lender documents are confidential.
+    - The text checks run on the documents unchanged (guarantee scope,
+      subordination, related parties, receivables sold, litigation...).
+    - Checks that need public data (insider trades, 8-Ks, XBRL, stock price)
+      are marked not evaluated, never clear.
+    - Gemini first lists the key figures and dated events; a figure is kept
+      only if its value is found in the document it names. Then the same
+      structured case is written, citing documents as doc1, doc2.
+
+11. WHAT IT COSTS, AND ITS LIMITS (say these before a judge does)
+
+  - About 30-60 seconds per company; the result is saved on the report, so
+    later views are instant.
+  - It is only as good as its inputs: if peers or the changes comparison were
+    not run, those themes are thin, and "What was read" says so.
+  - Strength and the memo stance are model judgments, shown as categories.
+  - Several checks need data no free source gives (customer counts, customer
+    ratings, customer industries); they are shown as not evaluated.
+  - A fired check is a question to investigate, not proof of wrongdoing.
+
+
+------------------------------------------------------------------------------
 PART 11. THE FRONT END
 ------------------------------------------------------------------------------
 
@@ -585,12 +1205,18 @@ The map (components/map/):
                     hover focus (others fade), filters, counter view, timeline.
   entity-node.tsx   One box: type badge, name, relation, figure bar, severity
                     dots and strip, source, confidence, time strip.
-  signal-edge.tsx   One line with its label pill and arrow.
+  signal-edge.tsx   One line with its label pill (relationship, figure, due
+                    year) and arrow; width follows the dollar amount.
+  hover-card.tsx    The card beside a hovered box: charts for the company,
+                    figure, debt terms, filings by quarter and quote for others.
+  quarter-bars.tsx  The small quarterly bar chart used in the card and box.
   lib/layout.ts     Positions: company in the middle, boxes on four sides.
   lib/node-visuals.ts  The six entity colors and the figure bars.
 
-Each tab is one file in components/tabs/. The side panel when you click a box
-is components/panel/entity-panel.tsx (shows the full quote and source link).
+Charts: components/charts/trend-chart.tsx draws the Financial tab charts
+(axes, quarter labels, hover readout). Each tab is one file in
+components/tabs/. The side panel when you click a box is
+components/panel/entity-panel.tsx (shows the full quote and source link).
 
 Theme: app/globals.css defines the zinc gray scale as CSS variables and flips
 them for light mode, so a class like text-zinc-100 works in both modes. Map
@@ -703,7 +1329,7 @@ PART 16. GLOSSARY OF PROJECT TERMS
 
 
 ------------------------------------------------------------------------------
-PART 17. 40 QUESTIONS JUDGES WILL ASK, WITH ANSWERS
+PART 17. 58 QUESTIONS JUDGES WILL ASK, WITH ANSWERS
 ------------------------------------------------------------------------------
 
 Answer in your own words; these are the facts to stand on. If you do not know
@@ -718,9 +1344,8 @@ A. THE PRODUCT AND THE PROBLEM
    every claim linked to the filing sentence.
 
 2. Who is the user?
-   A credit analyst or portfolio manager at a credit fund such as Diameter
-   Capital, who reads 10-Ks, 10-Qs and 8-Ks and writes memos for an
-   investment committee.
+   A credit analyst or portfolio manager at a credit fund, who reads 10-Ks, 10-Qs
+   and 8-Ks and writes memos for an investment committee.
 
 3. How is this different from asking ChatGPT about a company?
    A chatbot answers from memory and can invent numbers. Signal Watch reads
@@ -861,10 +1486,11 @@ D. ARCHITECTURE AND TECH
     User-Agent, and responses are cached.
 
 29. How long does it take and how does it scale?
-    15-40 seconds for a fresh analysis, near-instant for a saved one. The
-    timeline builds in seconds and is saved; the full Devil's Advocate case
-    takes 30-60 seconds and is saved on the report. Analyses are independent, so they scale horizontally on
-    serverless functions; the limits are SEC rate limits and model quotas.
+    15-40 seconds for a fresh analysis, near-instant for a saved one. The timeline
+    builds in seconds and is saved; the full Devil's Advocate case takes 30-60
+    seconds and is saved on the report. Analyses are independent, so they
+    scale horizontally on serverless functions; the limits are SEC rate limits
+    and model quotas.
 
 30. What does it cost to run?
     A handful of Gemini calls per company (entities, debt, memo, plus the
@@ -901,8 +1527,9 @@ E. BUSINESS, LIMITS, NEXT STEPS
 
 36. What are the biggest limitations today?
     No bond prices or spreads; severity is a model judgment; very long filings
-    are excerpted; private companies without SEC filings are not covered; no
-    formal accuracy benchmark yet.
+    are excerpted; private companies get the Devil's Advocate from uploaded
+    documents but not the map or the financial tabs; no formal accuracy
+    benchmark yet.
 
 37. What would you build next?
     A bond price and spread feed, a hand-labeled accuracy benchmark, alerts
@@ -923,3 +1550,111 @@ E. BUSINESS, LIMITS, NEXT STEPS
     For finance, trust beats features: a feature users cannot check gets
     ignored. Showing sources, saying "not disclosed", and showing our own
     rejection count made the output usable.
+
+F. THE DEVIL'S ADVOCATE, IN DEPTH
+
+41. Why did you build a Devil's Advocate at all?
+    Because the memo is an argument for a conclusion, and confirmation bias is
+    how lenders lose money. A lender's upside is capped and the downside is
+    large, so the evidence against a deal matters more. Investment committees
+    already assign someone to argue against a deal; we automated that role.
+
+42. Isn't it just a prompt that says "be negative"?
+    No. 36 checks run in code first, on XBRL figures, filing text, 8-K item
+    codes and Form 4 trades. Our code also builds the evidence tables
+    (quarter by quarter, with changes already computed). Gemini only writes
+    the argument from that evidence, and every sentence with a number not in
+    the evidence is deleted. Sources are attached by code.
+
+43. Why should an analyst trust it?
+    Every point shows its evidence table and links to the filing, XBRL concept
+    or Form 4. Missing data is shown as "not evaluated", not as clear. And it
+    shows the other side: the best answer to its own case.
+
+44. What if it is wrong?
+    Then the analyst can see why, because the evidence is on screen. A fired
+    check is a question to investigate, not proof. The cost of a false alarm
+    is a few minutes of reading; the cost of a missed one can be the loan.
+
+45. Why explain everything in plain English?
+    Committee members, judges and new analysts are not all credit specialists.
+    A warning nobody understands gets ignored. Each section has a plain-English
+    version and a "why it matters to a lender" line, and the terms used are
+    defined at the end.
+
+46. Why are quarters and dates in every argument?
+    Credit is about direction. A loss that is shrinking and one that is growing
+    are different credits, and old data is a common way to be wrong. Each case
+    states which quarter and filing it uses and how old that filing is.
+
+47. Why not give a risk score from 1 to 100?
+    A number would suggest precision we do not have. Strength is strong,
+    moderate or weak, and the memo's stance is a category. The numbers we do
+    show are the company's own reported figures.
+
+48. Why does it include a rebuttal against itself?
+    A tool that only attacks is easy to dismiss. Showing the strongest answer
+    to the case, from checks that came back clear and strengths in the tables,
+    makes it fair and lets the analyst weigh both sides.
+
+49. Why does it take a minute?
+    It reads the latest and previous filings, Form 4s, 8-Ks and XBRL facts,
+    runs 36 checks, builds the tables, then writes eight sections in one
+    structured call. It runs automatically when a report loads and is saved,
+    so later views are instant.
+
+50. Doesn't it overwhelm the analyst with text?
+    It is layered: the top bar badge (one line), the summary column beside the
+    memo (bottom line and the list of points with their strength), then the
+    full case for whoever needs it. Each tab shows only the points about that
+    tab.
+
+51. What did it find on a real company?
+    On WULF (TeraWulf), from the 10-K, that Google's backstop of Fluidstack's
+    leases is only effective once each lease commences, so the construction
+    period is not covered; receivables up 1026.5% year over year; free cash
+    flow of -$992.3 million in Q2 2026; and three insiders selling within weeks.
+    The memo, written from the same filings, rated the credit Stable.
+
+52. How do you know the 36 checks are the right ones?
+    They are standard red flags from credit and forensic accounting work
+    (receivables versus revenue, DSO, covenant headroom, maturity walls,
+    subordination, auditor changes, insider selling). Each was tested on real
+    companies; false positives we found (for example an accounting-policy
+    sentence read as a change in estimate) were fixed by tightening the rule.
+
+53. Does it work for private companies?
+    Yes, at /private. The analyst uploads the credit agreement, lender report
+    or offering memo and writes the thesis. Files are read in the browser and
+    nothing is saved. Text checks run on the documents; checks that need
+    public data say "not evaluated". Figures are kept only if found in the
+    document named.
+
+54. Why the "Receivables sold or supplier finance" check?
+    Factoring and supplier finance raise cash or delay payments without being
+    counted as debt, so leverage can look lower than it is. Hidden financing of
+    this kind is behind several well-known private-credit collapses.
+
+55. What would make it better?
+    Bond prices and spreads (so the market section covers lenders, not just
+    shareholders), lease terms set against debt maturities, a counterparty
+    tier for each tenant (hyperscaler, neocloud, AI lab), and a labeled set of
+    past defaults to measure how early the checks fire.
+
+G. DESIGN AND THE NEWER FEATURES
+
+56. Why hover cards on the map?
+    The map shows relationships; the hover card brings the numbers to them.
+    Hovering the company shows eight quarters of revenue, margin and cash with
+    the credit ratios; hovering any other box shows its figure, share, debt
+    terms, the quarters whose filings name it, and its quote.
+
+57. Why are some lines thicker and some labels red?
+    Line thickness follows the dollar amount, so the biggest exposures stand
+    out. Labels carry the figure and, for debt, the year it is due; red means
+    due within two years, which is refinancing risk.
+
+58. Why custom charts instead of a chart library?
+    Control and consistency: boxes not circles, our six colors, losses in red,
+    and a readout with the change from the prior quarter and from a year
+    earlier. They are small SVG components with no extra dependency.
