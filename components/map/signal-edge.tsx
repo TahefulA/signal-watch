@@ -18,6 +18,10 @@ export interface SignalEdgeData extends Record<string, unknown> {
   drawIn?: boolean;
   /** Position in the entrance sequence, after all boxes. */
   delayMs?: number;
+  /** Line width from the entity's severity: 2.5 high, 1.5 medium, 1 low or none. */
+  width?: number;
+  /** High-severity lines send one dot from the company to the entity once the line is drawn. */
+  energy?: boolean;
 }
 
 export type SignalFlowEdge = Edge<SignalEdgeData, "signal">;
@@ -28,7 +32,7 @@ export const EDGE_ACTIVE = "rgb(var(--zinc-400))";
 
 function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: EdgeProps<SignalFlowEdge>) {
   const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
-  const { label, arrowAtSource = false, dashed = false, active = false, flashKey = null, opacity = 1, drawIn = false, delayMs = 0 } = data ?? {};
+  const { label, arrowAtSource = false, dashed = false, active = false, flashKey = null, opacity = 1, drawIn = false, delayMs = 0, width = 1.5, energy = false } = data ?? {};
   const stroke = active ? EDGE_ACTIVE : EDGE_IDLE;
   const marker = `url(#signal-arrow-${active ? "active" : "idle"})`;
 
@@ -44,13 +48,19 @@ function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: E
           className={`signal-edge ${drawIn && !dashed ? "edge-draw" : ""} ${active && flashKey ? "edge-flash" : ""}`}
           style={{
             stroke,
-            strokeWidth: active ? 2 : 1.5,
+            strokeWidth: active ? width + 1 : width,
             strokeDasharray: dashed ? "0.01 0.01" : undefined,
             animationDelay: `${delayMs}ms`,
           }}
           markerStart={arrowAtSource ? marker : undefined}
           markerEnd={arrowAtSource ? undefined : marker}
         />
+        {energy && drawIn && !dashed ? (
+          <circle r={1.5} opacity={0} style={{ fill: stroke }} className="energy-dot">
+            <animateMotion path={path} begin={`${(delayMs + 400) / 1000}s`} dur="0.8s" fill="freeze" />
+            <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.85;1" begin={`${(delayMs + 400) / 1000}s`} dur="0.8s" fill="freeze" />
+          </circle>
+        ) : null}
         {/* A wider invisible path makes the line easy to hover. */}
         <path d={path} fill="none" stroke="transparent" strokeWidth={14} className="react-flow__edge-interaction" />
       </g>

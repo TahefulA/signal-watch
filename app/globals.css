@@ -108,18 +108,105 @@
   }
 }
 
+@keyframes node-enter-scaled {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes central-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .node-enter {
-  animation: node-enter 200ms ease-out backwards;
+  animation: node-enter-scaled 200ms ease-out backwards;
+}
+
+.node-enter-central {
+  animation: central-enter 200ms ease-out backwards;
+}
+
+/* One ring spreads from the company box as the map assembles, then is gone. */
+@keyframes radar-ring {
+  from {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.radar-ring {
+  width: 400px;
+  height: 400px;
+  opacity: 0;
+  animation: radar-ring 400ms ease-out 200ms both;
+}
+
+/* Hovering a box sends one ring out from its middle. */
+@keyframes hover-ripple {
+  from {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.hover-ripple {
+  width: 200%;
+  aspect-ratio: 1;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.entity-box:hover .hover-ripple {
+  animation: hover-ripple 400ms ease-out 1;
+}
+
+/* The single ambient motion: a faint blue wash at the middle of the canvas. */
+@keyframes canvas-breathe {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+.canvas-breathe {
+  background: radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.03) 0%, transparent 60%);
+  animation: canvas-breathe 8s ease-in-out infinite alternate;
 }
 
 .entity-box {
   transition:
-    border-color 150ms ease-out,
+    border-color 200ms ease-out,
+    outline-color 200ms ease-out,
     opacity 200ms ease-out;
+  outline: 1px solid transparent;
+  outline-offset: 2px;
 }
 
 .entity-box:hover {
   border-color: var(--hover-border) !important;
+  outline-color: var(--type-ring);
 }
 
 .react-flow__node.selected .entity-box {
@@ -143,8 +230,8 @@
 
 .signal-edge {
   transition:
-    stroke 150ms ease-out,
-    stroke-width 150ms ease-out;
+    stroke 200ms ease-out,
+    stroke-width 200ms ease-out;
 }
 
 .edge-draw {
@@ -269,6 +356,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .node-enter,
+  .node-enter-central,
+  .radar-ring,
+  .canvas-breathe,
+  .entity-box:hover .hover-ripple,
   .edge-draw,
   .edge-pill,
   .conf-in,

@@ -1,13 +1,13 @@
 "use client";
 
-import { Background, Controls, ReactFlow, ReactFlowProvider, useNodesState, useReactFlow } from "@xyflow/react";
+import { Background, BackgroundVariant, Controls, ReactFlow, ReactFlowProvider, ViewportPortal, useNodesState, useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Entity, EntityGraph, EntityType, Severity, Timeline } from "@/types";
 import { viewGraph } from "@/lib/graph-view";
 import { useTheme } from "@/lib/theme";
 import { CENTRAL_WIDTH, NODE_HEIGHT, type Positioned, type Side, layoutGraph } from "@/lib/layout";
 import { arrowTowardCompany, figureBars, materialityOf, parseDisplayMoney, widthFor } from "@/lib/node-visuals";
-import { EntityNode, type EntityFlowNode, NODE_ENTER_MS, NODE_STAGGER_MS } from "./entity-node";
+import { EntityNode, type EntityFlowNode, NODE_ENTER_MS, enterDelayOf } from "./entity-node";
 import { SignalEdge, type SignalFlowEdge, SignalMarkers } from "./signal-edge";
 
 const nodeTypes = { entityNode: EntityNode };
@@ -15,7 +15,9 @@ const edgeTypes = { signal: SignalEdge };
 
 const OPPOSITE: Record<Side, Side> = { left: "right", right: "left", top: "bottom", bottom: "top" };
 const SEVERITY_RANK: Record<Severity, number> = { high: 0, medium: 1, low: 2, none: 3 };
-const EDGE_STAGGER_MS = 30;
+const EDGES_START_MS = 1200;
+const EDGE_STAGGER_MS = 80;
+const EDGE_WIDTH: Record<Severity, number> = { high: 2.5, medium: 1.5, low: 1, none: 1 };
 
 export interface MapFilters {
   types: EntityType[];
@@ -74,11 +76,12 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
     const ranked = [...graph.nodes].sort((a, b) => Number(Boolean(b.isCentral)) - Number(Boolean(a.isCentral)) || SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]);
     return new Map(ranked.map((e, i) => [e.id, i]));
   }, [graph.nodes]);
-  const nodesDoneMs = graph.nodes.length * NODE_STAGGER_MS + NODE_ENTER_MS;
+  const nodesDoneMs = enterDelayOf(graph.nodes.length - 1) + NODE_ENTER_MS;
   const [settled, setSettled] = useState(false);
   useEffect(() => {
     setSettled(false);
-    const timer = window.setTimeout(() => setSettled(true), nodesDoneMs + graph.nodes.length * EDGE_STAGGER_MS + 500);
+    const edgesDoneMs = EDGES_START_MS + graph.nodes.length * EDGE_STAGGER_MS + 400 + 1200;
+    const timer = window.setTimeout(() => setSettled(true), Math.max(nodesDoneMs, edgesDoneMs));
     return () => window.clearTimeout(timer);
   }, [graph.nodes, nodesDoneMs]);
 
@@ -100,6 +103,11 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
     return { counts, slot };
   }, [spokes, positions]);
 
+  const centralPos = useMemo(() => {
+    const p = central ? positions.get(central.id) : null;
+    return p ? { x: p.x + CENTRAL_WIDTH / 2, y: p.y + NODE_HEIGHT / 2 } : null;
+  }, [central, positions]);
+
   const focusId = selectedId ?? hoveredId;
   const related = useMemo(() => {
     if (!focusId || !central) return null;
@@ -112,7 +120,7 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
     }
     return ids;
   }, [focusId, central, graph.nodes, graph.edges]);
-  const fadeTo = selectedId ? 0.2 : 0.3;
+  const fadeTo = 0.2;
 
   // Per box: the window's quarters and whether each names it. A window that ends
   // before the latest quarter fades boxes its filings never name.
@@ -213,7 +221,7 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
       const target = byId.get(e.target);
       const active = Boolean(focusId && related?.has(e.target) && (focusId === e.target || focusId === e.source));
       const filteredOut = target ? !passesFilters(target, filters) || Boolean(timeData.get(target.id)?.absent) : false;
-      const opacity = filteredOut ? 0.15 : related && !active ? fadeTo : 1;
+      const opacity = filteredOut ? 0.15 : related && !active ? 0.1 : 1;
       return {
         id: e.id,
         type: "signal",
@@ -230,11 +238,13 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
           flashKey: active && selectedId ? selectedId : null,
           opacity,
           drawIn: !settled,
-          delayMs: nodesDoneMs + i * EDGE_STAGGER_MS,
+          delayMs: EDGES_START_MS + i * EDGE_STAGGER_MS,
+          width: EDGE_WIDTH[target?.severity ?? "none"],
+          energy: target?.severity === "high",
         },
       };
     });
-  }, [graph.nodes, spokes, positions, focusId, related, filters, fadeTo, fan, relationLabels, selectedId, nodesDoneMs, settled, timeData]);
+  }, [graph.nodes, spokes, positions, focusId, related, filters, fan, relationLabels, selectedId, settled, timeData]);
 
   return (
     <div className="relative h-full w-full">
@@ -261,9 +271,22 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
         zoomOnScroll
         className="bg-zinc-950"
       >
-        <Background color={theme === "light" ? "#d4d4d8" : "#27272a"} gap={20} size={1} />
+        <Background id="dots" color={theme === "light" ? "#d4d4d8" : "#27272a"} gap={20} size={1} />
+        {/* Graph-paper crosses every 100px. */}
+        <Background id="cross" variant={BackgroundVariant.Cross} color={theme === "light" ? "#e4e4e7" : "#1f1f23"} gap={100} size={6} style={{ opacity: 0.3 }} />
+        {!settled && centralPos ? (
+          <ViewportPortal>
+            <div
+              className="radar-ring pointer-events-none absolute rounded-full border"
+              style={{ left: centralPos.x, top: centralPos.y, borderColor: "rgb(var(--zinc-400))" }}
+              aria-hidden
+            />
+          </ViewportPortal>
+        ) : null}
         <Controls showInteractive={false} position="bottom-left" />
       </ReactFlow>
+      {/* The one ambient motion in the app: a faint blue wash at the middle that widens and narrows over eight seconds. */}
+      <div className="canvas-breathe pointer-events-none absolute inset-0" aria-hidden />
       {/* Darkens the edges of the canvas so the eye settles on the middle. */}
       <div
         className="pointer-events-none absolute inset-0"

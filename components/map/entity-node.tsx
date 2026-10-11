@@ -73,10 +73,21 @@ const SEVERITY_WORD: Record<Severity, string> = { high: "High", medium: "Medium"
 
 const TREND_WORD: Record<Exclude<Trend, "unknown">, string> = { increasing: "Up", decreasing: "Down", stable: "Flat" };
 
+/**
+ * Load sequence, played once: the company box scales in (0-200ms), one ring
+ * spreads from it (200-600ms), then the other boxes fade in by severity, 60ms
+ * apart, while the lines draw outward from 1200ms.
+ */
+export const CENTRAL_ENTER_MS = 200;
+export const NODES_START_MS = 600;
 export const NODE_ENTER_MS = 200;
+export const NODE_STAGGER_MS = 60;
 /** Matches NODE_HEIGHT in lib/layout. */
 const NODE_BOX_HEIGHT = 178;
-export const NODE_STAGGER_MS = 40;
+
+export function enterDelayOf(order: number): number {
+  return order === 0 ? 0 : NODES_START_MS + (order - 1) * NODE_STAGGER_MS;
+}
 
 const POSITION: Record<Side, Position> = { left: Position.Left, right: Position.Right, top: Position.Top, bottom: Position.Bottom };
 
@@ -152,12 +163,16 @@ function CentralBox({ entity, totalDebt, company }: { entity: Entity; totalDebt?
   const ratings = company?.ratings ?? [];
   return (
     <div className="flex h-full flex-col gap-1.5">
-      <TypeBadge entity={entity} />
-      <div className="line-clamp-1 text-base font-semibold leading-tight tracking-[-0.01em] text-zinc-900">{entity.name}</div>
-      <div className="text-xs leading-snug text-zinc-500">
-        <span className="font-mono">{company?.ticker}</span> · Subject company
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-mono text-[11px] font-semibold uppercase leading-none tracking-[0.16em] text-blue-700">{company?.ticker}</span>
+        {company?.sic ? (
+          <span className="line-clamp-1 rounded-xs border border-blue-700/40 px-1.5 py-0.5 text-[9px] font-medium uppercase leading-none tracking-[0.08em] text-blue-800" title="SEC industry classification">
+            {company.sic}
+          </span>
+        ) : null}
       </div>
-      {company?.sic ? <div className="line-clamp-1 text-[11px] uppercase tracking-[0.08em] text-zinc-600">{company.sic}</div> : null}
+      <div className="line-clamp-1 text-lg font-semibold leading-tight tracking-[-0.01em] text-zinc-900">{entity.name}</div>
+      <div className="text-[11px] uppercase leading-snug tracking-[0.08em] text-zinc-500">Subject company</div>
       {company?.industry ? (
         <div className="line-clamp-1 text-xs leading-snug text-zinc-700" title={`How the company describes itself in its 10-K: ${company.industry}`}>
           {company.industry.charAt(0).toUpperCase()}
@@ -230,7 +245,7 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
   const change = entity.change && !removed ? entity.change : null;
   const color = TYPE_HEX[entity.type];
   const dark = TYPE_HEX_DARK[entity.type];
-  const enterDelay = order * NODE_STAGGER_MS;
+  const enterDelay = enterDelayOf(order);
   const icon = relationIcon(entity);
   const Icon = icon ? RELATION_ICON[icon] : null;
   const trend = entity.trend && entity.trend !== "unknown" ? entity.trend : null;
@@ -241,7 +256,13 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
   }${entity.strategic?.whyItMatters ? `. Gemini's reading: ${entity.strategic.whyItMatters}` : ""}`;
 
   return (
-    <div className="node-enter" style={{ animationDelay: `${enterDelay}ms` }}>
+    <div className={entity.isCentral ? "node-enter-central relative" : "node-enter relative"} style={{ animationDelay: `${enterDelay}ms` }}>
+      {/* A soft wash of the type color behind the box; not a shadow, it sits under the box only. */}
+      <span
+        className="pointer-events-none absolute -z-10"
+        style={{ inset: "-50%", background: `radial-gradient(closest-side, ${color} 0%, transparent 100%)`, opacity: 0.15 * Math.min(1, opacity) }}
+        aria-hidden
+      />
       <div
         className={`entity-box group relative cursor-pointer rounded-xs ${removed ? "border-dashed" : ""}`}
         style={
@@ -251,14 +272,17 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
             background: TYPE_TINT[entity.type],
             borderWidth: 3,
             borderStyle: removed ? "dashed" : "solid",
-            borderColor: selected || emphasis === "focus" ? dark : color,
-            padding: entity.isCentral ? "16px 18px 16px 24px" : "13px 14px 12px 22px",
+            borderColor: selected || emphasis ? dark : color,
+            padding: entity.isCentral ? "20px 22px 18px 28px" : "13px 14px 12px 22px",
             opacity: removed ? Math.min(opacity, 0.5) : opacity,
             "--hover-border": dark,
+            "--type-ring": `${color}26`,
           } as CSSProperties
         }
       >
-        <span className="absolute inset-y-0 left-0 w-1.5" style={{ background: SEVERITY_HEX[entity.severity] }} aria-hidden />
+        <span className="absolute inset-y-0 left-0 w-1.5 rounded-l-[2px]" style={{ background: SEVERITY_HEX[entity.severity] }} aria-hidden />
+        {/* One ring spreads from the middle of the box each time the pointer enters it. */}
+        <span className="hover-ripple pointer-events-none absolute left-1/2 top-1/2 rounded-full border" style={{ borderColor: color }} aria-hidden />
         {materiality ? (
           <span
             className="tip absolute bottom-0 left-0 h-0.5"
