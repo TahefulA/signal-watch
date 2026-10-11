@@ -10,6 +10,7 @@ Contents
   Part 0   The idea in one page
   Part 0.5 WHY every piece exists and how it all comes together (read first)
   Part 0.6 WHY each feature is included, feature by feature
+  Part 0.7 Every arrow, symbol and color: what it means and why it is there
   Part 1   Credit analysis vocabulary you will see everywhere
   Part 2   The tech stack and how to run it
   Part 2.5 WHY this stack, tied to the goal of the project
@@ -28,7 +29,7 @@ Contents
   Part 14  Scripts and everyday tasks
   Part 15  A suggested reading order for your first two days
   Part 16  Glossary
-  Part 17  58 questions judges will ask, with answers
+  Part 17  59 questions judges will ask, with answers
 
 
 ------------------------------------------------------------------------------
@@ -356,6 +357,217 @@ DESIGN CHOICES, AND WHY
                                    most) and then get out of the way.
   "Not disclosed" everywhere       An honest gap is more useful to a lender
                                    than a confident guess.
+
+
+------------------------------------------------------------------------------
+PART 0.7  EVERY ARROW, SYMBOL AND COLOR: WHAT IT MEANS AND WHY IT IS THERE
+          ("what do the arrows mean?", "why did you put this?")
+------------------------------------------------------------------------------
+
+Judges click around and point at things. This part is the lookup table. The
+same answers are in the app's legend (the "?" button in the bottom-right
+corner of the map).
+
+A. ARROWS ON THE MAP LINES
+  What they mean
+    The arrowhead tells you which way to read the label on the line. Read
+    from the end without the arrow, through the label, to the end with the
+    arrow:
+      Anthropic ---CUSTOMER OF--->  TeraWulf    "Anthropic is a customer of
+                                                 TeraWulf"
+      TeraWulf  ---REGULATED BY--->  Kentucky PSC  "TeraWulf is regulated by
+                                                 the Kentucky PSC"
+    So the arrow points at the company when the box acts on the company
+    (customer, supplier, lender, guarantor, owner), and points at the box
+    when the company is the one acted on (regulated by, exposed to,
+    dependent on, partners with, competes with).
+  Why we did it
+    A label such as "CUSTOMER OF" is ambiguous without a direction: is the box
+    our customer, or are we its customer? For credit that is the difference
+    between money coming in and money going out. The arrow removes the doubt.
+  Where in code
+    arrowTowardCompany() in lib/node-visuals.ts decides the end; the
+    arrowheads are drawn in components/map/signal-edge.tsx.
+
+B. EVERYTHING ELSE ON A LINE
+  Label pill            The typed relationship, then the figure (378 MW,
+                        $3.20B), then "due 2030" for debt. Why: the line says
+                        what the link is and how big it is without a click.
+  Red label border and  Debt due within two years. Why: that is when a company
+  red "due" year        must refinance, which is when defaults happen.
+  Line thickness        With a dollar figure, 1px to 6px by the amount (square
+                        root, so a $3.2B bond is clearly heavier but does not
+                        swamp the map). Without one, by severity. Why: the eye
+                        should go to the biggest exposures first.
+  One dot travelling    On high-severity lines, one dot runs from the company
+  along a line (once)   to the box when the map loads, then stops. Why: it
+                        draws the eye to the most severe links in order. It
+                        never repeats.
+  Dashed gray line      The entity was in last quarter's filings and is gone
+                        now (dropped customer, repaid lender). Why: what
+                        disappeared is as important as what appeared.
+  Dashed red line       Counter view is on and the Devil's Advocate cites this
+                        box. Why: shows where the case against the company
+                        sits on the map.
+  Lines draw outward    On load, lines draw from the company, most severe
+                        first, after the boxes appear. Once only.
+
+C. INSIDE A BOX (top to bottom)
+  Colored square + word  The type: blue Company, red Risk, amber Macro or
+  (and the border color) policy, green Financial, violet Regulatory, gray
+                        Other. Why: six colors only, each with one meaning, so
+                        the map can be read by color from across a room.
+  Small icon before the  The kind of relationship, in one glance:
+  relationship text       ->  (arrow right)   supplies the company
+                          <-  (arrow left)    customer or tenant of the company
+                          <-> (both ways)     competitor
+                          shield              guarantees the company
+                          $   (dollar)        lends to it, credit facility, or
+                                              credit support
+                          scales              regulator, licence, order
+                          building            owns it or a major holder
+                          chain link          partner, joint venture, officer,
+                                              director, dependence
+                          warning triangle    a risk the company is exposed to
+                        Why: the analyst sorts boxes by role before reading
+                        any words.
+  Figure and bar        The disclosed number and how full the bar is versus
+                        the largest comparable figure on the map, or the share
+                        of revenue when the filing gives it. A bar appears only
+                        when at least two boxes share a unit, so a lone figure
+                        never shows a meaningless full bar.
+  "Rev % n/d" (dashed)  A customer whose share of revenue is not disclosed.
+                        Why: an undisclosed concentration is itself a risk.
+  Left color strip and  Severity: red high, amber medium, green low, gray
+  the three dots         none. Three filled dots = high. Why: severity is shown
+                        as a category, never a fake numeric score.
+  Small up/down arrow   Severity against the previous quarter's map (up =
+  after the severity    worse, down = better, dash = unchanged). Why: the
+                        direction of a risk matters as much as its level.
+  Up/Down/Flat with     Trend of the relationship as the filing describes it
+  arrows (bottom right) (for example a customer's volumes growing). Hover it
+                        for the sentence it came from.
+  Page icon or          Where the box came from: a filing (with quarter and
+  newspaper icon        page) or a news headline (with outlet and date).
+  Small green dots      Confidence that the relationship is real: 3 high, 2
+  (bottom right)        medium, 1 low, from the source and wording.
+  Segmented strip at    One segment per filing in the selected window, filled
+  the very bottom       when that filing names the box. A dashed segment at
+                        the end = on the map from a filing or headline after
+                        the latest quarter. Why: new risk versus old risk.
+  Thin colored line     Materiality: the box's share of revenue or of total
+  along the bottom edge debt, only when the filing gives the denominator.
+  Wider boxes           Material items (over 15% or 25%) are drawn wider.
+  Dot in the top-right  Green = new since last quarter, amber = changed,
+  corner                red = no longer in the filings.
+  Sword icon            Counter view: cited by the Devil's Advocate.
+  Dashed border, faded  An entity that dropped out of the filings.
+  Company box (middle)  Ticker, industry badge, name, eight quarters of revenue
+                        as bars (latest in blue, losses in red), rating if a
+                        filing states one, total debt.
+
+D. MAP BEHAVIOR
+  Others fade when you  Hovering or selecting a box fades unrelated boxes to
+  hover                 20% so its connections stand out.
+  Ring when the map     One ring spreads from the company as the map loads:
+  loads                 "this is the center". Plays once.
+  Ripple on hover       One ring from the box under the pointer: confirms
+                        what you are pointing at. Once per hover.
+  Card beside a box     The hover card with charts and figures (Part 0.6).
+  Faint blue wash in    A very slow, faint widening at the middle of the
+  the middle            canvas: the one ambient motion in the app, turned off
+                        for users who ask their system for reduced motion.
+  Faded boxes (15%)     Filtered out by the legend chips, or not named in the
+                        quarters selected on the time bar. Never hidden, so
+                        the layout does not jump.
+  Grid crosses          Graph-paper marks every 100px for orientation when
+                        zooming and panning.
+
+E. TOP BAR, TABS AND STRIPS
+  Red line at the very top  The brand line: Signal Watch's accent is red
+                        because red means risk.
+  Shield icon (logo)    Signal Watch watches for risk; click it to go home.
+  "Memo: Stable ·       The memo's own stance, and the number of strong or
+  7 concerns"           moderate points the Devil's Advocate makes against it.
+                        Click it to open the Memo tab.
+  Red badge with a      Facts that changed since last quarter. Click to open
+  number                Changes.
+  Cmd+K                 Ask a question about this report.
+  Red dot on a tab      Something new on that tab (for example Changes).
+  Dash after a tab name Nothing loaded there yet (Peers before you compare).
+  Red underline + faint The tab you are on.
+  red wash
+  "Step 2 · ..."        Where the tab sits in Gatto's seven-step process.
+  Time bar with dot     The last twelve 10-Q/10-K filings; the selector sets
+                        which quarters the map and charts show.
+  "As of Q2 2026 · 10-Q The filing the numbers come from, so nobody mistakes
+  filed 2026-08-05"     old numbers for current ones.
+  Market strip arrows   Direction over the selected window: up or down, with
+  (up/down triangles)   the change. "MARKET start -> end" gives the window.
+  "no bond price feed"  We have no bond price data and say so instead of
+                        inventing a spread.
+  Status bar            "17/20 verified · 3 rejected": AI proposals that
+                        passed or failed the quote check (click to see why),
+                        node and line counts, time of the analysis, sources.
+
+F. CHARTS (Financial tab and hover cards)
+  Bars below the zero   A loss or cash burn for that quarter, in red.
+  line, in red
+  Brighter last bar     The latest quarter, the one the snapshot is about.
+  Dashed amber line     A reference level, e.g. 1.0x on the current ratio.
+  "FY 2025" on the axis The fourth quarter. Companies report it in the annual
+                        10-K, not a 10-Q, so its label is the fiscal year.
+  Green or red "vs a    Change from the same quarter a year earlier; green is
+  year earlier"         up, red is down.
+  "pts"                 Percentage points: the change in a percentage, e.g. a
+                        margin going from 10% to 7% is -3.0 pts.
+  q/q and y/y           In the hover readout: change from the prior quarter and
+                        from the same quarter a year earlier.
+  High / Low            The best and worst quarter shown.
+  n/m                   Not meaningful, e.g. leverage when EBITDA is negative.
+  Not tagged / Not      The company did not tag that number or the filing does
+  disclosed             not state it. We never fill the gap.
+
+G. DEVIL'S ADVOCATE MARKS
+  Sword icon            The Devil's Advocate, wherever it appears.
+  Red left border /     Its sections and cards, so they are never mistaken for
+  dark red panel        the memo's own view.
+  Strong / Moderate /   How hard the point hits the memo (red, amber, gray).
+  Weak point
+  01, 02, 03...         Section numbers; the chips at the top jump to them.
+  "Upcoming" in red on  A date still to come, such as a debt maturity.
+  the timeline
+  Fired / Clear / Not   The three results of each of the 36 checks (Part 10.5).
+  evaluated
+  "Read" / "Not read"   In "What was read": which sources the case used.
+
+H. QUICK QUESTIONS PEOPLE ASK WHILE CLICKING
+  "Why is the company blue?"     Blue is the Company type color, and the
+                                 subject company is a company.
+  "Why are risk boxes on the     Each type has a home side: counterparties
+  right?"                        (companies) left, risks, regulators and macro
+                                 right, debt along the top, people and sites
+                                 along the bottom. A full side overflows to
+                                 the next. Every company's map has the same
+                                 shape, so you know where to look.
+  "Why can't I see all boxes?"   Some are faded by a filter, the time window or
+                                 Counter view; none are hidden.
+  "Why is a figure missing?"     The filing does not state it. The app says so
+                                 instead of estimating.
+  "Why does it say not           The data that check needs is not available
+  evaluated?"                    (for example a private company has no Form
+                                 4s). We show the gap rather than call it clear.
+  "Why is the 10-year Treasury   Rates set the cost of refinancing debt; the
+  on the Graph tab?"             strip puts the company's moves in context.
+  "Why did the ticker box        So you can type the next ticker straight away.
+  clear?"
+  "Why is there a texture in     A faint grain and graph-paper grid: depth
+  the background?"               without decoration, in the spirit of an
+                                 analyst's worksheet.
+  "Why no shadows or glow?"      Finance users trust sober tools; decoration
+                                 reads as marketing.
+  "Why do animations stop?"      They show what loads first (what matters
+                                 most) and then get out of the way.
 
 
 ------------------------------------------------------------------------------
@@ -1329,7 +1541,7 @@ PART 16. GLOSSARY OF PROJECT TERMS
 
 
 ------------------------------------------------------------------------------
-PART 17. 58 QUESTIONS JUDGES WILL ASK, WITH ANSWERS
+PART 17. 59 QUESTIONS JUDGES WILL ASK, WITH ANSWERS
 ------------------------------------------------------------------------------
 
 Answer in your own words; these are the facts to stand on. If you do not know
@@ -1658,3 +1870,10 @@ G. DESIGN AND THE NEWER FEATURES
     Control and consistency: boxes not circles, our six colors, losses in red,
     and a readout with the change from the prior quarter and from a year
     earlier. They are small SVG components with no extra dependency.
+
+59. What do the arrows on the map mean?
+    Read from the end without the arrow, through the label, to the end with
+    it: "Anthropic CUSTOMER OF TeraWulf" points at TeraWulf; "TeraWulf
+    REGULATED BY the Kentucky PSC" points at the regulator. Without a
+    direction, "CUSTOMER OF" could mean money in or money out. Part 0.7 lists
+    every other symbol.
