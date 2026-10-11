@@ -165,13 +165,17 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
 
   useEffect(() => {
     if (!focusRequest || !selectedId) return;
-    const node = getNode(selectedId);
-    if (!node) return;
-    const width = node.width ?? CENTRAL_WIDTH;
-    const zoom = 1.1;
-    // On wide screens the entity panel covers the right 420px; center the box in what remains.
-    const panelOffset = window.innerWidth >= 1024 ? 210 / zoom : 0;
-    void setCenter(node.position.x + width / 2 + panelOffset, node.position.y + NODE_HEIGHT / 2, { zoom, duration: 300 });
+    // Wait a frame so a map that was just shown has measured its container.
+    const timer = window.setTimeout(() => {
+      const node = getNode(selectedId);
+      if (!node) return;
+      const width = node.width ?? CENTRAL_WIDTH;
+      const zoom = 1.1;
+      // On wide screens the entity panel covers the right 460px; center the box in what remains.
+      const panelOffset = window.innerWidth >= 1024 ? 230 / zoom : 0;
+      void setCenter(node.position.x + width / 2 + panelOffset, node.position.y + NODE_HEIGHT / 2, { zoom, duration: 300 });
+    }, 80);
+    return () => window.clearTimeout(timer);
   }, [focusRequest, selectedId, getNode, setCenter]);
 
   // Spokes carry the typed relationship, e.g. CUSTOMER OF, and an arrow showing

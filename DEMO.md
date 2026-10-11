@@ -11,25 +11,27 @@ change comparison uses the filings available on Aug 4, 2026. Every line below is
 
 ## Before you go on
 
-1. Open the demo link and wait for the peer section to fill in (a few seconds). Zoom the browser to 80-90%.
+1. Open the demo link and wait a few seconds for the peer comparison to load. Zoom the browser to 80-90%.
 2. Open the dashboard and the printable brief in other tabs.
 3. The demo link is saved, so nothing needs Gemini except the question bar. If the Wi-Fi is bad, skip step 3 below.
 
 ## The walkthrough (about 2.5 minutes)
 
+The page opens on the **Graph** tab with the map filling the screen. Six tabs sit under the top bar: Graph,
+Financial, Capital, Changes, Peers, Memo. The footer reads "17/20 verified · 3 rejected · 22 nodes · 23 edges".
+
 | # | Do | Say |
 |---|----|-----|
-| 1 | Point at the **Signal** box at the top. | "Ten-second read. TeraWulf's story: about 401 megawatts leased to Anthropic and 378 to Fluidstack, Google's credit enhancement behind Fluidstack, $5.72 billion of debt against $2.62 billion of cash. Watch the Kentucky regulator's approvals." |
-| 2 | Click **Who provides credit support for the leases?** under the question bar. | "Ask in plain English. It answers only from this report. Google, behind Fluidstack's leases. Each chip opens the filing line, page 54 of the 10-Q." Click the **Google** chip. |
-| 3 | Close the panel. Point at the validation line above the change panel, open **Details**. | "Seventeen of twenty entities Gemini proposed were verified against the filings. Three were rejected: Core Scientific, IREN and Cipher were called competitors, but the sentences cited only list stock moves. We don't trust the AI, we check it." |
-| 4 | Point at the change panel. | "What changed since last quarter: Kentucky Power, the Kentucky Public Service Commission and Governor Hochul's Executive Order 62 appear in these filings and nowhere in the previous quarter's. The bridge facility is described as repaid." |
-| 5 | Scroll to the map. Hover **Anthropic**, then click it. | "Boxes are built to scan, not read: the colored square is the type, the arrow is which way the relationship runs, the bar is the figure against the largest of its kind on the map (Anthropic's 401 megawatts against Fluidstack's 378 and Core42's 60), dots for severity and confidence, then the fiscal period and page. Hover and everything unrelated fades. Revenue share: not disclosed, and we say so rather than guess." |
-| 6 | Scroll the panel to *Connections*. Close it. | "Connections show who else sits next to it: Fluidstack and Core42 are the other tenants." |
-| 7 | Point at **Financial snapshot** on the right. | "The numbers, from TeraWulf's own XBRL data: $165.2 million of revenue with eight quarters of history in the sparkline, EBITDA of negative $309.6 million, free cash flow of negative $2.50 billion. Leverage reads n/m, not a fake multiple. Current ratio 0.7x sits in the stress band, with Cipher's 3.0x marked beside it. Ratings: not stated in the filings, and no bond price feed, so we don't invent them." |
-| 8 | Scroll the right column to **Maturity wall**. | "The maturity wall, from the 10-Q's own table: $2.86 billion due in 2030." |
-| 9 | Scroll to **Peer comparison**. | "Against Cipher Mining: both lease to Fluidstack, both have Google credit support, and both buy from Bitmain. Each match is checked against the other company's filing text." |
-| 10 | Scroll to **Meeting prep**. | "And the one-page brief: three things to know, the numbers, risks with their filing lines, and questions such as what is drawn on the revolver and how Executive Order 62 affects the timeline." |
-| 11 | Close. | "Signal Watch. Every box has a receipt, every number has a source, and where a number would mislead, it says so." |
+| 1 | Point at the map. | "Everything TeraWulf's filings say it depends on: customers left, debt on top, risks and regulators right. Each box: the type, the relationship and which way it runs, the figure as a bar, severity and confidence dots, and the filing page." |
+| 2 | Hover **Google**, then click **Anthropic**. | "Hover and everything unrelated fades. Click and you get the quote: a lease for about 401 megawatts, page 54 of the 10-Q. Revenue share not disclosed, and we say so rather than guess." Close the panel. |
+| 3 | Press **⌘K**, click **Who provides credit support for the leases?** | "Ask in plain English; it answers only from this report. Google, behind Fluidstack's leases, with the filing lines as chips." Press Esc. |
+| 4 | Click the **3 rejected** in the footer. | "Seventeen of twenty entities Gemini proposed were verified against the filings. Three were rejected: Core Scientific, IREN and Cipher were called competitors, but the sentences cited only list stock moves." |
+| 5 | Open **Financial**. | "$165.2 million of revenue, with the latest quarter up 31.6% on the one before; EBITDA negative, so leverage reads n/m, not a fake multiple. Current ratio 0.7x, in the stress band, with Cipher's 3.0x marked beside it. Ratings: not stated in the filings, and we don't invent them." |
+| 6 | Open **Capital**. | "Every instrument from the debt note, with its source page. The maturity wall from the 10-Q's own table: $2.86 billion due in 2030. Spread: no bond price feed, so we don't show one." |
+| 7 | Open **Changes** (the red badge in the top bar does the same). | "New this quarter: Kentucky Power, the Kentucky PSC and Executive Order 62. The bridge facility is described as repaid." |
+| 8 | Open **Peers**. | "Against Cipher: both lease to Fluidstack, both have Google credit support, both buy from Bitmain, each checked against the other company's filings." |
+| 9 | Open **Memo**, scroll to **Meeting prep**. | "The signal, the five-part memo, and the questions to ask management, such as what is drawn on the revolver. Names link back to the map." |
+| 10 | Close. | "Signal Watch. Every box has a receipt, every number has a source, and where a number would mislead, it says so." |
 
 Live run if time allows: type `IREN` or `CIFR` and press Analyze (20 to 40 seconds).
 

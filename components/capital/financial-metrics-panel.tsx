@@ -18,7 +18,7 @@ type Key = CapitalMetric["key"];
  * Reference bands for each ratio: a common rule of thumb in leveraged credit,
  * not a rating model. Lower is better for leverage, higher for coverage.
  */
-const BANDS: Partial<Record<Key, { max: number; watch: number; stress: number; higherIsBetter: boolean; note: string }>> = {
+export const BANDS: Partial<Record<Key, { max: number; watch: number; stress: number; higherIsBetter: boolean; note: string }>> = {
   debt_to_ebitda: { max: 8, watch: 3, stress: 6, higherIsBetter: false, note: "Bands: under 3x, 3x to 6x, over 6x" },
   net_debt_to_ebitda: { max: 8, watch: 3, stress: 6, higherIsBetter: false, note: "Bands: under 3x, 3x to 6x, over 6x" },
   interest_coverage: { max: 8, watch: 3, stress: 1.5, higherIsBetter: true, note: "Bands: under 1.5x, 1.5x to 3x, over 3x" },
@@ -32,7 +32,7 @@ const SECTIONS: { title: string; keys: Key[] }[] = [
 
 const LIQUIDITY: Key[] = ["cash", "revolver_availability", "liquidity", "next_maturity"];
 
-function multipleOf(display: string): number | null {
+export function multipleOf(display: string): number | null {
   const m = display.match(/^(-?\d+(?:\.\d+)?)x$/);
   return m ? Number(m[1]) : null;
 }
@@ -41,10 +41,10 @@ function SectionHeader({ children }: { children: string }) {
   return <h3 className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">{children}</h3>;
 }
 
-function Sparkline({ points, label }: { points: { end: string; value: number }[]; label: string }) {
+export function Sparkline({ points, label, large = false }: { points: { end: string; value: number }[]; label: string; large?: boolean }) {
   if (points.length < 2) return null;
-  const width = 48;
-  const height = 18;
+  const width = large ? 240 : 48;
+  const height = large ? 60 : 18;
   const values = points.map((p) => p.value);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -54,9 +54,17 @@ function Sparkline({ points, label }: { points: { end: string; value: number }[]
     .join(" ");
   const tip = `${label}, quarter by quarter from XBRL: ${points.map((p) => `${p.end.slice(0, 7)} ${compactMoney(p.value)}`).join(", ")}`;
   return (
-    <span className="tip shrink-0" data-tip={tip}>
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-label={tip} role="img" className="block">
-        <path d={d} fill="none" stroke="#10b981" strokeWidth={1.25} strokeLinejoin="round" />
+    <span className={`tip ${large ? "block" : "shrink-0"}`} data-tip={tip}>
+      <svg
+        width={large ? undefined : width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio={large ? "none" : undefined}
+        aria-label={tip}
+        role="img"
+        className={large ? "block h-[60px] w-full" : "block"}
+      >
+        <path d={d} fill="none" stroke="#10b981" strokeWidth={large ? 1.5 : 1.25} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       </svg>
     </span>
   );
@@ -78,7 +86,7 @@ function MetricRow({ metric, spark }: { metric: CapitalMetric; spark?: ReactNode
 }
 
 /** Where the ratio sits against the reference bands, with each peer's value as a hollow marker. */
-function RatioBar({ metric, peers }: { metric: CapitalMetric; peers: { ticker: string; value: number }[] }) {
+export function RatioBar({ metric, peers }: { metric: CapitalMetric; peers: { ticker: string; value: number }[] }) {
   const bands = BANDS[metric.key];
   const value = multipleOf(metric.display);
   if (!bands) return <MetricRow metric={metric} />;
@@ -127,7 +135,7 @@ function notchOf(rating: CreditRating): number {
   return NOTCHES.indexOf(MOODYS[rating.rating] ?? rating.rating.toUpperCase());
 }
 
-function RatingGauge({ ratings }: { ratings: CreditRating[] }) {
+export function RatingGauge({ ratings }: { ratings: CreditRating[] }) {
   const placed = ratings.map((r) => ({ r, notch: notchOf(r) })).filter((x) => x.notch >= 0);
   if (!placed.length) return null;
   const at = (i: number) => `${(i / (NOTCHES.length - 1)) * 100}%`;
@@ -150,6 +158,24 @@ function RatingGauge({ ratings }: { ratings: CreditRating[] }) {
       </div>
     </div>
   );
+}
+
+/** Up to eight quarters of revenue and cash from XBRL, for sparklines and quarter-on-quarter changes. */
+export function useHistory(cik: string | undefined, through: string | null | undefined): HistoryResponse | null {
+  const [history, setHistory] = useState<HistoryResponse | null>(null);
+  useEffect(() => {
+    setHistory(null);
+    if (!through || !cik) return;
+    let live = true;
+    fetch(`/api/history?cik=${encodeURIComponent(cik)}&through=${through}`)
+      .then((r) => (r.ok ? (r.json() as Promise<HistoryResponse>) : null))
+      .then((h) => live && setHistory(h))
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [cik, through]);
+  return history;
 }
 
 /** Beside the map: the numbers a credit analyst reads first, each with how it was built on hover. */

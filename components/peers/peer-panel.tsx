@@ -36,10 +36,10 @@ export function PeerPanel({ subject, comparison, peers, busy, step, error, onCom
     (t === ticker ? subject : peers.find((p) => p.graph.company.ticker === t))?.graph.nodes.find((n) => n.id === id)?.name ?? id;
 
   return (
-    <section aria-labelledby="peers-title" className="border-t border-zinc-800 px-6 py-8">
+    <section aria-labelledby="peers-title">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 id="peers-title" className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+          <h2 id="peers-title" className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
             Peer comparison
           </h2>
           <p className="mt-1 text-sm text-zinc-400">
