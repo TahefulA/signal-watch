@@ -687,7 +687,7 @@ export default function HomePage() {
                   href={`/?report=${EXAMPLE_REPORT_ID}&tab=graph&tour=1`}
                   className="ml-2 mt-4 inline-flex rounded-xs border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors duration-100 ease-out hover:border-zinc-500 hover:text-zinc-50"
                 >
-                  Take the 2-minute tour
+                  Take the tour
                 </a>
                 <a
                   href="/private"

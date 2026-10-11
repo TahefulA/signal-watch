@@ -14,6 +14,7 @@ Contents
   Part 0.6 WHY each feature is included, feature by feature
   Part 0.7 Every arrow, symbol and color: what it means and why it is there
   Part 0.8 The presentation tour: what to say at each stop, and why
+  Part 0.9 The big picture: problems -> features -> stack -> flow
   Part 1   Credit analysis vocabulary you will see everywhere
   Part 2   The tech stack and how to run it
   Part 2.5 WHY this stack, tied to the goal of the project
@@ -848,11 +849,12 @@ PART 0.8  THE PRESENTATION TOUR (what to say at each stop, and why it is there)
 ------------------------------------------------------------------------------
 
 The app has a presentation mode. Click "Tour" in the top bar, or "Take the
-2-minute tour" on the home page. It opens the WULF example, switches tabs for
-you, outlines the part being discussed in red, and shows a card with three
-things: what you are looking at, why it is there, and a line to say. Use the
-arrow keys (or Back and Next) to move; Esc ends it. The page stays usable
-during the tour, so you can hover the map or click a box while you talk.
+tour" on the home page. It opens the WULF example, switches tabs for you,
+outlines the part being discussed in red, and shows a card with what you are
+looking at, the credit fund's problem it solves, why it is there, and a line
+to say. Use the arrow keys (or Back and Next) to move; Esc ends it. The page
+stays usable during the tour, so you can hover the map or click a box while
+you talk.
 
 It always runs on the WULF example, so the lines (for example "7 concerns",
 "17/20 verified", "minus $992 million") match what is on screen.
@@ -863,7 +865,9 @@ How to use it in a demo
     include this?". It is about the reason, not the technology.
   - Stop 4: hover the company box while you talk; the charts appear.
   - Stop 12: scroll the full case a little to show the evidence tables.
-  - The whole tour takes about two minutes at a calm pace.
+  - Stops 2-4 are the big picture: the fund's four problems, how everything
+    flows, and the tech stack. Stops 5 onward walk through the screens.
+  - The whole tour takes three to four minutes at a calm pace.
 
 The script (the same text the tour shows; it lives in lib/tour-steps.ts)
 
@@ -881,10 +885,73 @@ STOP 1. THE PROBLEM WE ARE SOLVING
     nobody had time to read. Signal Watch reads every footnote, for every
     company, in about a minute."
 
-STOP 2. THE STEPS AN ANALYST ALREADY FOLLOWS
+STOP 2. THE FOUR PROBLEMS A CREDIT FUND HAS
+  What you are looking at
+    Before the product: the problems it was built to solve. Every stop after
+    this answers at least one of them.
+  Why it is here
+    1. Too much to read: 50 to 70 companies, 100 to 300 pages each, every
+    quarter, and new deals arriving faster than anyone can check the details.
+    2. Losses hide in details: a guarantee that only starts once a building is
+    finished, financing that is not counted as debt, sales booked but not
+    collected. 3. Conviction bias: once a memo says yes, the evidence against
+    it gets explained away. 4. Things change between reviews: an 8-K, insiders
+    selling, cash running out, and nobody notices until the next quarter.
+  Say it like this
+    "Credit funds don't have a data problem. They have a reading problem, a
+    details problem, a bias problem and a monitoring problem. We built one
+    feature for each."
+
+STOP 3. HOW EVERYTHING FLOWS
+  What you are looking at
+    Type a ticker. The app downloads the company's official reports, its
+    tagged numbers, recent news and prices. The AI reads them and proposes
+    what matters. Our code checks every quote and number against the source.
+    The result is saved as one report, and every tab is a view of that same
+    report. The Devil's Advocate then argues against it, and the watchlist
+    keeps checking for anything new.
+  The fund's problem it solves
+    Trust and speed together: one pass of reading, one checked set of facts,
+    and every screen agreeing with every other screen.
+  Why it is here
+    Because everything comes from one checked report, the map, the charts, the
+    memo and the case against it can never contradict each other, and every
+    claim on any screen leads back to the same sentence in the same filing.
+  Say it like this
+    "One read of the filings, one set of checked facts, many views of it, and
+    a critic and a watchlist on top. Nothing on screen comes from anywhere
+    else."
+
+STOP 4. THE TECH STACK, AND WHY EACH PIECE
+  What you are looking at
+    Next.js and TypeScript for the app; Google Gemini to read and draft; our
+    own checking code; SEC EDGAR and XBRL for the data; Postgres (Tiger) to
+    save reports and the relationship graph; Vercel to host; React Flow for
+    the map and our own charts.
+  The fund's problem it solves
+    A hackathon timeline, numbers that must be traceable, no paid data, and AI
+    calls that take up to a minute.
+  Why it is here
+    One Next.js app holds both the screens and the server, so there is one
+    thing to build and deploy. Gemini reads long filings and answers in a
+    fixed format our code can check; it never supplies a number. EDGAR and
+    XBRL are free, official and legally required to be accurate, so anyone can
+    verify them. Postgres stores each report and every relationship, so repeat
+    views are instant and relationships can be searched across companies.
+    Vercel allows the long-running AI calls.
+  Say it like this
+    "Every choice serves trust or speed: official free data, an AI that only
+    reads and drafts, code that checks it, and one app we could build and ship
+    in days."
+
+STOP 5. THE STEPS AN ANALYST ALREADY FOLLOWS
   What you are looking at
     Six tabs, each labeled with a step: qualitative analysis, profitability,
     capital structure, forecasting, valuation, recommendation.
+  The fund's problem it solves
+    Too much to read. A tool that makes analysts learn a new way of working
+    gets ignored; one that follows their own process saves time from the first
+    minute.
   Why it is here
     Credit analysts are trained on a standard seven-step process. We laid the
     app out in that order so a professional recognizes it at once and nothing
@@ -894,10 +961,14 @@ STOP 2. THE STEPS AN ANALYST ALREADY FOLLOWS
     "We didn't invent a new workflow. We automated the one credit analysts are
     already trained on, one step per tab."
 
-STOP 3. WHO THE COMPANY DEPENDS ON   (Graph tab)
+STOP 6. WHO THE COMPANY DEPENDS ON   (Graph tab)
   What you are looking at
     The company in the middle. Around it: its customers, lenders, regulators
     and risks, each pulled from its official reports.
+  The fund's problem it solves
+    Losses hide in details. Whether a guarantee covers construction, whether
+    one customer pays most of the bills, whether the tenant is a giant or a
+    startup: these live in the relationships, not in the totals.
   Why it is here
     A company's risk lives in its relationships: one customer paying most of
     the bills, a guarantee with conditions, a regulator that can freeze
@@ -907,11 +978,14 @@ STOP 3. WHO THE COMPANY DEPENDS ON   (Graph tab)
     "Before any number, you see who can hurt this borrower. Every box is a
     sentence from the company's own filing, and you can click through to it."
 
-STOP 4. THE NUMBERS, ONE HOVER AWAY   (Graph tab)
+STOP 7. THE NUMBERS, ONE HOVER AWAY   (Graph tab)
   What you are looking at
     Hover the company box: eight quarters of revenue, profit margin and cash
     appear beside it. Hover any other box for its figure, its terms and when
     it first appeared.
+  The fund's problem it solves
+    Too much to read. The analyst should not have to switch screens to connect
+    a relationship to its dollars.
   Why it is here
     The map shows relationships; the hover brings the money to them, so the
     picture is never just a diagram. Thicker lines carry more money, and debt
@@ -921,10 +995,13 @@ STOP 4. THE NUMBERS, ONE HOVER AWAY   (Graph tab)
     "The map isn't decoration. Hover anything and it tells you how much money
     is involved and how that has changed over time."
 
-STOP 5. TIME: IS IT GETTING BETTER OR WORSE?   (Graph tab)
+STOP 8. TIME: IS IT GETTING BETTER OR WORSE?   (Graph tab)
   What you are looking at
     The last twelve quarterly reports along the top, and the market over the
     same period.
+  The fund's problem it solves
+    Things change between reviews. A snapshot hides direction; the fund needs
+    to know what is new and what is getting worse.
   Why it is here
     Lending is about direction. The same risk means something very different
     if it appeared this quarter or has been there for three years. Every
@@ -934,10 +1011,13 @@ STOP 5. TIME: IS IT GETTING BETTER OR WORSE?   (Graph tab)
     "Every number on screen is dated. You always know which quarter you are
     looking at, and whether a risk is new."
 
-STOP 6. CAN THE BUSINESS PAY ITS DEBTS?   (Financial tab)
+STOP 9. CAN THE BUSINESS PAY ITS DEBTS?   (Financial tab)
   What you are looking at
     Revenue, profit, cash flow, cash and short-term bills, quarter by quarter.
     Red bars are quarters that lost money or burned cash.
+  The fund's problem it solves
+    Losses hide in details. Growing revenue can hide a company running out of
+    cash; for a lender, cash is what repays the loan.
   Why it is here
     A company repays debt from the cash it generates. These charts answer the
     first question any lender asks. Free cash flow is here because a company
@@ -947,10 +1027,13 @@ STOP 6. CAN THE BUSINESS PAY ITS DEBTS?   (Financial tab)
     "Revenue went up last quarter. Free cash flow was minus $992 million. That
     gap is the story a lender needs to see."
 
-STOP 7. WHAT IT OWES, AND WHEN   (Capital tab)
+STOP 10. WHAT IT OWES, AND WHEN   (Capital tab)
   What you are looking at
     Every loan and bond: how much, the interest rate, who gets paid first, and
     the year it is due.
+  The fund's problem it solves
+    Losses hide in details. A large debt due in one year, or debt that ranks
+    behind other lenders, decides who is repaid when things go wrong.
   Why it is here
     Companies rarely fail on an ordinary day; they fail when a large debt
     comes due and nobody will lend again. Knowing the amounts and dates, and
@@ -959,10 +1042,13 @@ STOP 7. WHAT IT OWES, AND WHEN   (Capital tab)
     "This is the calendar of when the company has to find money, and who
     stands first in line if it can't."
 
-STOP 8. WHAT CHANGED SINCE LAST QUARTER   (Changes tab)
+STOP 11. WHAT CHANGED SINCE LAST QUARTER   (Changes tab)
   What you are looking at
     New customers, lost customers, new debt, repaid debt and changed figures
     since the previous report.
+  The fund's problem it solves
+    Things change between reviews, and deals arrive faster than anyone can
+    re-read every filing.
   Why it is here
     An analyst already knows the company from last quarter. What they need is
     the difference. This tab is that difference, so a three-hour reread
@@ -971,10 +1057,13 @@ STOP 8. WHAT CHANGED SINCE LAST QUARTER   (Changes tab)
     "Analysts don't need the whole story every quarter. They need what
     changed. That's this tab."
 
-STOP 9. STRONGER OR WEAKER THAN ITS PEERS?   (Peers tab)
+STOP 12. STRONGER OR WEAKER THAN ITS PEERS?   (Peers tab)
   What you are looking at
     Similar companies side by side: debt, earnings, cash and the customers and
     risks they share.
+  The fund's problem it solves
+    When a whole industry is under pressure, the fund's skill is picking which
+    companies come out the other side. That needs a side-by-side comparison.
   Why it is here
     A number means little alone. Debt of five times earnings is high in one
     industry and normal in another. Comparing with similar companies turns a
@@ -984,10 +1073,13 @@ STOP 9. STRONGER OR WEAKER THAN ITS PEERS?   (Peers tab)
     "Is this borrower the weakest in its group or the strongest? You can't
     tell from one company alone."
 
-STOP 10. THE RECOMMENDATION   (Memo tab)
+STOP 13. THE RECOMMENDATION   (Memo tab)
   What you are looking at
     A short written memo: summary, thesis, key risks, what offsets them, and
     how the market sees it.
+  The fund's problem it solves
+    Too much to read. The analyst's real output is the memo; drafting it from
+    evidence saves the most expensive hours of the week.
   Why it is here
     The memo is what an analyst actually hands to the people who decide. Most
     tools stop at showing data; we produce the deliverable itself, and every
@@ -996,10 +1088,13 @@ STOP 10. THE RECOMMENDATION   (Memo tab)
     "This is the actual work product. Not another dashboard: the memo the
     analyst would write, with every claim linked to its source."
 
-STOP 11. THE DEVIL'S ADVOCATE: THE CASE AGAINST   (Memo tab)
+STOP 14. THE DEVIL'S ADVOCATE: THE CASE AGAINST   (Memo tab)
   What you are looking at
     Beside the memo, a critic that argues against it: the bottom line, each
     point and how strong it is, and what to watch.
+  The fund's problem it solves
+    Conviction bias. The memo argues for itself, and the details that break a
+    deal get explained away. The fund needs the other side argued every time.
   Why it is here
     People look for evidence that agrees with what they already believe, and
     an AI that writes a confident memo makes that worse. Investment committees
@@ -1009,11 +1104,14 @@ STOP 11. THE DEVIL'S ADVOCATE: THE CASE AGAINST   (Memo tab)
     "Every AI tool agrees with you. Ours argues against its own memo, because
     the reasons a loan fails matter more than the reasons it succeeds."
 
-STOP 12. THE FULL CASE, WITH PROOF AND PLAIN ENGLISH   (Memo tab)
+STOP 15. THE FULL CASE, WITH PROOF AND PLAIN ENGLISH   (Memo tab)
   What you are looking at
     Each point with what the memo said, the argument with dates and quarters,
     a plain-English version, why it matters to a lender, and the evidence
     tables.
+  The fund's problem it solves
+    Losses hide in details, and conviction bias hides them further. The case
+    digs the details out and makes the committee face them.
   Why it is here
     A warning nobody understands gets ignored, so every point is explained for
     someone with no finance background. A warning nobody can check gets
@@ -1024,9 +1122,12 @@ STOP 12. THE FULL CASE, WITH PROOF AND PLAIN ENGLISH   (Memo tab)
     finished, so the riskiest period, construction, isn't covered. The memo,
     written from the same filings, said Stable."
 
-STOP 13. BOTH VIEWS, ALWAYS VISIBLE
+STOP 16. BOTH VIEWS, ALWAYS VISIBLE
   What you are looking at
     "Memo: Stable · 7 concerns" in the top bar, on every tab.
+  The fund's problem it solves
+    Conviction bias. A single word like Stable is persuasive; seeing the
+    number of objections beside it keeps judgment honest.
   Why it is here
     Nobody should read the word Stable without also seeing how many strong
     objections exist. The two views travel together wherever the analyst goes.
@@ -1034,9 +1135,12 @@ STOP 13. BOTH VIEWS, ALWAYS VISIBLE
     "You can never see the memo's verdict without seeing the case against it
     right next to it."
 
-STOP 14. WHERE THE RISK SITS ON THE MAP   (Graph tab)
+STOP 17. WHERE THE RISK SITS ON THE MAP   (Graph tab)
   What you are looking at
     Counter view turns the boxes the critic cites red and fades the rest.
+  The fund's problem it solves
+    Losses hide in details. The objections point at specific relationships: a
+    guarantor, a tenant, a lender.
   Why it is here
     The objections are not abstract: they point at specific customers, lenders
     and guarantees. Showing them on the map connects the argument to the
@@ -1045,10 +1149,13 @@ STOP 14. WHERE THE RISK SITS ON THE MAP   (Graph tab)
     "One click and the map shows you exactly which relationships the case
     against is about."
 
-STOP 15. PROOF, INCLUDING OUR OWN MISTAKES
+STOP 18. PROOF, INCLUDING OUR OWN MISTAKES
   What you are looking at
     "17/20 verified · 3 rejected": how many of the AI's findings passed our
     quote check, and how many we threw away.
+  The fund's problem it solves
+    Trust. A fund will not move money on a summary it cannot check, and AI can
+    invent facts.
   Why it is here
     Finance professionals will not act on anything they cannot check. Every
     box links to its exact sentence, numbers come from the government's tagged
@@ -1058,10 +1165,13 @@ STOP 15. PROOF, INCLUDING OUR OWN MISTAKES
     "We show our failures on purpose. Three findings didn't match the filing
     word for word, so we threw them out, and we tell you that."
 
-STOP 16. EVERY MORNING: WHO NEEDS ME TODAY?
+STOP 19. EVERY MORNING: WHO NEEDS ME TODAY?
   What you are looking at
     The watchlist: every company you follow, sorted into Act now, Review and
     Quiet, with the reason for each.
+  The fund's problem it solves
+    Things change between reviews, across 50 to 70 companies at once. Missing
+    one 8-K or one borrower running out of cash is how losses start.
   Why it is here
     An analyst follows dozens of companies. The real morning question is which
     one changed overnight and which to deal with first. Each company is placed
@@ -1071,11 +1181,14 @@ STOP 16. EVERY MORNING: WHO NEEDS ME TODAY?
     "This is the to-do list a credit analyst actually needs: which companies
     need me today, and exactly why."
 
-STOP 17. PRIVATE COMPANIES, AND THE TAKEAWAY
+STOP 20. PRIVATE COMPANIES, AND THE TAKEAWAY
   What you are looking at
     Many borrowers file nothing publicly. The analyst can upload the company's
     own documents and still get the case against the deal, with nothing
     stored.
+  The fund's problem it solves
+    Some of the worst credit losses come from private borrowers with no public
+    filings, where hidden financing and mismanagement go unnoticed.
   Why it is here
     Some of the most painful credit losses happen at private companies, where
     there are no public filings to read. The critic works on whatever
@@ -1085,6 +1198,126 @@ STOP 17. PRIVATE COMPANIES, AND THE TAKEAWAY
     what it owes, writes the memo, argues against it with proof, and keeps
     watching. So the lender sees the warning signs before they lend, not
     after."
+
+
+------------------------------------------------------------------------------
+PART 0.9  THE BIG PICTURE ON ONE PAGE: PROBLEMS -> FEATURES -> STACK -> FLOW
+          (if a judge asks "what is the point of all this?", answer from here)
+------------------------------------------------------------------------------
+
+1. THE FOUR PROBLEMS A CREDIT FUND HAS
+
+  P1  Too much to read
+      50-70 companies, 100-300 pages per filing, every quarter, and new deals
+      arriving faster than anyone can check the details.
+  P2  Losses hide in details
+      A guarantee that only starts once a building is finished. Financing
+      that is not counted as debt (factoring, supplier finance, leases). Sales
+      booked but not collected. A tenant that is a startup, not a giant.
+  P3  Conviction bias
+      Once a memo says yes, the evidence against it gets explained away.
+  P4  Things change between reviews
+      An 8-K, insiders selling, cash running out, a debt coming due, and
+      nobody notices until the next quarterly review.
+  Plus one condition on everything: TRUST. A fund will not move money on a
+  summary it cannot check.
+
+2. WHICH FEATURE ANSWERS WHICH PROBLEM
+
+  Feature                        Problem  How it helps
+  -----------------------------  -------  ------------------------------------
+  Ticker -> report in a minute   P1       Hours of reading done up front.
+  Tabs in the analyst's own      P1       Nothing new to learn; one question
+  seven-step order                        per tab, in the order they ask it.
+  The map of relationships       P2       Concentration, guarantees, lenders
+                                          and regulators visible at a glance.
+  Hover cards, money-weighted    P1, P2   The dollars and dates behind each
+  lines, red due dates                    relationship without changing screen.
+  Time bar, quarter labels       P4       New risk versus old risk; every
+                                          number dated.
+  Financial charts (cash flow)   P2       Growing sales cannot hide cash burn.
+  Capital tab (debt, maturities) P2       Who is repaid first, and when the
+                                          company must find money.
+  Changes tab                    P4       Only what is different since last
+                                          quarter.
+  Peers tab                      P2       Which company in a stressed industry
+                                          is weakest.
+  The memo                       P1       The deliverable, drafted from
+                                          evidence, every claim linked.
+  Devil's Advocate (36 checks +  P3, P2   Argues against the memo with
+  the structured case)                    evidence and plain English; finds
+                                          footnote details like guarantee
+                                          conditions and hidden financing.
+  Memo vs concerns badge         P3       "Stable" is never shown without the
+                                          objections beside it.
+  Counter view on the map        P2, P3   Shows which relationships the case
+                                          against is about.
+  Watchlist (Act now / Review)   P4       Which companies need attention
+                                          today, and the exact reason why.
+  Watch items from the case      P3, P4   The case written last quarter
+                                          becomes this quarter's checklist.
+  Private-company mode           P2       The critic works on private
+                                          borrowers' own documents.
+  Quotes, links, "17/20          TRUST    Every claim checkable; failures
+  verified", "not disclosed"              shown; nothing guessed.
+  Presentation tour              (demo)   Explains every part and its reason.
+
+3. THE TECH STACK, AND WHY (details in Part 2.5)
+
+  Next.js + TypeScript   One app for screens and server: one thing to build,
+                         test and deploy in a hackathon.
+  Google Gemini          Reads long filings and answers in a fixed format our
+                         code can check. Reads and drafts only; never supplies
+                         a number.
+  Our checking code      Quote check, number check, 36 warning-sign checks,
+                         watchlist rules: the part that makes it trustworthy.
+  SEC EDGAR + XBRL       Free, official, legally required to be accurate,
+                         traceable to the sentence.
+  News RSS, Yahoo prices Free signals between filings.
+  Tiger (Postgres)       Saves each report (repeat views are instant) and every
+                         relationship (searchable across companies).
+  Vercel                 Hosting, public link, long-running AI calls.
+  React Flow + our own   The map and charts, drawn to our design rules.
+  SVG charts
+
+4. HOW EVERYTHING FLOWS
+
+    You type a ticker
+          |
+          v
+    1. FETCH    SEC filings (10-K, 10-Q, 8-K), XBRL numbers, news, prices
+          |
+          v
+    2. READ     Gemini lists entities, debts and risks, each with a quote
+          |
+          v
+    3. CHECK    our code keeps only quotes found in the filing; numbers come
+                from XBRL and the debt note, never from the AI
+          |
+          v
+    4. BUILD    the map, the capital structure, the metrics, the memo
+          |
+          v
+    5. SAVE     one Report in Postgres  <-- every tab is a view of this
+          |
+          +--> Graph, Financial, Capital, Changes, Peers, Memo tabs
+          |
+          +--> 6. CHALLENGE  36 checks + evidence tables -> Gemini writes the
+          |                  case against -> every number re-checked -> saved
+          |
+          +--> 7. WATCH      the watchlist re-checks EDGAR and XBRL for each
+                             company: Act now / Review / Quiet, with reasons,
+                             and tracks the case's "what to watch" items
+
+  Why this shape: everything on screen comes from one checked report, so the
+  map, charts, memo and counter-argument can never disagree, and every claim
+  leads back to the same sentence in the same filing.
+
+5. THE ONE-SENTENCE ANSWER TO "WHAT IS THE POINT?"
+
+  Credit funds lose money on details nobody had time to read and on
+  conclusions nobody argued against; Signal Watch reads every detail, proves
+  every claim, argues against its own conclusion, and keeps watching.
 
 
 ------------------------------------------------------------------------------

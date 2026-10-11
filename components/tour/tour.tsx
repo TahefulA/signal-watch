@@ -22,7 +22,7 @@ interface Box {
 }
 
 const PAD = 6;
-const CARD_WIDTH = 420;
+const CARD_WIDTH = 440;
 
 /** The visible part of the element, kept inside the window. */
 function measure(selector: string): Box | null {
@@ -119,10 +119,12 @@ export function Tour({ step, onStep, onClose, onTab, activeTab }: TourProps) {
         style={{
           width: CARD_WIDTH,
           maxWidth: "calc(100vw - 32px)",
+          maxHeight: "calc(100vh - 72px)",
+          overflowY: "auto",
           borderTop: "3px solid #dc2626",
           ...(centered
             ? { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }
-            : { bottom: 48, ...(cardLeft ? { left: 24 } : { right: 24 }) }),
+            : { bottom: 40, ...(cardLeft ? { left: 24 } : { right: 24 }) }),
         }}
       >
         <div className="flex items-center justify-between gap-3">
@@ -150,8 +152,29 @@ export function Tour({ step, onStep, onClose, onTab, activeTab }: TourProps) {
         <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">What you are looking at</p>
         <p className="mt-1 text-[13px] leading-relaxed text-zinc-300">{current.look}</p>
 
+        {current.problem ? (
+          <>
+            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-500">The fund&rsquo;s problem it solves</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-zinc-200">{current.problem}</p>
+          </>
+        ) : null}
+
         <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">Why it is here</p>
-        <p className="mt-1 text-[13px] leading-relaxed text-zinc-200">{current.why}</p>
+        {/^1\. /.test(current.why) ? (
+          <ol className="mt-1 space-y-1.5">
+            {current.why
+              .split(/\s*\d\. /)
+              .filter(Boolean)
+              .map((item, i) => (
+                <li key={i} className="flex gap-2 text-[13px] leading-relaxed text-zinc-200">
+                  <span className="font-mono text-red-500">{i + 1}</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+          </ol>
+        ) : (
+          <p className="mt-1 text-[13px] leading-relaxed text-zinc-200">{current.why}</p>
+        )}
 
         <div className="mt-4 border-l-2 border-red-600 pl-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-red-500">Say it like this</p>
