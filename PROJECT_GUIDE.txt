@@ -2,11 +2,13 @@ SIGNAL WATCH: A GUIDED TOUR OF THE PROJECT
 ==========================================
 
 Who this is for: someone joining the project who wants to understand it from
-the beginning. Read it top to bottom. Each part tells you what the piece does,
+the beginning, including someone who knows no finance and no AI (start with
+Part 00). Read it top to bottom. Each part tells you what the piece does,
 why it exists, and which files to open next. You do not need to read every
 file; the "Read" lines point to the ones that matter, in order.
 
 Contents
+  Part 00  START HERE if you know nothing about finance or AI
   Part 0   The idea in one page
   Part 0.5 WHY every piece exists and how it all comes together (read first)
   Part 0.6 WHY each feature is included, feature by feature
@@ -30,6 +32,222 @@ Contents
   Part 15  A suggested reading order for your first two days
   Part 16  Glossary
   Part 17  60 questions judges will ask, with answers
+
+
+------------------------------------------------------------------------------
+PART 00. START HERE IF YOU KNOW NOTHING ABOUT FINANCE OR AI
+------------------------------------------------------------------------------
+
+This part assumes you know nothing about finance and nothing about AI. Read
+it first. Everything later in the guide builds on it.
+
+1. THE STORY IN ONE PARAGRAPH
+
+  Imagine a friend asks to borrow $1,000 and promises to pay you back next
+  year with a little extra. Before saying yes you would want to know: do they
+  have a job? Do they already owe other people money? Is their income going
+  up or down? Who do they depend on? Professional investors do exactly this,
+  but the "friend" is a company, the loan is millions or billions of dollars,
+  and the answers are buried in hundreds of pages of official reports. Signal
+  Watch reads those reports for them, draws the answers as pictures, writes
+  the recommendation, and then argues against its own recommendation so the
+  investor does not fool themselves.
+
+2. FINANCE, FROM ZERO
+
+  What is a company's debt?
+    Companies borrow money, like people take out a mortgage or a car loan.
+    They borrow from banks (loans) or from investors (bonds: a bond is an
+    IOU the company sells, promising to pay interest and return the money by
+    a certain date, the "maturity").
+
+  What is a hedge fund?
+    A firm that manages a large pool of money for wealthy people, pension
+    funds and universities, and tries to grow it. Some hedge funds buy stocks
+    (a small piece of ownership in a company). Others, called credit funds,
+    mostly buy debt: loans and bonds. They earn the interest, and they lose
+    money if the company cannot pay back.
+
+  Why lending is mostly about avoiding losses
+    If you lend $100 at 10%, the best case is getting $110 back. The worst
+    case is losing most of the $100. The upside is small and fixed; the
+    downside is large. So a lender's skill is not finding winners, it is
+    spotting the companies that will not be able to pay, before everyone
+    else does. That is why this whole project is about risk and warning signs.
+
+  What does a credit analyst do all day?
+    They are the people at the fund who decide whether a loan is safe. For
+    each company they:
+      - read its official reports (often 100-300 pages each),
+      - figure out who it depends on (customers, suppliers, lenders,
+        regulators),
+      - check whether it makes enough cash to pay its debts,
+      - list what it owes and when each debt is due,
+      - compare it with similar companies,
+      - write a memo (a short report) recommending what to do,
+      - and watch 50 to 70 companies at once for anything that changes.
+    That is hours of reading per company, every quarter.
+
+  What are the "official reports"? (SEC filings)
+    In the United States, every company whose shares trade publicly must file
+    reports with a government agency, the SEC (Securities and Exchange
+    Commission). They are free for anyone to read on the SEC's website,
+    called EDGAR. The main ones:
+      10-K   the yearly report, the longest and most complete
+      10-Q   the report every three months ("quarterly")
+      8-K    a short report whenever something big happens: a new loan, the
+             boss quits, the auditor changes
+      Form 4 filed when a company insider (an executive or director) buys or
+             sells the company's own stock
+    The numbers in these reports are also tagged in a computer-readable way
+    (called XBRL), so a program can read "revenue was $44.8 million" without
+    guessing.
+
+  A few words you will hear constantly
+    Revenue        money coming in from customers
+    Cash flow      cash actually received minus cash actually spent
+    Burn           spending more cash than comes in ("burning cash")
+    Runway         how long the cash lasts at the current burn
+    Leverage       how much debt compared with earnings
+    Maturity       the date a debt must be repaid
+    Quarter        a three-month period; companies report every quarter
+  Part 1 has the full list.
+
+3. AI, FROM ZERO
+
+  What is the AI here?
+    We use Gemini, a "large language model" made by Google. You give it text
+    and instructions, and it gives back text. It is very good at reading a
+    long document and answering "who are this company's customers?" or
+    "write a summary of these facts". It is the same kind of technology as
+    ChatGPT.
+
+  What is it bad at?
+    It can make things up confidently ("hallucinate"): invent a number, a
+    quote or a fact that sounds right. In finance one invented number can
+    cost millions, so this is the central problem we had to solve.
+
+  So what does the AI actually do in Signal Watch, and what does it NOT do?
+    The AI does the reading and the writing:
+      - reads the filings and lists the companies, risks and debts named in
+        them, quoting the exact sentence each came from,
+      - writes the memo and the counter-argument from facts we give it.
+    Our own code (ordinary programs, not AI) does everything that must be
+    exact:
+      - downloads the filings from the SEC,
+      - checks every quote the AI gives against the real document, and throws
+        away anything that is not actually there,
+      - takes all numbers from the SEC's tagged data, not from the AI,
+      - deletes any sentence the AI writes that contains a number we did not
+        give it,
+      - runs the 36 warning-sign checks and the watchlist rules.
+    Think of the AI as a fast, tireless junior assistant whose every sentence
+    is checked by a strict editor (our code) before anyone sees it.
+
+4. WHY WOULD THIS BE BUILT AT A HACKATHON DESIGNED FOR HEDGE FUNDS?
+
+  A hackathon is a short competition where teams build a working product in
+  a few days. This one was set up for hedge funds, so the judges are asking:
+  "Would this help an investment professional make better decisions, faster?"
+  Signal Watch is our answer, and each part exists for a reason a beginner
+  can follow:
+
+  The problem the judges have
+    Their analysts spend most of their time reading, not thinking. Reports
+    are long, there are dozens of companies, and things change every quarter.
+    Their biggest losses come from a detail someone missed in a footnote.
+
+  How each part answers it (in plain words)
+    The map (Graph tab)
+      "Who does this company depend on?" drawn as a picture: the company in
+      the middle, boxes around it for customers, lenders, regulators and
+      risks. If one customer pays most of the bills, you see it instantly.
+    The numbers (Financial tab)
+      "Is the business making or losing money, and is it getting better or
+      worse?" shown as charts over the last eight quarters.
+    The debt (Capital tab)
+      "What does it owe, to whom, and when is it due?" Debt that comes due
+      soon is the moment companies most often fail to pay.
+    What changed (Changes tab)
+      "What is different since three months ago?" The analyst already knows
+      the company; they need the difference.
+    Peers (Peers tab)
+      "Is this company stronger or weaker than similar companies?"
+    The memo (Memo tab)
+      The written recommendation, the actual thing an analyst hands to their
+      bosses. Every name in it links to the evidence.
+    The Devil's Advocate
+      A built-in critic that argues against the memo. People tend to look for
+      evidence that agrees with what they already think; this part forces the
+      other side onto the table, with evidence and a plain-English
+      explanation. For a lender, the reasons a loan could fail matter more
+      than the reasons it could succeed. This is the heart of the project.
+    The watchlist
+      "Which of my 60 companies needs me today, and why?" A to-do list that
+      sorts companies into Act now, Review and Quiet, each with its reason.
+    Private companies
+      Many borrowers do not file with the SEC at all. The analyst can upload
+      the company's own documents and still get the counter-argument.
+    The proof everywhere
+      Every box, number and sentence links to the exact page of the filing it
+      came from. Investors will not act on anything they cannot check.
+
+  Why a judge would care, in one line each
+    - It saves the expensive part of an analyst's day: reading.
+    - It produces the thing they actually deliver (the memo), not just
+      another chart.
+    - It argues against itself, which protects against the mistakes that
+      cause the biggest losses.
+    - It never makes up numbers, and it says "not disclosed" when it does not
+      know, which is what makes it usable for real money.
+    - It uses free, official data, so a fund could try it tomorrow.
+
+5. QUESTIONS A BEGINNER (OR A NON-FINANCE JUDGE) ASKS
+
+  "I don't know finance. What is the point, in one sentence?"
+    It helps people who lend money to companies spot the companies that may
+    not pay them back, faster and with proof.
+
+  "I don't know AI. Is the AI making the decisions?"
+    No. The AI reads and drafts; our code checks everything it says; the
+    human analyst decides. The tool even argues against its own draft.
+
+  "Why not just ask ChatGPT about the company?"
+    A chatbot answers from memory, which can be months old and sometimes
+    wrong, and it does not show where each fact came from. Signal Watch reads
+    today's official filings and links every claim to its sentence.
+
+  "Who would pay for this?"
+    Credit funds, banks and anyone who lends to companies or buys their
+    bonds: they already pay analysts to do this reading by hand.
+
+  "Does it replace the analyst?"
+    No. It does the first few hours of reading and drafting so the analyst
+    spends their time judging, questioning management and deciding.
+
+  "What is a 'counter-argument' and why should a computer write one?"
+    It is the case for the opposite conclusion. Investment teams already ask
+    one person to argue against every deal, because people fall in love with
+    their own ideas. A computer does it every time, for every company, using
+    every piece of data, and never gets tired or politely quiet.
+
+  "Why so many tabs?"
+    They follow the steps a professional credit analyst already uses (Michael
+    Gatto's seven-step process), so a professional recognizes the flow at
+    once. Each tab answers one question, in the order they would ask it.
+
+  "Why does it look so plain?"
+    On purpose. Finance professionals trust tools that look like research
+    reports, not advertisements. The design is sober, dense and exact.
+
+6. HOW TO EXPLAIN THE WHOLE PROJECT TO ANYONE (30 SECONDS)
+
+  "Lenders lose money when they miss a warning sign hidden in a company's
+  reports. Signal Watch reads those reports in about a minute, draws who the
+  company depends on and what it owes, writes the recommendation, and then
+  argues against it, with proof for every claim, so the lender sees the
+  warning signs before they lend. And it keeps watching every company they
+  cover, telling them each morning which one needs attention first."
 
 
 ------------------------------------------------------------------------------
