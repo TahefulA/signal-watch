@@ -3,7 +3,7 @@ import type { MemoSpan } from "@/types";
 /** The ten-second read above the map. Entity names jump to their boxes. */
 export function SignalSummary({ spans, onEntityClick }: { spans: MemoSpan[]; onEntityClick: (id: string) => void }) {
   return (
-    <section aria-labelledby="signal-title" className="border-l-2 border-zinc-500 bg-zinc-900 px-4 py-3">
+    <section aria-labelledby="signal-title" className="mb-4 border-l-2 border-zinc-500 bg-zinc-900 px-4 py-3">
       <h3 id="signal-title" className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
         Signal
       </h3>

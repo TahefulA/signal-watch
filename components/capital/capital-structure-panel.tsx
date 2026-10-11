@@ -134,9 +134,9 @@ export const CapitalStructurePanel = forwardRef<HTMLElement, CapitalStructurePan
 
   return (
     <aside ref={ref} className={className} aria-labelledby="capital-title">
-      <div className="border-b border-zinc-800 px-5 py-3">
-        <h2 id="capital-title" className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-300">
-          Debt and maturities
+      <div className="border-b border-zinc-800 px-5 py-4">
+        <h2 id="capital-title" className="font-display text-base font-bold text-zinc-100">
+          Capital structure
         </h2>
         <p className="mt-1 font-mono text-[10px] text-zinc-500">
           {capital.asOf ? `As of ${capital.asOf} · ` : ""}

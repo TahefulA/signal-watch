@@ -58,7 +58,7 @@ function Item({ diff, onSelectEntity }: { diff: EntityDiff; onSelectEntity: (id:
 export function ChangePanel({ changes, busy, step, error, onCompare, onSelectEntity }: ChangePanelProps) {
   if (!changes) {
     return (
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+      <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 border border-zinc-800 px-4 py-3">
         <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">Changes</span>
         <span className="text-sm text-zinc-400">
           {busy ? (step ?? "Reading the previous quarter's filings...") : "Compare these filings with the previous quarter's to see what is new."}
@@ -83,10 +83,10 @@ export function ChangePanel({ changes, busy, step, error, onCompare, onSelectEnt
   const newer = changes.newFilings.map((f) => f.title).join(", ");
 
   return (
-    <section aria-labelledby="changes-title" className="border border-zinc-800 bg-zinc-900/60">
+    <section aria-labelledby="changes-title" className="mb-4 border border-zinc-800">
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-zinc-800 px-4 py-3">
         <h3 id="changes-title" className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-          Filings compared
+          Changes since the previous quarter
         </h3>
         <p className="font-mono text-[10px] text-zinc-500">
           {newer || "No new filings"} vs {baseline}

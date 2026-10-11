@@ -36,10 +36,10 @@ export function PeerPanel({ subject, comparison, peers, busy, step, error, onCom
     (t === ticker ? subject : peers.find((p) => p.graph.company.ticker === t))?.graph.nodes.find((n) => n.id === id)?.name ?? id;
 
   return (
-    <section aria-labelledby="peers-title">
+    <section aria-labelledby="peers-title" className="border-t border-zinc-800 px-6 py-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 id="peers-title" className="font-display text-xl font-bold tracking-tight text-zinc-50">
+          <h2 id="peers-title" className="text-xs font-medium uppercase tracking-widest text-zinc-500">
             Peer comparison
           </h2>
           <p className="mt-1 text-sm text-zinc-400">
@@ -74,7 +74,7 @@ export function PeerPanel({ subject, comparison, peers, busy, step, error, onCom
 
       {comparison && peers[0] ? (
         <div className="mt-6 space-y-8">
-          <div className="h-[75vh] min-h-[520px] border border-zinc-800">
+          <div className="h-[60vh] min-h-[420px] border border-zinc-800">
             <PeerMap subject={subject} peer={peers[0]} comparison={comparison} onSelect={(e) => (subject.graph.nodes.some((n) => n.id === e.id) ? onSelectEntity(e.id) : onSelectPeerEntity(e))} />
           </div>
           <p className="-mt-6 text-[11px] text-zinc-500">

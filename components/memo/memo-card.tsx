@@ -7,7 +7,7 @@ interface MemoCardProps {
 
 export function MemoCard({ section, onEntityClick }: MemoCardProps) {
   return (
-    <article id={`memo-${section.key}`} className="scroll-mt-16 rounded-xs border border-zinc-800 bg-zinc-900/60 p-6">
+    <article className="rounded-sm border border-zinc-800 bg-zinc-900 p-6">
       <h3 className="mb-3 text-xs font-medium uppercase tracking-widest text-zinc-500">{section.title}</h3>
       <p className="text-base leading-relaxed text-zinc-300">
         {section.spans.map((span, i) =>
