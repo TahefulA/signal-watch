@@ -13,6 +13,7 @@ import {
   Newspaper,
   Scale,
   Shield,
+  Sword,
 } from "lucide-react";
 import { type CSSProperties, memo } from "react";
 import type { CompanyProfile, Confidence, Entity, Severity, Trend } from "@/types";
@@ -53,6 +54,8 @@ export interface EntityNodeData extends Record<string, unknown> {
   time?: { segments: { label: string; present: boolean }[]; later: string | null } | null;
   /** Gemini's severity on the previous quarter's map, for the trend arrow. */
   severityBefore?: { quarter: string; severity: Severity } | null;
+  /** Counter view: the company box and the boxes the Devil's Advocate flags turn red. */
+  counter?: "central" | "flagged" | null;
 }
 
 export type EntityFlowNode = Node<EntityNodeData, "entityNode">;
@@ -159,7 +162,7 @@ function sourceTip(entity: Entity): string {
   return parts.filter(Boolean).join(", ");
 }
 
-function CentralBox({ entity, totalDebt, company }: { entity: Entity; totalDebt?: string | null; company?: CompanyProfile | null }) {
+function CentralBox({ entity, totalDebt, company, counter }: { entity: Entity; totalDebt?: string | null; company?: CompanyProfile | null; counter: boolean }) {
   const ratings = company?.ratings ?? [];
   return (
     <div className="flex h-full flex-col gap-1.5">
@@ -171,6 +174,7 @@ function CentralBox({ entity, totalDebt, company }: { entity: Entity; totalDebt?
           </span>
         ) : null}
       </div>
+      {counter ? <span className="w-fit rounded-xs bg-red-600 px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase leading-none tracking-[0.12em] text-white">Counter view</span> : null}
       <div className="line-clamp-1 text-lg font-semibold leading-tight tracking-[-0.01em] text-zinc-900">{entity.name}</div>
       <div className="text-[11px] uppercase leading-snug tracking-[0.08em] text-zinc-500">Subject company</div>
       {company?.industry ? (
@@ -240,11 +244,12 @@ function TimeStrip({ time, color }: { time: NonNullable<EntityNodeData["time"]>;
 }
 
 function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
-  const { entity, totalDebt, company, bar, materiality, width, opacity = 1, emphasis, order = 0, fan, time, severityBefore } = data;
+  const { entity, totalDebt, company, bar, materiality, width, opacity = 1, emphasis, order = 0, fan, time, severityBefore, counter = null } = data;
   const removed = entity.change?.kind === "removed";
   const change = entity.change && !removed ? entity.change : null;
-  const color = TYPE_HEX[entity.type];
-  const dark = TYPE_HEX_DARK[entity.type];
+  const red = counter !== null;
+  const color = red ? "#dc2626" : TYPE_HEX[entity.type];
+  const dark = red ? "#991b1b" : TYPE_HEX_DARK[entity.type];
   const enterDelay = enterDelayOf(order);
   const icon = relationIcon(entity);
   const Icon = icon ? RELATION_ICON[icon] : null;
@@ -269,7 +274,7 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
           {
             width: width ?? (entity.isCentral ? 300 : 240),
             height: NODE_BOX_HEIGHT,
-            background: TYPE_TINT[entity.type],
+            background: red ? "#fef2f2" : TYPE_TINT[entity.type],
             borderWidth: 3,
             borderStyle: removed ? "dashed" : "solid",
             borderColor: selected || emphasis ? dark : color,
@@ -280,7 +285,7 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
           } as CSSProperties
         }
       >
-        <span className="absolute inset-y-0 left-0 w-1.5 rounded-l-[2px]" style={{ background: SEVERITY_HEX[entity.severity] }} aria-hidden />
+        <span className="absolute inset-y-0 left-0 w-1.5 rounded-l-[2px]" style={{ background: red ? "#dc2626" : SEVERITY_HEX[entity.severity] }} aria-hidden />
         {/* One ring spreads from the middle of the box each time the pointer enters it. */}
         <span className="hover-ripple pointer-events-none absolute left-1/2 top-1/2 rounded-full border" style={{ borderColor: color }} aria-hidden />
         {materiality ? (
@@ -293,7 +298,7 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
         <Handles fan={fan} />
 
         {entity.isCentral ? (
-          <CentralBox entity={entity} totalDebt={totalDebt} company={company} />
+          <CentralBox entity={entity} totalDebt={totalDebt} company={company} counter={counter === "central"} />
         ) : (
           <div className="flex h-full flex-col gap-1.5">
             <TypeBadge entity={entity} />
@@ -351,6 +356,11 @@ function EntityNodeComponent({ data, selected }: NodeProps<EntityFlowNode>) {
           </div>
         )}
 
+        {counter === "flagged" ? (
+          <span className="tip absolute right-5 top-1.5 text-red-600" data-tip="Named or cited in the Devil's Advocate">
+            <Sword size={11} aria-hidden />
+          </span>
+        ) : null}
         {change ? (
           <span
             className="change-dot absolute right-1.5 top-1.5 h-2 w-2 rounded-full"

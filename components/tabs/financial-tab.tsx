@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import type { CapitalMetric, Report, Timeline } from "@/types";
 import { RatingGauge, RatioBar, Sparkline, multipleOf, useHistory } from "@/components/capital/financial-metrics-panel";
 import { compactMoney } from "@/lib/node-visuals";
+import { firedPatterns, itemsFromPatterns } from "@/lib/counter-view";
+import { CounterArgumentsCard } from "./counter-arguments-card";
 import { type TimeRange, describeWindow, windowOf } from "@/lib/time-range";
 
 type Key = CapitalMetric["key"];
@@ -52,7 +54,19 @@ function Row({ metric }: { metric: CapitalMetric | undefined }) {
 }
 
 /** The numbers: earnings, balance sheet, credit ratios against reference bands, rating and liquidity. */
-export function FinancialTab({ report, peers, timeline, range }: { report: Report; peers: Report[]; timeline: Timeline | null; range: TimeRange }) {
+export function FinancialTab({
+  report,
+  peers,
+  timeline,
+  range,
+  devilBusy = false,
+}: {
+  report: Report;
+  peers: Report[];
+  timeline: Timeline | null;
+  range: TimeRange;
+  devilBusy?: boolean;
+}) {
   const capital = report.capital;
   const history = useHistory(report.graph.company.cik, capital?.asOf);
   // Trends cover the selected window of quarters; without the timeline, the last eight.
@@ -89,6 +103,12 @@ export function FinancialTab({ report, peers, timeline, range }: { report: Repor
       <TabHeader
         title="Financial snapshot"
         meta={`As of ${capital.fiscalPeriod ?? "the latest filing"} (period ending ${capital.asOf ?? "n/a"}) · ${capital.sourceType} filed ${capital.sourceDate}`}
+      />
+      <CounterArgumentsCard
+        title="what the statements hide"
+        items={itemsFromPatterns(firedPatterns(report.devil, ["financial"]))}
+        busy={devilBusy}
+        empty={report.devil ? "No financial statement pattern fired on the XBRL facts that are tagged for this company." : "The counter-argument has not been written yet."}
       />
       <p className="-mt-3 mb-5 font-mono text-[11px] text-zinc-500">
         Trends: {rangeText}

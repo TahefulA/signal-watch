@@ -37,6 +37,8 @@ interface EntityMapProps {
   onClearSelection?: () => void;
   /** The filing timeline and the selected window of quarters (indexes into timeline.quarters). */
   time?: { timeline: Timeline; window: { start: number; end: number } } | null;
+  /** Counter view: the boxes the Devil's Advocate flags. Null when the view is off. */
+  counterIds?: Set<string> | null;
 }
 
 /** Legend filters fade boxes to 15%; boxes are never hidden, so the layout holds. */
@@ -48,7 +50,7 @@ function passesFilters(entity: Entity, filters: MapFilters): boolean {
   return true;
 }
 
-function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, onSelect, onClearSelection, time = null }: EntityMapProps) {
+function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, onSelect, onClearSelection, time = null, counterIds = null }: EntityMapProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [theme] = useTheme();
   const central = useMemo(() => graph.nodes.find((n) => n.isCentral) ?? null, [graph.nodes]);
@@ -144,10 +146,11 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
     (entity: Entity) => {
       if (!passesFilters(entity, filters)) return 0.15;
       if (timeData.get(entity.id)?.absent) return 0.15;
+      if (counterIds && !entity.isCentral && !counterIds.has(entity.id)) return 0.2;
       if (related && !related.has(entity.id)) return fadeTo;
       return 1;
     },
-    [filters, related, fadeTo, timeData],
+    [filters, related, fadeTo, timeData, counterIds],
   );
 
   const flowNodes = useMemo<EntityFlowNode[]>(
@@ -173,12 +176,13 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
             fan: entity.isCentral ? fan.counts : undefined,
             time: timeData.get(entity.id) ?? null,
             severityBefore: time?.timeline.severityBefore[entity.id] ?? null,
+            counter: counterIds ? (entity.isCentral ? "central" : counterIds.has(entity.id) ? "flagged" : null) : null,
           },
           width: v?.width,
           height: NODE_HEIGHT,
         };
       }),
-    [graph, positions, visuals, totalDebt, selectedId, opacityOf, focusId, related, order, fan, timeData, time],
+    [graph, positions, visuals, totalDebt, selectedId, opacityOf, focusId, related, order, fan, timeData, time, counterIds],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState<EntityFlowNode>(flowNodes);
   const { setCenter, getNode } = useReactFlow<EntityFlowNode, SignalFlowEdge>();
@@ -221,7 +225,8 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
       const target = byId.get(e.target);
       const active = Boolean(focusId && related?.has(e.target) && (focusId === e.target || focusId === e.source));
       const filteredOut = target ? !passesFilters(target, filters) || Boolean(timeData.get(target.id)?.absent) : false;
-      const opacity = filteredOut ? 0.15 : related && !active ? 0.1 : 1;
+      const flagged = Boolean(counterIds?.has(e.target));
+      const opacity = filteredOut ? 0.15 : related && !active ? 0.1 : counterIds && !flagged ? 0.1 : 1;
       return {
         id: e.id,
         type: "signal",
@@ -241,10 +246,11 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
           delayMs: EDGES_START_MS + i * EDGE_STAGGER_MS,
           width: EDGE_WIDTH[target?.severity ?? "none"],
           energy: target?.severity === "high",
+          counterDash: flagged,
         },
       };
     });
-  }, [graph.nodes, spokes, positions, focusId, related, filters, fan, relationLabels, selectedId, settled, timeData]);
+  }, [graph.nodes, spokes, positions, focusId, related, filters, fan, relationLabels, selectedId, settled, timeData, counterIds]);
 
   return (
     <div className="relative h-full w-full">
@@ -285,6 +291,11 @@ function Canvas({ graph, totalDebt = null, filters, selectedId, focusRequest, on
         ) : null}
         <Controls showInteractive={false} position="bottom-left" />
       </ReactFlow>
+      {counterIds ? (
+        <p className="pointer-events-none absolute left-4 top-4 z-10 rounded-xs border border-red-600 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-zinc-50" style={{ background: "var(--devil-bg)" }}>
+          Showing: counter-arguments &middot; {counterIds.size} flagged
+        </p>
+      ) : null}
       {/* The one ambient motion in the app: a faint blue wash at the middle that widens and narrows over eight seconds. */}
       <div className="canvas-breathe pointer-events-none absolute inset-0" aria-hidden />
       {/* Darkens the edges of the canvas so the eye settles on the middle. */}

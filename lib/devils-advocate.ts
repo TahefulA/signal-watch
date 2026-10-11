@@ -1,4 +1,5 @@
 import type { CounterCitation, DevilsAdvocate, Entity, PatternResult, Report } from "@/types";
+import { MEMO_STANCES } from "@/types/devils-advocate";
 import { capitalFacts, changeFacts } from "./brief";
 import { type PatternContext, runPatterns } from "./devils-advocate-patterns";
 import { extractSections } from "./edgar";
@@ -25,6 +26,7 @@ Rules:
 5. citations: one per claim, three to six of them. ref is an entity id from the list, "pattern:<pattern id>" for a pattern, or "capital" for the capital structure. claim is a few words.
 6. patterns_used: the names of the fired patterns your argument relies on, exactly as written.
 7. what_to_watch: one specific sentence naming what to check in the next filing.
+9. memo_stance: the stance the MEMO ITSELF takes on this credit, not your own: STABLE, CAUTION, AT_RISK or DISTRESSED.
 8. No price predictions, no ratings, no scores.`;
 
 const SCHEMA: Schema = {
@@ -37,8 +39,9 @@ const SCHEMA: Schema = {
     },
     patterns_used: { type: "ARRAY", items: { type: "STRING" } },
     what_to_watch: { type: "STRING" },
+    memo_stance: { type: "STRING", enum: MEMO_STANCES },
   },
-  required: ["argument", "citations", "patterns_used", "what_to_watch"],
+  required: ["argument", "citations", "patterns_used", "what_to_watch", "memo_stance"],
 };
 
 const HEDGES = /\b(likely|probably|may)\b/i;
@@ -152,6 +155,7 @@ export async function generateDevilsAdvocate(report: Report, ctx: PatternContext
       citations,
       patternsUsed: used,
       whatToWatch: watch.removed === 0 ? watch.text.replace(/\{\{[^|}]+\|([^}]+)\}\}/g, "$1") : "",
+      memoStance: MEMO_STANCES.find((x) => x === r.memo_stance) ?? null,
       patterns,
       removed: cleaned.removed + watch.removed,
     };

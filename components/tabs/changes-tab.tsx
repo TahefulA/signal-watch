@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { CitationBlock } from "@/components/ui/citation";
 import { TYPE_LABELS } from "@/lib/entity-style";
 import { relationText } from "@/lib/node-visuals";
+import { changesItems } from "@/lib/counter-view";
+import { CounterArgumentsCard } from "./counter-arguments-card";
 import { TabHeader } from "./financial-tab";
 
 const GROUPS: { title: string; kinds: ChangeKind[]; color: string; bar: string }[] = [
@@ -22,6 +24,7 @@ interface ChangesTabProps {
   onCompare: () => void;
   onSelectEntity: (id: string) => void;
   timeline: Timeline | null;
+  devilBusy?: boolean;
 }
 
 /**
@@ -136,7 +139,15 @@ function ChangeCard({ diff, report, bar, onSelectEntity }: { diff: EntityDiff; r
 }
 
 /** What the newest filings added, changed or dropped compared with the previous quarter's. */
-export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntity, timeline }: ChangesTabProps) {
+export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntity, timeline, devilBusy = false }: ChangesTabProps) {
+  const counterCard = (
+    <CounterArgumentsCard
+      title="what changed for the worse"
+      items={changesItems(report.devil, report)}
+      busy={devilBusy}
+      empty={report.devil ? "No new risk language, insider selling cluster, officer departures, auditor change or new debt was found." : "The counter-argument has not been written yet."}
+    />
+  );
   const timelineBlock = timeline && timeline.quarters.length ? <ChangesTimeline report={report} timeline={timeline} onSelectEntity={onSelectEntity} /> : null;
   const changes = report.changes;
   const describe = (docs: { sourceType: string; date: string; fiscalPeriod?: string | null }[]) =>
@@ -149,6 +160,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
     return (
       <div className="mx-auto max-w-[1000px] px-6 py-8 lg:px-12">
         <TabHeader title="Changes since last filing" />
+        {counterCard}
         {timelineBlock}
         <p className="text-sm text-zinc-400">
           {busy
@@ -179,6 +191,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
           {describe(changes.baselineFilings)} → {describe(changes.newFilings) || "no new filings"}
         </p>
       </div>
+      {counterCard}
       {timelineBlock}
       <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Latest quarter, full comparison</h3>
 

@@ -39,6 +39,11 @@ export interface CounterCitation {
   patternId: string | null;
 }
 
+/** The stance the memo itself takes, as Gemini classifies it. A category, never a score. */
+export type MemoStance = "STABLE" | "CAUTION" | "AT_RISK" | "DISTRESSED";
+
+export const MEMO_STANCES: MemoStance[] = ["STABLE", "CAUTION", "AT_RISK", "DISTRESSED"];
+
 export interface DevilsAdvocate {
   reportId: string;
   generatedAt: string;
@@ -48,6 +53,8 @@ export interface DevilsAdvocate {
   /** Names of the patterns that fired and that the argument used. */
   patternsUsed: string[];
   whatToWatch: string;
+  /** Missing on counter-arguments written before the stance was classified. */
+  memoStance?: MemoStance | null;
   /** Every pattern's result, so the panel can show what was checked. */
   patterns: PatternResult[];
   /** Sentences removed because they used a figure not in the facts. */

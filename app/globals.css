@@ -23,6 +23,7 @@
 :root {
   --canvas-vignette: rgba(0, 0, 0, 0.3);
   --devil-bg: #1c0a0a;
+  --devil-bg-hover: #2a0a0a;
   color-scheme: dark;
 }
 
@@ -40,6 +41,7 @@
   --zinc-950: 250 250 250;
   --canvas-vignette: rgba(0, 0, 0, 0.05);
   --devil-bg: #fef2f2;
+  --devil-bg-hover: #fee2e2;
   color-scheme: light;
 }
 
@@ -354,9 +356,49 @@
   pointer-events: none;
 }
 
+/* The Devil's Advocate. */
+.verdict-badge {
+  background: var(--devil-bg);
+}
+
+.verdict-badge:hover {
+  background: var(--devil-bg-hover);
+}
+
+@keyframes icon-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.icon-pulse {
+  animation: icon-pulse 300ms ease-out 1;
+}
+
+@keyframes counter-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.counter-column {
+  animation: counter-in 400ms ease-out 100ms backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .node-enter,
   .node-enter-central,
+  .icon-pulse,
+  .counter-column,
   .radar-ring,
   .canvas-breathe,
   .entity-box:hover .hover-ripple,

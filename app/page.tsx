@@ -1,5 +1,6 @@
 "use client";
 
+import { Sword } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AnalyzeEvent, DevilsAdvocate, Entity, MeetingBrief, PeerComparison, Report, Timeline } from "@/types";
 import { CommandPalette } from "@/components/command-palette";
@@ -16,9 +17,15 @@ import { FinancialTab } from "@/components/tabs/financial-tab";
 import { GraphTab } from "@/components/tabs/graph-tab";
 import { MemoTab } from "@/components/tabs/memo-tab";
 import { Toast } from "@/components/ui/toast";
+import { DualVerdictBadge } from "@/components/ui/dual-verdict-badge";
+import { CounterArgumentsCard } from "@/components/tabs/counter-arguments-card";
+import { concernCount, peerConcerns, stanceWord } from "@/lib/counter-view";
 import { peerContextFor } from "@/lib/peer-view";
 
 type Status = "idle" | "loading" | "ready" | "error";
+
+/** The saved TeraWulf report used as the worked example on the home screen. */
+const EXAMPLE_REPORT_ID = "36e359a9-052f-4e17-8afc-b29d2403f4c1";
 
 function isEvent(value: unknown): value is AnalyzeEvent {
   return typeof value === "object" && value !== null && "type" in value;
@@ -372,6 +379,14 @@ export default function HomePage() {
     }
   }, [report]);
 
+  // Every report gets its counter-argument as soon as it loads, so it is beside the memo and on every tab.
+  const argued = useRef<string | null>(null);
+  useEffect(() => {
+    if (!report || status !== "ready" || devilBusy || argued.current === report.id) return;
+    argued.current = report.id;
+    if (!report.devil?.memoStance) void argue();
+  }, [report, status, devilBusy, argue]);
+
   const watchCompany = useCallback(async (ticker: string) => {
     try {
       const response = await fetch("/api/watchlist", {
@@ -408,6 +423,11 @@ export default function HomePage() {
         onAnalyze={(t) => void analyze(t)}
         onOpenChanges={() => openTab("changes")}
         onOpenPalette={() => setPaletteOpen(true)}
+        verdict={
+          ready && report ? (
+            <DualVerdictBadge memoVerdict={stanceWord(report.devil)} concernCount={concernCount(report.devil)} busy={devilBusy} onClick={() => openTab("memo")} />
+          ) : null
+        }
       />
 
       {ready && graph && report ? (
@@ -442,13 +462,15 @@ export default function HomePage() {
                     range={range}
                     onRangeChange={setRange}
                     asOf={asOf}
+                    devil={report.devil}
+                    devilBusy={devilBusy}
                   />
                 </div>
               ) : null}
               {tab !== "graph" ? (
                 <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="h-full overflow-y-auto">
-                  {tab === "financial" ? <FinancialTab report={report} peers={peerReports} timeline={timeline} range={range} /> : null}
-                  {tab === "capital" ? <CapitalTab report={report} /> : null}
+                  {tab === "financial" ? <FinancialTab report={report} peers={peerReports} timeline={timeline} range={range} devilBusy={devilBusy} /> : null}
+                  {tab === "capital" ? <CapitalTab report={report} devilBusy={devilBusy} /> : null}
                   {tab === "changes" ? (
                     <ChangesTab
                       report={report}
@@ -458,6 +480,7 @@ export default function HomePage() {
                       onCompare={() => void compare()}
                       onSelectEntity={focusEntity}
                       timeline={timeline}
+                      devilBusy={devilBusy}
                     />
                   ) : null}
                   {tab === "peers" ? (
@@ -473,6 +496,15 @@ export default function HomePage() {
                         onSelectEntity={focusEntity}
                         onSelectPeerEntity={setSelected}
                       />
+                      {peerComparison ? (
+                        <div className="mt-10">
+                          <CounterArgumentsCard
+                            title="peer comparison"
+                            items={peerConcerns(peerComparison).map((text) => ({ text }))}
+                            empty={`${report.graph.company.ticker} is not the weakest of the companies compared on debt to EBITDA, interest coverage, liquidity or revenue concentration.`}
+                          />
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
                   {tab === "memo" ? (
@@ -525,6 +557,21 @@ export default function HomePage() {
                 <h1 className="font-display text-[32px] font-bold leading-tight text-zinc-50">Paste a ticker to write the credit memo.</h1>
                 <p className="mt-2 text-[15px] text-zinc-500">Gatto&rsquo;s seven-step process, automated.</p>
                 <p className="mt-1 text-xs text-zinc-600">{TAGLINE}</p>
+              </div>
+              <div className="mb-10 border-l-[3px] border-red-600 p-6" style={{ background: "var(--devil-bg)" }}>
+                <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-red-600">
+                  <Sword className="h-3.5 w-3.5" aria-hidden /> The devil&rsquo;s advocate
+                </p>
+                <p className="mt-3 text-base font-medium text-zinc-200">Every memo comes with a counter-argument.</p>
+                <p className="mt-2 text-zinc-300">
+                  We don&rsquo;t just tell you what&rsquo;s true. We tell you what could break, from the same filings, with every claim cited.
+                </p>
+                <a
+                  href={`/?report=${EXAMPLE_REPORT_ID}&tab=memo`}
+                  className="mt-4 inline-flex rounded-xs border border-red-600 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors duration-100 ease-out hover:bg-red-600 hover:text-white"
+                >
+                  See example: WULF
+                </a>
               </div>
               <p>
                 Enter a ticker to read the company&rsquo;s latest 10-K, 10-Q and 8-K, its recent headlines and 90 days of market data.

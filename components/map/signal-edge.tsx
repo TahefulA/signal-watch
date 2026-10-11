@@ -22,6 +22,8 @@ export interface SignalEdgeData extends Record<string, unknown> {
   width?: number;
   /** High-severity lines send one dot from the company to the entity once the line is drawn. */
   energy?: boolean;
+  /** Counter view: lines to the boxes the Devil's Advocate flags are dashed. */
+  counterDash?: boolean;
 }
 
 export type SignalFlowEdge = Edge<SignalEdgeData, "signal">;
@@ -32,7 +34,7 @@ export const EDGE_ACTIVE = "rgb(var(--zinc-400))";
 
 function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: EdgeProps<SignalFlowEdge>) {
   const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
-  const { label, arrowAtSource = false, dashed = false, active = false, flashKey = null, opacity = 1, drawIn = false, delayMs = 0, width = 1.5, energy = false } = data ?? {};
+  const { label, arrowAtSource = false, dashed = false, active = false, flashKey = null, opacity = 1, drawIn = false, delayMs = 0, width = 1.5, energy = false, counterDash = false } = data ?? {};
   const stroke = active ? EDGE_ACTIVE : EDGE_IDLE;
   const marker = `url(#signal-arrow-${active ? "active" : "idle"})`;
 
@@ -49,7 +51,8 @@ function SignalEdgeComponent({ id, sourceX, sourceY, targetX, targetY, data }: E
           style={{
             stroke,
             strokeWidth: active ? width + 1 : width,
-            strokeDasharray: dashed ? "0.01 0.01" : undefined,
+            strokeDasharray: dashed ? "0.01 0.01" : counterDash && !drawIn ? "0.012 0.012" : undefined,
+            ...(counterDash && !drawIn ? { stroke: "#dc2626" } : {}),
             animationDelay: `${delayMs}ms`,
           }}
           markerStart={arrowAtSource ? marker : undefined}

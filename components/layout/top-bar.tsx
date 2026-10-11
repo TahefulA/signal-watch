@@ -2,7 +2,7 @@
 
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, type ReactNode, useState } from "react";
 import { TAGLINE } from "./tab-bar";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -15,10 +15,12 @@ interface TopBarProps {
   onOpenPalette: () => void;
   /** Hides the palette hint until there is a report to ask about. */
   hasReport: boolean;
+  /** The memo's stance and the Devil's Advocate's concerns, once there is a report. */
+  verdict?: ReactNode;
 }
 
 /** 48px header: wordmark, ticker search, changes badge, command palette hint. */
-export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette, hasReport }: TopBarProps) {
+export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette, hasReport, verdict = null }: TopBarProps) {
   const [value, setValue] = useState("");
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -61,6 +63,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
       </form>
 
       <div className="ml-auto flex shrink-0 items-center gap-3">
+        {verdict}
         {changes > 0 ? (
           <button
             type="button"

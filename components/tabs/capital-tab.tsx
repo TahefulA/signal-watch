@@ -4,6 +4,8 @@ import { ExternalLink } from "lucide-react";
 import type { DebtInstrument, DebtKind, MaturityRow, Report, Seniority } from "@/types";
 import { CitationBlock } from "@/components/ui/citation";
 import { compactMoney } from "@/lib/node-visuals";
+import { capitalItems } from "@/lib/counter-view";
+import { CounterArgumentsCard } from "./counter-arguments-card";
 import { SectionTitle, TabHeader } from "./financial-tab";
 
 const SENIORITY: Record<Seniority, string> = { senior_secured: "Senior secured", senior_unsecured: "Senior unsecured", subordinated: "Subordinated", other: "Other" };
@@ -43,7 +45,7 @@ function weightedMaturity(instruments: DebtInstrument[], asOf: string | null): {
 }
 
 /** The capital structure: every instrument from the debt note, the maturity wall and the structure's key figures. */
-export function CapitalTab({ report }: { report: Report }) {
+export function CapitalTab({ report, devilBusy = false }: { report: Report; devilBusy?: boolean }) {
   const capital = report.capital;
   if (!capital) {
     return (
@@ -76,6 +78,13 @@ export function CapitalTab({ report }: { report: Report }) {
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-8 lg:px-12">
       <TabHeader title="Capital structure" meta={`As of ${capital.fiscalPeriod ?? capital.asOf ?? "the latest filing"}${capital.asOf ? ` (period ending ${capital.asOf})` : ""} · ${capital.sourceType} filed ${capital.sourceDate}`} />
+
+      <CounterArgumentsCard
+        title="capital structure concerns"
+        items={capitalItems(report.devil)}
+        busy={devilBusy}
+        empty={report.devil ? "No debt pattern fired: maturities, floating rate share, guarantees, subordination and pension funding were checked." : "The counter-argument has not been written yet."}
+      />
 
       {capital.noteFallback ? <p className="mb-4 border-l-2 border-amber-600 pl-3 text-xs leading-relaxed text-zinc-400">{capital.noteFallback}</p> : null}
       {aggregate ? (

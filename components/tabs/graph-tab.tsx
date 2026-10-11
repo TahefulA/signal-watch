@@ -1,8 +1,10 @@
 "use client";
 
 import { Check, FileText, HelpCircle, Newspaper, X } from "lucide-react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
-import type { Entity, EntityGraph, EntityType, Timeline } from "@/types";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import type { DevilsAdvocate, Entity, EntityGraph, EntityType, Timeline } from "@/types";
+import { DevilsAdvocateToggle } from "@/components/graph/devils-advocate-toggle";
+import { concernCount, flaggedIds } from "@/lib/counter-view";
 import { ENTITY_TYPES, SEVERITIES } from "@/types/entity";
 import { EntityMap, type MapFilters } from "@/components/map/entity-map";
 import { TYPE_LABELS } from "@/lib/entity-style";
@@ -24,6 +26,8 @@ interface GraphTabProps {
   onRangeChange: (range: TimeRange) => void;
   /** "As of Q2 2026 · 10-Q filed 2026-08-05". */
   asOf: string | null;
+  devil: DevilsAdvocate | null | undefined;
+  devilBusy: boolean;
 }
 
 function Dots({ filled, color, size = 6 }: { filled: number; color: string; size?: number }) {
@@ -143,7 +147,24 @@ function LegendPopover({ highConfidenceOnly, onToggleConfidence }: { highConfide
 }
 
 /** The hero view: type filter chips, then the map filling the rest of the screen. */
-export function GraphTab({ graph, totalDebt, notes, selectedId, focusRequest, onSelect, onClearSelection, timeline, timelineError, range, onRangeChange, asOf }: GraphTabProps) {
+export function GraphTab({
+  graph,
+  totalDebt,
+  notes,
+  selectedId,
+  focusRequest,
+  onSelect,
+  onClearSelection,
+  timeline,
+  timelineError,
+  range,
+  onRangeChange,
+  asOf,
+  devil,
+  devilBusy,
+}: GraphTabProps) {
+  const [counter, setCounter] = useState(false);
+  const counterIds = useMemo(() => (counter && devil ? flaggedIds(devil) : null), [counter, devil]);
   const win = timeline ? windowOf(timeline.quarters, range) : null;
   const [hidden, setHidden] = useState<EntityType[]>([]);
   const [highConfidenceOnly, setHighConfidenceOnly] = useState(false);
@@ -193,6 +214,7 @@ export function GraphTab({ graph, totalDebt, notes, selectedId, focusRequest, on
         <div className="ml-auto flex shrink-0 items-center gap-3 pl-4">
           {asOf ? <span className="hidden font-mono text-[11px] text-zinc-500 lg:inline">{asOf}</span> : null}
           <RangeSelect range={range} quarters={timeline?.quarters ?? []} onChange={onRangeChange} />
+          <DevilsAdvocateToggle enabled={counter && Boolean(devil)} onToggle={setCounter} concernCount={concernCount(devil)} disabled={!devil || devilBusy} />
         </div>
       </div>
       {/* Fixed height, so the map is sized once and does not jump when the timeline arrives. */}
@@ -218,6 +240,7 @@ export function GraphTab({ graph, totalDebt, notes, selectedId, focusRequest, on
           onSelect={onSelect}
           onClearSelection={onClearSelection}
           time={timeline && win ? { timeline, window: win } : null}
+          counterIds={counterIds}
         />
         <LegendPopover highConfidenceOnly={highConfidenceOnly} onToggleConfidence={setHighConfidenceOnly} />
       </div>
