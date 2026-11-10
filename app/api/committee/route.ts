@@ -38,7 +38,7 @@ export async function POST(request: Request): Promise<Response> {
           send({ type: "error", message: "This report is no longer available. Run the analysis again." });
           return;
         }
-        if (saved.committee && body.fresh !== true) {
+        if (saved.committee?.turns.length && body.fresh !== true) {
           send({ type: "done", record: saved.committee });
           return;
         }
@@ -52,6 +52,11 @@ export async function POST(request: Request): Promise<Response> {
         send({ type: "trace", text: "Running the contradiction checks" });
         const patterns = await patternsFor(report, today);
         const record = await runCommittee(report, patterns, send);
+        // A committee that never got a line out is not saved: the next open convenes it again.
+        if (!record.turns.length) {
+          send({ type: "error", message: "Gemini is overloaded right now, so the committee could not meet. Please try Convene again in a minute." });
+          return;
+        }
         await saveCommittee(report, record).catch((error: unknown) => console.error("Committee save failed", error));
         send({ type: "done", record });
       } catch (error) {

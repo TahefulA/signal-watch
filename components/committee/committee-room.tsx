@@ -126,7 +126,7 @@ export function CommitteeRoom({ report }: { report: Report }) {
   const [trace, setTrace] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [record, setRecord] = useState<CommitteeRecord | null>(report.committee ?? null);
+  const [record, setRecord] = useState<CommitteeRecord | null>(report.committee?.turns.length ? report.committee : null);
   const [replaying, setReplaying] = useState(false);
   const [question, setQuestion] = useState("");
   const [asking, setAsking] = useState(false);
@@ -236,7 +236,7 @@ export function CommitteeRoom({ report }: { report: Report }) {
   useEffect(() => {
     if (started.current === report.id) return;
     started.current = report.id;
-    if (report.committee) replay(report.committee);
+    if (report.committee?.turns.length) replay(report.committee);
     else void run(false);
   }, [report.id, report.committee, replay, run]);
 

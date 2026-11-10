@@ -61,10 +61,19 @@ export async function runCommittee(report: Report, patterns: PatternResult[], em
     try {
       calls++;
       draft = await speak(report, plan, referee.turns, mine, replyCard);
-    } catch (error) {
-      console.warn("Committee turn failed", error);
-      emit({ type: "trace", text: "A model call failed; the committee ends here" });
-      break;
+    } catch (first) {
+      // Gemini is often briefly overloaded: wait once and try the turn again before ending.
+      console.warn("Committee turn failed, retrying", first);
+      emit({ type: "trace", text: "Gemini is busy; trying that turn again" });
+      await new Promise((resolve) => setTimeout(resolve, 4_000));
+      try {
+        calls++;
+        draft = await speak(report, plan, referee.turns, mine, replyCard);
+      } catch (error) {
+        console.warn("Committee turn failed", error);
+        emit({ type: "trace", text: "A model call failed; the committee ends here" });
+        break;
+      }
     }
     const evidence = draft.evidenceId ? byId.get(draft.evidenceId) ?? null : null;
     const pending: CommitteeTurn = {

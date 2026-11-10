@@ -55,7 +55,8 @@ export interface GenerateOptions {
 
 export async function generateJson(system: string, prompt: string, schema: Schema, options: GenerateOptions = {}): Promise<unknown> {
   let lastError: GeminiError | null = null;
-  const attempts = options.fast ? [FALLBACK_MODEL, FALLBACK_MODEL, MODEL] : [MODEL, MODEL, FALLBACK_MODEL, FALLBACK_MODEL];
+  // Alternate models: a rate limit on one (429) is often not on the other, and overload (503) passes in seconds.
+  const attempts = options.fast ? [FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL] : [MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL];
   for (let i = 0; i < attempts.length; i++) {
     try {
       return await callModel(attempts[i], system, prompt, schema, options);
@@ -64,12 +65,14 @@ export async function generateJson(system: string, prompt: string, schema: Schem
       // A timeout goes straight to the faster fallback model rather than waiting again.
       if (error.kind === "timeout" && attempts[i] === MODEL) {
         lastError = error;
-        i = attempts.indexOf(FALLBACK_MODEL) - 1;
+        const next = attempts.indexOf(FALLBACK_MODEL, i + 1);
+        if (next < 0) break;
+        i = next - 1;
         continue;
       }
       if (error.status === undefined || !RETRYABLE.has(error.status)) throw error;
       lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, Math.min(6_000, 700 * 2 ** Math.floor(i / 2))));
     }
   }
   throw lastError ?? new GeminiError("Gemini is unavailable", "http");

@@ -83,7 +83,9 @@ function FedBanner({ cards }: { cards: WatchCard[] }) {
       <span className="text-zinc-400">
         {exposed.length
           ? `${exposed.length} of your ${cards.length} borrowers carry a quarter or more of their debt at floating rates: ${exposed.map((c) => c.ticker).join(", ")}`
-          : `None of your ${cards.length} borrowers carries a quarter of its debt at floating rates`}
+          : cards.length
+            ? `None of your ${cards.length} borrower${cards.length === 1 ? "" : "s"} carries a quarter of its debt at floating rates`
+            : "Watch a borrower to see its floating-rate exposure"}
       </span>
     </div>
   );
