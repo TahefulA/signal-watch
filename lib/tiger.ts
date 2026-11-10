@@ -1,7 +1,8 @@
 import { Pool, type PoolClient, type PoolConfig } from "pg";
 import { TIMESCALE_CA } from "./certs/timescale-ca";
 import { viewGraph } from "./graph-view";
-import type { Entity, PeerComparison, Report } from "@/types";
+import type { CommitteeRecord, DistressScore, Entity, Report } from "@/types";
+import type { FedPath } from "./kalshi";
 
 /**
  * Tiger Data (PostgreSQL) storage for analysis reports. Each analyzed ticker
@@ -47,6 +48,8 @@ function getPool(): Pool {
       connectionTimeoutMillis: 5_000,
       query_timeout: 10_000,
     });
+    // Every statement in the schema is idempotent: a new deploy adds its tables on first use.
+    pool.query(SCHEMA_SQL).catch((error: unknown) => console.warn("Schema check failed", error));
   }
   return pool;
 }
@@ -190,6 +193,41 @@ CREATE TABLE IF NOT EXISTS watchlist (
   ticker text PRIMARY KEY,
   added_at timestamptz NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS distress_scores (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  ticker text NOT NULL,
+  report_id uuid REFERENCES reports (id) ON DELETE SET NULL,
+  scored_on date NOT NULL,
+  period_end date NOT NULL,
+  probability double precision NOT NULL,
+  band text NOT NULL,
+  z_score double precision,
+  model_version text NOT NULL,
+  score_json jsonb NOT NULL,
+  UNIQUE (ticker, scored_on, model_version)
+);
+CREATE INDEX IF NOT EXISTS distress_scores_ticker ON distress_scores (ticker, scored_on DESC);
+
+CREATE TABLE IF NOT EXISTS fed_path_snapshots (
+  taken_on date PRIMARY KEY,
+  current_upper double precision,
+  path_json jsonb NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS committee_turns (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_id uuid NOT NULL REFERENCES reports (id) ON DELETE CASCADE,
+  n int NOT NULL,
+  speaker text NOT NULL,
+  move text NOT NULL,
+  replying_to int,
+  text text NOT NULL,
+  evidence_id text,
+  status text NOT NULL,
+  problems jsonb NOT NULL DEFAULT '[]'
+);
+CREATE INDEX IF NOT EXISTS committee_turns_report ON committee_turns (report_id, n);
 `;
 
 export async function migrate(): Promise<void> {
@@ -401,28 +439,6 @@ export async function saveChanges(report: Report): Promise<void> {
   }
 }
 
-/** Stores a comparison as one row per subject-peer pair. */
-export async function savePeerComparison(comparison: PeerComparison): Promise<void> {
-  const [subject, ...peers] = comparison.companies;
-  if (!subject) return;
-  for (const peer of peers) {
-    const shared = comparison.shared.filter((s) => s.members.some((m) => m.ticker === peer.ticker));
-    await getPool().query(
-      `INSERT INTO peer_comparisons (comparison_id, report_id_1, report_id_2, shared_entities, unique_entities_1, unique_entities_2, comparison_json)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [
-        comparison.id,
-        subject.reportId,
-        peer.reportId,
-        JSON.stringify(shared),
-        JSON.stringify(comparison.unique[subject.ticker] ?? []),
-        JSON.stringify(comparison.unique[peer.ticker] ?? []),
-        JSON.stringify(comparison),
-      ],
-    );
-  }
-}
-
 /** Replaces a saved report's JSON, e.g. after a brief is added. */
 export async function updateReport(report: Report): Promise<void> {
   await getPool().query("UPDATE reports SET report_json = $2, graph_json = $3 WHERE id = $1", [
@@ -485,4 +501,71 @@ export async function findLatestReport(ticker: string): Promise<Report | null> {
     [ticker],
   );
   return rows[0]?.report_json ?? null;
+}
+
+/** One score per ticker per day per model version; a rescore the same day replaces it. */
+export async function saveDistressScore(ticker: string, reportId: string | null, score: DistressScore): Promise<void> {
+  await getPool().query(
+    `INSERT INTO distress_scores (ticker, report_id, scored_on, period_end, probability, band, z_score, model_version, score_json)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     ON CONFLICT (ticker, scored_on, model_version) DO UPDATE
+       SET report_id = EXCLUDED.report_id, period_end = EXCLUDED.period_end, probability = EXCLUDED.probability,
+           band = EXCLUDED.band, z_score = EXCLUDED.z_score, score_json = EXCLUDED.score_json`,
+    [ticker, reportId, score.asOf, score.periodEnd, score.probability, score.band, score.zScore, score.modelVersion, JSON.stringify(score)],
+  );
+}
+
+/** A ticker's scores, newest first. */
+export async function distressHistory(ticker: string, limit = 10): Promise<{ scoredOn: string; periodEnd: string; probability: number; band: string }[]> {
+  const rows = await queryRows<{ scored_on: Date; period_end: Date; probability: number; band: string }>(
+    "SELECT scored_on, period_end, probability, band FROM distress_scores WHERE ticker = $1 ORDER BY scored_on DESC LIMIT $2",
+    [ticker, limit],
+  );
+  return rows.map((r) => ({
+    scoredOn: r.scored_on.toISOString().slice(0, 10),
+    periodEnd: r.period_end.toISOString().slice(0, 10),
+    probability: r.probability,
+    band: r.band,
+  }));
+}
+
+export async function saveFedSnapshot(day: string, path: FedPath): Promise<void> {
+  await getPool().query(
+    `INSERT INTO fed_path_snapshots (taken_on, current_upper, path_json) VALUES ($1, $2, $3)
+     ON CONFLICT (taken_on) DO UPDATE SET current_upper = EXCLUDED.current_upper, path_json = EXCLUDED.path_json`,
+    [day, path.currentUpper, JSON.stringify(path)],
+  );
+}
+
+/** The newest snapshot taken before a day, to measure how far the odds moved since. */
+export async function fedSnapshotBefore(day: string): Promise<{ takenOn: string; path: FedPath } | null> {
+  const rows = await queryRows<{ taken_on: Date; path_json: FedPath }>(
+    "SELECT taken_on, path_json FROM fed_path_snapshots WHERE taken_on < $1 ORDER BY taken_on DESC LIMIT 1",
+    [day],
+  );
+  return rows[0] ? { takenOn: rows[0].taken_on.toISOString().slice(0, 10), path: rows[0].path_json } : null;
+}
+
+/** Saves a debate on its report and one row per turn. */
+export async function saveCommittee(report: Report, record: CommitteeRecord): Promise<void> {
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("UPDATE reports SET report_json = $2 WHERE id = $1", [report.id, JSON.stringify({ ...report, committee: record })]);
+    await client.query("DELETE FROM committee_turns WHERE report_id = $1", [report.id]);
+    for (const t of record.turns) {
+      const replying = t.replyingTo ? (record.turns.find((x) => x.id === t.replyingTo)?.n ?? null) : null;
+      await client.query(
+        `INSERT INTO committee_turns (report_id, n, speaker, move, replying_to, text, evidence_id, status, problems)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [report.id, t.n, t.speaker, t.move, replying, t.text, t.evidenceId, t.status, JSON.stringify(t.problems)],
+      );
+    }
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }

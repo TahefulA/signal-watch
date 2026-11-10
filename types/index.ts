@@ -3,11 +3,12 @@ export type * from "./graph";
 export type * from "./memo";
 export type * from "./capital";
 export type * from "./changes";
-export type * from "./peers";
 export type * from "./brief";
 export type * from "./dashboard";
 export type * from "./timeline";
 export type * from "./devils-advocate";
+export type * from "./forecast";
+export type * from "./committee";
 
 import type { EntityGraph, MarketSnapshot, SourceDocument } from "./graph";
 import type { Memo, MemoSpan } from "./memo";
@@ -16,6 +17,9 @@ import type { ChangeReport } from "./changes";
 import type { MeetingBrief } from "./brief";
 import type { Timeline } from "./timeline";
 import type { DevilsAdvocate } from "./devils-advocate";
+import type { DistressScore, FilingChange, RateStress } from "./forecast";
+import type { CommitteeRecord } from "./committee";
+import type { LmeScan } from "./lme";
 
 /** What citation validation and entity resolution did to Gemini's proposals. */
 export interface Validation {
@@ -57,6 +61,16 @@ export interface Report {
   timeline?: Timeline | null;
   /** The counter-argument to the memo, once requested. */
   devil?: DevilsAdvocate | null;
+  /** Twelve-month bankruptcy probability, scored when the report is built. */
+  distress?: DistressScore | null;
+  /** How much the newest 10-K or 10-Q rewrote each section against the prior one. */
+  filingChange?: FilingChange | null;
+  /** Kalshi's Fed rate path applied to the floating-rate debt and the cash forecast. */
+  rateStress?: RateStress | null;
+  /** The last committee debate, once run. */
+  committee?: CommitteeRecord | null;
+  /** The credit documents read for liability-management trapdoors, once scanned. */
+  lme?: LmeScan | null;
 }
 
 export type AnalyzeEvent =
@@ -75,3 +89,4 @@ export interface AskAnswer {
   /** Sentences removed because they used a figure not in the report. */
   removed: number;
 }
+export type * from "./lme";

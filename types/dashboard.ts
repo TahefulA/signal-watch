@@ -1,5 +1,6 @@
 import type { SourceDocument } from "./graph";
 import type { MemoStance } from "./devils-advocate";
+import type { DistressBand } from "./forecast";
 
 /**
  * Where a watched company sits in the morning queue. Decided by written rules
@@ -64,6 +65,12 @@ export interface WatchCard {
   /** 10-K, 10-Q and 8-K filings on EDGAR newer than the ones the report read. */
   newFilings: (SourceDocument & { items?: string; meaning?: string })[];
   watchItems: WatchItemStatus[];
+  /** Today's twelve-month bankruptcy probability and the last one on record before today. */
+  distress?: { probability: number; band: DistressBand; previous: number | null; previousOn: string | null; reason: string | null } | null;
+  /** Share of debt that floats, from the rate stress. */
+  floatingShare?: number | null;
+  /** Strong points left unanswered in the last committee, or null without one. */
+  committeeOpen?: number | null;
   /** Counts from the last comparison with the previous quarter, if one was run. */
   changeCounts: { new: number; changed: number; removed: number } | null;
 }

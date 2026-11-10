@@ -3,7 +3,8 @@ import { CASH, CAPEX, OPERATING_CASH, money } from "./capital";
 import { addDays, daysBetween, toIsoDate } from "./dates";
 import { describeItems } from "./devils-evidence";
 import { filingDocumentUrl, getSubmissions, lookupCik } from "./edgar";
-import { findLatestReport } from "./tiger";
+import { scoreDistress } from "./distress";
+import { distressHistory, findLatestReport, saveDistressScore, tigerEnabled } from "./tiger";
 import { fetchFacts, instantSeries, quarterlySeries } from "./xbrl";
 
 /**
@@ -177,6 +178,21 @@ export async function watchCard(ticker: string, today = toIsoDate(new Date())): 
   const due = items.filter((w) => w.status === "due").length;
   if (due) reasons.push({ tone: "review", text: `${due} watch item${due === 1 ? "" : "s"} from the Devil's Advocate can be checked now` });
 
+  // The forecast layer: today's distress score against the last one on record, and the committee's open points.
+  const distress = book ? scoreDistress(book, report.graph.company.cik, today) : (report.distress ?? null);
+  const history = await distressHistory(ticker, 5).catch(() => []);
+  const previous = history.find((h) => h.scoredOn < today && distress && h.periodEnd <= distress.periodEnd) ?? null;
+  if (distress) {
+    if (tigerEnabled()) await saveDistressScore(ticker, report.id, distress).catch(() => undefined);
+    const p = `${(distress.probability * 100).toFixed(1)}%`;
+    if (distress.band === "severe") reasons.push({ tone: "act", text: `Bankruptcy probability ${p} within 12 months (severe)`, url: "/proof" });
+    else if (distress.band === "high") reasons.push({ tone: "review", text: `Bankruptcy probability ${p} within 12 months (high)`, url: "/proof" });
+    if (previous && distress.probability >= previous.probability * 1.5 && distress.probability - previous.probability >= 0.01)
+      reasons.push({ tone: "review", text: `Bankruptcy probability rose from ${(previous.probability * 100).toFixed(1)}% to ${p} since ${previous.scoredOn}`, date: today });
+  }
+  const unanswered = report.committee?.score.unansweredStrong ?? 0;
+  if (unanswered) reasons.push({ tone: "review", text: `${unanswered} strong point${unanswered === 1 ? "" : "s"} against the credit went unanswered in committee` });
+
   const status: WatchStatus = reasons.some((r) => r.tone === "act") ? "act" : reasons.length ? "review" : "quiet";
   const next = dated.sort((a, b) => (a.maturity as string).localeCompare(b.maturity as string))[0];
 
@@ -237,6 +253,11 @@ export async function watchCard(ticker: string, today = toIsoDate(new Date())): 
       nextMaturity: next ? { date: next.maturity as string, text: `${next.name}${next.outstanding ? `, ${money(next.outstanding)}` : ""}` } : null,
       newFilings,
       watchItems: items,
+      distress: distress
+        ? { probability: distress.probability, band: distress.band, previous: previous?.probability ?? null, previousOn: previous?.scoredOn ?? null, reason: distress.reasons[0]?.label ?? null }
+        : null,
+      floatingShare: report.rateStress?.floatingShare ?? null,
+      committeeOpen: report.committee ? unanswered : null,
       changeCounts: facts
         ? {
             new: facts.filter((c) => c.kind === "new" || c.kind === "new_debt").length,

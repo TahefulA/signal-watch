@@ -1,6 +1,5 @@
 import type { Citation } from "./entity";
 import type { MemoSpan } from "./memo";
-import type { PeerMetricRow } from "./peers";
 
 export interface BriefSource {
   label: string;
@@ -30,5 +29,4 @@ export interface MeetingBrief {
   numbers: { label: string; display: string; note?: string }[];
   questions: BriefItem[];
   risks: BriefRisk[];
-  comparables: { tickers: string[]; rows: PeerMetricRow[] } | null;
 }

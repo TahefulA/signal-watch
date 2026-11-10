@@ -94,9 +94,9 @@ export interface CasePeriod {
   historySpan: string | null;
 }
 
-export type CaseTheme = "earnings" | "liquidity" | "debt" | "counterparties" | "changes" | "behavior" | "peers" | "market";
+export type CaseTheme = "earnings" | "liquidity" | "debt" | "counterparties" | "changes" | "behavior" | "market";
 
-export const CASE_THEMES: CaseTheme[] = ["earnings", "liquidity", "debt", "counterparties", "changes", "behavior", "peers", "market"];
+export const CASE_THEMES: CaseTheme[] = ["earnings", "liquidity", "debt", "counterparties", "changes", "behavior", "market"];
 
 /** A table of figures built from the data, never written by the model. */
 export interface Exhibit {

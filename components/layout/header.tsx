@@ -3,9 +3,11 @@ import Link from "next/link";
 import { TAGLINE } from "./tab-bar";
 import { ThemeToggle } from "./theme-toggle";
 
-/** Header for pages outside the report view: the wordmark, Analyze, Watchlist and the theme switch. */
-export function Header({ active }: { active?: "analyze" | "dashboard" }) {
-  const link = (href: string, label: string, key: "analyze" | "dashboard") => (
+/** Header for pages outside the report view: the wordmark, Radar, Proof, Private company and the theme switch. */
+type HeaderKey = "radar" | "proof" | "private";
+
+export function Header({ active }: { active?: HeaderKey }) {
+  const link = (href: string, label: string, key: HeaderKey) => (
     <Link
       href={href}
       className={`relative flex h-12 items-center px-1 text-xs font-medium ${
@@ -25,8 +27,9 @@ export function Header({ active }: { active?: "analyze" | "dashboard" }) {
         </span>
       </Link>
       <nav className="ml-auto flex items-center gap-5">
-        {link("/", "Analyze", "analyze")}
-        {link("/dashboard", "Watchlist", "dashboard")}
+        {link("/", "Radar", "radar")}
+        {link("/proof", "Proof", "proof")}
+        {link("/private", "Private company", "private")}
         <ThemeToggle />
       </nav>
     </header>

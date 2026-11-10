@@ -1,27 +1,27 @@
 "use client";
 
-export type TabKey = "graph" | "financial" | "capital" | "changes" | "peers" | "memo";
+export type TabKey = "committee" | "graph" | "financial" | "capital" | "changes" | "memo";
 
 export const TABS: { key: TabKey; label: string }[] = [
-  { key: "graph", label: "Graph" },
+  { key: "committee", label: "Committee" },
+  { key: "graph", label: "Map" },
   { key: "financial", label: "Financial" },
   { key: "capital", label: "Capital" },
   { key: "changes", label: "Changes" },
-  { key: "peers", label: "Peers" },
   { key: "memo", label: "Memo" },
 ];
 
 /** Where each view sits in Gatto's seven-step credit process. */
 export const STEP_LABELS: Record<TabKey, string> = {
+  committee: "Distress forecast · Investment committee",
   graph: "Step 2 · Qualitative Analysis",
   financial: "Step 3a · Profitability",
   capital: "Step 3c · Capital Structure",
   changes: "Step 4 · Forecasting",
-  peers: "Step 5 · Valuation",
   memo: "Step 7 · Investment Recommendation",
 };
 
-export const TAGLINE = "The credit analyst\u2019s workflow, automated.";
+export const TAGLINE = "A credit distress forecaster you can audit.";
 
 export function isTab(value: string | null): value is TabKey {
   return TABS.some((t) => t.key === value);

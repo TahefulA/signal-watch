@@ -10,6 +10,7 @@ import { changesItems, sectionItems } from "@/lib/counter-view";
 import { CounterArgumentsCard } from "./counter-arguments-card";
 import { TabHeader } from "./financial-tab";
 import { ForecastPanel } from "@/components/forecast/forecast-panel";
+import { FilingChangePanel } from "@/components/changes/filing-change";
 
 const GROUPS: { title: string; kinds: ChangeKind[]; color: string; bar: string }[] = [
   { title: "New entities", kinds: ["new", "new_debt"], color: "text-emerald-600", bar: "bg-emerald-600" },
@@ -149,7 +150,12 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
       empty={report.devil ? "No new risk language, insider selling cluster, officer departures, auditor change or new debt was found." : "The counter-argument has not been written yet."}
     />
   );
-  const forecastBlock = <ForecastPanel report={report} timeline={timeline} />;
+  const forecastBlock = (
+    <>
+      <ForecastPanel report={report} timeline={timeline} />
+      <FilingChangePanel report={report} />
+    </>
+  );
   const timelineBlock = timeline && timeline.quarters.length ? <ChangesTimeline report={report} timeline={timeline} onSelectEntity={onSelectEntity} /> : null;
   const changes = report.changes;
   const describe = (docs: { sourceType: string; date: string; fiscalPeriod?: string | null }[]) =>

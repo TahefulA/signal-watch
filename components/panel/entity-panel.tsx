@@ -5,7 +5,6 @@ import { Bookmark, Copy, ExternalLink, X } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 import type { CapitalStructure, Confidence, Entity, EntityChange, EntityGraph, MagnitudeKind, RelationType, Trend } from "@/types";
 import { multiHop } from "@/lib/graph-view";
-import type { PeerContext } from "@/lib/peer-view";
 import { SEVERITY_LABELS, SEVERITY_STRIP, TYPE_BORDER, TYPE_LABELS } from "@/lib/entity-style";
 import { Button } from "@/components/ui/button";
 import { CitationBlock, citationLine } from "@/components/ui/citation";
@@ -15,7 +14,6 @@ interface EntityPanelProps {
   companyName: string;
   graph: EntityGraph | null;
   capital: CapitalStructure | null | undefined;
-  peerContext: PeerContext | null;
   onSelectEntity: (id: string) => void;
   onShowCapital: () => void;
   onClose: () => void;
@@ -231,39 +229,6 @@ function StrategicSection({ entity }: { entity: Entity }) {
   );
 }
 
-function ComparisonSection({ context }: { context: PeerContext | null }) {
-  if (context) {
-    return (
-      <Section title="Comparison">
-        <dl>
-          <Row label="Peer exposure">{context.exposure}</Row>
-          <Row label="Sector norm">{context.norm}</Row>
-          <Row label="Differentiation">{context.differentiation}</Row>
-        </dl>
-        <p className="mt-2 text-xs leading-relaxed text-zinc-500">From the loaded peers&rsquo; reports and filings only. A few peers are not a full sector.</p>
-      </Section>
-    );
-  }
-  return (
-    <Section title="Comparison">
-      <dl>
-        <Row label="Peer exposure">
-          <Missing>No peer comparison loaded</Missing>
-        </Row>
-        <Row label="Sector norm">
-          <Missing>No peer comparison loaded</Missing>
-        </Row>
-        <Row label="Differentiation">
-          <Missing>No peer comparison loaded</Missing>
-        </Row>
-      </dl>
-      <p className="mt-2 text-xs leading-relaxed text-zinc-500">
-        Use Peer comparison below the memo. Comparison comes from other companies&rsquo; filings, never from general knowledge.
-      </p>
-    </Section>
-  );
-}
-
 function RelatedSection({
   entity,
   graph,
@@ -391,7 +356,6 @@ export function EntityPanel({
   companyName,
   graph,
   capital,
-  peerContext,
   onSelectEntity,
   onShowCapital,
   onClose,
@@ -527,7 +491,6 @@ export function EntityPanel({
               <>
                 <MagnitudeSection entity={entity} />
                 <StrategicSection entity={entity} />
-                <ComparisonSection context={peerContext} />
                 <RelatedSection entity={entity} graph={graph} onSelectEntity={onSelectEntity} />
               </>
             )}

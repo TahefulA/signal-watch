@@ -1,0 +1,5754 @@
+{
+ "generatedAt": "2026-11-10T20:49:25.754638+00:00",
+ "dataset": {
+  "builtAt": "2026-11-10T20:38:42.152Z",
+  "universe": 13868,
+  "eventsFound": 907,
+  "eventsInUniverse": 783,
+  "nonEventPopulation": 13085,
+  "nonEventSampled": 1200,
+  "sampleWeight": 10.904166666666667,
+  "rows": 45084,
+  "positiveRows": 2453,
+  "leakingRows": 0,
+  "firstObservation": "2012-01-01",
+  "lastObservation": "2025-09-30",
+  "lastEvent": "2026-10-31"
+ },
+ "method": {
+  "model": "Gradient-boosted trees, depth 3, 300 rounds (scikit-learn HistGradientBoosting), isotonic calibration fitted on earlier years only",
+  "baselines": "Logistic regression on the same features; Altman Z'' with its published 1995 weights",
+  "weights": "Bankrupt companies weight 1; other companies a random sample weighted by 1 / share sampled",
+  "walkForward": "Each test year scored by models fitted only on rows scored at least a year before it starts",
+  "label": "An Item 1.03 (bankruptcy or receivership) 8-K within 365 days after the scoring date",
+  "scoringDate": "The day after each 10-K or 10-Q was filed; only figures filed before that day are used",
+  "alert": "Score above which 5% of non-bankrupt rows fell in earlier out-of-sample years",
+  "features": [
+   "log_assets",
+   "wc_ta",
+   "re_ta",
+   "ebit_ta",
+   "eq_tl",
+   "tl_ta",
+   "cash_ta",
+   "ni_ta",
+   "ocf_tl",
+   "int_cov",
+   "rev_growth",
+   "cash_change",
+   "filing_lag"
+  ]
+ },
+ "outOfSample": {
+  "rows": 33121,
+  "bankruptcyRows": 2071,
+  "bankruptCompanies": 644,
+  "years": [
+   2015,
+   2025
+  ],
+  "baseRate": 0.008144848682945351,
+  "auc": {
+   "model": 0.8629283678584221,
+   "logistic": 0.72383942540417,
+   "altmanZ": 0.7204913176628611
+  },
+  "brier": {
+   "model": 0.007822247531942134,
+   "logistic": 0.008054159541762982,
+   "baseRateOnly": 0.008078510122877275
+  },
+  "atAlert": {
+   "hitRate": 0.5007242877836794,
+   "falseAlarmRate": 0.06125262637930442,
+   "precision": 0.06290597232529055
+  },
+  "altmanZDistressZone": {
+   "hitRate": 0.9483341380975374,
+   "falseAlarmRate": 0.7050494437114133,
+   "precision": 0.010924610780348952
+  },
+  "calibration": [
+   {
+    "from": 0,
+    "to": 0.005,
+    "predicted": 0.0017380227671124641,
+    "observed": 0.001219706122096569,
+    "rows": 15883,
+    "bankruptcies": 179
+   },
+   {
+    "from": 0.005,
+    "to": 0.01,
+    "predicted": 0.006704075015914213,
+    "observed": 0.004647159487565715,
+    "rows": 6928,
+    "bankruptcies": 247
+   },
+   {
+    "from": 0.01,
+    "to": 0.02,
+    "predicted": 0.015305979989667874,
+    "observed": 0.012125323540224546,
+    "rows": 4324,
+    "bankruptcies": 329
+   },
+   {
+    "from": 0.02,
+    "to": 0.05,
+    "predicted": 0.030023070895527804,
+    "observed": 0.027159820099411702,
+    "rows": 3055,
+    "bankruptcies": 448
+   },
+   {
+    "from": 0.05,
+    "to": 0.1,
+    "predicted": 0.0733620434213878,
+    "observed": 0.05864573264878539,
+    "rows": 1799,
+    "bankruptcies": 436
+   },
+   {
+    "from": 0.1,
+    "to": 0.2,
+    "predicted": 0.12499641957278852,
+    "observed": 0.10341995165242453,
+    "rows": 819,
+    "bankruptcies": 266
+   },
+   {
+    "from": 0.2,
+    "to": 0.4,
+    "predicted": 0.28611433656958524,
+    "observed": 0.21794915475726578,
+    "rows": 259,
+    "bankruptcies": 132
+   },
+   {
+    "from": 0.4,
+    "to": 1.0,
+    "predicted": 0.6002909077514369,
+    "observed": 0.2756849841419105,
+    "rows": 54,
+    "bankruptcies": 34
+   }
+  ],
+  "perYear": [
+   {
+    "year": 2015,
+    "rows": 4021,
+    "bankruptcies": 296,
+    "trainedThrough": "2013-12-31",
+    "threshold": 0.011619053458297338,
+    "auc": 0.8376945215616551,
+    "aucLogit": 0.7175923673494693,
+    "aucZ": 0.7161916219026193
+   },
+   {
+    "year": 2016,
+    "rows": 3614,
+    "bankruptcies": 230,
+    "trainedThrough": "2014-12-31",
+    "threshold": 0.022535360510762926,
+    "auc": 0.8199596627575662,
+    "aucLogit": 0.759489098897913,
+    "aucZ": 0.669869710742988
+   },
+   {
+    "year": 2017,
+    "rows": 3316,
+    "bankruptcies": 165,
+    "trainedThrough": "2015-12-31",
+    "threshold": 0.04017584801309774,
+    "auc": 0.8735287721772138,
+    "aucLogit": 0.746014799799119,
+    "aucZ": 0.7503975010468381
+   },
+   {
+    "year": 2018,
+    "rows": 3257,
+    "bankruptcies": 165,
+    "trainedThrough": "2016-12-31",
+    "threshold": 0.04318229411939849,
+    "auc": 0.863384392647743,
+    "aucLogit": 0.7014184072976949,
+    "aucZ": 0.7051961485312173
+   },
+   {
+    "year": 2019,
+    "rows": 3025,
+    "bankruptcies": 244,
+    "trainedThrough": "2017-12-30",
+    "threshold": 0.040121628956743406,
+    "auc": 0.8957350250576136,
+    "aucLogit": 0.7410780063626479,
+    "aucZ": 0.6735635986214253
+   },
+   {
+    "year": 2020,
+    "rows": 2742,
+    "bankruptcies": 147,
+    "trainedThrough": "2018-12-29",
+    "threshold": 0.03772313808762174,
+    "auc": 0.8950083645549295,
+    "aucLogit": 0.7853066463410694,
+    "aucZ": 0.6932301169149131
+   },
+   {
+    "year": 2021,
+    "rows": 3041,
+    "bankruptcies": 59,
+    "trainedThrough": "2019-12-31",
+    "threshold": 0.035748080267107636,
+    "auc": 0.8731482964822196,
+    "aucLogit": 0.7630743581443249,
+    "aucZ": 0.6797443230265494
+   },
+   {
+    "year": 2022,
+    "rows": 3235,
+    "bankruptcies": 195,
+    "trainedThrough": "2020-12-30",
+    "threshold": 0.03514020608689549,
+    "auc": 0.8764165959260303,
+    "aucLogit": 0.6743119639875681,
+    "aucZ": 0.7420192346871246
+   },
+   {
+    "year": 2023,
+    "rows": 2880,
+    "bankruptcies": 302,
+    "trainedThrough": "2021-12-31",
+    "threshold": 0.03514020608689549,
+    "auc": 0.8887751562942596,
+    "aucLogit": 0.7352258114577745,
+    "aucZ": 0.7477763172361844
+   },
+   {
+    "year": 2024,
+    "rows": 2390,
+    "bankruptcies": 186,
+    "trainedThrough": "2022-12-31",
+    "threshold": 0.033259422660515105,
+    "auc": 0.9256649369995209,
+    "aucLogit": 0.7657152067715673,
+    "aucZ": 0.7832495115504713
+   },
+   {
+    "year": 2025,
+    "rows": 1600,
+    "bankruptcies": 82,
+    "trainedThrough": "2023-12-30",
+    "threshold": 0.035748080267107636,
+    "auc": 0.909772746969919,
+    "aucLogit": 0.7415123787540279,
+    "aucZ": 0.7407030857451857
+   }
+  ]
+ },
+ "warning": {
+  "bankruptcies": 606,
+  "caught": 361,
+  "medianMonths": 9.428384,
+  "caughtZ": 476,
+  "medianMonthsZ": 20.909987,
+  "histogram": [
+   {
+    "months": "0-3",
+    "count": 62
+   },
+   {
+    "months": "3-6",
+    "count": 50
+   },
+   {
+    "months": "6-9",
+    "count": 61
+   },
+   {
+    "months": "9-12",
+    "count": 49
+   },
+   {
+    "months": "12-18",
+    "count": 74
+   },
+   {
+    "months": "18-25",
+    "count": 65
+   }
+  ],
+  "cases": [
+   {
+    "cik": 1533758,
+    "name": "Hughes Satellite Systems Corporation",
+    "event": "2026-08-03",
+    "lastScore": 0.08593613228543204,
+    "lastScoredOn": "2025-08-06",
+    "monthsWarning": 23.587385,
+    "monthsWarningZ": 23.587385
+   },
+   {
+    "cik": 1001233,
+    "name": "SANGAMO THERAPEUTICS, INC.",
+    "event": "2026-06-23",
+    "lastScore": 0.038152405135860684,
+    "lastScoredOn": "2025-08-08",
+    "monthsWarning": 13.337714,
+    "monthsWarningZ": 22.503285
+   },
+   {
+    "cik": 827187,
+    "name": "SLEEP NUMBER CORPORATION",
+    "event": "2026-06-12",
+    "lastScore": 0.3503990601456249,
+    "lastScoredOn": "2025-08-01",
+    "monthsWarning": 22.141919,
+    "monthsWarningZ": 22.141919
+   },
+   {
+    "cik": 1808220,
+    "name": "GoHealth, Inc.",
+    "event": "2026-06-08",
+    "lastScore": 0.061532433858055076,
+    "lastScoredOn": "2025-08-13",
+    "monthsWarning": 9.822602,
+    "monthsWarningZ": 21.944809
+   },
+   {
+    "cik": 720154,
+    "name": "INOTIV, INC.",
+    "event": "2026-06-03",
+    "lastScore": 0.08593613228543204,
+    "lastScoredOn": "2025-08-08",
+    "monthsWarning": 21.7477,
+    "monthsWarningZ": 21.7477
+   },
+   {
+    "cik": 1519061,
+    "name": "Trinseo PLC",
+    "event": "2026-05-26",
+    "lastScore": 0.12813916401538777,
+    "lastScoredOn": "2025-08-08",
+    "monthsWarning": 21.550591,
+    "monthsWarningZ": 21.550591
+   },
+   {
+    "cik": 1901799,
+    "name": "Bitcoin Depot Inc.",
+    "event": "2026-05-18",
+    "lastScore": 0.002841168448231581,
+    "lastScoredOn": "2025-08-13",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1817511,
+    "name": "SOCIETY PASS INCORPORATED",
+    "event": "2026-05-14",
+    "lastScore": 0.02063006080500503,
+    "lastScoredOn": "2025-08-14",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.9159
+   },
+   {
+    "cik": 1254699,
+    "name": "QVC,\u00a0Inc.",
+    "event": "2026-04-17",
+    "lastScore": 0.16924919452917236,
+    "lastScoredOn": "2025-08-08",
+    "monthsWarning": 13.567674,
+    "monthsWarningZ": 23.25887
+   },
+   {
+    "cik": 1355096,
+    "name": "QVC GROUP, INC.",
+    "event": "2026-04-17",
+    "lastScore": 0.16924919452917236,
+    "lastScoredOn": "2025-08-08",
+    "monthsWarning": 13.567674,
+    "monthsWarningZ": 23.25887
+   },
+   {
+    "cik": 1347242,
+    "name": "Lipella Pharmaceuticals Inc.",
+    "event": "2026-03-31",
+    "lastScore": 0.007475614348591952,
+    "lastScoredOn": "2025-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.667543
+   },
+   {
+    "cik": 1865494,
+    "name": "IO Biotech, Inc.",
+    "event": "2026-03-31",
+    "lastScore": 0.26682361755034545,
+    "lastScoredOn": "2025-08-15",
+    "monthsWarning": 10.512484,
+    "monthsWarningZ": 19.513798
+   },
+   {
+    "cik": 1659323,
+    "name": "Iterum Therapeutics plc",
+    "event": "2026-03-27",
+    "lastScore": 0.02063006080500503,
+    "lastScoredOn": "2025-08-06",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.9159
+   },
+   {
+    "cik": 1776738,
+    "name": "THE CANNABIST COMPANY HOLDINGS INC.",
+    "event": "2026-03-24",
+    "lastScore": 0.1311498496648311,
+    "lastScoredOn": "2025-08-08",
+    "monthsWarning": 22.437582,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1015155,
+    "name": "Charles & Colvard, Ltd.",
+    "event": "2026-03-04",
+    "lastScore": 0.012505066685899903,
+    "lastScoredOn": "2025-08-05",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.879106
+   },
+   {
+    "cik": 1532286,
+    "name": "Nine Energy Service, Inc.",
+    "event": "2026-02-02",
+    "lastScore": 0.061532433858055076,
+    "lastScoredOn": "2025-08-06",
+    "monthsWarning": 20.86071,
+    "monthsWarningZ": 22.8318
+   },
+   {
+    "cik": 1705012,
+    "name": "FAT Brands Inc.",
+    "event": "2026-01-27",
+    "lastScore": 0.08593613228543204,
+    "lastScoredOn": "2025-08-01",
+    "monthsWarning": 22.503285,
+    "monthsWarningZ": 22.503285
+   },
+   {
+    "cik": 2011954,
+    "name": "Twin Hospitality Group Inc.",
+    "event": "2026-01-27",
+    "lastScore": 0.08593613228543204,
+    "lastScoredOn": "2025-08-01",
+    "monthsWarning": 10.906702,
+    "monthsWarningZ": 10.906702
+   },
+   {
+    "cik": 720875,
+    "name": "Dynatronics Corporation",
+    "event": "2026-01-12",
+    "lastScore": 0.007475614348591952,
+    "lastScoredOn": "2025-05-13",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.127464
+   },
+   {
+    "cik": 846475,
+    "name": "Zynex,\u00a0Inc.",
+    "event": "2025-12-16",
+    "lastScore": 0.019678566128202714,
+    "lastScoredOn": "2025-08-01",
+    "monthsWarning": null,
+    "monthsWarningZ": 4.500657
+   },
+   {
+    "cik": 1159167,
+    "name": "iROBOT CORPORATION",
+    "event": "2025-12-15",
+    "lastScore": 0.16924919452917236,
+    "lastScoredOn": "2025-08-08",
+    "monthsWarning": 16.228647,
+    "monthsWarningZ": 21.550591
+   },
+   {
+    "cik": 1758057,
+    "name": "Luminar Technologies, Inc./DE",
+    "event": "2025-12-15",
+    "lastScore": 0.08593613228543204,
+    "lastScoredOn": "2025-08-14",
+    "monthsWarning": 21.51774,
+    "monthsWarningZ": 21.51774
+   },
+   {
+    "cik": 1721741,
+    "name": "Lazydays Holdings, Inc.",
+    "event": "2025-12-01",
+    "lastScore": 0.12813916401538777,
+    "lastScoredOn": "2025-08-15",
+    "monthsWarning": 20.630749,
+    "monthsWarningZ": 20.630749
+   },
+   {
+    "cik": 1539029,
+    "name": "Clearside Biomedical, Inc.",
+    "event": "2025-11-25",
+    "lastScore": 0.061532433858055076,
+    "lastScoredOn": "2025-08-09",
+    "monthsWarning": 15.407359,
+    "monthsWarningZ": 20.43364
+   },
+   {
+    "cik": 1819395,
+    "name": "SONDER HOLDINGS INC.",
+    "event": "2025-11-14",
+    "lastScore": 0.26682361755034545,
+    "lastScoredOn": "2025-08-26",
+    "monthsWarning": 23.981603,
+    "monthsWarningZ": 23.981603
+   },
+   {
+    "cik": 1761510,
+    "name": "TILT Holdings\u00a0Inc.",
+    "event": "2025-11-07",
+    "lastScore": 0.16924919452917236,
+    "lastScoredOn": "2025-08-15",
+    "monthsWarning": 23.784494,
+    "monthsWarningZ": 23.784494
+   },
+   {
+    "cik": 1456772,
+    "name": "OFFICE PROPERTIES INCOME TRUST",
+    "event": "2025-10-31",
+    "lastScore": 0.007475614348591952,
+    "lastScoredOn": "2025-07-31",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1643988,
+    "name": "LOOP MEDIA, INC.",
+    "event": "2025-10-20",
+    "lastScore": 0.061532433858055076,
+    "lastScoredOn": "2025-08-15",
+    "monthsWarning": 17.542707,
+    "monthsWarningZ": 22.010512
+   },
+   {
+    "cik": 1893311,
+    "name": "LUXURBAN HOTELS INC.",
+    "event": "2025-09-18",
+    "lastScore": 0.16993155213723762,
+    "lastScoredOn": "2024-11-20",
+    "monthsWarning": 17.082786,
+    "monthsWarningZ": 22.306176
+   },
+   {
+    "cik": 1220754,
+    "name": "ModivCare Inc.",
+    "event": "2025-08-21",
+    "lastScore": 0.08593613228543204,
+    "lastScoredOn": "2025-05-10",
+    "monthsWarning": 21.550591,
+    "monthsWarningZ": 21.550591
+   },
+   {
+    "cik": 1455684,
+    "name": "TPI Composites, Inc.",
+    "event": "2025-08-15",
+    "lastScore": 0.12813916401538777,
+    "lastScoredOn": "2025-08-12",
+    "monthsWarning": 15.407359,
+    "monthsWarningZ": 21.386334
+   },
+   {
+    "cik": 844887,
+    "name": "DIAMONDHEAD CASINO CORPORATION",
+    "event": "2025-08-04",
+    "lastScore": 0.007475614348591952,
+    "lastScoredOn": "2025-05-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 799698,
+    "name": "LadRx Corporation",
+    "event": "2025-07-31",
+    "lastScore": 0.004572992269581603,
+    "lastScoredOn": "2025-05-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.521682
+   },
+   {
+    "cik": 1842356,
+    "name": "Wag! Group Co.",
+    "event": "2025-07-21",
+    "lastScore": 0.019678566128202714,
+    "lastScoredOn": "2025-05-13",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1389002,
+    "name": "Marin Software Incorporated",
+    "event": "2025-07-03",
+    "lastScore": 0.021153669424190853,
+    "lastScoredOn": "2024-11-13",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.798949
+   },
+   {
+    "cik": 895419,
+    "name": "WOLFSPEED, INC.",
+    "event": "2025-07-01",
+    "lastScore": 0.26682361755034545,
+    "lastScoredOn": "2025-05-10",
+    "monthsWarning": 7.720105,
+    "monthsWarningZ": 13.929041
+   },
+   {
+    "cik": 1783875,
+    "name": "4Front Ventures Corp.",
+    "event": "2025-06-10",
+    "lastScore": 0.15485069460168244,
+    "lastScoredOn": "2024-11-15",
+    "monthsWarning": 13.797635,
+    "monthsWarningZ": 13.797635
+   },
+   {
+    "cik": 1772695,
+    "name": "Sunnova Energy International Inc.",
+    "event": "2025-06-09",
+    "lastScore": 0.007475614348591952,
+    "lastScoredOn": "2025-03-04",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.404731
+   },
+   {
+    "cik": 1906133,
+    "name": "iCoreConnect Inc.",
+    "event": "2025-06-03",
+    "lastScore": 0.038152405135860684,
+    "lastScoredOn": "2025-05-31",
+    "monthsWarning": 13.436268,
+    "monthsWarningZ": 21.7477
+   },
+   {
+    "cik": 1537561,
+    "name": "ARCH THERAPEUTICS, INC.",
+    "event": "2025-05-23",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-08-20",
+    "monthsWarning": 9.067017,
+    "monthsWarningZ": 23.981603
+   },
+   {
+    "cik": 1828811,
+    "name": "Li-Cycle Holdings Corp.",
+    "event": "2025-05-19",
+    "lastScore": 0.08593613228543204,
+    "lastScoredOn": "2025-04-01",
+    "monthsWarning": 14.093298,
+    "monthsWarningZ": 14.093298
+   },
+   {
+    "cik": 727207,
+    "name": "ACCELERATE DIAGNOSTICS, INC.",
+    "event": "2025-05-08",
+    "lastScore": 0.038152405135860684,
+    "lastScoredOn": "2025-03-22",
+    "monthsWarning": 23.751643,
+    "monthsWarningZ": 23.751643
+   },
+   {
+    "cik": 105319,
+    "name": "WW INTERNATIONAL, INC.",
+    "event": "2025-05-07",
+    "lastScore": 0.3503990601456249,
+    "lastScoredOn": "2025-03-01",
+    "monthsWarning": 21.09067,
+    "monthsWarningZ": 12.122208
+   },
+   {
+    "cik": 1183765,
+    "name": "Molecular Templates, Inc.",
+    "event": "2025-04-24",
+    "lastScore": 0.06000923071219004,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": 11.268068,
+    "monthsWarningZ": 23.291721
+   },
+   {
+    "cik": 748790,
+    "name": "GLOBAL CLEAN ENERGY HOLDINGS, INC.",
+    "event": "2025-04-18",
+    "lastScore": 0.06000923071219004,
+    "lastScoredOn": "2024-11-15",
+    "monthsWarning": 23.981603,
+    "monthsWarningZ": 23.981603
+   },
+   {
+    "cik": 1099132,
+    "name": "MANHATTAN SCIENTIFICS, INC.",
+    "event": "2025-04-08",
+    "lastScore": 0.004827493585605828,
+    "lastScoredOn": "2024-08-20",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.817346
+   },
+   {
+    "cik": 1830210,
+    "name": "Benson Hill, Inc.",
+    "event": "2025-03-25",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-11-13",
+    "monthsWarning": 4.336399,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1804591,
+    "name": "23ANDME HOLDING CO",
+    "event": "2025-03-24",
+    "lastScore": 0.061532433858055076,
+    "lastScoredOn": "2025-02-07",
+    "monthsWarning": 7.457293,
+    "monthsWarningZ": 21.944809
+   },
+   {
+    "cik": 1792581,
+    "name": "Kiromic Biopharma, Inc.",
+    "event": "2025-03-21",
+    "lastScore": 0.038152405135860684,
+    "lastScoredOn": "2025-02-15",
+    "monthsWarning": 4.336399,
+    "monthsWarningZ": 23.094612
+   },
+   {
+    "cik": 1779020,
+    "name": "DANIMER SCIENTIFIC, INC.",
+    "event": "2025-03-18",
+    "lastScore": 0.07420805910677845,
+    "lastScoredOn": "2024-11-20",
+    "monthsWarning": 11.596583,
+    "monthsWarningZ": 23.653088
+   },
+   {
+    "cik": 1101680,
+    "name": "DZS INC",
+    "event": "2025-03-14",
+    "lastScore": 0.062048185250832784,
+    "lastScoredOn": "2024-11-13",
+    "monthsWarning": 6.96452,
+    "monthsWarningZ": 22.141919
+   },
+   {
+    "cik": 933738,
+    "name": "ENGlobal Corporation",
+    "event": "2025-03-06",
+    "lastScore": 0.021153669424190853,
+    "lastScoredOn": "2024-11-13",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.160315
+   },
+   {
+    "cik": 1162461,
+    "name": "Cutera, Inc.",
+    "event": "2025-03-05",
+    "lastScore": 0.07982190085982158,
+    "lastScoredOn": "2024-11-13",
+    "monthsWarning": 11.95795,
+    "monthsWarningZ": 11.95795
+   },
+   {
+    "cik": 1098880,
+    "name": "INTELGENX TECHNOLOGIES CORP.",
+    "event": "2025-02-28",
+    "lastScore": 0.019479671902466918,
+    "lastScoredOn": "2024-05-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.028909
+   },
+   {
+    "cik": 1731289,
+    "name": "Nikola Corporation",
+    "event": "2025-02-19",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-11-01",
+    "monthsWarning": 3.613666,
+    "monthsWarningZ": 23.850197
+   },
+   {
+    "cik": 1850838,
+    "name": "Omega Therapeutics, Inc.",
+    "event": "2025-02-14",
+    "lastScore": 0.06000923071219004,
+    "lastScoredOn": "2024-11-15",
+    "monthsWarning": 6.274639,
+    "monthsWarningZ": 23.48883
+   },
+   {
+    "cik": 1506928,
+    "name": "AVINGER, INC.",
+    "event": "2025-02-10",
+    "lastScore": 0.029066284291103313,
+    "lastScoredOn": "2024-11-08",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.864652
+   },
+   {
+    "cik": 1438901,
+    "name": "AUTO PARTS 4LESS GROUP, INC.",
+    "event": "2025-02-05",
+    "lastScore": 0.012837705818797571,
+    "lastScoredOn": "2024-02-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 17.838371
+   },
+   {
+    "cik": 1886799,
+    "name": "BRIGHT GREEN CORPORATION",
+    "event": "2025-01-28",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-11-20",
+    "monthsWarning": 2.266754,
+    "monthsWarningZ": 21.386334
+   },
+   {
+    "cik": 1750153,
+    "name": "CANOO INC",
+    "event": "2025-01-21",
+    "lastScore": 0.25695931077345824,
+    "lastScoredOn": "2024-11-15",
+    "monthsWarning": 21.7477,
+    "monthsWarningZ": 21.7477
+   },
+   {
+    "cik": 1828852,
+    "name": "MONDEE HOLDINGS, INC.",
+    "event": "2025-01-15",
+    "lastScore": 0.05957305827389471,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": 5.026281,
+    "monthsWarningZ": 21.156373
+   },
+   {
+    "cik": 1580063,
+    "name": "Biora Therapeutics, Inc.",
+    "event": "2024-12-30",
+    "lastScore": 0.09559675328860363,
+    "lastScoredOn": "2024-11-15",
+    "monthsWarning": 21.024967,
+    "monthsWarningZ": 21.024967
+   },
+   {
+    "cik": 1411688,
+    "name": "Container Store Group, Inc.",
+    "event": "2024-12-23",
+    "lastScore": 0.07982190085982158,
+    "lastScoredOn": "2024-10-31",
+    "monthsWarning": 18.92247,
+    "monthsWarningZ": 22.437582
+   },
+   {
+    "cik": 1835972,
+    "name": "ILEARNINGENGINES, INC.",
+    "event": "2024-12-23",
+    "lastScore": 0.05499993020755126,
+    "lastScoredOn": "2024-08-14",
+    "monthsWarning": 4.303548,
+    "monthsWarningZ": 20.762155
+   },
+   {
+    "cik": 1584754,
+    "name": "AKOUSTIS TECHNOLOGIES, INC.",
+    "event": "2024-12-16",
+    "lastScore": 0.13041933140740433,
+    "lastScoredOn": "2024-11-15",
+    "monthsWarning": 2.233903,
+    "monthsWarningZ": 22.240473
+   },
+   {
+    "cik": 837852,
+    "name": "IDEANOMICS,\u00a0INC.",
+    "event": "2024-12-06",
+    "lastScore": 0.3549420684260869,
+    "lastScoredOn": "2024-06-19",
+    "monthsWarning": 16.064389,
+    "monthsWarningZ": 20.236531
+   },
+   {
+    "cik": 1121702,
+    "name": "YIELD10 BIOSCIENCE,\u00a0INC.",
+    "event": "2024-12-06",
+    "lastScore": 0.029066284291103313,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 20.762155
+   },
+   {
+    "cik": 1537028,
+    "name": "Independence Contract Drilling,\u00a0Inc.",
+    "event": "2024-12-03",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-11-20",
+    "monthsWarning": 0.42707,
+    "monthsWarningZ": 20.926413
+   },
+   {
+    "cik": 1017491,
+    "name": "SEELOS THERAPEUTICS,\u00a0INC.",
+    "event": "2024-11-22",
+    "lastScore": 0.019479671902466918,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 20.43364
+   },
+   {
+    "cik": 1498710,
+    "name": "Spirit Aviation Holdings, Inc.",
+    "event": "2024-11-18",
+    "lastScore": 0.038010768754874406,
+    "lastScoredOn": "2024-08-02",
+    "monthsWarning": 9.264126,
+    "monthsWarningZ": 21.353482
+   },
+   {
+    "cik": 1813914,
+    "name": "CareMax, Inc.",
+    "event": "2024-11-18",
+    "lastScore": 0.4370838253428878,
+    "lastScoredOn": "2024-08-10",
+    "monthsWarning": 8.015769,
+    "monthsWarningZ": 18.298292
+   },
+   {
+    "cik": 1580864,
+    "name": "VROOM, INC.",
+    "event": "2024-11-13",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-08-09",
+    "monthsWarning": 3.153745,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1559998,
+    "name": "Gaucho Group Holdings, Inc.",
+    "event": "2024-11-12",
+    "lastScore": 0.05499993020755126,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": 6.406045,
+    "monthsWarningZ": 23.784494
+   },
+   {
+    "cik": 1996210,
+    "name": "BLUM HOLDINGS, INC.",
+    "event": "2024-11-08",
+    "lastScore": 0.06000923071219004,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": 6.767411,
+    "monthsWarningZ": 6.767411
+   },
+   {
+    "cik": 1675634,
+    "name": "SHIFTPIXY, INC.",
+    "event": "2024-10-29",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-07-03",
+    "monthsWarning": 22.503285,
+    "monthsWarningZ": 22.503285
+   },
+   {
+    "cik": 356590,
+    "name": "GLOBAL TECH INDUSTRIES GROUP, INC.",
+    "event": "2024-10-28",
+    "lastScore": 0.012837705818797571,
+    "lastScoredOn": "2024-04-17",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.423127
+   },
+   {
+    "cik": 1603207,
+    "name": "Notable Labs, Ltd.",
+    "event": "2024-10-15",
+    "lastScore": 0.019479671902466918,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 19.053876
+   },
+   {
+    "cik": 1656634,
+    "name": "Gritstone bio, Inc.",
+    "event": "2024-10-10",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-08-14",
+    "monthsWarning": 7.161629,
+    "monthsWarningZ": 23.193167
+   },
+   {
+    "cik": 1876945,
+    "name": "Gold Flora Corporation",
+    "event": "2024-10-07",
+    "lastScore": 0.07420805910677845,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": 10.742444,
+    "monthsWarningZ": 22.733246
+   },
+   {
+    "cik": 811240,
+    "name": "BIOLASE, INC.",
+    "event": "2024-10-01",
+    "lastScore": 0.029066284291103313,
+    "lastScoredOn": "2024-08-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.667543
+   },
+   {
+    "cik": 890447,
+    "name": "VERTEX ENERGY, INC.",
+    "event": "2024-09-26",
+    "lastScore": 0.15485069460168244,
+    "lastScoredOn": "2024-08-09",
+    "monthsWarning": 6.636005,
+    "monthsWarningZ": 13.567674
+   },
+   {
+    "cik": 1008654,
+    "name": "TUPPERWARE BRANDS CORPORATION",
+    "event": "2024-09-18",
+    "lastScore": 0.32516653200707657,
+    "lastScoredOn": "2024-03-30",
+    "monthsWarning": 11.169514,
+    "monthsWarningZ": 11.169514
+   },
+   {
+    "cik": 1723580,
+    "name": "BurgerFi International, Inc.",
+    "event": "2024-09-17",
+    "lastScore": 0.2510022624925604,
+    "lastScoredOn": "2024-05-17",
+    "monthsWarning": 22.010512,
+    "monthsWarningZ": 22.010512
+   },
+   {
+    "cik": 1465470,
+    "name": "NATURALSHRIMP INCORPORATED",
+    "event": "2024-09-13",
+    "lastScore": 0.029066284291103313,
+    "lastScoredOn": "2024-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.944809
+   },
+   {
+    "cik": 768835,
+    "name": "BIG LOTS, INC.",
+    "event": "2024-09-10",
+    "lastScore": 0.13041933140740433,
+    "lastScoredOn": "2024-06-14",
+    "monthsWarning": 21.09067,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1391127,
+    "name": "Edgio, Inc.",
+    "event": "2024-09-09",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-11-17",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.977661
+   },
+   {
+    "cik": 719274,
+    "name": "GRESHAM WORLDWIDE, INC.",
+    "event": "2024-08-16",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-05-18",
+    "monthsWarning": 12.056505,
+    "monthsWarningZ": 15.177398
+   },
+   {
+    "cik": 1396033,
+    "name": "LL Flooring Holdings, Inc.",
+    "event": "2024-08-12",
+    "lastScore": 0.07420805910677845,
+    "lastScoredOn": "2024-05-09",
+    "monthsWarning": 5.354796,
+    "monthsWarningZ": 3.120894
+   },
+   {
+    "cik": 1431959,
+    "name": "Meta Materials Inc.",
+    "event": "2024-08-09",
+    "lastScore": 0.05499993020755126,
+    "lastScoredOn": "2024-05-14",
+    "monthsWarning": 4.369251,
+    "monthsWarningZ": 11.990802
+   },
+   {
+    "cik": 867773,
+    "name": "SUNPOWER CORP",
+    "event": "2024-08-06",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-12-19",
+    "monthsWarning": 7.588699,
+    "monthsWarningZ": 20.893561
+   },
+   {
+    "cik": 764195,
+    "name": "VBI Vaccines Inc/BC",
+    "event": "2024-07-30",
+    "lastScore": 0.08657350943928288,
+    "lastScoredOn": "2024-05-16",
+    "monthsWarning": 14.487516,
+    "monthsWarningZ": 23.68594
+   },
+   {
+    "cik": 1223389,
+    "name": "CONN\u2019S, INC.",
+    "event": "2024-07-25",
+    "lastScore": 0.05499993020755126,
+    "lastScoredOn": "2024-04-19",
+    "monthsWarning": 13.764783,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1459417,
+    "name": "2U,\u00a0INC.",
+    "event": "2024-07-25",
+    "lastScore": 0.08657350943928288,
+    "lastScoredOn": "2024-05-03",
+    "monthsWarning": 14.881735,
+    "monthsWarningZ": 23.883049
+   },
+   {
+    "cik": 1834045,
+    "name": "Vintage Wine Estates, Inc.",
+    "event": "2024-07-24",
+    "lastScore": 0.13041933140740433,
+    "lastScoredOn": "2024-05-16",
+    "monthsWarning": 14.454665,
+    "monthsWarningZ": 14.454665
+   },
+   {
+    "cik": 1784851,
+    "name": "SHAPEWAYS HOLDINGS, INC.",
+    "event": "2024-07-03",
+    "lastScore": 0.012837705818797571,
+    "lastScoredOn": "2024-03-29",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.600526
+   },
+   {
+    "cik": 1101396,
+    "name": "DELTA APPAREL, INC",
+    "event": "2024-07-01",
+    "lastScore": 0.06000923071219004,
+    "lastScoredOn": "2024-05-10",
+    "monthsWarning": 6.07753,
+    "monthsWarningZ": 1.708279
+   },
+   {
+    "cik": 1720990,
+    "name": "Fisker Inc./DE",
+    "event": "2024-06-24",
+    "lastScore": 0.09559675328860363,
+    "lastScoredOn": "2024-04-24",
+    "monthsWarning": 7.030223,
+    "monthsWarningZ": 22.503285
+   },
+   {
+    "cik": 1651944,
+    "name": "DERMTECH, INC.",
+    "event": "2024-06-18",
+    "lastScore": 0.05499993020755126,
+    "lastScoredOn": "2024-05-16",
+    "monthsWarning": 1.0841,
+    "monthsWarningZ": 19.448095
+   },
+   {
+    "cik": 1634447,
+    "name": "iSUN, INC.",
+    "event": "2024-06-07",
+    "lastScore": 0.05499993020755126,
+    "lastScoredOn": "2024-04-17",
+    "monthsWarning": 1.675427,
+    "monthsWarningZ": 21.714849
+   },
+   {
+    "cik": 730255,
+    "name": "CalAmp Corp.",
+    "event": "2024-06-03",
+    "lastScore": 0.07420805910677845,
+    "lastScoredOn": "2024-01-10",
+    "monthsWarning": 4.763469,
+    "monthsWarningZ": 23.324573
+   },
+   {
+    "cik": 1811109,
+    "name": "APPLIED UV, INC.",
+    "event": "2024-05-31",
+    "lastScore": 0.06000923071219004,
+    "lastScoredOn": "2024-04-17",
+    "monthsWarning": 1.445466,
+    "monthsWarningZ": 18.495401
+   },
+   {
+    "cik": 1168081,
+    "name": "Desert Hawk Gold Corp.",
+    "event": "2024-05-28",
+    "lastScore": 0.029066284291103313,
+    "lastScoredOn": "2024-04-02",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.386334
+   },
+   {
+    "cik": 1628945,
+    "name": "Cue Health Inc.",
+    "event": "2024-05-28",
+    "lastScore": 0.012837705818797571,
+    "lastScoredOn": "2024-03-14",
+    "monthsWarning": null,
+    "monthsWarningZ": 9.592641
+   },
+   {
+    "cik": 1934064,
+    "name": "PROSOMNUS, INC.",
+    "event": "2024-05-08",
+    "lastScore": 0.029066284291103313,
+    "lastScoredOn": "2024-03-28",
+    "monthsWarning": null,
+    "monthsWarningZ": 12.779238
+   },
+   {
+    "cik": 1353538,
+    "name": "Appgate, Inc.",
+    "event": "2024-05-06",
+    "lastScore": 0.11666104520367314,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": 23.817346,
+    "monthsWarningZ": 23.817346
+   },
+   {
+    "cik": 1483510,
+    "name": "EXP OldCo Winddown, Inc.",
+    "event": "2024-04-22",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-12-08",
+    "monthsWarning": 7.490145,
+    "monthsWarningZ": 22.437582
+   },
+   {
+    "cik": 1600847,
+    "name": "GAMIDA CELL LTD.",
+    "event": "2024-04-22",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-03-28",
+    "monthsWarning": 0.821288,
+    "monthsWarningZ": 11.235217
+   },
+   {
+    "cik": 867028,
+    "name": "FOMO WORLDWIDE, INC.",
+    "event": "2024-04-15",
+    "lastScore": 0.008719323849220152,
+    "lastScoredOn": "2023-11-22",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.554534
+   },
+   {
+    "cik": 895665,
+    "name": "CLEARDAY, INC.",
+    "event": "2024-04-05",
+    "lastScore": 0.012837705818797571,
+    "lastScoredOn": "2024-01-17",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.653088
+   },
+   {
+    "cik": 1333835,
+    "name": "Casa Systems, Inc.",
+    "event": "2024-04-03",
+    "lastScore": 0.06996959491244394,
+    "lastScoredOn": "2023-11-09",
+    "monthsWarning": 4.796321,
+    "monthsWarningZ": 12.61498
+   },
+   {
+    "cik": 1811856,
+    "name": "VIEW, INC.",
+    "event": "2024-04-03",
+    "lastScore": 0.08679895102411782,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": 4.599212,
+    "monthsWarningZ": 21.583443
+   },
+   {
+    "cik": 1008848,
+    "name": "ACORDA THERAPEUTICS, INC.",
+    "event": "2024-04-02",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": 22.634691,
+    "monthsWarningZ": 22.634691
+   },
+   {
+    "cik": 1653247,
+    "name": "WAITR HOLDINGS INC.",
+    "event": "2024-04-02",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-11-14",
+    "monthsWarning": 11.498029,
+    "monthsWarningZ": 22.766097
+   },
+   {
+    "cik": 1305253,
+    "name": "Eiger BioPharmaceuticals, Inc.",
+    "event": "2024-04-01",
+    "lastScore": 0.025459423343911502,
+    "lastScoredOn": "2023-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.864652
+   },
+   {
+    "cik": 1823882,
+    "name": "Airspan Networks Holdings Inc.",
+    "event": "2024-04-01",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-11-09",
+    "monthsWarning": 12.516426,
+    "monthsWarningZ": 23.751643
+   },
+   {
+    "cik": 1711291,
+    "name": "CURO GROUP HOLDINGS CORP.",
+    "event": "2024-03-25",
+    "lastScore": 0.11666104520367314,
+    "lastScoredOn": "2023-11-03",
+    "monthsWarning": 12.483574,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1029744,
+    "name": "SONIC FOUNDRY INC",
+    "event": "2024-03-22",
+    "lastScore": 0.05499993020755126,
+    "lastScoredOn": "2024-01-05",
+    "monthsWarning": 2.529566,
+    "monthsWarningZ": 22.339028
+   },
+   {
+    "cik": 1834585,
+    "name": "JOANN Inc.",
+    "event": "2024-03-18",
+    "lastScore": 0.11666104520367314,
+    "lastScoredOn": "2023-12-06",
+    "monthsWarning": 18.462549,
+    "monthsWarningZ": 23.981603
+   },
+   {
+    "cik": 1592057,
+    "name": "Enviva Inc.",
+    "event": "2024-03-13",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-11-10",
+    "monthsWarning": 22.240473,
+    "monthsWarningZ": 22.240473
+   },
+   {
+    "cik": 1277250,
+    "name": "Charge Enterprises, Inc.",
+    "event": "2024-03-12",
+    "lastScore": 0.022859603311499388,
+    "lastScoredOn": "2023-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.423127
+   },
+   {
+    "cik": 1078207,
+    "name": "BOWFLEX INC.",
+    "event": "2024-03-05",
+    "lastScore": 0.036982627473278684,
+    "lastScoredOn": "2024-02-22",
+    "monthsWarning": 0.394218,
+    "monthsWarningZ": 3.646518
+   },
+   {
+    "cik": 1780097,
+    "name": "Baudax Bio, Inc.",
+    "event": "2024-02-28",
+    "lastScore": 0.08679895102411782,
+    "lastScoredOn": "2023-11-21",
+    "monthsWarning": 6.406045,
+    "monthsWarningZ": 23.423127
+   },
+   {
+    "cik": 1347652,
+    "name": "CORENERGY INFRASTRUCTURE TRUST, INC.",
+    "event": "2024-02-26",
+    "lastScore": 0.008719323849220152,
+    "lastScoredOn": "2023-11-08",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1501134,
+    "name": "Invitae Corporation",
+    "event": "2024-02-14",
+    "lastScore": 0.314332041268983,
+    "lastScoredOn": "2023-11-09",
+    "monthsWarning": 18.166886,
+    "monthsWarningZ": 21.386334
+   },
+   {
+    "cik": 1551693,
+    "name": "SIENTRA, INC.",
+    "event": "2024-02-13",
+    "lastScore": 0.05992892006396886,
+    "lastScoredOn": "2023-11-14",
+    "monthsWarning": 2.989488,
+    "monthsWarningZ": 22.437582
+   },
+   {
+    "cik": 1870129,
+    "name": "ROSE HILL ACQUISITION CORPORATION",
+    "event": "2024-02-13",
+    "lastScore": 0.012936848652558619,
+    "lastScoredOn": "2023-08-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 10.446781
+   },
+   {
+    "cik": 1172631,
+    "name": "SUNWORKS, INC.",
+    "event": "2024-02-06",
+    "lastScore": 0.043983278236213744,
+    "lastScoredOn": "2023-11-14",
+    "monthsWarning": 2.759527,
+    "monthsWarningZ": 22.864652
+   },
+   {
+    "cik": 887247,
+    "name": "DMK PHARMACEUTICALS CORPORATION",
+    "event": "2024-02-05",
+    "lastScore": 0.022859603311499388,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.17477
+   },
+   {
+    "cik": 1401708,
+    "name": "NANOSTRING TECHNOLOGIES, INC.",
+    "event": "2024-02-05",
+    "lastScore": 0.015324256595666032,
+    "lastScoredOn": "2023-11-07",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.160315
+   },
+   {
+    "cik": 1800682,
+    "name": "Cano Health, Inc.",
+    "event": "2024-02-05",
+    "lastScore": 0.1453598379700051,
+    "lastScoredOn": "2023-11-14",
+    "monthsWarning": 17.871222,
+    "monthsWarningZ": 22.733246
+   },
+   {
+    "cik": 1402479,
+    "name": "MEDAVAIL HOLDINGS, INC.",
+    "event": "2024-02-02",
+    "lastScore": 0.005222221905647529,
+    "lastScoredOn": "2023-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.141919
+   },
+   {
+    "cik": 874292,
+    "name": "ADDvantage Technologies Group, Inc.",
+    "event": "2024-02-01",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 2.562418
+   },
+   {
+    "cik": 1292519,
+    "name": "InVivo Therapeutics Holdings Corp.",
+    "event": "2024-02-01",
+    "lastScore": 0.0003821374505103785,
+    "lastScoredOn": "2023-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.8318
+   },
+   {
+    "cik": 1622244,
+    "name": "ONE WORLD PRODUCTS, INC.",
+    "event": "2024-01-19",
+    "lastScore": 0.012936848652558619,
+    "lastScoredOn": "2023-11-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.123522
+   },
+   {
+    "cik": 1067837,
+    "name": "Audacy, Inc.",
+    "event": "2024-01-08",
+    "lastScore": 0.41718224617737676,
+    "lastScoredOn": "2023-11-10",
+    "monthsWarning": 7.950066,
+    "monthsWarningZ": 22.240473
+   },
+   {
+    "cik": 1368148,
+    "name": "ATHERSYS, INC / NEW",
+    "event": "2024-01-08",
+    "lastScore": 0.02203136848481179,
+    "lastScoredOn": "2023-11-17",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.780552
+   },
+   {
+    "cik": 1855631,
+    "name": "AERWINS TECHNOLOGIES INC.",
+    "event": "2024-01-03",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-11-29",
+    "monthsWarning": null,
+    "monthsWarningZ": 9.099869
+   },
+   {
+    "cik": 1698113,
+    "name": "PARTS iD, INC.",
+    "event": "2023-12-26",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-12-09",
+    "monthsWarning": 16.557162,
+    "monthsWarningZ": 19.513798
+   },
+   {
+    "cik": 1861449,
+    "name": "Bird Global, Inc.",
+    "event": "2023-12-26",
+    "lastScore": 0.1453598379700051,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": 16.327201,
+    "monthsWarningZ": 21.353482
+   },
+   {
+    "cik": 1445499,
+    "name": "IMPEL PHARMACEUTICALS INC",
+    "event": "2023-12-20",
+    "lastScore": 0.08679895102411782,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": 7.260184,
+    "monthsWarningZ": 20.696452
+   },
+   {
+    "cik": 814549,
+    "name": "EBIX INC",
+    "event": "2023-12-19",
+    "lastScore": 0.08679895102411782,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": 9.13272,
+    "monthsWarningZ": 4.303548
+   },
+   {
+    "cik": 1784567,
+    "name": "Harbor Custom Development, Inc.",
+    "event": "2023-12-15",
+    "lastScore": 0.022859603311499388,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1802749,
+    "name": "Lightning eMotors, Inc.",
+    "event": "2023-12-14",
+    "lastScore": 0.09150700391176429,
+    "lastScoredOn": "2023-11-21",
+    "monthsWarning": 3.975033,
+    "monthsWarningZ": 19.021025
+   },
+   {
+    "cik": 1578742,
+    "name": "GPB Automotive Portfolio, LP",
+    "event": "2023-12-13",
+    "lastScore": 0.002261098156479816,
+    "lastScoredOn": "2023-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1640265,
+    "name": "GPB Holdings II, LP",
+    "event": "2023-12-13",
+    "lastScore": 0.012936848652558619,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1826671,
+    "name": "Near Intelligence, Inc.",
+    "event": "2023-12-11",
+    "lastScore": 0.008719323849220152,
+    "lastScoredOn": "2023-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 19.940867
+   },
+   {
+    "cik": 1841800,
+    "name": "Nogin, Inc.",
+    "event": "2023-12-11",
+    "lastScore": 0.09150700391176429,
+    "lastScoredOn": "2023-11-23",
+    "monthsWarning": 8.607096,
+    "monthsWarningZ": 20.367937
+   },
+   {
+    "cik": 1478069,
+    "name": "ContraFect Corporation",
+    "event": "2023-12-05",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 20.335085
+   },
+   {
+    "cik": 1504167,
+    "name": "Timber Pharmaceuticals, Inc.",
+    "event": "2023-11-17",
+    "lastScore": 0.022859603311499388,
+    "lastScoredOn": "2023-08-22",
+    "monthsWarning": null,
+    "monthsWarningZ": 19.546649
+   },
+   {
+    "cik": 1617669,
+    "name": "UNIQUE FABRICATING, INC.",
+    "event": "2023-11-08",
+    "lastScore": 0.02987296659588866,
+    "lastScoredOn": "2022-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.718791
+   },
+   {
+    "cik": 1813756,
+    "name": "WEWORK INC.",
+    "event": "2023-11-07",
+    "lastScore": 0.06996959491244394,
+    "lastScoredOn": "2023-08-09",
+    "monthsWarning": 19.678055,
+    "monthsWarningZ": 19.678055
+   },
+   {
+    "cik": 1805087,
+    "name": "Gelesis Holdings, Inc.",
+    "event": "2023-10-31",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-08-15",
+    "monthsWarning": 7.095926,
+    "monthsWarningZ": 17.60841
+   },
+   {
+    "cik": 1821850,
+    "name": "Sunlight Financial Holdings Inc.",
+    "event": "2023-10-31",
+    "lastScore": 0.008719323849220152,
+    "lastScoredOn": "2023-08-10",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1776197,
+    "name": "AKUMIN INC.",
+    "event": "2023-10-23",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-08-10",
+    "monthsWarning": 14.421813,
+    "monthsWarningZ": 19.218134
+   },
+   {
+    "cik": 84129,
+    "name": "RITE AID CORP",
+    "event": "2023-10-16",
+    "lastScore": 0.08679895102411782,
+    "lastScoredOn": "2023-07-12",
+    "monthsWarning": 17.674113,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1044378,
+    "name": "Biocept, Inc.",
+    "event": "2023-10-16",
+    "lastScore": 0.043983278236213744,
+    "lastScoredOn": "2023-08-15",
+    "monthsWarning": 2.036794,
+    "monthsWarningZ": 22.963206
+   },
+   {
+    "cik": 1739426,
+    "name": "RVL Pharmaceuticals plc",
+    "event": "2023-10-13",
+    "lastScore": 0.06996959491244394,
+    "lastScoredOn": "2023-08-15",
+    "monthsWarning": 1.938239,
+    "monthsWarningZ": 22.864652
+   },
+   {
+    "cik": 1777946,
+    "name": "IronNet, Inc.",
+    "event": "2023-10-12",
+    "lastScore": 0.11666104520367314,
+    "lastScoredOn": "2023-05-17",
+    "monthsWarning": 17.312746,
+    "monthsWarningZ": 17.312746
+   },
+   {
+    "cik": 1762322,
+    "name": "Shift Technologies, Inc.",
+    "event": "2023-10-10",
+    "lastScore": 0.08679895102411782,
+    "lastScoredOn": "2023-08-12",
+    "monthsWarning": 10.972405,
+    "monthsWarningZ": 22.864652
+   },
+   {
+    "cik": 1872356,
+    "name": "Molekule Group,\u00a0Inc.",
+    "event": "2023-10-03",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1775625,
+    "name": "SMILEDIRECTCLUB, INC.",
+    "event": "2023-10-02",
+    "lastScore": 0.22341167840983608,
+    "lastScoredOn": "2023-08-09",
+    "monthsWarning": 19.021025,
+    "monthsWarningZ": 22.733246
+   },
+   {
+    "cik": 1113148,
+    "name": "INFINITY PHARMACEUTICALS, INC.",
+    "event": "2023-09-29",
+    "lastScore": 0.051953491937903225,
+    "lastScoredOn": "2023-08-11",
+    "monthsWarning": 1.609724,
+    "monthsWarningZ": 22.8318
+   },
+   {
+    "cik": 1009759,
+    "name": "Capstone Green Energy Holdings, Inc.",
+    "event": "2023-09-28",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-02-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.536137
+   },
+   {
+    "cik": 1770141,
+    "name": "UpHealth, Inc.",
+    "event": "2023-09-19",
+    "lastScore": 0.025459423343911502,
+    "lastScoredOn": "2023-08-11",
+    "monthsWarning": null,
+    "monthsWarningZ": 17.017083
+   },
+   {
+    "cik": 1446687,
+    "name": "SILVER STAR PROPERTIES REIT, INC.",
+    "event": "2023-09-14",
+    "lastScore": 0.0033612502872272403,
+    "lastScoredOn": "2023-08-12",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1108967,
+    "name": "Orbital Infrastructure Group, Inc.",
+    "event": "2023-08-24",
+    "lastScore": 0.314332041268983,
+    "lastScoredOn": "2023-05-16",
+    "monthsWarning": 16.754271,
+    "monthsWarningZ": 21.222076
+   },
+   {
+    "cik": 1365916,
+    "name": "AMYRIS, INC.",
+    "event": "2023-08-10",
+    "lastScore": 0.41718224617737676,
+    "lastScoredOn": "2023-05-11",
+    "monthsWarning": 14.980289,
+    "monthsWarningZ": 23.981603
+   },
+   {
+    "cik": 1820630,
+    "name": "Proterra Inc",
+    "event": "2023-08-08",
+    "lastScore": 0.012936848652558619,
+    "lastScoredOn": "2023-05-11",
+    "monthsWarning": null,
+    "monthsWarningZ": 4.697766
+   },
+   {
+    "cik": 716006,
+    "name": "Yellow Corporation",
+    "event": "2023-08-07",
+    "lastScore": 0.020168935833989016,
+    "lastScoredOn": "2023-05-04",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.057819
+   },
+   {
+    "cik": 896493,
+    "name": "HYPERSCALE DATA, INC.",
+    "event": "2023-08-03",
+    "lastScore": 0.07155330124494871,
+    "lastScoredOn": "2023-05-23",
+    "monthsWarning": 3.515112,
+    "monthsWarningZ": 11.333771
+   },
+   {
+    "cik": 1136294,
+    "name": "Williams Industrial Services Group Inc.",
+    "event": "2023-07-24",
+    "lastScore": 0.05992892006396886,
+    "lastScoredOn": "2023-05-18",
+    "monthsWarning": 3.745072,
+    "monthsWarningZ": 23.127464
+   },
+   {
+    "cik": 1807707,
+    "name": "AppHarvest, Inc.",
+    "event": "2023-07-24",
+    "lastScore": 0.020168935833989016,
+    "lastScoredOn": "2023-05-11",
+    "monthsWarning": null,
+    "monthsWarningZ": 16.721419
+   },
+   {
+    "cik": 1500123,
+    "name": "ITEM 9 LABS CORP.",
+    "event": "2023-07-20",
+    "lastScore": 0.08679895102411782,
+    "lastScoredOn": "2023-05-23",
+    "monthsWarning": 6.143233,
+    "monthsWarningZ": 17.082786
+   },
+   {
+    "cik": 1551986,
+    "name": "9 METERS BIOPHARMA, INC.",
+    "event": "2023-07-18",
+    "lastScore": 0.043983278236213744,
+    "lastScoredOn": "2023-05-16",
+    "monthsWarning": 2.069645,
+    "monthsWarningZ": 20.00657
+   },
+   {
+    "cik": 1467154,
+    "name": "Novan, Inc.",
+    "event": "2023-07-17",
+    "lastScore": 0.06996959491244394,
+    "lastScoredOn": "2023-05-16",
+    "monthsWarning": 2.036794,
+    "monthsWarningZ": 23.094612
+   },
+   {
+    "cik": 1597313,
+    "name": "ViewRay, Inc.",
+    "event": "2023-07-17",
+    "lastScore": 0.022859603311499388,
+    "lastScoredOn": "2023-05-12",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.291721
+   },
+   {
+    "cik": 1882607,
+    "name": "ALPINE SUMMIT ENERGY PARTNERS, INC.",
+    "event": "2023-07-11",
+    "lastScore": 0.012936848652558619,
+    "lastScoredOn": "2023-05-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 3.449409
+   },
+   {
+    "cik": 866439,
+    "name": "DARKPULSE, INC.",
+    "event": "2023-07-10",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-06-24",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.733246
+   },
+   {
+    "cik": 1741231,
+    "name": "TATTOOED CHEF, INC.",
+    "event": "2023-07-06",
+    "lastScore": 0.08154849768668507,
+    "lastScoredOn": "2023-05-16",
+    "monthsWarning": 1.675427,
+    "monthsWarningZ": 7.555848
+   },
+   {
+    "cik": 1736865,
+    "name": "GOLDEN DEVELOPING SOLUTIONS, INC.",
+    "event": "2023-07-05",
+    "lastScore": 0.0192776544053255,
+    "lastScoredOn": "2023-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.160315
+   },
+   {
+    "cik": 870826,
+    "name": "iMedia Brands,\u00a0Inc.",
+    "event": "2023-06-29",
+    "lastScore": 0.08762093313410643,
+    "lastScoredOn": "2022-12-14",
+    "monthsWarning": 13.961892,
+    "monthsWarningZ": 21.780552
+   },
+   {
+    "cik": 1350073,
+    "name": "ICONIC BRANDS, INC.",
+    "event": "2023-06-29",
+    "lastScore": 0.05992892006396886,
+    "lastScoredOn": "2023-04-01",
+    "monthsWarning": 2.923784,
+    "monthsWarningZ": 22.371879
+   },
+   {
+    "cik": 1759546,
+    "name": "NU RIDE INC.",
+    "event": "2023-06-27",
+    "lastScore": 0.007962273761114518,
+    "lastScoredOn": "2023-05-05",
+    "monthsWarning": null,
+    "monthsWarningZ": 7.588699
+   },
+   {
+    "cik": 1760173,
+    "name": "SURGALIGN HOLDINGS, INC.",
+    "event": "2023-06-20",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-05-12",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.404731
+   },
+   {
+    "cik": 1444307,
+    "name": "ONCOSEC MEDICAL INCORPORATED",
+    "event": "2023-06-14",
+    "lastScore": 0.043983278236213744,
+    "lastScoredOn": "2023-03-15",
+    "monthsWarning": 7.39159,
+    "monthsWarningZ": 19.448095
+   },
+   {
+    "cik": 1076682,
+    "name": "POLARITYTE, INC.",
+    "event": "2023-06-07",
+    "lastScore": 0.010756236478866822,
+    "lastScoredOn": "2023-05-13",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.780552
+   },
+   {
+    "cik": 1169987,
+    "name": "HTG Molecular Diagnostics, Inc",
+    "event": "2023-06-05",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-05-12",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.714849
+   },
+   {
+    "cik": 1794905,
+    "name": "Cyxtera Technologies, Inc.",
+    "event": "2023-06-05",
+    "lastScore": 0.1453598379700051,
+    "lastScoredOn": "2023-05-06",
+    "monthsWarning": 18.593955,
+    "monthsWarningZ": 22.17477
+   },
+   {
+    "cik": 100716,
+    "name": "UNICO AMERICAN CORPORATION",
+    "event": "2023-06-02",
+    "lastScore": 0.0192776544053255,
+    "lastScoredOn": "2023-01-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 28823,
+    "name": "Diebold Nixdorf, Incorporated",
+    "event": "2023-06-01",
+    "lastScore": 0.1453598379700051,
+    "lastScoredOn": "2023-05-31",
+    "monthsWarning": 12.680683,
+    "monthsWarningZ": 22.043364
+   },
+   {
+    "cik": 1839412,
+    "name": "QUALTEK SERVICES INC.",
+    "event": "2023-05-31",
+    "lastScore": 0.41718224617737676,
+    "lastScoredOn": "2023-04-29",
+    "monthsWarning": 12.417871,
+    "monthsWarningZ": 12.417871
+   },
+   {
+    "cik": 1864448,
+    "name": "Wejo Group Limited",
+    "event": "2023-05-30",
+    "lastScore": 0.1453598379700051,
+    "lastScoredOn": "2023-05-23",
+    "monthsWarning": 12.417871,
+    "monthsWarningZ": 13.929041
+   },
+   {
+    "cik": 1300699,
+    "name": "ATHENEX, INC.",
+    "event": "2023-05-22",
+    "lastScore": 0.03292009454051956,
+    "lastScoredOn": "2023-03-21",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.484888
+   },
+   {
+    "cik": 874710,
+    "name": "ALLIED HEALTHCARE PRODUCTS,\u00a0INC.",
+    "event": "2023-05-12",
+    "lastScore": 0.01670112566566572,
+    "lastScoredOn": "2022-10-08",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 57725,
+    "name": "LANNETT COMPANY, INC",
+    "event": "2023-05-03",
+    "lastScore": 0.08679895102411782,
+    "lastScoredOn": "2023-02-03",
+    "monthsWarning": 23.850197,
+    "monthsWarningZ": 23.850197
+   },
+   {
+    "cik": 886158,
+    "name": "BED BATH\u00a0& BEYOND INC",
+    "event": "2023-04-24",
+    "lastScore": 0.41718224617737676,
+    "lastScoredOn": "2023-01-27",
+    "monthsWarning": 15.505913,
+    "monthsWarningZ": 2.858081
+   },
+   {
+    "cik": 1497504,
+    "name": "PLx Pharma Inc.",
+    "event": "2023-04-13",
+    "lastScore": 0.005230699113489033,
+    "lastScoredOn": "2022-11-11",
+    "monthsWarning": null,
+    "monthsWarningZ": 16.95138
+   },
+   {
+    "cik": 1377630,
+    "name": "NATIONAL CINEMEDIA, INC.",
+    "event": "2023-04-12",
+    "lastScore": 0.08762093313410643,
+    "lastScoredOn": "2022-11-08",
+    "monthsWarning": 23.028909,
+    "monthsWarningZ": 23.028909
+   },
+   {
+    "cik": 1835567,
+    "name": "Pear Therapeutics, Inc.",
+    "event": "2023-04-07",
+    "lastScore": 0.051953491937903225,
+    "lastScoredOn": "2023-04-01",
+    "monthsWarning": 0.197109,
+    "monthsWarningZ": 12.253614
+   },
+   {
+    "cik": 1843388,
+    "name": "Virgin Orbit Holdings, Inc.",
+    "event": "2023-04-04",
+    "lastScore": 0.01670112566566572,
+    "lastScoredOn": "2022-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 12.089356
+   },
+   {
+    "cik": 1909152,
+    "name": "Kalera Public Limited Company",
+    "event": "2023-04-04",
+    "lastScore": 0.01670112566566572,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1828672,
+    "name": "Boxed, Inc.",
+    "event": "2023-04-03",
+    "lastScore": 0.05252515511035132,
+    "lastScoredOn": "2022-11-10",
+    "monthsWarning": 7.752957,
+    "monthsWarningZ": 12.582129
+   },
+   {
+    "cik": 1659352,
+    "name": "Codiak BioSciences, Inc.",
+    "event": "2023-03-27",
+    "lastScore": 0.013004924400045898,
+    "lastScoredOn": "2022-11-04",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.634691
+   },
+   {
+    "cik": 719739,
+    "name": "SVB FINANCIAL GROUP",
+    "event": "2023-03-10",
+    "lastScore": 0.00023587164924147576,
+    "lastScoredOn": "2023-02-25",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1870997,
+    "name": "LOYALTY VENTURES INC.",
+    "event": "2023-03-10",
+    "lastScore": 0.08762093313410643,
+    "lastScoredOn": "2022-11-09",
+    "monthsWarning": 6.898817,
+    "monthsWarningZ": 12.286465
+   },
+   {
+    "cik": 1713832,
+    "name": "HyreCar Inc.",
+    "event": "2023-03-02",
+    "lastScore": 0.02705444634279482,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.996058
+   },
+   {
+    "cik": 1450416,
+    "name": "LEXAGENE HOLDINGS\u00a0INC.",
+    "event": "2023-02-24",
+    "lastScore": 0.005222221905647529,
+    "lastScoredOn": "2023-01-18",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1084577,
+    "name": "CYREN LTD.",
+    "event": "2023-02-22",
+    "lastScore": 0.02248855833650637,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.766097
+   },
+   {
+    "cik": 1652724,
+    "name": "Lucira Health, Inc.",
+    "event": "2023-02-22",
+    "lastScore": 0.02987296659588866,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 3.2523
+   },
+   {
+    "cik": 1884697,
+    "name": "STARRY GROUP HOLDINGS, INC.",
+    "event": "2023-02-21",
+    "lastScore": 0.02248855833650637,
+    "lastScoredOn": "2022-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1418100,
+    "name": "AVAYA HOLDINGS CORP.",
+    "event": "2023-02-14",
+    "lastScore": 0.02987296659588866,
+    "lastScoredOn": "2022-05-11",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.156373
+   },
+   {
+    "cik": 850261,
+    "name": "SORRENTO THERAPEUTICS, INC.",
+    "event": "2023-02-13",
+    "lastScore": 0.02987296659588866,
+    "lastScoredOn": "2022-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.751643
+   },
+   {
+    "cik": 742112,
+    "name": "INVACARE HOLDINGS CORPORATION",
+    "event": "2023-02-01",
+    "lastScore": 0.08762093313410643,
+    "lastScoredOn": "2022-11-08",
+    "monthsWarning": 5.781866,
+    "monthsWarningZ": 8.771353
+   },
+   {
+    "cik": 1852117,
+    "name": "Rockley Photonics Holdings Limited",
+    "event": "2023-01-24",
+    "lastScore": 0.08762093313410643,
+    "lastScoredOn": "2022-11-11",
+    "monthsWarning": 5.387648,
+    "monthsWarningZ": 10.479632
+   },
+   {
+    "cik": 1592058,
+    "name": "Party City Holdco Inc.",
+    "event": "2023-01-18",
+    "lastScore": 0.08762093313410643,
+    "lastScoredOn": "2022-11-09",
+    "monthsWarning": 2.299606,
+    "monthsWarningZ": 22.207622
+   },
+   {
+    "cik": 1595585,
+    "name": "TRICIDA, INC.",
+    "event": "2023-01-12",
+    "lastScore": 0.07701350763784648,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": 1.905388,
+    "monthsWarningZ": 22.470434
+   },
+   {
+    "cik": 1415684,
+    "name": "MusclePharm Corporation",
+    "event": "2023-01-11",
+    "lastScore": 0.06209215261655004,
+    "lastScoredOn": "2022-05-17",
+    "monthsWarning": 7.851511,
+    "monthsWarningZ": 21.419185
+   },
+   {
+    "cik": 1704760,
+    "name": "American Virtual Cloud Technologies, Inc.",
+    "event": "2023-01-11",
+    "lastScore": 0.005497611408692202,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1596946,
+    "name": "QUOTIENT LIMITED",
+    "event": "2023-01-10",
+    "lastScore": 0.08762093313410643,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": 13.764783,
+    "monthsWarningZ": 23.127464
+   },
+   {
+    "cik": 1839341,
+    "name": "Core Scientific, Inc./tx",
+    "event": "2022-12-21",
+    "lastScore": 0.40455119516631827,
+    "lastScoredOn": "2022-11-23",
+    "monthsWarning": 3.942181,
+    "monthsWarningZ": 8.70565
+   },
+   {
+    "cik": 1466301,
+    "name": "Clovis Oncology,\u00a0Inc.",
+    "event": "2022-12-13",
+    "lastScore": 0.40455119516631827,
+    "lastScoredOn": "2022-11-10",
+    "monthsWarning": 16.261498,
+    "monthsWarningZ": 21.51774
+   },
+   {
+    "cik": 1794621,
+    "name": "QUANERGY SYSTEMS, INC.",
+    "event": "2022-12-13",
+    "lastScore": 0.01670112566566572,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1069996,
+    "name": "FedNat\u00a0Holding\u00a0Company",
+    "event": "2022-12-12",
+    "lastScore": 0.14773944612186166,
+    "lastScoredOn": "2022-05-19",
+    "monthsWarning": 16.064389,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1782627,
+    "name": "Winc, Inc.",
+    "event": "2022-12-01",
+    "lastScore": 0.02987296659588866,
+    "lastScoredOn": "2022-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 8.04862
+   },
+   {
+    "cik": 1832351,
+    "name": "Fast Radius, Inc.",
+    "event": "2022-11-08",
+    "lastScore": 0.01670112566566572,
+    "lastScoredOn": "2022-08-12",
+    "monthsWarning": null,
+    "monthsWarningZ": 6.767411
+   },
+   {
+    "cik": 1169245,
+    "name": "PhaseBio Pharmaceuticals, Inc.",
+    "event": "2022-10-24",
+    "lastScore": 0.05252515511035132,
+    "lastScoredOn": "2022-08-13",
+    "monthsWarning": 6.997372,
+    "monthsWarningZ": 23.324573
+   },
+   {
+    "cik": 1833908,
+    "name": "Alfi, Inc.",
+    "event": "2022-10-14",
+    "lastScore": 0.02987296659588866,
+    "lastScoredOn": "2022-08-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 4.927727
+   },
+   {
+    "cik": 1817944,
+    "name": "CLARUS THERAPEUTICS HOLDINGS, INC.",
+    "event": "2022-09-06",
+    "lastScore": 0.02248855833650637,
+    "lastScoredOn": "2022-08-20",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1624658,
+    "name": "ALLENA PHARMACEUTICALS, INC.",
+    "event": "2022-09-02",
+    "lastScore": 0.05252515511035132,
+    "lastScoredOn": "2022-08-16",
+    "monthsWarning": 0.558476,
+    "monthsWarningZ": 21.714849
+   },
+   {
+    "cik": 1579823,
+    "name": "NewAge, Inc.",
+    "event": "2022-08-30",
+    "lastScore": 0.009904250985572799,
+    "lastScoredOn": "2021-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 9.625493
+   },
+   {
+    "cik": 1593034,
+    "name": "Endo International plc",
+    "event": "2022-08-17",
+    "lastScore": 0.1324137901812129,
+    "lastScoredOn": "2022-08-10",
+    "monthsWarning": 0.229961,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1830180,
+    "name": "Legacy EJY, Inc.",
+    "event": "2022-06-30",
+    "lastScore": 0.05252515511035132,
+    "lastScoredOn": "2022-05-17",
+    "monthsWarning": 1.445466,
+    "monthsWarningZ": 3.153745
+   },
+   {
+    "cik": 1659183,
+    "name": "NDIVISION INC.",
+    "event": "2022-06-17",
+    "lastScore": 0.01413939043758721,
+    "lastScoredOn": "2022-05-17",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.074901
+   },
+   {
+    "cik": 887921,
+    "name": "REVLON INC /DE/",
+    "event": "2022-06-16",
+    "lastScore": 0.05252515511035132,
+    "lastScoredOn": "2022-05-05",
+    "monthsWarning": 1.379763,
+    "monthsWarningZ": 22.273325
+   },
+   {
+    "cik": 1274032,
+    "name": "Simply, Inc.",
+    "event": "2022-06-16",
+    "lastScore": 0.02987296659588866,
+    "lastScoredOn": "2022-04-23",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.501971
+   },
+   {
+    "cik": 1784168,
+    "name": "ELECTRIC LAST MILE SOLUTIONS, INC.",
+    "event": "2022-06-14",
+    "lastScore": 0.004382835713675662,
+    "lastScoredOn": "2021-11-13",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1587221,
+    "name": "ZOSANO PHARMA CORPORATION",
+    "event": "2022-06-02",
+    "lastScore": 0.021344538632698116,
+    "lastScoredOn": "2022-05-14",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.813403
+   },
+   {
+    "cik": 1084384,
+    "name": "Pareteum Corporation",
+    "event": "2022-05-19",
+    "lastScore": 0.08375220427949895,
+    "lastScoredOn": "2021-08-28",
+    "monthsWarning": 14.191853,
+    "monthsWarningZ": 14.191853
+   },
+   {
+    "cik": 1655075,
+    "name": "ARMSTRONG FLOORING, INC.",
+    "event": "2022-05-12",
+    "lastScore": 0.05252515511035132,
+    "lastScoredOn": "2022-03-10",
+    "monthsWarning": 2.069645,
+    "monthsWarningZ": 22.536137
+   },
+   {
+    "cik": 1587246,
+    "name": "CYPRESS ENVIRONMENTAL PARTNERS, L.P.",
+    "event": "2022-05-11",
+    "lastScore": 0.01670112566566572,
+    "lastScoredOn": "2022-04-16",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1522690,
+    "name": "GWG Holdings, Inc.",
+    "event": "2022-04-20",
+    "lastScore": 0.1386543388785849,
+    "lastScoredOn": "2021-11-20",
+    "monthsWarning": 5.420499,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 866609,
+    "name": "ION Geophysical Corporation",
+    "event": "2022-04-13",
+    "lastScore": 0.06750775438244705,
+    "lastScoredOn": "2021-11-04",
+    "monthsWarning": 11.202365,
+    "monthsWarningZ": 23.160315
+   },
+   {
+    "cik": 1045742,
+    "name": "Live Ventures Incorporated",
+    "event": "2022-03-03",
+    "lastScore": 0.00016962553768445858,
+    "lastScoredOn": "2022-02-11",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1539894,
+    "name": "ATLAS FINANCIAL HOLDINGS, INC.",
+    "event": "2022-03-01",
+    "lastScore": 0.016022373457608204,
+    "lastScoredOn": "2021-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 352998,
+    "name": "TELIGENT, INC.",
+    "event": "2021-10-15",
+    "lastScore": 0.06118635833253541,
+    "lastScoredOn": "2021-08-17",
+    "monthsWarning": 16.590013,
+    "monthsWarningZ": 23.061761
+   },
+   {
+    "cik": 1648428,
+    "name": "SEQUENTIAL BRANDS GROUP, INC.",
+    "event": "2021-09-01",
+    "lastScore": 0.29122286324688834,
+    "lastScoredOn": "2021-04-16",
+    "monthsWarning": 21.616294,
+    "monthsWarningZ": 21.616294
+   },
+   {
+    "cik": 910612,
+    "name": "CBL & ASSOCIATES PROPERTIES, INC.",
+    "event": "2021-08-12",
+    "lastScore": 0.10268345886783224,
+    "lastScoredOn": "2021-05-18",
+    "monthsWarning": 14.191853,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1594686,
+    "name": "WASHINGTON PRIME GROUP INC.",
+    "event": "2021-06-14",
+    "lastScore": 0.08375220427949895,
+    "lastScoredOn": "2021-05-11",
+    "monthsWarning": 10.085414,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1583077,
+    "name": "Hospitality Investors Trust, Inc.",
+    "event": "2021-05-19",
+    "lastScore": 0.10268345886783224,
+    "lastScoredOn": "2021-05-15",
+    "monthsWarning": 9.329829,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1717556,
+    "name": "VINCO VENTURES, INC.",
+    "event": "2021-04-21",
+    "lastScore": 0.08375220427949895,
+    "lastScoredOn": "2021-04-16",
+    "monthsWarning": 0.164258,
+    "monthsWarningZ": 23.193167
+   },
+   {
+    "cik": 1692144,
+    "name": "Life Partners Position Holder Trust",
+    "event": "2021-04-01",
+    "lastScore": 0.0004634882179597458,
+    "lastScoredOn": "2020-08-14",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1036848,
+    "name": "MEGA MATRIX CORP.",
+    "event": "2021-03-30",
+    "lastScore": 0.06455083225825312,
+    "lastScoredOn": "2020-11-13",
+    "monthsWarning": 4.500657,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1725526,
+    "name": "HighPoint Resources Corporation",
+    "event": "2021-03-15",
+    "lastScore": 0.1386543388785849,
+    "lastScoredOn": "2021-02-25",
+    "monthsWarning": 10.315375,
+    "monthsWarningZ": 22.273325
+   },
+   {
+    "cik": 1326089,
+    "name": "Sundance Energy Inc.",
+    "event": "2021-03-10",
+    "lastScore": 0.3127949271911023,
+    "lastScoredOn": "2020-11-10",
+    "monthsWarning": 3.942181,
+    "monthsWarningZ": 9.78975
+   },
+   {
+    "cik": 1536577,
+    "name": "Medley LLC",
+    "event": "2021-03-08",
+    "lastScore": 0.011465452351670931,
+    "lastScoredOn": "2020-11-17",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1404079,
+    "name": "Samson Oil & Gas LTD",
+    "event": "2021-02-02",
+    "lastScore": 0.06455083225825312,
+    "lastScoredOn": "2020-05-21",
+    "monthsWarning": 20.335085,
+    "monthsWarningZ": 15.604468
+   },
+   {
+    "cik": 883943,
+    "name": "CHRISTOPHER & BANKS CORP",
+    "event": "2021-01-14",
+    "lastScore": 0.11913461686520666,
+    "lastScoredOn": "2020-12-15",
+    "monthsWarning": 6.96452,
+    "monthsWarningZ": 21.911958
+   },
+   {
+    "cik": 922358,
+    "name": "Ferrellgas Partners L P",
+    "event": "2021-01-11",
+    "lastScore": 0.13674935100589478,
+    "lastScoredOn": "2020-12-16",
+    "monthsWarning": 22.141919,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1581545,
+    "name": "GL BRANDS, INC.",
+    "event": "2020-12-21",
+    "lastScore": 0.08936530122729926,
+    "lastScoredOn": "2020-02-01",
+    "monthsWarning": 10.64389,
+    "monthsWarningZ": 22.010512
+   },
+   {
+    "cik": 886835,
+    "name": "SUPERIOR ENERGY SERVICES, INC.",
+    "event": "2020-12-07",
+    "lastScore": 0.03514020608689549,
+    "lastScoredOn": "2020-11-07",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.484888
+   },
+   {
+    "cik": 1399935,
+    "name": "Francesca's Holdings CORP",
+    "event": "2020-12-04",
+    "lastScore": 0.14847401378115999,
+    "lastScoredOn": "2020-09-16",
+    "monthsWarning": 17.706965,
+    "monthsWarningZ": 17.706965
+   },
+   {
+    "cik": 1275229,
+    "name": "General Moly, Inc",
+    "event": "2020-11-20",
+    "lastScore": 0.11913461686520666,
+    "lastScoredOn": "2020-08-20",
+    "monthsWarning": 3.022339,
+    "monthsWarningZ": 20.00657
+   },
+   {
+    "cik": 874499,
+    "name": "Gulfport Energy Corp",
+    "event": "2020-11-16",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-11-10",
+    "monthsWarning": 8.607096,
+    "monthsWarningZ": 8.607096
+   },
+   {
+    "cik": 77281,
+    "name": "PENNSYLVANIA REAL ESTATE INVESTMENT TRUST",
+    "event": "2020-11-03",
+    "lastScore": 0.011465452351670931,
+    "lastScoredOn": "2020-08-12",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1517342,
+    "name": "PACIFIC DRILLING S.A.",
+    "event": "2020-11-02",
+    "lastScore": 0.08936530122729926,
+    "lastScoredOn": "2020-08-08",
+    "monthsWarning": 7.687254,
+    "monthsWarningZ": 7.687254
+   },
+   {
+    "cik": 1157817,
+    "name": "SITO MOBILE, LTD.",
+    "event": "2020-10-15",
+    "lastScore": 0.035748080267107636,
+    "lastScoredOn": "2020-02-12",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.963206
+   },
+   {
+    "cik": 711665,
+    "name": "Gadsden Properties, Inc.",
+    "event": "2020-10-13",
+    "lastScore": 0.01937993649233571,
+    "lastScoredOn": "2019-11-07",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.930355
+   },
+   {
+    "cik": 1567892,
+    "name": "Keenova Therapeutics plc",
+    "event": "2020-10-13",
+    "lastScore": 0.14847401378115999,
+    "lastScoredOn": "2020-08-05",
+    "monthsWarning": 19.513798,
+    "monthsWarningZ": 19.513798
+   },
+   {
+    "cik": 1661920,
+    "name": "Lonestar Resources US Inc.",
+    "event": "2020-10-01",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-08-15",
+    "monthsWarning": 5.584757,
+    "monthsWarningZ": 22.766097
+   },
+   {
+    "cik": 1486159,
+    "name": "Chord Energy Corporation",
+    "event": "2020-09-30",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-08-06",
+    "monthsWarning": 4.402102,
+    "monthsWarningZ": 4.402102
+   },
+   {
+    "cik": 1529463,
+    "name": "FTS INTERNATIONAL, INC.",
+    "event": "2020-09-22",
+    "lastScore": 0.03514020608689549,
+    "lastScoredOn": "2020-08-11",
+    "monthsWarning": null,
+    "monthsWarningZ": 18.758213
+   },
+   {
+    "cik": 1735707,
+    "name": "Garrett Motion Inc.",
+    "event": "2020-09-21",
+    "lastScore": 0.06455083225825312,
+    "lastScoredOn": "2020-07-31",
+    "monthsWarning": 1.708279,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1281774,
+    "name": "TOWN SPORTS INTERNATIONAL HOLDINGS INC",
+    "event": "2020-09-14",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-09-05",
+    "monthsWarning": 0.295664,
+    "monthsWarningZ": 22.634691
+   },
+   {
+    "cik": 22872,
+    "name": "ADVANZEON SOLUTIONS, INC.",
+    "event": "2020-09-11",
+    "lastScore": 0.020393458671181936,
+    "lastScoredOn": "2020-08-20",
+    "monthsWarning": null,
+    "monthsWarningZ": 19.382392
+   },
+   {
+    "cik": 1455926,
+    "name": "IronClad Encryption Corp",
+    "event": "2020-09-01",
+    "lastScore": 0.01937196849852932,
+    "lastScoredOn": "2020-02-20",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.534823
+   },
+   {
+    "cik": 904979,
+    "name": "SHILOH INDUSTRIES, INC.",
+    "event": "2020-08-31",
+    "lastScore": 0.13674935100589478,
+    "lastScoredOn": "2020-07-25",
+    "monthsWarning": 1.215506,
+    "monthsWarningZ": 1.215506
+   },
+   {
+    "cik": 1514732,
+    "name": "SAExploration Holdings, Inc.",
+    "event": "2020-08-28",
+    "lastScore": 0.011465452351670931,
+    "lastScoredOn": "2020-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.452037
+   },
+   {
+    "cik": 314808,
+    "name": "Valaris Limited",
+    "event": "2020-08-19",
+    "lastScore": 0.08936530122729926,
+    "lastScoredOn": "2020-07-31",
+    "monthsWarning": 0.624179,
+    "monthsWarningZ": 3.613666
+   },
+   {
+    "cik": 884940,
+    "name": "STEIN MART INC",
+    "event": "2020-08-12",
+    "lastScore": 0.14847401378115999,
+    "lastScoredOn": "2020-07-17",
+    "monthsWarning": 0.854139,
+    "monthsWarningZ": 13.797635
+   },
+   {
+    "cik": 1435181,
+    "name": "PHARMAGREEN BIOTECH INC.",
+    "event": "2020-08-12",
+    "lastScore": 0.008043742410542308,
+    "lastScoredOn": "2020-05-20",
+    "monthsWarning": null,
+    "monthsWarningZ": 7.39159
+   },
+   {
+    "cik": 884217,
+    "name": "Tailored Brands, Inc.",
+    "event": "2020-08-03",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-07-28",
+    "monthsWarning": 0.197109,
+    "monthsWarningZ": 13.666229
+   },
+   {
+    "cik": 945764,
+    "name": "DENBURY INC.",
+    "event": "2020-07-31",
+    "lastScore": 0.03514020608689549,
+    "lastScoredOn": "2020-05-19",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1458891,
+    "name": "Noble Corporation",
+    "event": "2020-07-31",
+    "lastScore": 0.020393458671181936,
+    "lastScoredOn": "2020-05-08",
+    "monthsWarning": null,
+    "monthsWarningZ": 2.759527
+   },
+   {
+    "cik": 1659122,
+    "name": "Rosehill Resources Inc.",
+    "event": "2020-07-27",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-07-03",
+    "monthsWarning": 0.788436,
+    "monthsWarningZ": 3.383706
+   },
+   {
+    "cik": 1397403,
+    "name": "IMH Financial Corp",
+    "event": "2020-07-23",
+    "lastScore": 0.01937196849852932,
+    "lastScoredOn": "2020-05-16",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1498301,
+    "name": "Mahwah Bergen Retail Group, Inc.",
+    "event": "2020-07-23",
+    "lastScore": 0.11913461686520666,
+    "lastScoredOn": "2020-03-10",
+    "monthsWarning": 13.337714,
+    "monthsWarningZ": 21.911958
+   },
+   {
+    "cik": 1512077,
+    "name": "GLOBAL EAGLE ENTERTAINMENT INC.",
+    "event": "2020-07-22",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-07-07",
+    "monthsWarning": 20.400788,
+    "monthsWarningZ": 23.390276
+   },
+   {
+    "cik": 14195,
+    "name": "BRIGGS & STRATTON CORP",
+    "event": "2020-07-20",
+    "lastScore": 0.15310839112233163,
+    "lastScoredOn": "2020-05-09",
+    "monthsWarning": 5.453351,
+    "monthsWarningZ": 2.365309
+   },
+   {
+    "cik": 1609253,
+    "name": "California Resources Corp",
+    "event": "2020-07-16",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-06-26",
+    "monthsWarning": 0.65703,
+    "monthsWarningZ": 23.423127
+   },
+   {
+    "cik": 1211351,
+    "name": "RTW RETAILWINDS, INC.",
+    "event": "2020-07-13",
+    "lastScore": 0.08936530122729926,
+    "lastScoredOn": "2020-06-10",
+    "monthsWarning": 7.030223,
+    "monthsWarningZ": 14.848883
+   },
+   {
+    "cik": 1549848,
+    "name": "HI-CRUSH INC.",
+    "event": "2020-07-13",
+    "lastScore": 0.3143830167276287,
+    "lastScoredOn": "2020-06-26",
+    "monthsWarning": 0.558476,
+    "monthsWarningZ": 11.103811
+   },
+   {
+    "cik": 1013606,
+    "name": "ENDOLOGIX INC /DE/",
+    "event": "2020-07-09",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-05-28",
+    "monthsWarning": 22.963206,
+    "monthsWarningZ": 22.963206
+   },
+   {
+    "cik": 881524,
+    "name": "VIVUS INC",
+    "event": "2020-07-07",
+    "lastScore": 0.03514020608689549,
+    "lastScoredOn": "2020-05-07",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.963206
+   },
+   {
+    "cik": 1722287,
+    "name": "COVIA HOLDINGS CORP",
+    "event": "2020-06-30",
+    "lastScore": 0.08936530122729926,
+    "lastScoredOn": "2020-03-17",
+    "monthsWarning": 3.449409,
+    "monthsWarningZ": 3.449409
+   },
+   {
+    "cik": 895126,
+    "name": "EXPAND ENERGY CORPORATION",
+    "event": "2020-06-29",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-05-12",
+    "monthsWarning": 1.576873,
+    "monthsWarningZ": 22.897503
+   },
+   {
+    "cik": 1437557,
+    "name": "Lilis Energy, Inc.",
+    "event": "2020-06-29",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-05-01",
+    "monthsWarning": 1.938239,
+    "monthsWarningZ": 22.634691
+   },
+   {
+    "cik": 1606180,
+    "name": "AAC Holdings, Inc.",
+    "event": "2020-06-25",
+    "lastScore": 0.2905854195906988,
+    "lastScoredOn": "2019-11-14",
+    "monthsWarning": 14.323259,
+    "monthsWarningZ": 19.579501
+   },
+   {
+    "cik": 1502034,
+    "name": "GNC HOLDINGS, INC.",
+    "event": "2020-06-24",
+    "lastScore": 0.13674935100589478,
+    "lastScoredOn": "2020-05-12",
+    "monthsWarning": 1.412615,
+    "monthsWarningZ": 1.412615
+   },
+   {
+    "cik": 1579252,
+    "name": "JASON INDUSTRIES, INC.",
+    "event": "2020-06-24",
+    "lastScore": 0.15608232977663064,
+    "lastScoredOn": "2020-06-11",
+    "monthsWarning": 3.712221,
+    "monthsWarningZ": 22.700394
+   },
+   {
+    "cik": 1459482,
+    "name": "Chineseinvestors.com, Inc.",
+    "event": "2020-06-19",
+    "lastScore": 0.027034051785639376,
+    "lastScoredOn": "2020-04-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 9.658344
+   },
+   {
+    "cik": 1636509,
+    "name": "Vitalibis, Inc.",
+    "event": "2020-06-16",
+    "lastScore": 0.01937196849852932,
+    "lastScoredOn": "2020-05-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.437582
+   },
+   {
+    "cik": 939930,
+    "name": "Pyxus International, Inc.",
+    "event": "2020-06-15",
+    "lastScore": 0.11913461686520666,
+    "lastScoredOn": "2020-02-11",
+    "monthsWarning": 10.183968,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1655020,
+    "name": "Extraction Oil & Gas, Inc.",
+    "event": "2020-06-15",
+    "lastScore": 0.3127949271911023,
+    "lastScoredOn": "2020-05-12",
+    "monthsWarning": 3.088042,
+    "monthsWarningZ": 13.436268
+   },
+   {
+    "cik": 902274,
+    "name": "LIBBEY INC",
+    "event": "2020-06-01",
+    "lastScore": 0.08936530122729926,
+    "lastScoredOn": "2020-02-28",
+    "monthsWarning": 9.986859,
+    "monthsWarningZ": 15.078844
+   },
+   {
+    "cik": 878726,
+    "name": "TUESDAY MORNING CORP/DE",
+    "event": "2020-05-28",
+    "lastScore": 0.027034051785639376,
+    "lastScoredOn": "2020-02-06",
+    "monthsWarning": null,
+    "monthsWarningZ": 6.701708
+   },
+   {
+    "cik": 798949,
+    "name": "UNIT CORPORATION",
+    "event": "2020-05-26",
+    "lastScore": 0.027034051785639376,
+    "lastScoredOn": "2020-03-17",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1657853,
+    "name": "HERTZ GLOBAL HOLDINGS, INC",
+    "event": "2020-05-26",
+    "lastScore": 0.006487596790555978,
+    "lastScoredOn": "2020-05-12",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1131227,
+    "name": "HORNBECK OFFSHORE SERVICES INC /LA",
+    "event": "2020-05-22",
+    "lastScore": 0.01937993649233571,
+    "lastScoredOn": "2019-11-13",
+    "monthsWarning": null,
+    "monthsWarningZ": 9.395532
+   },
+   {
+    "cik": 3116,
+    "name": "AKORN INC",
+    "event": "2020-05-21",
+    "lastScore": 0.13674935100589478,
+    "lastScoredOn": "2020-05-12",
+    "monthsWarning": 14.651774,
+    "monthsWarningZ": 14.651774
+   },
+   {
+    "cik": 844143,
+    "name": "CENTRIC BRANDS INC.",
+    "event": "2020-05-18",
+    "lastScore": 0.12294688027017087,
+    "lastScoredOn": "2019-11-15",
+    "monthsWarning": 12.056505,
+    "monthsWarningZ": 21.09067
+   },
+   {
+    "cik": 1166126,
+    "name": "OLD COPPER COMPANY, INC.",
+    "event": "2020-05-18",
+    "lastScore": 0.027034051785639376,
+    "lastScoredOn": "2020-03-21",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.587385
+   },
+   {
+    "cik": 1563298,
+    "name": "ENERGY AND WATER DEVELOPMENT CORP.",
+    "event": "2020-05-15",
+    "lastScore": 0.007248666226456284,
+    "lastScoredOn": "2020-04-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 0.985545
+   },
+   {
+    "cik": 1525773,
+    "name": "INTELSAT S.A.",
+    "event": "2020-05-14",
+    "lastScore": 0.020393458671181936,
+    "lastScoredOn": "2020-02-21",
+    "monthsWarning": null,
+    "monthsWarningZ": 2.726675
+   },
+   {
+    "cik": 6885,
+    "name": "STAGE STORES INC",
+    "event": "2020-05-12",
+    "lastScore": 0.031516379410718685,
+    "lastScoredOn": "2019-12-13",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1051251,
+    "name": "J CREW GROUP INC",
+    "event": "2020-05-04",
+    "lastScore": 0.04720485919687394,
+    "lastScoredOn": "2019-12-03",
+    "monthsWarning": 11.169514,
+    "monthsWarningZ": 23.127464
+   },
+   {
+    "cik": 949039,
+    "name": "Diamond Offshore Drilling, Inc.",
+    "event": "2020-04-27",
+    "lastScore": 0.011465452351670931,
+    "lastScoredOn": "2020-02-12",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1436161,
+    "name": "United Cannabis Corp",
+    "event": "2020-04-24",
+    "lastScore": 0.06032036677614036,
+    "lastScoredOn": "2019-11-15",
+    "monthsWarning": 8.311432,
+    "monthsWarningZ": 23.291721
+   },
+   {
+    "cik": 1672326,
+    "name": "Yuma Energy, Inc.",
+    "event": "2020-04-16",
+    "lastScore": 0.02586329455569922,
+    "lastScoredOn": "2019-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.160315
+   },
+   {
+    "cik": 20520,
+    "name": "Frontier Communications Parent, Inc.",
+    "event": "2020-04-15",
+    "lastScore": 0.3321855323931856,
+    "lastScoredOn": "2020-04-01",
+    "monthsWarning": 11.432326,
+    "monthsWarningZ": 23.357424
+   },
+   {
+    "cik": 1669812,
+    "name": "LSC Communications, Inc.",
+    "event": "2020-04-13",
+    "lastScore": 0.08936530122729926,
+    "lastScoredOn": "2020-03-03",
+    "monthsWarning": 8.147175,
+    "monthsWarningZ": 13.731932
+   },
+   {
+    "cik": 1375618,
+    "name": "AMAZING ENERGY OIL AND GAS, CO.",
+    "event": "2020-04-09",
+    "lastScore": 0.01937993649233571,
+    "lastScoredOn": "2019-12-24",
+    "monthsWarning": null,
+    "monthsWarningZ": 17.312746
+   },
+   {
+    "cik": 1650445,
+    "name": "QUORUM HEALTH CORPORATION",
+    "event": "2020-04-07",
+    "lastScore": 0.08701360859679215,
+    "lastScoredOn": "2019-11-08",
+    "monthsWarning": 22.897503,
+    "monthsWarningZ": 22.897503
+   },
+   {
+    "cik": 1255474,
+    "name": "WHITING PETROLEUM CORP",
+    "event": "2020-04-01",
+    "lastScore": 0.008043742410542308,
+    "lastScoredOn": "2020-02-28",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.996058
+   },
+   {
+    "cik": 1009672,
+    "name": "CARBO CERAMICS INC",
+    "event": "2020-03-30",
+    "lastScore": 0.019212440444076335,
+    "lastScoredOn": "2019-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 920448,
+    "name": "BROADVISION INC",
+    "event": "2020-03-27",
+    "lastScore": 0.012129373128638498,
+    "lastScoredOn": "2019-11-20",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.784494
+   },
+   {
+    "cik": 1527844,
+    "name": "Globe Photos, Inc.",
+    "event": "2020-03-25",
+    "lastScore": 0.08701360859679215,
+    "lastScoredOn": "2019-11-15",
+    "monthsWarning": 7.358739,
+    "monthsWarningZ": 11.268068
+   },
+   {
+    "cik": 1505497,
+    "name": "BIORESTORATIVE THERAPIES, INC.",
+    "event": "2020-03-20",
+    "lastScore": 0.019212440444076335,
+    "lastScoredOn": "2019-11-14",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.554534
+   },
+   {
+    "cik": 1456212,
+    "name": "BLACKRIDGE TECHNOLOGY INTERNATIONAL, INC.",
+    "event": "2020-03-18",
+    "lastScore": 0.10559915297652209,
+    "lastScoredOn": "2019-11-15",
+    "monthsWarning": 7.095926,
+    "monthsWarningZ": 23.48883
+   },
+   {
+    "cik": 1056386,
+    "name": "Internap Corp",
+    "event": "2020-03-16",
+    "lastScore": 0.06032036677614036,
+    "lastScoredOn": "2019-11-13",
+    "monthsWarning": 4.073587,
+    "monthsWarningZ": 22.404731
+   },
+   {
+    "cik": 320575,
+    "name": "Pioneer Energy Services LLC",
+    "event": "2020-03-02",
+    "lastScore": 0.08701360859679215,
+    "lastScoredOn": "2019-11-01",
+    "monthsWarning": 4.007884,
+    "monthsWarningZ": 21.977661
+   },
+   {
+    "cik": 278130,
+    "name": "PIER 1 IMPORTS INC/DE",
+    "event": "2020-02-18",
+    "lastScore": 0.11913461686520666,
+    "lastScoredOn": "2020-01-07",
+    "monthsWarning": 9.658344,
+    "monthsWarningZ": 7.293035
+   },
+   {
+    "cik": 1056087,
+    "name": "MCCLATCHY CO",
+    "event": "2020-02-13",
+    "lastScore": 0.2905854195906988,
+    "lastScoredOn": "2019-11-14",
+    "monthsWarning": 23.061761,
+    "monthsWarningZ": 23.061761
+   },
+   {
+    "cik": 1619250,
+    "name": "VALERITAS HOLDINGS INC.",
+    "event": "2020-02-10",
+    "lastScore": 0.02586329455569922,
+    "lastScoredOn": "2019-11-13",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.357424
+   },
+   {
+    "cik": 1496818,
+    "name": "STEALTH TECHNOLOGIES, INC.",
+    "event": "2020-01-30",
+    "lastScore": 0.004679733120061465,
+    "lastScoredOn": "2019-11-28",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.863338
+   },
+   {
+    "cik": 708819,
+    "name": "McDERMOTT INTERNATIONAL, INC.",
+    "event": "2020-01-22",
+    "lastScore": 0.10559915297652209,
+    "lastScoredOn": "2019-11-05",
+    "monthsWarning": 10.840999,
+    "monthsWarningZ": 17.706965
+   },
+   {
+    "cik": 1461993,
+    "name": "MELINTA THERAPEUTICS, INC. /NEW/",
+    "event": "2019-12-27",
+    "lastScore": 0.06032036677614036,
+    "lastScoredOn": "2019-11-13",
+    "monthsWarning": 1.445466,
+    "monthsWarningZ": 21.353482
+   },
+   {
+    "cik": 1526689,
+    "name": "Generation NEXT Franchise Brands, Inc.",
+    "event": "2019-12-18",
+    "lastScore": 0.08701360859679215,
+    "lastScoredOn": "2019-10-17",
+    "monthsWarning": 13.929041,
+    "monthsWarningZ": 22.043364
+   },
+   {
+    "cik": 1561880,
+    "name": "LEGACY EDUCATION ALLIANCE, INC.",
+    "event": "2019-11-21",
+    "lastScore": 0.019212440444076335,
+    "lastScoredOn": "2019-11-14",
+    "monthsWarning": null,
+    "monthsWarningZ": 19.612352
+   },
+   {
+    "cik": 1405073,
+    "name": "APPROACH RESOURCES INC",
+    "event": "2019-11-19",
+    "lastScore": 0.10559915297652209,
+    "lastScoredOn": "2019-08-10",
+    "monthsWarning": 6.30749,
+    "monthsWarningZ": 20.335085
+   },
+   {
+    "cik": 1648893,
+    "name": "Nuvectra Corp",
+    "event": "2019-11-13",
+    "lastScore": 0.006449116288042619,
+    "lastScoredOn": "2019-08-01",
+    "monthsWarning": null,
+    "monthsWarningZ": 6.406045
+   },
+   {
+    "cik": 931336,
+    "name": "DEAN FOODS COMPANY",
+    "event": "2019-11-12",
+    "lastScore": 0.2866955318895561,
+    "lastScoredOn": "2019-08-09",
+    "monthsWarning": 8.409987,
+    "monthsWarningZ": 12.089356
+   },
+   {
+    "cik": 1579010,
+    "name": "LIFE ON EARTH, INC.",
+    "event": "2019-11-05",
+    "lastScore": 0.019212440444076335,
+    "lastScoredOn": "2019-10-19",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.583443
+   },
+   {
+    "cik": 1386026,
+    "name": "ZENERGY BRANDS, INC.",
+    "event": "2019-11-04",
+    "lastScore": 0.01937993649233571,
+    "lastScoredOn": "2019-05-21",
+    "monthsWarning": null,
+    "monthsWarningZ": 18.823916
+   },
+   {
+    "cik": 1540729,
+    "name": "Foresight Energy LP",
+    "event": "2019-11-04",
+    "lastScore": 0.00738067436366371,
+    "lastScoredOn": "2019-08-08",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 896985,
+    "name": "Destination Maternity Corp",
+    "event": "2019-10-25",
+    "lastScore": 0.2866955318895561,
+    "lastScoredOn": "2019-09-18",
+    "monthsWarning": 6.274639,
+    "monthsWarningZ": 22.536137
+   },
+   {
+    "cik": 727346,
+    "name": "Selectis Health, Inc.",
+    "event": "2019-10-23",
+    "lastScore": 0.006449116288042619,
+    "lastScoredOn": "2019-08-20",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1555082,
+    "name": "EP Energy LLC",
+    "event": "2019-10-04",
+    "lastScore": 0.12294688027017087,
+    "lastScoredOn": "2019-08-10",
+    "monthsWarning": 6.537451,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1584952,
+    "name": "EP Energy Corp",
+    "event": "2019-10-04",
+    "lastScore": 0.1350406625235673,
+    "lastScoredOn": "2019-08-10",
+    "monthsWarning": 6.537451,
+    "monthsWarningZ": 22.963206
+   },
+   {
+    "cik": 2034,
+    "name": "ACETO CORP",
+    "event": "2019-09-20",
+    "lastScore": 0.10559915297652209,
+    "lastScoredOn": "2019-02-21",
+    "monthsWarning": 10.315375,
+    "monthsWarningZ": 16.425756
+   },
+   {
+    "cik": 1656328,
+    "name": "Sienna Biopharmaceuticals, Inc.",
+    "event": "2019-09-17",
+    "lastScore": 0.019212440444076335,
+    "lastScoredOn": "2019-08-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 18.068331
+   },
+   {
+    "cik": 1518403,
+    "name": "Alta Mesa Holdings, LP",
+    "event": "2019-09-12",
+    "lastScore": 0.02586329455569922,
+    "lastScoredOn": "2019-08-29",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1690769,
+    "name": "Alta Mesa Resources, Inc. /DE",
+    "event": "2019-09-12",
+    "lastScore": 0.08335841634391354,
+    "lastScoredOn": "2019-08-28",
+    "monthsWarning": 0.492773,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 724571,
+    "name": "FREDS INC",
+    "event": "2019-09-09",
+    "lastScore": 0.12294688027017087,
+    "lastScoredOn": "2019-06-19",
+    "monthsWarning": 2.693824,
+    "monthsWarningZ": 16.162943
+   },
+   {
+    "cik": 1568079,
+    "name": "PetroShare Corp.",
+    "event": "2019-09-04",
+    "lastScore": 0.06032036677614036,
+    "lastScoredOn": "2019-08-15",
+    "monthsWarning": 3.646518,
+    "monthsWarningZ": 21.616294
+   },
+   {
+    "cik": 1045425,
+    "name": "RAIT FINANCIAL TRUST",
+    "event": "2019-09-03",
+    "lastScore": 0.031516379410718685,
+    "lastScoredOn": "2019-03-27",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1080029,
+    "name": "Dougherty's Pharmacy, Inc.",
+    "event": "2019-08-30",
+    "lastScore": 0.031516379410718685,
+    "lastScoredOn": "2019-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": 17.017083
+   },
+   {
+    "cik": 1528837,
+    "name": "Sanchez Energy Corp",
+    "event": "2019-08-12",
+    "lastScore": 0.012129373128638498,
+    "lastScoredOn": "2019-05-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.123522
+   },
+   {
+    "cik": 1720201,
+    "name": "iPic Entertainment Inc.",
+    "event": "2019-08-05",
+    "lastScore": 0.10559915297652209,
+    "lastScoredOn": "2019-05-21",
+    "monthsWarning": 4.106439,
+    "monthsWarningZ": 4.106439
+   },
+   {
+    "cik": 1387156,
+    "name": "AIRXPANDERS INC",
+    "event": "2019-07-25",
+    "lastScore": 0.02586329455569922,
+    "lastScoredOn": "2019-05-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 16.787122
+   },
+   {
+    "cik": 1434621,
+    "name": "LendingTree,\u00a0Inc.",
+    "event": "2019-07-25",
+    "lastScore": 0.009946173369169016,
+    "lastScoredOn": "2019-04-30",
+    "monthsWarning": null,
+    "monthsWarningZ": 4.796321
+   },
+   {
+    "cik": 1555177,
+    "name": "Emerge Energy Services LP",
+    "event": "2019-07-17",
+    "lastScore": 0.005014911619347956,
+    "lastScoredOn": "2018-11-08",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1603923,
+    "name": "Weatherford International plc",
+    "event": "2019-07-02",
+    "lastScore": 0.2905854195906988,
+    "lastScoredOn": "2019-05-11",
+    "monthsWarning": 22.963206,
+    "monthsWarningZ": 22.963206
+   },
+   {
+    "cik": 1265107,
+    "name": "MONITRONICS INTERNATIONAL,\u00a0INC",
+    "event": "2019-07-01",
+    "lastScore": 0.2905854195906988,
+    "lastScoredOn": "2019-05-16",
+    "monthsWarning": 10.775296,
+    "monthsWarningZ": 22.667543
+   },
+   {
+    "cik": 1437106,
+    "name": "Ascent Capital Group, Inc.",
+    "event": "2019-07-01",
+    "lastScore": 0.2905854195906988,
+    "lastScoredOn": "2019-05-16",
+    "monthsWarning": 10.87385,
+    "monthsWarningZ": 22.667543
+   },
+   {
+    "cik": 1735828,
+    "name": "Legacy Reserves Inc.",
+    "event": "2019-06-21",
+    "lastScore": 0.12294688027017087,
+    "lastScoredOn": "2019-05-11",
+    "monthsWarning": 2.956636,
+    "monthsWarningZ": 2.956636
+   },
+   {
+    "cik": 1516479,
+    "name": "Insys Therapeutics, Inc.",
+    "event": "2019-06-10",
+    "lastScore": 0.08701360859679215,
+    "lastScoredOn": "2019-05-14",
+    "monthsWarning": 19.152431,
+    "monthsWarningZ": 19.152431
+   },
+   {
+    "cik": 1575360,
+    "name": "FTD Companies, Inc.",
+    "event": "2019-06-05",
+    "lastScore": 0.2905854195906988,
+    "lastScoredOn": "2019-03-19",
+    "monthsWarning": 18.791064,
+    "monthsWarningZ": 21.813403
+   },
+   {
+    "cik": 1071411,
+    "name": "Fusion Connect, Inc.",
+    "event": "2019-06-03",
+    "lastScore": 0.27807163030894205,
+    "lastScoredOn": "2018-11-14",
+    "monthsWarning": 9.592641,
+    "monthsWarningZ": 21.583443
+   },
+   {
+    "cik": 1552845,
+    "name": "Natur International Corp.",
+    "event": "2019-05-28",
+    "lastScore": 0.03557597790614372,
+    "lastScoredOn": "2019-05-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.484888
+   },
+   {
+    "cik": 827809,
+    "name": "NOVELION THERAPEUTICS INC.",
+    "event": "2019-05-21",
+    "lastScore": 0.06032036677614036,
+    "lastScoredOn": "2019-05-08",
+    "monthsWarning": 21.353482,
+    "monthsWarningZ": 21.353482
+   },
+   {
+    "cik": 73887,
+    "name": "Bristow Group Inc.",
+    "event": "2019-05-13",
+    "lastScore": 0.032819780749726274,
+    "lastScoredOn": "2018-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1441849,
+    "name": "CLOUD PEAK ENERGY INC.",
+    "event": "2019-05-10",
+    "lastScore": 0.06032036677614036,
+    "lastScoredOn": "2019-03-16",
+    "monthsWarning": 1.806833,
+    "monthsWarningZ": 1.806833
+   },
+   {
+    "cik": 1265572,
+    "name": "KONA GRILL INC",
+    "event": "2019-05-01",
+    "lastScore": 0.10559915297652209,
+    "lastScoredOn": "2019-04-17",
+    "monthsWarning": 11.662286,
+    "monthsWarningZ": 23.68594
+   },
+   {
+    "cik": 1301501,
+    "name": "Achaogen, Inc.",
+    "event": "2019-04-15",
+    "lastScore": 0.08335841634391354,
+    "lastScoredOn": "2019-04-02",
+    "monthsWarning": 0.42707,
+    "monthsWarningZ": 17.148489
+   },
+   {
+    "cik": 1573166,
+    "name": "Jones Energy, Inc.",
+    "event": "2019-04-15",
+    "lastScore": 0.1350406625235673,
+    "lastScoredOn": "2019-03-01",
+    "monthsWarning": 1.478318,
+    "monthsWarningZ": 23.291721
+   },
+   {
+    "cik": 13239,
+    "name": "HEXION INC.",
+    "event": "2019-04-01",
+    "lastScore": 0.032819780749726274,
+    "lastScoredOn": "2018-11-14",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.8318
+   },
+   {
+    "cik": 1403802,
+    "name": "SPINDLE, INC.",
+    "event": "2019-03-29",
+    "lastScore": 0.005014911619347956,
+    "lastScoredOn": "2018-11-20",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.25887
+   },
+   {
+    "cik": 1109196,
+    "name": "MABVAX THERAPEUTICS HOLDINGS, INC.",
+    "event": "2019-03-25",
+    "lastScore": 0.01389874150405113,
+    "lastScoredOn": "2018-11-14",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.043364
+   },
+   {
+    "cik": 350403,
+    "name": "PHI INC",
+    "event": "2019-03-15",
+    "lastScore": 0.018439858672926166,
+    "lastScoredOn": "2018-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 10.315375
+   },
+   {
+    "cik": 1140310,
+    "name": "ENSYNC, INC.",
+    "event": "2019-03-12",
+    "lastScore": 0.010436173803298249,
+    "lastScoredOn": "2018-11-14",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.977661
+   },
+   {
+    "cik": 1208261,
+    "name": "IMMUNE PHARMACEUTICALS INC",
+    "event": "2019-03-08",
+    "lastScore": 0.06996844406709411,
+    "lastScoredOn": "2018-11-15",
+    "monthsWarning": 6.73456,
+    "monthsWarningZ": 21.649146
+   },
+   {
+    "cik": 1282266,
+    "name": "WINDSTREAM HOLDINGS, INC.",
+    "event": "2019-02-28",
+    "lastScore": 0.09006754886029424,
+    "lastScoredOn": "2018-11-09",
+    "monthsWarning": 11.95795,
+    "monthsWarningZ": 23.9159
+   },
+   {
+    "cik": 1013238,
+    "name": "ARADIGM CORP",
+    "event": "2019-02-19",
+    "lastScore": 0.01999948665933012,
+    "lastScoredOn": "2018-11-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.667543
+   },
+   {
+    "cik": 1024126,
+    "name": "PERNIX THERAPEUTICS HOLDINGS, INC.",
+    "event": "2019-02-19",
+    "lastScore": 0.09006754886029424,
+    "lastScoredOn": "2018-11-14",
+    "monthsWarning": 6.340342,
+    "monthsWarningZ": 22.733246
+   },
+   {
+    "cik": 1012477,
+    "name": "AVADEL PHARMACEUTICALS PLC",
+    "event": "2019-02-12",
+    "lastScore": 0.032819780749726274,
+    "lastScoredOn": "2018-11-06",
+    "monthsWarning": null,
+    "monthsWarningZ": 6.176084
+   },
+   {
+    "cik": 1538495,
+    "name": "EARTH SCIENCE TECH, INC.",
+    "event": "2019-01-16",
+    "lastScore": 0.006266400167947046,
+    "lastScoredOn": "2018-11-21",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1004980,
+    "name": "PG&E CORP",
+    "event": "2019-01-14",
+    "lastScore": 0.005844588566202607,
+    "lastScoredOn": "2018-11-06",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.864652
+   },
+   {
+    "cik": 75439,
+    "name": "MEDITE CANCER DIAGNOSTICS, INC.",
+    "event": "2019-01-03",
+    "lastScore": 0.06996844406709411,
+    "lastScoredOn": "2018-11-15",
+    "monthsWarning": 4.763469,
+    "monthsWarningZ": 20.630749
+   },
+   {
+    "cik": 1494448,
+    "name": "Emergent Capital, Inc.",
+    "event": "2018-12-14",
+    "lastScore": 0.01313385071355366,
+    "lastScoredOn": "2018-11-17",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1347613,
+    "name": "SYNERGY PHARMACEUTICALS, INC.",
+    "event": "2018-12-13",
+    "lastScore": 0.10562450265382621,
+    "lastScoredOn": "2018-11-10",
+    "monthsWarning": 1.0841,
+    "monthsWarningZ": 21.386334
+   },
+   {
+    "cik": 76321,
+    "name": "PARKER DRILLING CO /DE/",
+    "event": "2018-12-12",
+    "lastScore": 0.06996844406709411,
+    "lastScoredOn": "2018-11-07",
+    "monthsWarning": 1.149803,
+    "monthsWarningZ": 21.616294
+   },
+   {
+    "cik": 1105533,
+    "name": "ARGOS THERAPEUTICS INC",
+    "event": "2018-12-03",
+    "lastScore": 0.018439858672926166,
+    "lastScoredOn": "2018-11-20",
+    "monthsWarning": null,
+    "monthsWarningZ": 20.565046
+   },
+   {
+    "cik": 1699683,
+    "name": "Longfin Corp",
+    "event": "2018-11-21",
+    "lastScore": 0.005844588566202607,
+    "lastScoredOn": "2018-08-14",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 872248,
+    "name": "PETROQUEST ENERGY INC",
+    "event": "2018-11-07",
+    "lastScore": 0.01999948665933012,
+    "lastScoredOn": "2018-08-08",
+    "monthsWarning": null,
+    "monthsWarningZ": 19.940867
+   },
+   {
+    "cik": 1376912,
+    "name": "Rockies Region 2006 Limited Partnership",
+    "event": "2018-11-05",
+    "lastScore": 0.018439858672926166,
+    "lastScoredOn": "2018-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1407805,
+    "name": "ROCKIES REGION 2007 LP",
+    "event": "2018-11-05",
+    "lastScore": 0.006266400167947046,
+    "lastScoredOn": "2018-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1431372,
+    "name": "Gastar Exploration Inc.",
+    "event": "2018-11-01",
+    "lastScore": 0.10562450265382621,
+    "lastScoredOn": "2018-08-10",
+    "monthsWarning": 2.726675,
+    "monthsWarningZ": 23.883049
+   },
+   {
+    "cik": 1586105,
+    "name": "Zyla Life Sciences",
+    "event": "2018-10-31",
+    "lastScore": 0.018439858672926166,
+    "lastScoredOn": "2018-08-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.68594
+   },
+   {
+    "cik": 1549145,
+    "name": "BLUE BIOFUELS, INC.",
+    "event": "2018-10-23",
+    "lastScore": 0.018439858672926166,
+    "lastScoredOn": "2018-09-28",
+    "monthsWarning": null,
+    "monthsWarningZ": 0.821288
+   },
+   {
+    "cik": 105608,
+    "name": "AG&E HOLDINGS INC.",
+    "event": "2018-10-18",
+    "lastScore": 0.018439858672926166,
+    "lastScoredOn": "2018-08-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.061761
+   },
+   {
+    "cik": 1310067,
+    "name": "SEARS HOLDINGS CORP",
+    "event": "2018-10-15",
+    "lastScore": 0.27807163030894205,
+    "lastScoredOn": "2018-09-14",
+    "monthsWarning": 22.17477,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1582919,
+    "name": "Flitways Technology Inc.",
+    "event": "2018-10-15",
+    "lastScore": 0.005014911619347956,
+    "lastScoredOn": "2018-06-16",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 106455,
+    "name": "WESTMORELAND COAL CO",
+    "event": "2018-10-09",
+    "lastScore": 0.3351175176147541,
+    "lastScoredOn": "2018-08-07",
+    "monthsWarning": 16.787122,
+    "monthsWarningZ": 23.193167
+   },
+   {
+    "cik": 1412347,
+    "name": "Westmoreland Resource Partners, LP",
+    "event": "2018-10-09",
+    "lastScore": 0.334861465658976,
+    "lastScoredOn": "2018-08-07",
+    "monthsWarning": 6.208936,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 741815,
+    "name": "HOOPER HOLMES INC",
+    "event": "2018-08-28",
+    "lastScore": 0.1222618414331819,
+    "lastScoredOn": "2018-08-15",
+    "monthsWarning": 21.386334,
+    "monthsWarningZ": 21.386334
+   },
+   {
+    "cik": 1660719,
+    "name": "Aralez Pharmaceuticals Inc.",
+    "event": "2018-08-14",
+    "lastScore": 0.10562450265382621,
+    "lastScoredOn": "2018-05-09",
+    "monthsWarning": 17.017083,
+    "monthsWarningZ": 17.017083
+   },
+   {
+    "cik": 1096132,
+    "name": "PETRONE WORLDWIDE, INC.",
+    "event": "2018-07-31",
+    "lastScore": 0.013331018557489378,
+    "lastScoredOn": "2017-12-12",
+    "monthsWarning": null,
+    "monthsWarningZ": 20.335085
+   },
+   {
+    "cik": 1429896,
+    "name": "ACTIVECARE, INC.",
+    "event": "2018-07-17",
+    "lastScore": 0.09672497457704951,
+    "lastScoredOn": "2018-02-01",
+    "monthsWarning": 16.754271,
+    "monthsWarningZ": 22.897503
+   },
+   {
+    "cik": 1554875,
+    "name": "Tintri, Inc.",
+    "event": "2018-07-10",
+    "lastScore": 0.10562450265382621,
+    "lastScoredOn": "2018-05-19",
+    "monthsWarning": 1.708279,
+    "monthsWarningZ": 1.708279
+   },
+   {
+    "cik": 1403085,
+    "name": "JRjr33, Inc.",
+    "event": "2018-07-06",
+    "lastScore": 0.11640513286379153,
+    "lastScoredOn": "2017-10-19",
+    "monthsWarning": 20.663601,
+    "monthsWarningZ": 20.663601
+   },
+   {
+    "cik": 1397516,
+    "name": "REX ENERGY CORP",
+    "event": "2018-05-18",
+    "lastScore": 0.27807163030894205,
+    "lastScoredOn": "2018-05-16",
+    "monthsWarning": 21.353482,
+    "monthsWarningZ": 21.353482
+   },
+   {
+    "cik": 753772,
+    "name": "Medizone International Inc",
+    "event": "2018-05-11",
+    "lastScore": 0.018439858672926166,
+    "lastScoredOn": "2018-03-21",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.883049
+   },
+   {
+    "cik": 1534287,
+    "name": "BioAmber Inc.",
+    "event": "2018-05-08",
+    "lastScore": 0.032819780749726274,
+    "lastScoredOn": "2018-03-31",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.9159
+   },
+   {
+    "cik": 1586988,
+    "name": "CSA HOLDINGS INC.",
+    "event": "2018-04-30",
+    "lastScore": 0.010358966682714433,
+    "lastScoredOn": "2017-12-02",
+    "monthsWarning": null,
+    "monthsWarningZ": 4.894875
+   },
+   {
+    "cik": 1402281,
+    "name": "Erin Energy Corp.",
+    "event": "2018-04-26",
+    "lastScore": 0.27807163030894205,
+    "lastScoredOn": "2018-03-17",
+    "monthsWarning": 23.48883,
+    "monthsWarningZ": 23.48883
+   },
+   {
+    "cik": 1031296,
+    "name": "FIRSTENERGY CORP.",
+    "event": "2018-04-05",
+    "lastScore": 0.01313385071355366,
+    "lastScoredOn": "2018-02-21",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.25887
+   },
+   {
+    "cik": 1361937,
+    "name": "Harvest Oil & Gas Corp.",
+    "event": "2018-04-02",
+    "lastScore": 0.10015554246795767,
+    "lastScoredOn": "2017-11-10",
+    "monthsWarning": 22.700394,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 34115,
+    "name": "CLAIRES STORES INC",
+    "event": "2018-03-19",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-12-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.700394
+   },
+   {
+    "cik": 739708,
+    "name": "IHEARTCOMMUNICATIONS, INC.",
+    "event": "2018-03-15",
+    "lastScore": 0.11802140311203001,
+    "lastScoredOn": "2017-11-09",
+    "monthsWarning": 10.315375,
+    "monthsWarningZ": 22.306176
+   },
+   {
+    "cik": 1334978,
+    "name": "CLEAR CHANNEL OUTDOOR HOLDINGS, INC.",
+    "event": "2018-03-15",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.306176
+   },
+   {
+    "cik": 1400891,
+    "name": "IHEARTMEDIA, INC.",
+    "event": "2018-03-15",
+    "lastScore": 0.11802140311203001,
+    "lastScoredOn": "2017-11-09",
+    "monthsWarning": 10.315375,
+    "monthsWarningZ": 22.306176
+   },
+   {
+    "cik": 1457737,
+    "name": "iHeartMedia Capital I, LLC",
+    "event": "2018-03-15",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-11-09",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1382911,
+    "name": "Orexigen Therapeutics, Inc.",
+    "event": "2018-03-12",
+    "lastScore": 0.061537025617153296,
+    "lastScoredOn": "2017-11-15",
+    "monthsWarning": 7.030223,
+    "monthsWarningZ": 22.17477
+   },
+   {
+    "cik": 1394872,
+    "name": "Ambient Water Corp.",
+    "event": "2018-02-20",
+    "lastScore": 0.013331018557489378,
+    "lastScoredOn": "2017-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.864652
+   },
+   {
+    "cik": 878079,
+    "name": "BON TON STORES INC",
+    "event": "2018-02-05",
+    "lastScore": 0.09478978396100522,
+    "lastScoredOn": "2017-12-13",
+    "monthsWarning": 4.960578,
+    "monthsWarningZ": 1.773982
+   },
+   {
+    "cik": 920321,
+    "name": "CENVEO, INC",
+    "event": "2018-02-02",
+    "lastScore": 0.09478978396100522,
+    "lastScoredOn": "2017-11-10",
+    "monthsWarning": 2.759527,
+    "monthsWarningZ": 23.193167
+   },
+   {
+    "cik": 1294250,
+    "name": "Rand Logistics, Inc.",
+    "event": "2018-01-30",
+    "lastScore": 0.40153922835483713,
+    "lastScoredOn": "2017-11-15",
+    "monthsWarning": 23.653088,
+    "monthsWarningZ": 23.653088
+   },
+   {
+    "cik": 1561551,
+    "name": "Enumeral Biomedical Holdings, Inc.",
+    "event": "2018-01-29",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.977661
+   },
+   {
+    "cik": 316300,
+    "name": "EXCO RESOURCES INC",
+    "event": "2018-01-17",
+    "lastScore": 0.11640513286379153,
+    "lastScoredOn": "2017-11-08",
+    "monthsWarning": 22.503285,
+    "monthsWarningZ": 22.503285
+   },
+   {
+    "cik": 868725,
+    "name": "RENTECH, INC.",
+    "event": "2017-12-21",
+    "lastScore": 0.09478978396100522,
+    "lastScoredOn": "2017-11-10",
+    "monthsWarning": 7.358739,
+    "monthsWarningZ": 21.189225
+   },
+   {
+    "cik": 1178104,
+    "name": "DEXTERA SURGICAL INC",
+    "event": "2017-12-15",
+    "lastScore": 0.020913540961472365,
+    "lastScoredOn": "2017-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.109067
+   },
+   {
+    "cik": 1471261,
+    "name": "Cobalt International Energy, Inc.",
+    "event": "2017-12-14",
+    "lastScore": 0.2434848736011432,
+    "lastScoredOn": "2017-11-03",
+    "monthsWarning": 21.681997,
+    "monthsWarningZ": 16.360053
+   },
+   {
+    "cik": 1429386,
+    "name": "PHASERX, INC.",
+    "event": "2017-12-13",
+    "lastScore": 0.00900907639040738,
+    "lastScoredOn": "2017-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 8.541393
+   },
+   {
+    "cik": 1088787,
+    "name": "CD INTERNATIONAL ENTERPRISES, INC.",
+    "event": "2017-12-12",
+    "lastScore": 0.005133823296136498,
+    "lastScoredOn": "2017-05-17",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.733246
+   },
+   {
+    "cik": 1580185,
+    "name": "J.G. Wentworth Co",
+    "event": "2017-12-12",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1335103,
+    "name": "Protea Biosciences Group, Inc.",
+    "event": "2017-12-05",
+    "lastScore": 0.09478978396100522,
+    "lastScoredOn": "2017-08-19",
+    "monthsWarning": 3.547963,
+    "monthsWarningZ": 20.630749
+   },
+   {
+    "cik": 1040719,
+    "name": "DITECH HOLDING CORPORATION",
+    "event": "2017-12-01",
+    "lastScore": 0.013331018557489378,
+    "lastScoredOn": "2017-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1058623,
+    "name": "Cumulus Media Inc",
+    "event": "2017-11-30",
+    "lastScore": 0.11640513286379153,
+    "lastScoredOn": "2017-11-10",
+    "monthsWarning": 8.47569,
+    "monthsWarningZ": 20.663601
+   },
+   {
+    "cik": 38984,
+    "name": "REAL INDUSTRY, INC.",
+    "event": "2017-11-17",
+    "lastScore": 0.11802140311203001,
+    "lastScoredOn": "2017-11-10",
+    "monthsWarning": 6.241787,
+    "monthsWarningZ": 20.072273
+   },
+   {
+    "cik": 104897,
+    "name": "WSI INDUSTRIES, INC.",
+    "event": "2017-10-23",
+    "lastScore": 0.005386404943076733,
+    "lastScoredOn": "2017-06-29",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1602381,
+    "name": "MOMENTOUS ENTERTAINMENT GROUP INC",
+    "event": "2017-10-06",
+    "lastScore": 0.040121628956743406,
+    "lastScoredOn": "2017-08-26",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.634691
+   },
+   {
+    "cik": 1383154,
+    "name": "COPsync, Inc.",
+    "event": "2017-10-04",
+    "lastScore": 0.01541247597206555,
+    "lastScoredOn": "2016-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.568988
+   },
+   {
+    "cik": 1166365,
+    "name": "PAPERWEIGHT DEVELOPMENT CORP",
+    "event": "2017-10-02",
+    "lastScore": 0.037827226009054235,
+    "lastScoredOn": "2017-08-17",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1301712,
+    "name": "IRONCLAD PERFORMANCE WEAR CORP",
+    "event": "2017-09-11",
+    "lastScore": 0.013331018557489378,
+    "lastScoredOn": "2017-05-16",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 880460,
+    "name": "Perfumania Holdings, Inc.",
+    "event": "2017-08-29",
+    "lastScore": 0.10015554246795767,
+    "lastScoredOn": "2017-06-20",
+    "monthsWarning": 23.423127,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1171012,
+    "name": "Uni-Pixel",
+    "event": "2017-08-25",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-08-11",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.714849
+   },
+   {
+    "cik": 1093207,
+    "name": "CROSSROADS SYSTEMS INC",
+    "event": "2017-08-14",
+    "lastScore": 0.005133823296136498,
+    "lastScoredOn": "2017-05-26",
+    "monthsWarning": null,
+    "monthsWarningZ": 22.963206
+   },
+   {
+    "cik": 1311230,
+    "name": "TerraVia Holdings, Inc.",
+    "event": "2017-08-02",
+    "lastScore": 0.09478978396100522,
+    "lastScoredOn": "2017-05-06",
+    "monthsWarning": 2.890933,
+    "monthsWarningZ": 23.718791
+   },
+   {
+    "cik": 886328,
+    "name": "E DIGITAL CORP",
+    "event": "2017-07-07",
+    "lastScore": 0.010358966682714433,
+    "lastScoredOn": "2017-02-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 878802,
+    "name": "Quadrant 4 System Corp",
+    "event": "2017-07-05",
+    "lastScore": 0.016534858735665806,
+    "lastScoredOn": "2016-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1554923,
+    "name": "Aina Le'a Inc.",
+    "event": "2017-06-30",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-02-23",
+    "monthsWarning": null,
+    "monthsWarningZ": 11.498029
+   },
+   {
+    "cik": 18172,
+    "name": "A. M. CASTLE\u00a0& CO.",
+    "event": "2017-06-19",
+    "lastScore": 0.2434848736011432,
+    "lastScoredOn": "2017-05-16",
+    "monthsWarning": 22.404731,
+    "monthsWarningZ": 19.283837
+   },
+   {
+    "cik": 1025953,
+    "name": "NOVATION COMPANIES, INC.",
+    "event": "2017-06-16",
+    "lastScore": 0.008427853831045124,
+    "lastScoredOn": "2016-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1475273,
+    "name": "SOUPMAN, INC.",
+    "event": "2017-06-16",
+    "lastScore": 0.040121628956743406,
+    "lastScoredOn": "2017-05-05",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.028909
+   },
+   {
+    "cik": 1013871,
+    "name": "NRG Energy,\u00a0Inc",
+    "event": "2017-06-14",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-05-03",
+    "monthsWarning": null,
+    "monthsWarningZ": 15.44021
+   },
+   {
+    "cik": 1126294,
+    "name": "GenOn Energy, Inc.",
+    "event": "2017-06-14",
+    "lastScore": 0.01780237248309841,
+    "lastScoredOn": "2017-05-03",
+    "monthsWarning": null,
+    "monthsWarningZ": 1.379763
+   },
+   {
+    "cik": 1526796,
+    "name": "Ignite Restaurant Group, Inc.",
+    "event": "2017-06-08",
+    "lastScore": 0.09478978396100522,
+    "lastScoredOn": "2017-05-17",
+    "monthsWarning": 15.144547,
+    "monthsWarningZ": 22.043364
+   },
+   {
+    "cik": 73605,
+    "name": "OAKRIDGE HOLDINGS INC",
+    "event": "2017-05-23",
+    "lastScore": 0.013331018557489378,
+    "lastScoredOn": "2017-05-06",
+    "monthsWarning": null,
+    "monthsWarningZ": 6.668857
+   },
+   {
+    "cik": 54681,
+    "name": "KATY INDUSTRIES INC",
+    "event": "2017-05-18",
+    "lastScore": 0.11170583920491804,
+    "lastScoredOn": "2016-11-22",
+    "monthsWarning": 21.222076,
+    "monthsWarningZ": 21.222076
+   },
+   {
+    "cik": 98222,
+    "name": "TIDEWATER INC.",
+    "event": "2017-05-18",
+    "lastScore": 0.2434848736011432,
+    "lastScoredOn": "2017-02-09",
+    "monthsWarning": 11.695138,
+    "monthsWarningZ": 11.695138
+   },
+   {
+    "cik": 1030749,
+    "name": "GULFMARK OFFSHORE INC",
+    "event": "2017-05-18",
+    "lastScore": 0.40153922835483713,
+    "lastScoredOn": "2017-05-11",
+    "monthsWarning": 14.553219,
+    "monthsWarningZ": 12.680683
+   },
+   {
+    "cik": 1496631,
+    "name": "First NBC Bank Holding Co",
+    "event": "2017-05-04",
+    "lastScore": 0.005992602708744069,
+    "lastScoredOn": "2016-10-21",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1403853,
+    "name": "Nuverra Environmental Solutions, Inc.",
+    "event": "2017-05-01",
+    "lastScore": 0.2434848736011432,
+    "lastScoredOn": "2017-04-15",
+    "monthsWarning": 23.653088,
+    "monthsWarningZ": 23.653088
+   },
+   {
+    "cik": 2178,
+    "name": "ADAMS RESOURCES & ENERGY, INC.",
+    "event": "2017-04-24",
+    "lastScore": 0.003426456715036102,
+    "lastScoredOn": "2017-04-01",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1403433,
+    "name": "America Greener Technologies, Inc.",
+    "event": "2017-04-24",
+    "lastScore": 0.016534858735665806,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": 18.331143
+   },
+   {
+    "cik": 1602367,
+    "name": "Adeptus Health Inc.",
+    "event": "2017-04-20",
+    "lastScore": 0.006572281216004261,
+    "lastScoredOn": "2016-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1020475,
+    "name": "GRANDPARENTS.COM, INC.",
+    "event": "2017-04-17",
+    "lastScore": 0.02656800104032935,
+    "lastScoredOn": "2016-11-15",
+    "monthsWarning": 5.026281,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1476170,
+    "name": "Unilife Corp",
+    "event": "2017-04-12",
+    "lastScore": 0.10015554246795767,
+    "lastScoredOn": "2017-02-10",
+    "monthsWarning": 23.028909,
+    "monthsWarningZ": 23.028909
+   },
+   {
+    "cik": 918581,
+    "name": "CIBER INC",
+    "event": "2017-04-10",
+    "lastScore": 0.06578387563757024,
+    "lastScoredOn": "2016-11-10",
+    "monthsWarning": 10.972405,
+    "monthsWarningZ": 10.972405
+   },
+   {
+    "cik": 1088162,
+    "name": "MAD CATZ INTERACTIVE INC",
+    "event": "2017-03-31",
+    "lastScore": 0.09478978396100522,
+    "lastScoredOn": "2017-02-03",
+    "monthsWarning": 19.546649,
+    "monthsWarningZ": 21.156373
+   },
+   {
+    "cik": 1398702,
+    "name": "Electronic Cigarettes International Group, Ltd.",
+    "event": "2017-03-16",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-11-17",
+    "monthsWarning": 19.152431,
+    "monthsWarningZ": 11.563732
+   },
+   {
+    "cik": 1490636,
+    "name": "Gordmans Stores, Inc.",
+    "event": "2017-03-13",
+    "lastScore": 0.033259422660515105,
+    "lastScoredOn": "2016-12-09",
+    "monthsWarning": 9.099869,
+    "monthsWarningZ": 23.324573
+   },
+   {
+    "cik": 1396279,
+    "name": "HHGREGG, INC.",
+    "event": "2017-03-07",
+    "lastScore": 0.11802140311203001,
+    "lastScoredOn": "2017-01-27",
+    "monthsWarning": 21.714849,
+    "monthsWarningZ": 21.714849
+   },
+   {
+    "cik": 1421601,
+    "name": "WESTMOUNTAIN GOLD, INC.",
+    "event": "2017-03-07",
+    "lastScore": 0.040121628956743406,
+    "lastScoredOn": "2017-02-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 23.455979
+   },
+   {
+    "cik": 758743,
+    "name": "VIDEO DISPLAY CORPORATION",
+    "event": "2017-02-16",
+    "lastScore": 0.006405079598952357,
+    "lastScoredOn": "2017-01-14",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1456455,
+    "name": "PFO Global, Inc.",
+    "event": "2017-02-06",
+    "lastScore": 0.016534858735665806,
+    "lastScoredOn": "2016-11-15",
+    "monthsWarning": null,
+    "monthsWarningZ": 21.944809
+   },
+   {
+    "cik": 1384072,
+    "name": "Grizzly Energy, LLC",
+    "event": "2017-02-02",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-11-10",
+    "monthsWarning": 17.969777,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1575599,
+    "name": "AZURE MIDSTREAM PARTNERS, LP",
+    "event": "2017-01-31",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-11-03",
+    "monthsWarning": 10.052562,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1434842,
+    "name": "Forbes Energy Services Ltd.",
+    "event": "2017-01-23",
+    "lastScore": 0.29167510161352883,
+    "lastScoredOn": "2016-11-15",
+    "monthsWarning": 14.323259,
+    "monthsWarningZ": 21.911958
+   },
+   {
+    "cik": 1116521,
+    "name": "AVAYA INC",
+    "event": "2017-01-19",
+    "lastScore": 0.29167510161352883,
+    "lastScoredOn": "2016-08-13",
+    "monthsWarning": 23.160315,
+    "monthsWarningZ": 23.160315
+   },
+   {
+    "cik": 1521847,
+    "name": "AMPLIFY ENERGY CORP",
+    "event": "2017-01-17",
+    "lastScore": 0.02656800104032935,
+    "lastScoredOn": "2016-11-03",
+    "monthsWarning": 2.463863,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1509589,
+    "name": "Civitas Resources,\u00a0Inc.",
+    "event": "2017-01-04",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-11-10",
+    "monthsWarning": 13.929041,
+    "monthsWarningZ": 22.207622
+   },
+   {
+    "cik": 1367311,
+    "name": "Dakota Plains Holdings, Inc.",
+    "event": "2016-12-22",
+    "lastScore": 0.04908644561578521,
+    "lastScoredOn": "2016-11-08",
+    "monthsWarning": 13.501971,
+    "monthsWarningZ": 21.222076
+   },
+   {
+    "cik": 1407190,
+    "name": "Violin Memory Inc",
+    "event": "2016-12-19",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-09-15",
+    "monthsWarning": 20.367937,
+    "monthsWarningZ": 20.367937
+   },
+   {
+    "cik": 904080,
+    "name": "STONE ENERGY CORP",
+    "event": "2016-12-14",
+    "lastScore": 0.40168559981448815,
+    "lastScoredOn": "2016-11-08",
+    "monthsWarning": 21.550591,
+    "monthsWarningZ": 21.550591
+   },
+   {
+    "cik": 1135361,
+    "name": "ILLINOIS POWER GENERATING COMPANY",
+    "event": "2016-12-09",
+    "lastScore": 0.0943149050182886,
+    "lastScoredOn": "2016-11-11",
+    "monthsWarning": 20.532194,
+    "monthsWarningZ": 15.932983
+   },
+   {
+    "cik": 887150,
+    "name": "HAMPSHIRE GROUP LTD",
+    "event": "2016-11-25",
+    "lastScore": 0.11170583920491804,
+    "lastScoredOn": "2016-03-25",
+    "monthsWarning": 11.465177,
+    "monthsWarningZ": 11.465177
+   },
+   {
+    "cik": 1490165,
+    "name": "ERICKSON INC.",
+    "event": "2016-11-09",
+    "lastScore": 0.11170583920491804,
+    "lastScoredOn": "2016-08-16",
+    "monthsWarning": 17.969777,
+    "monthsWarningZ": 20.00657
+   },
+   {
+    "cik": 1514242,
+    "name": "PERFORMANCE SPORTS GROUP LTD.",
+    "event": "2016-10-31",
+    "lastScore": 0.016534858735665806,
+    "lastScoredOn": "2016-04-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 318996,
+    "name": "KEY ENERGY SERVICES INC",
+    "event": "2016-10-25",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-08-16",
+    "monthsWarning": 11.498029,
+    "monthsWarningZ": 19.940867
+   },
+   {
+    "cik": 1109189,
+    "name": "Basic Energy Services, Inc.",
+    "event": "2016-10-25",
+    "lastScore": 0.11170583920491804,
+    "lastScoredOn": "2016-07-30",
+    "monthsWarning": 17.936925,
+    "monthsWarningZ": 17.936925
+   },
+   {
+    "cik": 1068874,
+    "name": "SECURE POINT TECHNOLOGIES INC",
+    "event": "2016-10-11",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-05-17",
+    "monthsWarning": 19.743758,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1424328,
+    "name": "MULTIMEDIA PLATFORMS INC.",
+    "event": "2016-10-05",
+    "lastScore": 0.016534858735665806,
+    "lastScoredOn": "2016-08-23",
+    "monthsWarning": null,
+    "monthsWarningZ": 18.166886
+   },
+   {
+    "cik": 776008,
+    "name": "ROCK CREEK PHARMACEUTICALS, INC.",
+    "event": "2016-09-28",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-08-11",
+    "monthsWarning": 6.208936,
+    "monthsWarningZ": 18.561104
+   },
+   {
+    "cik": 1171014,
+    "name": "COSI INC",
+    "event": "2016-09-28",
+    "lastScore": 0.0943149050182886,
+    "lastScoredOn": "2016-08-12",
+    "monthsWarning": 6.143233,
+    "monthsWarningZ": 18.101183
+   },
+   {
+    "cik": 922475,
+    "name": "ITT EDUCATIONAL SERVICES INC",
+    "event": "2016-09-26",
+    "lastScore": 0.016534858735665806,
+    "lastScoredOn": "2016-07-30",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 278041,
+    "name": "INTERNATIONAL SHIPHOLDING CORP",
+    "event": "2016-08-04",
+    "lastScore": 0.32703912280258324,
+    "lastScoredOn": "2016-05-07",
+    "monthsWarning": 8.574244,
+    "monthsWarningZ": 8.574244
+   },
+   {
+    "cik": 1121745,
+    "name": "ATLAS AMERICA Public #9 LTD.",
+    "event": "2016-07-28",
+    "lastScore": 0.005679616223920584,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1157516,
+    "name": "ATLAS AMERICA PUBLIC #10 LTD.",
+    "event": "2016-07-28",
+    "lastScore": 0.005679616223920584,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1175028,
+    "name": "ATLAS AMERICA PUBLIC #11-2002 LTD.",
+    "event": "2016-07-28",
+    "lastScore": 0.005800766691788644,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1238289,
+    "name": "ATLAS AMERICA PUBLIC #12-2003 LIMITED PARTNERSHIP",
+    "event": "2016-07-28",
+    "lastScore": 0.005800766691788644,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1282648,
+    "name": "Battalion Oil Corp",
+    "event": "2016-07-28",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-05-10",
+    "monthsWarning": 14.717477,
+    "monthsWarningZ": 16.984231
+   },
+   {
+    "cik": 1283810,
+    "name": "ATLAS AMERICA SERIES 25-2004 (A) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005679616223920584,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1294208,
+    "name": "ATLAS AMERICA SERIES 25-2004 (B) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005679616223920584,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1294476,
+    "name": "ATLAS AMERICA PUBLIC #14-2004 L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005992602708744069,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1335236,
+    "name": "ATLAS AMERICA PUBLIC #15-2005 (A) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005679616223920584,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1336339,
+    "name": "ATLAS AMERICA PUBLIC #14-2005 (A) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005992602708744069,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1342514,
+    "name": "ATLAS AMERICA SERIES 26-2005 L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005992602708744069,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1357361,
+    "name": "ATLAS AMERICA PUBLIC #15-2006 (B) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.006572281216004261,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1374985,
+    "name": "ATLAS RESOURCES PUBLIC #16-2007 (A) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005800766691788644,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1379763,
+    "name": "ATLAS AMERICA SERIES 27-2006 L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005679616223920584,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1399541,
+    "name": "ATLAS RESOURCES Public #17-2008 (B) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005800766691788644,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1399542,
+    "name": "ATLAS RESOURCES Public #17-2007 (A) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.007760635894646957,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1432985,
+    "name": "ATLAS RESOURCES PUBLIC #18-2009 (B) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.007760635894646957,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1432987,
+    "name": "ATLAS RESOURCES PUBLIC #18-2008 (A) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005992602708744069,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1433833,
+    "name": "ATLAS RESOURCES PUBLIC #18-2009 (C) L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.005992602708744069,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1487561,
+    "name": "ATLAS RESOURCES SERIES 28-2010 L.P.",
+    "event": "2016-07-28",
+    "lastScore": 0.008427853831045124,
+    "lastScoredOn": "2016-05-24",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1532750,
+    "name": "Titan Energy, LLC",
+    "event": "2016-07-28",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-05-17",
+    "monthsWarning": 16.852825,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1623595,
+    "name": "Atlas Energy Group, LLC",
+    "event": "2016-07-28",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-05-17",
+    "monthsWarning": 3.90933,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1135906,
+    "name": "EPIRUS Biopharmaceuticals, Inc.",
+    "event": "2016-07-25",
+    "lastScore": 0.04908644561578521,
+    "lastScoredOn": "2016-05-11",
+    "monthsWarning": 2.463863,
+    "monthsWarningZ": 11.399474
+   },
+   {
+    "cik": 1615817,
+    "name": "KING MERGER SUB II LLC",
+    "event": "2016-07-21",
+    "lastScore": 0.12915724561427847,
+    "lastScoredOn": "2016-05-11",
+    "monthsWarning": 4.664915,
+    "monthsWarningZ": 4.664915
+   },
+   {
+    "cik": 1021096,
+    "name": "Troika Media Group, Inc.",
+    "event": "2016-07-12",
+    "lastScore": 0.346796572312717,
+    "lastScoredOn": "2015-12-25",
+    "monthsWarning": 7.260184,
+    "monthsWarningZ": 13.731932
+   },
+   {
+    "cik": 1410711,
+    "name": "Armco Metals Holdings, Inc.",
+    "event": "2016-07-12",
+    "lastScore": 0.0013660254045768359,
+    "lastScoredOn": "2015-11-17",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1023994,
+    "name": "OLENOX INDUSTRIES INC.",
+    "event": "2016-07-07",
+    "lastScore": 0.0305191301529894,
+    "lastScoredOn": "2015-08-20",
+    "monthsWarning": 10.578187,
+    "monthsWarningZ": 15.21025
+   },
+   {
+    "cik": 1581312,
+    "name": "Core Resource Management, Inc.",
+    "event": "2016-07-07",
+    "lastScore": 0.016534858735665806,
+    "lastScoredOn": "2016-01-07",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1281922,
+    "name": "Triangle Petroleum Corp",
+    "event": "2016-06-30",
+    "lastScore": 0.32703912280258324,
+    "lastScoredOn": "2016-06-09",
+    "monthsWarning": 12.713535,
+    "monthsWarningZ": 12.713535
+   },
+   {
+    "cik": 1506374,
+    "name": "ARABELLA EXPLORATION, INC.",
+    "event": "2016-06-22",
+    "lastScore": 0.04318229411939849,
+    "lastScoredOn": "2016-05-21",
+    "monthsWarning": 14.224704,
+    "monthsWarningZ": 14.224704
+   },
+   {
+    "cik": 796764,
+    "name": "PREMIER EXHIBITIONS, INC.",
+    "event": "2016-06-14",
+    "lastScore": 0.26071800457591204,
+    "lastScoredOn": "2015-10-16",
+    "monthsWarning": 16.95138,
+    "monthsWarningZ": 16.95138
+   },
+   {
+    "cik": 1532930,
+    "name": "SEVENTY SEVEN ENERGY INC.",
+    "event": "2016-06-07",
+    "lastScore": 0.29167510161352883,
+    "lastScoredOn": "2016-04-26",
+    "monthsWarning": 15.177398,
+    "monthsWarningZ": 15.177398
+   },
+   {
+    "cik": 892986,
+    "name": "WARREN RESOURCES INC",
+    "event": "2016-06-03",
+    "lastScore": 0.32703912280258324,
+    "lastScoredOn": "2016-03-18",
+    "monthsWarning": 12.877792,
+    "monthsWarningZ": 14.750329
+   },
+   {
+    "cik": 320174,
+    "name": "Perseon Corp",
+    "event": "2016-05-23",
+    "lastScore": 0.004328587383466977,
+    "lastScoredOn": "2015-10-28",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1613011,
+    "name": "Code Rebel Corp",
+    "event": "2016-05-19",
+    "lastScore": 0.005992602708744069,
+    "lastScoredOn": "2016-04-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1349436,
+    "name": "SANDRIDGE ENERGY, INC.",
+    "event": "2016-05-16",
+    "lastScore": 0.29167510161352883,
+    "lastScoredOn": "2016-03-31",
+    "monthsWarning": 12.286465,
+    "monthsWarningZ": 16.195795
+   },
+   {
+    "cik": 1357371,
+    "name": "Breitburn Energy Partners LP",
+    "event": "2016-05-16",
+    "lastScore": 0.06578387563757024,
+    "lastScoredOn": "2016-05-10",
+    "monthsWarning": 6.30749,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 77159,
+    "name": "RANGER OIL CORPORATION",
+    "event": "2016-05-12",
+    "lastScore": 1.0,
+    "lastScoredOn": "2016-04-30",
+    "monthsWarning": 14.487516,
+    "monthsWarningZ": 14.487516
+   },
+   {
+    "cik": 778438,
+    "name": "BERRY PETROLEUM COMPANY, LLC",
+    "event": "2016-05-11",
+    "lastScore": 0.00949248701737492,
+    "lastScoredOn": "2015-11-11",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1326428,
+    "name": "ROAN RESOURCES, INC.",
+    "event": "2016-05-11",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-03-16",
+    "monthsWarning": 1.839685,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1549756,
+    "name": "LinnCo, LLC",
+    "event": "2016-05-11",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-03-16",
+    "monthsWarning": 1.839685,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 844985,
+    "name": "POSITRON     CORPORATION",
+    "event": "2016-05-10",
+    "lastScore": 0.027137086857562023,
+    "lastScoredOn": "2015-11-24",
+    "monthsWarning": 13.304862,
+    "monthsWarningZ": 13.304862
+   },
+   {
+    "cik": 1346980,
+    "name": "CHAPARRAL ENERGY, INC.",
+    "event": "2016-05-09",
+    "lastScore": 1.0,
+    "lastScoredOn": "2016-03-31",
+    "monthsWarning": 8.869908,
+    "monthsWarningZ": 8.869908
+   },
+   {
+    "cik": 1168213,
+    "name": "AEROPOSTALE INC",
+    "event": "2016-05-06",
+    "lastScore": 0.057662011015456566,
+    "lastScoredOn": "2015-12-08",
+    "monthsWarning": 13.206307,
+    "monthsWarningZ": 13.206307
+   },
+   {
+    "cik": 1586300,
+    "name": "CHC Group Ltd.",
+    "event": "2016-05-05",
+    "lastScore": 0.1135179460846449,
+    "lastScoredOn": "2016-03-05",
+    "monthsWarning": 13.600526,
+    "monthsWarningZ": 13.600526
+   },
+   {
+    "cik": 1555492,
+    "name": "Fairway Group Holdings Corp",
+    "event": "2016-05-04",
+    "lastScore": 0.04318229411939849,
+    "lastScoredOn": "2016-02-06",
+    "monthsWarning": 14.881735,
+    "monthsWarningZ": 14.881735
+   },
+   {
+    "cik": 1022646,
+    "name": "ULTRA PETROLEUM CORP.",
+    "event": "2016-05-03",
+    "lastScore": 0.32703912280258324,
+    "lastScoredOn": "2016-04-30",
+    "monthsWarning": 2.069645,
+    "monthsWarningZ": 14.224704
+   },
+   {
+    "cik": 1338095,
+    "name": "NephroGenex, Inc.",
+    "event": "2016-05-02",
+    "lastScore": 0.005800766691788644,
+    "lastScoredOn": "2016-03-30",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.272011
+   },
+   {
+    "cik": 1385228,
+    "name": "DNIB UNWIND, INC.",
+    "event": "2016-05-02",
+    "lastScore": 0.01541247597206555,
+    "lastScoredOn": "2016-03-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.69908
+   },
+   {
+    "cik": 1533924,
+    "name": "AMPLIFY ENERGY CORP.",
+    "event": "2016-05-02",
+    "lastScore": 1.0,
+    "lastScoredOn": "2016-03-31",
+    "monthsWarning": 8.837057,
+    "monthsWarningZ": 13.534823
+   },
+   {
+    "cik": 945436,
+    "name": "SUNEDISON, INC.",
+    "event": "2016-04-27",
+    "lastScore": 0.011033390478979966,
+    "lastScoredOn": "2015-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.830486
+   },
+   {
+    "cik": 943861,
+    "name": "GOODRICH PETROLEUM CORPORATION",
+    "event": "2016-04-15",
+    "lastScore": 0.32703912280258324,
+    "lastScoredOn": "2016-03-31",
+    "monthsWarning": 13.436268,
+    "monthsWarningZ": 13.436268
+   },
+   {
+    "cik": 1343719,
+    "name": "ENERGY XXI LTD",
+    "event": "2016-04-14",
+    "lastScore": 0.11511391241095015,
+    "lastScoredOn": "2016-02-17",
+    "monthsWarning": 14.093298,
+    "monthsWarningZ": 14.093298
+   },
+   {
+    "cik": 1346526,
+    "name": "ESP RESOURCES, INC.",
+    "event": "2016-04-14",
+    "lastScore": 0.03387081338137818,
+    "lastScoredOn": "2015-11-19",
+    "monthsWarning": 14.914586,
+    "monthsWarningZ": 14.914586
+   },
+   {
+    "cik": 1064728,
+    "name": "PEABODY ENERGY CORP",
+    "event": "2016-04-13",
+    "lastScore": 0.8397186316879957,
+    "lastScoredOn": "2016-03-17",
+    "monthsWarning": 13.534823,
+    "monthsWarningZ": 13.534823
+   },
+   {
+    "cik": 874841,
+    "name": "PACIFIC SUNWEAR OF CALIFORNIA INC",
+    "event": "2016-04-08",
+    "lastScore": 0.04091443886758876,
+    "lastScoredOn": "2015-12-09",
+    "monthsWarning": 12.417871,
+    "monthsWarningZ": 12.417871
+   },
+   {
+    "cik": 1129048,
+    "name": "WeedHire International, Inc.",
+    "event": "2016-04-08",
+    "lastScore": 0.0033263551777898566,
+    "lastScoredOn": "2015-05-16",
+    "monthsWarning": null,
+    "monthsWarningZ": 13.534823
+   },
+   {
+    "cik": 1473061,
+    "name": "PostRock Energy Corp",
+    "event": "2016-04-01",
+    "lastScore": 0.22672513901899455,
+    "lastScoredOn": "2015-11-13",
+    "monthsWarning": 12.023653,
+    "monthsWarningZ": 12.023653
+   },
+   {
+    "cik": 1422109,
+    "name": "Blue Earth, Inc.",
+    "event": "2016-03-24",
+    "lastScore": 0.033259422660515105,
+    "lastScoredOn": "2016-02-11",
+    "monthsWarning": 1.379763,
+    "monthsWarningZ": 10.413929
+   },
+   {
+    "cik": 1588242,
+    "name": "Denver Parent Corporation",
+    "event": "2016-03-24",
+    "lastScore": 0.053095736482156076,
+    "lastScoredOn": "2015-11-13",
+    "monthsWarning": 11.268068,
+    "monthsWarningZ": 11.268068
+   },
+   {
+    "cik": 1166380,
+    "name": "QUANTUM FUEL SYSTEMS TECHNOLOGIES WORLDWIDE, INC.",
+    "event": "2016-03-23",
+    "lastScore": 0.010123895134231469,
+    "lastScoredOn": "2015-11-17",
+    "monthsWarning": null,
+    "monthsWarningZ": 12.220762
+   },
+   {
+    "cik": 1283843,
+    "name": "Emerald Oil, Inc.",
+    "event": "2016-03-23",
+    "lastScore": 0.7321129003673297,
+    "lastScoredOn": "2015-11-07",
+    "monthsWarning": 7.555848,
+    "monthsWarningZ": 12.417871
+   },
+   {
+    "cik": 1086303,
+    "name": "Hongchang International Co., Ltd",
+    "event": "2016-03-07",
+    "lastScore": 0.001040447981518813,
+    "lastScoredOn": "2015-11-17",
+    "monthsWarning": null,
+    "monthsWarningZ": 11.202365
+   },
+   {
+    "cik": 1410056,
+    "name": "GreenHunter Resources, Inc.",
+    "event": "2016-03-04",
+    "lastScore": 0.06525046527948096,
+    "lastScoredOn": "2015-11-17",
+    "monthsWarning": 10.611038,
+    "monthsWarningZ": 10.611038
+   },
+   {
+    "cik": 1582054,
+    "name": "MILLENNIUM HEALTHCARE INC.",
+    "event": "2016-03-01",
+    "lastScore": 0.0602666056779312,
+    "lastScoredOn": "2015-12-01",
+    "monthsWarning": 3.219448,
+    "monthsWarningZ": 13.666229
+   },
+   {
+    "cik": 1159154,
+    "name": "REPUBLIC AIRWAYS HOLDINGS INC",
+    "event": "2016-02-26",
+    "lastScore": 0.00512214187406431,
+    "lastScoredOn": "2015-11-06",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1594590,
+    "name": "Paragon Offshore plc",
+    "event": "2016-02-16",
+    "lastScore": 0.34943380235542465,
+    "lastScoredOn": "2015-11-10",
+    "monthsWarning": 11.136662,
+    "monthsWarningZ": 11.136662
+   },
+   {
+    "cik": 1553588,
+    "name": "SFX Entertainment, INC",
+    "event": "2016-02-05",
+    "lastScore": 0.10469517945698559,
+    "lastScoredOn": "2015-11-10",
+    "monthsWarning": 10.676741,
+    "monthsWarningZ": 10.676741
+   },
+   {
+    "cik": 1568832,
+    "name": "RCS Capital Corp",
+    "event": "2016-02-04",
+    "lastScore": 0.0010360085423051543,
+    "lastScoredOn": "2015-11-17",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 812906,
+    "name": "HANCOCK FABRICS INC",
+    "event": "2016-02-02",
+    "lastScore": 0.06934613828421778,
+    "lastScoredOn": "2015-12-22",
+    "monthsWarning": 9.067017,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1385544,
+    "name": "HORSEHEAD HOLDING CORP",
+    "event": "2016-02-02",
+    "lastScore": 0.005886707636587843,
+    "lastScoredOn": "2015-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 2.759527
+   },
+   {
+    "cik": 919013,
+    "name": "WAVE SYSTEMS CORP",
+    "event": "2016-02-01",
+    "lastScore": 0.01072883272872299,
+    "lastScoredOn": "2015-11-24",
+    "monthsWarning": null,
+    "monthsWarningZ": 10.775296
+   },
+   {
+    "cik": 1091596,
+    "name": "NUO THERAPEUTICS, INC.",
+    "event": "2016-02-01",
+    "lastScore": 0.0128550060524263,
+    "lastScoredOn": "2015-11-14",
+    "monthsWarning": 2.595269,
+    "monthsWarningZ": 10.052562
+   },
+   {
+    "cik": 1421182,
+    "name": "Verso Corporation",
+    "event": "2016-01-26",
+    "lastScore": 0.14339389489508958,
+    "lastScoredOn": "2015-11-17",
+    "monthsWarning": 10.545335,
+    "monthsWarningZ": 10.545335
+   },
+   {
+    "cik": 1109153,
+    "name": "TRISTAR WELLNESS SOLUTIONS, INC.",
+    "event": "2016-01-15",
+    "lastScore": 0.03698428415506292,
+    "lastScoredOn": "2015-11-17",
+    "monthsWarning": 9.001314,
+    "monthsWarningZ": 9.001314
+   },
+   {
+    "cik": 1037676,
+    "name": "Arch Resources, Inc.",
+    "event": "2016-01-11",
+    "lastScore": 0.4105039917218988,
+    "lastScoredOn": "2015-11-10",
+    "monthsWarning": 10.413929,
+    "monthsWarningZ": 10.413929
+   },
+   {
+    "cik": 351817,
+    "name": "SILVERBOW RESOURCES, INC.",
+    "event": "2016-01-04",
+    "lastScore": 0.036528515181413215,
+    "lastScoredOn": "2015-11-06",
+    "monthsWarning": 7.917214,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1293310,
+    "name": "HUMANIGEN, INC",
+    "event": "2015-12-30",
+    "lastScore": 0.008797678484187934,
+    "lastScoredOn": "2015-08-11",
+    "monthsWarning": null,
+    "monthsWarningZ": 9.461235
+   },
+   {
+    "cik": 1335190,
+    "name": "Magnum Hunter Resources Corp",
+    "event": "2015-12-15",
+    "lastScore": 0.38360710281038346,
+    "lastScoredOn": "2015-11-10",
+    "monthsWarning": 9.428384,
+    "monthsWarningZ": 9.428384
+   },
+   {
+    "cik": 319156,
+    "name": "CUBIC ENERGY INC",
+    "event": "2015-12-14",
+    "lastScore": 0.015594758534086943,
+    "lastScoredOn": "2015-05-16",
+    "monthsWarning": 9.822602,
+    "monthsWarningZ": 9.822602
+   },
+   {
+    "cik": 1023291,
+    "name": "Energy Future Holdings Corp /TX/",
+    "event": "2015-12-11",
+    "lastScore": 0.030636064761955403,
+    "lastScoredOn": "2015-11-04",
+    "monthsWarning": 8.344284,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1445049,
+    "name": "Energy Future Competitive Holdings Co LLC",
+    "event": "2015-12-11",
+    "lastScore": 0.018375713333643035,
+    "lastScoredOn": "2015-11-04",
+    "monthsWarning": 7.128778,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1445146,
+    "name": "Energy Future Intermediate Holding CO LLC",
+    "event": "2015-12-11",
+    "lastScore": 0.020832940844434166,
+    "lastScoredOn": "2015-11-04",
+    "monthsWarning": 8.344284,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 753048,
+    "name": "AXION INTERNATIONAL HOLDINGS, INC.",
+    "event": "2015-12-08",
+    "lastScore": 0.4433395486152682,
+    "lastScoredOn": "2015-11-17",
+    "monthsWarning": 8.245729,
+    "monthsWarningZ": 8.245729
+   },
+   {
+    "cik": 1419428,
+    "name": "Vantage Drilling CO",
+    "event": "2015-12-03",
+    "lastScore": 0.006345893069863448,
+    "lastScoredOn": "2015-11-10",
+    "monthsWarning": null,
+    "monthsWarningZ": 8.90276
+   },
+   {
+    "cik": 29834,
+    "name": "ESCALERA RESOURCES CO.",
+    "event": "2015-11-09",
+    "lastScore": 0.05945172512514211,
+    "lastScoredOn": "2015-08-15",
+    "monthsWarning": 5.814717,
+    "monthsWarningZ": 6.800263
+   },
+   {
+    "cik": 1336545,
+    "name": "American Apparel, Inc",
+    "event": "2015-10-08",
+    "lastScore": 0.0970698352498654,
+    "lastScoredOn": "2015-08-18",
+    "monthsWarning": 6.438896,
+    "monthsWarningZ": 6.438896
+   },
+   {
+    "cik": 785968,
+    "name": "MILLER ENERGY RESOURCES, INC.",
+    "event": "2015-10-06",
+    "lastScore": 0.325404769419275,
+    "lastScoredOn": "2015-03-13",
+    "monthsWarning": 6.800263,
+    "monthsWarningZ": 6.800263
+   },
+   {
+    "cik": 728249,
+    "name": "INTERPHASE CORP",
+    "event": "2015-10-01",
+    "lastScore": 0.0016222498433126479,
+    "lastScoredOn": "2015-08-07",
+    "monthsWarning": null,
+    "monthsWarningZ": 6.176084
+   },
+   {
+    "cik": 1400000,
+    "name": "ABAKAN, INC",
+    "event": "2015-09-25",
+    "lastScore": 0.34924915943527063,
+    "lastScoredOn": "2015-09-16",
+    "monthsWarning": 8.311432,
+    "monthsWarningZ": 0.295664
+   },
+   {
+    "cik": 1085254,
+    "name": "HII Technologies, Inc.",
+    "event": "2015-09-21",
+    "lastScore": 0.04832896570209155,
+    "lastScoredOn": "2015-05-21",
+    "monthsWarning": 5.157687,
+    "monthsWarningZ": 5.157687
+   },
+   {
+    "cik": 1282543,
+    "name": "AFFIRMATIVE INSURANCE HOLDINGS INC",
+    "event": "2015-09-17",
+    "lastScore": 0.07235325312132258,
+    "lastScoredOn": "2015-05-16",
+    "monthsWarning": 5.551905,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 805305,
+    "name": "QUIKSILVER INC",
+    "event": "2015-09-11",
+    "lastScore": 0.41332606988790216,
+    "lastScoredOn": "2015-06-10",
+    "monthsWarning": 5.814717,
+    "monthsWarningZ": 5.814717
+   },
+   {
+    "cik": 1475899,
+    "name": "Sable Natural Resources Corp",
+    "event": "2015-09-03",
+    "lastScore": 0.10059630132813516,
+    "lastScoredOn": "2015-08-15",
+    "monthsWarning": 5.059133,
+    "monthsWarningZ": 5.059133
+   },
+   {
+    "cik": 1081074,
+    "name": "Armada Oil, Inc.",
+    "event": "2015-08-31",
+    "lastScore": 0.015389298741207664,
+    "lastScoredOn": "2015-05-16",
+    "monthsWarning": 4.99343,
+    "monthsWarningZ": 4.99343
+   },
+   {
+    "cik": 851726,
+    "name": "SANTA FE GOLD CORPORATION",
+    "event": "2015-08-28",
+    "lastScore": 0.3253185832924356,
+    "lastScoredOn": "2015-05-21",
+    "monthsWarning": 6.044678,
+    "monthsWarningZ": 6.044678
+   },
+   {
+    "cik": 1452476,
+    "name": "Sebring Software, Inc.",
+    "event": "2015-08-27",
+    "lastScore": 0.24746785222218662,
+    "lastScoredOn": "2015-05-15",
+    "monthsWarning": 4.369251,
+    "monthsWarningZ": 4.369251
+   },
+   {
+    "cik": 1330849,
+    "name": "HERCULES OFFSHORE, INC.",
+    "event": "2015-08-17",
+    "lastScore": 0.18072496829144188,
+    "lastScoredOn": "2015-07-24",
+    "monthsWarning": 5.486202,
+    "monthsWarningZ": 5.486202
+   },
+   {
+    "cik": 1124608,
+    "name": "RESPONSE GENETICS INC",
+    "event": "2015-08-11",
+    "lastScore": 0.20742737633542327,
+    "lastScoredOn": "2015-05-16",
+    "monthsWarning": 4.336399,
+    "monthsWarningZ": 4.336399
+   },
+   {
+    "cik": 1301063,
+    "name": "Alpha Natural Resources, Inc.",
+    "event": "2015-08-03",
+    "lastScore": 0.02163969435216148,
+    "lastScoredOn": "2015-05-07",
+    "monthsWarning": 5.157687,
+    "monthsWarningZ": 5.157687
+   },
+   {
+    "cik": 38079,
+    "name": "SABINE OIL & GAS CORP",
+    "event": "2015-07-15",
+    "lastScore": 0.007237282941829133,
+    "lastScoredOn": "2015-05-12",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 837173,
+    "name": "Walter Energy, Inc.",
+    "event": "2015-07-15",
+    "lastScore": 0.032390483206810164,
+    "lastScoredOn": "2015-05-06",
+    "monthsWarning": 4.533509,
+    "monthsWarningZ": 4.533509
+   },
+   {
+    "cik": 1489137,
+    "name": "Molycorp, Inc.",
+    "event": "2015-06-30",
+    "lastScore": 0.0842469044532248,
+    "lastScoredOn": "2015-05-08",
+    "monthsWarning": 3.449409,
+    "monthsWarningZ": 3.449409
+   },
+   {
+    "cik": 1259550,
+    "name": "LOCAL Corp",
+    "event": "2015-06-24",
+    "lastScore": 0.05989783909801839,
+    "lastScoredOn": "2015-05-16",
+    "monthsWarning": 2.890933,
+    "monthsWarningZ": 2.890933
+   },
+   {
+    "cik": 1319009,
+    "name": "Midway Gold Corp",
+    "event": "2015-06-22",
+    "lastScore": 0.002220781009055412,
+    "lastScoredOn": "2015-05-12",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1096339,
+    "name": "SARATOGA RESOURCES INC /TX",
+    "event": "2015-06-19",
+    "lastScore": 0.36178450120775824,
+    "lastScoredOn": "2015-05-21",
+    "monthsWarning": 2.102497,
+    "monthsWarningZ": 2.102497
+   },
+   {
+    "cik": 1494214,
+    "name": "InterCore, Inc.",
+    "event": "2015-05-13",
+    "lastScore": 0.0007092692160184286,
+    "lastScoredOn": "2015-01-22",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   },
+   {
+    "cik": 1282613,
+    "name": "AMERICAN EAGLE ENERGY Corp",
+    "event": "2015-05-12",
+    "lastScore": 0.6846846145006258,
+    "lastScoredOn": "2015-05-09",
+    "monthsWarning": 1.346912,
+    "monthsWarningZ": 1.346912
+   },
+   {
+    "cik": 49534,
+    "name": "LIFE PARTNERS HOLDINGS INC",
+    "event": "2015-01-26",
+    "lastScore": 0.0008753936580380933,
+    "lastScoredOn": "2015-01-15",
+    "monthsWarning": null,
+    "monthsWarningZ": null
+   }
+  ]
+ },
+ "importance": {
+  "log_assets": 0.25086437830827696,
+  "wc_ta": 0.09352804759163677,
+  "re_ta": 0.029247847609257385,
+  "ebit_ta": 0.07479284018774628,
+  "eq_tl": 0.040342788017266776,
+  "tl_ta": 0.134509530742214,
+  "cash_ta": 0.05634637992605308,
+  "ni_ta": 0.19559624705306766,
+  "ocf_tl": 0.021619608099827305,
+  "int_cov": 0.021396920368564887,
+  "rev_growth": 0.0398316043421973,
+  "cash_change": 0.016457095233433684,
+  "filing_lag": 0.025466712520457773
+ }
+}

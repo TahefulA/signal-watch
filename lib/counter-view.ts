@@ -1,5 +1,4 @@
-import type { CaseTheme, DevilsAdvocate, PatternCategory, PatternResult, PeerComparison, Report } from "@/types";
-import { parseDisplayMoney } from "./node-visuals";
+import type { CaseTheme, DevilsAdvocate, PatternCategory, PatternResult, Report } from "@/types";
 
 /**
  * What the Devil's Advocate flags, read from a saved counter-argument. Every
@@ -30,45 +29,6 @@ const STANCE_WORD: Record<string, string> = { STABLE: "Stable", CAUTION: "Cautio
 
 export function stanceWord(devil: DevilsAdvocate | null | undefined): string | null {
   return devil?.memoStance ? STANCE_WORD[devil.memoStance] : null;
-}
-
-/** For the comparison rows where a lower or higher figure is weaker credit, which way is weaker. */
-const WEAKER: Record<string, "higher" | "lower"> = {
-  "Total debt / EBITDA": "higher",
-  "EBITDA / interest": "lower",
-  "Cash + revolver availability": "lower",
-  "Revenue concentration": "higher",
-};
-
-function valueOf(display: string): number | null {
-  const multiple = display.match(/^(-?\d+(?:\.\d+)?)x$/);
-  if (multiple) return Number(multiple[1]);
-  const percent = display.match(/^(-?\d+(?:\.\d+)?)%$/);
-  if (percent) return Number(percent[1]);
-  return parseDisplayMoney(display);
-}
-
-/** Rows where the subject company is the weakest of the companies compared, with every company's figure. */
-export function peerConcerns(comparison: PeerComparison | null): string[] {
-  if (!comparison) return [];
-  const subject = comparison.companies[0]?.ticker;
-  const out: string[] = [];
-  for (const row of comparison.metrics) {
-    const way = WEAKER[row.label];
-    if (!way || !subject) continue;
-    const known = row.values.map((v) => ({ ...v, n: valueOf(v.display) })).filter((v): v is typeof v & { n: number } => v.n !== null);
-    if (known.length < 2 || !known.some((v) => v.ticker === subject)) continue;
-    const worst = known.reduce((a, b) => (way === "higher" ? (b.n > a.n ? b : a) : b.n < a.n ? b : a));
-    if (worst.ticker !== subject) continue;
-    const others = known
-      .filter((v) => v.ticker !== subject)
-      .map((v) => `${v.ticker} ${v.display}`)
-      .join(", ");
-    out.push(
-      `${subject} has the ${way === "higher" ? "highest" : "lowest"} ${row.label.toLowerCase()} of the ${known.length} companies with a figure: ${worst.display} against ${others}.`,
-    );
-  }
-  return out;
 }
 
 export interface CounterItemData {

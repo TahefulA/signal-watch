@@ -11,7 +11,7 @@ export default async function BriefPage({ params }: { params: { id: string } }) 
   return (
     <main className="mx-auto max-w-4xl px-6 py-8 print:max-w-none print:px-0 print:py-0">
       <div className="mb-6 flex items-center justify-between gap-4 print:hidden">
-        <a href={`/?report=${report.id}`} className="text-sm text-zinc-400 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-100">
+        <a href={`/company?report=${report.id}`} className="text-sm text-zinc-400 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-100">
           Back to the map
         </a>
         <PrintButton />

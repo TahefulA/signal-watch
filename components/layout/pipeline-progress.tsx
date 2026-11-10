@@ -8,6 +8,7 @@ export const PIPELINE_STEPS = [
   "Extracting entities and debt...",
   "Verifying quotes...",
   "Writing the signal summary and memo...",
+  "Scoring distress, filing changes and rate risk...",
 ];
 
 interface PipelineProgressProps {

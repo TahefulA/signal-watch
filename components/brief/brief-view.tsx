@@ -116,41 +116,9 @@ export function BriefView({ brief, report }: BriefViewProps) {
         )}
       </section>
 
-      <section>
-        <Heading>Comparables</Heading>
-        {brief.comparables ? (
-          <table className="mt-3 w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-zinc-800 text-xs text-zinc-500 print:border-zinc-300">
-                <th className="py-1.5 pr-4 font-medium">Metric</th>
-                {brief.comparables.tickers.map((t) => (
-                  <th key={t} className="py-1.5 pr-4 font-mono font-medium">
-                    {t}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {brief.comparables.rows.map((row) => (
-                <tr key={row.label} className="border-b border-zinc-800/60 print:border-zinc-200">
-                  <td className="py-1.5 pr-4 text-zinc-400 print:text-zinc-600">{row.label}</td>
-                  {row.values.map((v) => (
-                    <td key={v.ticker} className="py-1.5 pr-4 font-mono text-zinc-100 print:text-black">
-                      {v.display}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="mt-3 text-sm text-zinc-500">No peers were compared. Run a peer comparison, then prepare the brief again.</p>
-        )}
-      </section>
-
       <p className="border-t border-zinc-800 pt-3 text-[11px] leading-relaxed text-zinc-500 print:border-zinc-300">
         The three things to know and the questions are drafted by Gemini from this report; any sentence with a figure not in the report was removed.
-        The numbers, risks and comparables are taken directly from the report.
+        The numbers and risks are taken directly from the report.
       </p>
     </article>
   );

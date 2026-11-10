@@ -49,11 +49,13 @@ export interface GenerateOptions {
   thinking?: "low" | "high";
   /** Per-call timeout for long outputs; defaults to GEMINI_TIMEOUT_MS. */
   timeoutMs?: number;
+  /** Short turns where latency matters most: start on the fast model, fall back to the main one. */
+  fast?: boolean;
 }
 
 export async function generateJson(system: string, prompt: string, schema: Schema, options: GenerateOptions = {}): Promise<unknown> {
   let lastError: GeminiError | null = null;
-  const attempts = [MODEL, MODEL, FALLBACK_MODEL, FALLBACK_MODEL];
+  const attempts = options.fast ? [FALLBACK_MODEL, FALLBACK_MODEL, MODEL] : [MODEL, MODEL, FALLBACK_MODEL, FALLBACK_MODEL];
   for (let i = 0; i < attempts.length; i++) {
     try {
       return await callModel(attempts[i], system, prompt, schema, options);

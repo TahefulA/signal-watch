@@ -1,4 +1,4 @@
-import type { BriefItem, BriefRisk, BriefSource, Citation, Entity, MeetingBrief, PeerComparison, Report } from "@/types";
+import type { BriefItem, BriefRisk, BriefSource, Citation, Entity, MeetingBrief, Report } from "@/types";
 import { daysBetween } from "./dates";
 import { type Schema, extractFigures, generateJson } from "./gemini";
 import { unsupportedRanking } from "./graph";
@@ -8,7 +8,7 @@ import { dropUnsupported, entityFacts, marketFacts, toSpans } from "./memo";
  * Meeting preparation: a one-page brief drawn from a saved report. Gemini writes
  * the three things to know and the questions; every figure it uses must be in
  * the facts it was given, and every line carries the quotes of the entities it names.
- * The numbers, risks and comparables are assembled directly, without the model.
+ * The numbers and risks are assembled directly, without the model.
  */
 
 const SYSTEM = `You are preparing a credit analyst for a meeting with a company's management.
@@ -64,13 +64,6 @@ export function changeFacts(report: Report): string {
   if (!ch) return "Changes since the previous quarter: not compared.";
   const lines = ch.changes.filter((c) => !c.judgment).map((c) => `- ${c.name}: ${c.detail}${c.before || c.after ? ` (${c.before ?? "none"} to ${c.after ?? "none"})` : ""}`);
   return `Changes since the previous quarter's filings:\n${lines.join("\n") || "- none"}`;
-}
-
-function peerFacts(comparison: PeerComparison | null): string {
-  if (!comparison) return "Peers: not compared.";
-  const shared = comparison.shared.map((s) => `- ${s.label}: ${s.members.map((m) => m.ticker).join(" and ")}`).join("\n");
-  const rows = comparison.metrics.map((r) => `- ${r.label}: ${r.values.map((v) => `${v.ticker} ${v.display}`).join("; ")}`).join("\n");
-  return `Peers compared: ${comparison.companies.map((c) => c.ticker).join(", ")}\nShared:\n${shared || "- none"}\nMetrics:\n${rows}`;
 }
 
 /** Gaps the questions should come from, found directly in the report. */
@@ -146,13 +139,12 @@ function fallbackItems(report: Report): BriefItem[] {
     });
 }
 
-export async function generateBrief(report: Report, comparison: PeerComparison | null, today: string): Promise<MeetingBrief> {
+export async function generateBrief(report: Report, today: string): Promise<MeetingBrief> {
   const facts = [
     `Company: ${report.graph.company.name} (${report.graph.company.ticker})`,
     `Entities:\n${entityFacts(report.graph.nodes)}`,
     capitalFacts(report),
     changeFacts(report),
-    peerFacts(comparison),
     marketFacts(report.market, report.graph.company.ticker),
     gapFacts(report),
   ].join("\n\n");
@@ -187,15 +179,6 @@ export async function generateBrief(report: Report, comparison: PeerComparison |
   }
   if (mustKnow.length === 0) mustKnow = fallbackItems(report);
 
-  const comparables = comparison
-    ? {
-        tickers: comparison.companies.map((c) => c.ticker),
-        rows: comparison.metrics.filter((r) =>
-          ["Total debt", "Net debt", "EBITDA, last 12 months", "Total debt / EBITDA", "EBITDA / interest", "Cash + revolver availability", "Revenue concentration"].includes(r.label),
-        ),
-      }
-    : null;
-
   return {
     reportId: report.id,
     generatedAt: new Date().toISOString(),
@@ -203,6 +186,5 @@ export async function generateBrief(report: Report, comparison: PeerComparison |
     numbers: numbers(report, today),
     questions,
     risks: risksToWatch(report),
-    comparables,
   };
 }

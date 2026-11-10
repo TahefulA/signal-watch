@@ -134,7 +134,7 @@ export async function generatePrivateCase(input: PrivateCaseInput, today: string
   const { rows, dropped, events } = await extractEvidence(input, today);
 
   const exhibits = Object.fromEntries(
-    (["earnings", "liquidity", "debt", "counterparties", "changes", "behavior", "peers", "market"] as CaseTheme[]).map((theme) => {
+    (["earnings", "liquidity", "debt", "counterparties", "changes", "behavior", "market"] as CaseTheme[]).map((theme) => {
       const mine = rows.filter((x) => x.theme === theme).map((x) => x.row);
       const exhibit: Exhibit = {
         title: `Figures from the documents: ${THEME_LABELS[theme].toLowerCase()}`,
@@ -212,7 +212,7 @@ export async function generatePrivateCase(input: PrivateCaseInput, today: string
     today,
     privateMode: true,
   };
-  const devil = await generateDevilsAdvocate(report, ctx, [], { evidence, privateMode: true });
+  const devil = await generateDevilsAdvocate(report, ctx, { evidence, privateMode: true });
   const patterns = devil.patterns.length;
   const fired = devil.patterns.filter((p) => p.status === "fired").length;
   const clear = devil.patterns.filter((p) => p.status === "clear").length;

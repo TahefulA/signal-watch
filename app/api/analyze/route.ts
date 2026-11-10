@@ -1,6 +1,7 @@
 import type { AnalyzeEvent } from "@/types";
 import { AnalyzeError, analyzeTicker } from "@/lib/analyze";
-import { findRecentReport, saveReport, tigerEnabled } from "@/lib/tiger";
+import { ensureForecast } from "@/lib/forecast-report";
+import { findRecentReport, saveReport, tigerEnabled, updateReport } from "@/lib/tiger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,9 +41,19 @@ export async function POST(request: Request): Promise<Response> {
             return;
           }
         }
-        const report = await analyzeTicker(ticker, (step) => send({ type: "step", step }));
+        let report = await analyzeTicker(ticker, (step) => send({ type: "step", step }));
         if (tigerEnabled()) {
           await saveReport(report).catch((error: unknown) => console.error("Tiger Data save failed", error));
+        }
+        // The forecast layer is scored after the save, so its score history can point at the report.
+        send({ type: "step", step: "Scoring distress, filing changes and rate risk..." });
+        const forecast = await ensureForecast(report).catch((error: unknown) => {
+          console.error("Forecast failed", error);
+          return null;
+        });
+        if (forecast?.changed) {
+          report = forecast.report;
+          if (tigerEnabled()) await updateReport(report).catch((error: unknown) => console.error("Tiger Data update failed", error));
         }
         send({ type: "result", report, cached: false });
       } catch (error) {

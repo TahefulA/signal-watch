@@ -207,7 +207,7 @@ export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick
               : notes.idle
             : busy
             ? "Analyzing... Reading the filings, Form 4s and XBRL facts, building the quarter-by-quarter tables and checking 36 contradiction patterns. The full case takes about a minute."
-            : "The case against the memo is written from the memo, the map, the quarterly figures, the debt, changes, insider trades, 8-Ks, peers, market data, the filing text and 36 contradiction patterns. Every figure must come from those sources."}
+            : "The case against the memo is written from the memo, the map, the quarterly figures, the debt, changes, insider trades, 8-Ks, market data, the filing text and 36 contradiction patterns. Every figure must come from those sources."}
         </p>
       ) : devil.sections ? (
         <StructuredSummary devil={devil} onEntityClick={onEntityClick} />

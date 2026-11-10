@@ -1,19 +1,18 @@
 // Writes the Devil's Advocate case for a saved report without saving it, and prints a summary:
-// npx tsx --env-file=.env.local scripts/run-case.ts <report id> [peer report id ...]
+// npx tsx --env-file=.env.local scripts/run-case.ts <report id>
 import { writeFileSync } from "node:fs";
 import { generateDevilsAdvocate } from "../lib/devils-advocate";
 import { loadPatternContext } from "../lib/devils-advocate-patterns";
 import { findReportById } from "../lib/tiger";
 
 async function main() {
-  const [id, ...peerIds] = process.argv.slice(2);
+  const [id] = process.argv.slice(2);
   const report = await findReportById(id);
   if (!report) throw new Error(`No report ${id}`);
-  const peers = (await Promise.all(peerIds.map((p) => findReportById(p)))).filter((p) => p !== null);
   const started = Date.now();
   const ctx = await loadPatternContext(report, new Date().toISOString().slice(0, 10));
   const loaded = Date.now();
-  const devil = await generateDevilsAdvocate(report, ctx, peers);
+  const devil = await generateDevilsAdvocate(report, ctx);
   console.log(`${report.graph.company.ticker}: context ${loaded - started} ms, case ${Date.now() - loaded} ms, ${devil.removed} sentences removed`);
   console.log(JSON.stringify(devil.period));
   console.log(`\nPRIMER: ${devil.primer}\n\nBOTTOM LINE: ${devil.bottomLine?.map((s) => s.text).join("")}\n`);

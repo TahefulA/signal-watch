@@ -130,8 +130,11 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
             <Presentation className="h-3.5 w-3.5" aria-hidden /> Tour
           </button>
         ) : null}
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100" title="Your watchlist: which companies need you today">
-          Watchlist
+        <Link href="/proof" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="The backtest: did the forecast warn before real bankruptcies?">
+          Proof
+        </Link>
+        <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100" title="The morning radar: which borrowers need you today">
+          Radar
           {attention > 0 ? (
             <span className="rounded-xs bg-red-600 px-1.5 py-px font-mono text-[10px] font-semibold text-white" aria-label={`${attention} need attention`}>
               {attention}

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { CapitalMetric, Report, Timeline } from "@/types";
-import { RatingGauge, RatioBar, multipleOf, useHistory } from "@/components/capital/financial-metrics-panel";
+import { RatingGauge, RatioBar, useHistory } from "@/components/capital/financial-metrics-panel";
 import { compactMoney } from "@/lib/node-visuals";
 import { firedPatterns, itemsFromPatterns, sectionItems } from "@/lib/counter-view";
 import { CounterArgumentsCard } from "./counter-arguments-card";
@@ -62,13 +62,11 @@ function Row({ metric }: { metric: CapitalMetric | undefined }) {
 /** The numbers: earnings, balance sheet, credit ratios against reference bands, rating and liquidity. */
 export function FinancialTab({
   report,
-  peers,
   timeline,
   range,
   devilBusy = false,
 }: {
   report: Report;
-  peers: Report[];
   timeline: Timeline | null;
   range: TimeRange;
   devilBusy?: boolean;
@@ -85,10 +83,6 @@ export function FinancialTab({
     return <p className="text-sm text-zinc-500">This report predates the financial snapshot. Read the filings again to add it.</p>;
   }
   const m = (k: Key) => capital.metrics.find((x) => x.key === k);
-  const peerValues = (key: Key) =>
-    peers
-      .map((p) => ({ ticker: p.graph.company.ticker, value: multipleOf(p.capital?.metrics.find((x) => x.key === key)?.display ?? "") }))
-      .filter((p): p is { ticker: string; value: number } => p.value !== null);
 
   // Charts need a run of quarters: a window shorter than four falls back to the last eight.
   const windowed = inWindow(history?.revenue ?? []).length >= 4;
@@ -216,11 +210,11 @@ export function FinancialTab({
       <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
         {(["debt_to_ebitda", "net_debt_to_ebitda", "interest_coverage", "current_ratio"] as Key[]).map((k) => {
           const metric = m(k);
-          return metric ? <RatioBar key={k} metric={metric} peers={peerValues(k)} average={k === "current_ratio" ? ratioAvg : null} /> : null;
+          return metric ? <RatioBar key={k} metric={metric} peers={[]} average={k === "current_ratio" ? ratioAvg : null} /> : null;
         })}
       </div>
       <p className="mt-3 text-[11px] text-zinc-500">
-        Bands are common leveraged-credit rules of thumb, for orientation only. White dot: this company now. Tick: its average over the window, where the quarterly history exists. Hollow: peers loaded on the Peers tab. n/m: EBITDA is negative.
+        Bands are common leveraged-credit rules of thumb, for orientation only. White dot: this company now. Tick: its average over the window, where the quarterly history exists. n/m: EBITDA is negative.
       </p>
 
       <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">

@@ -10,7 +10,7 @@ import { padCik } from "./edgar";
 
 const USER_AGENT = process.env.SEC_USER_AGENT ?? "SignalWatch/1.0 (contact@signalwatch.xyz)";
 
-interface Fact {
+export interface Fact {
   start?: string;
   end: string;
   val: number;
@@ -36,12 +36,13 @@ export function fiscalPeriodOf(book: FactBook, accession: string): string | null
   return null;
 }
 
-export async function fetchFacts(cik: string): Promise<FactBook> {
+/** Cached copies older than maxAgeMs are fetched again; the dataset builder passes Infinity. */
+export async function fetchFacts(cik: string, maxAgeMs = 12 * 3_600_000): Promise<FactBook> {
   const raw = await cachedFetchText(`https://data.sec.gov/api/xbrl/companyfacts/CIK${padCik(cik)}.json`, {
     headers: { "User-Agent": USER_AGENT },
     throttleKey: "sec",
     minIntervalMs: 125,
-    maxAgeMs: 12 * 3_600_000,
+    maxAgeMs,
     timeoutMs: 20_000,
   });
   const json = JSON.parse(raw) as CompanyFacts;

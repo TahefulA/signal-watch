@@ -38,3 +38,6 @@ next-env.d.ts
 # data pipeline
 .cache/
 .env*
+
+# training data and logs (rebuilt by scripts/build-dataset.ts)
+/data/

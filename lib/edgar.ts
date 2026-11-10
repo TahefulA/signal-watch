@@ -69,7 +69,7 @@ interface IndexJson {
   directory: { item: { name: string; size: string }[] };
 }
 
-async function secFetch(url: string): Promise<string> {
+export async function secFetch(url: string): Promise<string> {
   return cachedFetchText(url, {
     headers: { "User-Agent": USER_AGENT, "Accept-Encoding": "gzip, deflate" },
     throttleKey: "sec",
@@ -425,4 +425,34 @@ export function withoutSafeHarbor(text: string): string {
 /** The primary document's raw HTML, which carries the inline XBRL tags. */
 export async function fetchFilingHtml(filing: FilingRef): Promise<string> {
   return secFetch(filingDocumentUrl(filing));
+}
+
+export interface SearchHit {
+  /** Accession number and file name, "0001104659-24-117961:tm2428023d1_ex4-3.htm". */
+  id: string;
+  fileType: string;
+  form: string;
+  filed: string;
+  description: string;
+}
+
+/** EDGAR full-text search for one company, cached for twelve hours. */
+export async function fullTextSearch(cik: string, query: string, from: string, to: string): Promise<SearchHit[]> {
+  const url = `https://efts.sec.gov/LATEST/search-index?q=${encodeURIComponent(query)}&ciks=${padCik(cik)}&dateRange=custom&startdt=${from}&enddt=${to}`;
+  const body = JSON.parse(await secFetchFresh(url)) as {
+    hits?: { hits?: { _id: string; _source: { file_type?: string; form?: string; file_date?: string; file_description?: string } }[] };
+  };
+  return (body.hits?.hits ?? []).map((h) => ({
+    id: h._id,
+    fileType: h._source.file_type ?? "",
+    form: h._source.form ?? "",
+    filed: h._source.file_date ?? "",
+    description: h._source.file_description ?? "",
+  }));
+}
+
+/** The archive URL of a full-text search hit. */
+export function hitUrl(cik: string, hit: SearchHit): string {
+  const [accession, file] = hit.id.split(":");
+  return `https://www.sec.gov/Archives/edgar/data/${Number(cik)}/${accession.replace(/-/g, "")}/${file}`;
 }

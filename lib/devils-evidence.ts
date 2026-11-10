@@ -18,7 +18,7 @@ import { type FactBook, type SeriesPoint, instantSeries, latestInstantDate, quar
 /**
  * The evidence behind the long Devil's Advocate case, assembled from the data
  * without the model: the reporting period, trend tables by quarter, the debt,
- * the map, changes, insider trades, 8-Ks, peers and market data. The same
+ * the map, changes, insider trades, 8-Ks and market data. The same
  * tables are shown beside each section and sent to Gemini as text, so every
  * figure the case uses can be checked against them.
  */
@@ -114,7 +114,7 @@ function prevOf(series: SeriesPoint[], end: string): number | undefined {
 
 const SEVERITY_ORDER = ["high", "medium", "low", "none"];
 
-export function buildEvidence(report: Report, ctx: PatternContext, peers: Report[], patterns: PatternResult[]): Evidence {
+export function buildEvidence(report: Report, ctx: PatternContext, patterns: PatternResult[]): Evidence {
   const { book, today } = ctx;
   const capital = report.capital ?? null;
   const company = report.graph.company;
@@ -129,7 +129,6 @@ export function buildEvidence(report: Report, ctx: PatternContext, peers: Report
     counterparties: [],
     changes: [],
     behavior: [],
-    peers: [],
     market: [],
   };
   const coverage: CoverageItem[] = [];
@@ -421,25 +420,6 @@ export function buildEvidence(report: Report, ctx: PatternContext, peers: Report
     });
   }
 
-  // ------------------------------------------------------------ peers
-  const peerKeys = ["total_debt", "ebitda", "debt_to_ebitda", "net_debt_to_ebitda", "interest_coverage", "liquidity", "ebitda_margin", "cash"];
-  const others = peers.filter((p) => p.capital && p.graph.company.ticker !== company.ticker);
-  if (others.length && capital) {
-    const all = [report, ...others];
-    exhibits.peers.push({
-      title: "Against the peers",
-      columns: ["Measure", ...all.map((r) => r.graph.company.ticker)],
-      rows: peerKeys
-        .map((key) => {
-          const values = all.map((r) => r.capital?.metrics.find((m) => m.key === key));
-          const labelText = values.find(Boolean)?.label;
-          return labelText ? [labelText, ...values.map((m) => m?.display ?? "Not available")] : null;
-        })
-        .filter((r): r is string[] => r !== null),
-      note: `Each company's figures come from its own latest 10-Q or 10-K: ${all.map((r) => `${r.graph.company.ticker} ${r.capital?.sourceType} ${r.capital?.fiscalPeriod ?? r.capital?.sourceDate}`).join(", ")}.`,
-    });
-  }
-
   // ------------------------------------------------------------ market
   const m = report.market;
   const price = (v: number) => `$${v.toFixed(2)}`;
@@ -547,11 +527,6 @@ export function buildEvidence(report: Report, ctx: PatternContext, peers: Report
       read: insiders !== null,
     },
     { label: "8-K filings", detail: `${ctx.eightKs.length} in the last two years, ${recent8k.length} in the last 12 months`, read: true },
-    {
-      label: "Peers",
-      detail: others.length ? others.map((p) => p.graph.company.ticker).join(", ") : "Not compared; add peers on the Peers tab, then argue again",
-      read: others.length > 0,
-    },
     { label: "Market data", detail: m ? `Close of ${m.priceDate}` : "Not available", read: Boolean(m) },
     {
       label: "Quarter-by-quarter timeline",
@@ -567,7 +542,6 @@ export function buildEvidence(report: Report, ctx: PatternContext, peers: Report
     insiders: insiders?.length ? { label: `Form 4 filings, last 90 days (${insiders.length} trades)`, url: insiders[0].sourceUrl } : { label: "Form 4 filings", url: null },
     eight_k: recent8k[0] ? { label: `8-K filed ${recent8k[0].filed}`, url: recent8k[0].url } : { label: "8-K filings", url: null },
     market: { label: m ? `Market data, close of ${m.priceDate}` : "Market data", url: null },
-    peers: { label: others.length ? `Peer reports: ${others.map((p) => p.graph.company.ticker).join(", ")}` : "Peers", url: null },
     changes: {
       label: changes ? `Changes since filings up to ${changes.baselineAsOf}` : "Changes",
       url: changes?.newFilings[0]?.url ?? null,

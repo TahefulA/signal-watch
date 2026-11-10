@@ -296,7 +296,7 @@ export function FinancialMetricsPanel({ capital, company, peers = [] }: Financia
           <div>
             <dt className="inline text-zinc-300">Ratio bands: </dt>
             <dd className="inline text-zinc-500">
-              Common leveraged-credit rules of thumb, shown for orientation only. Hollow markers are the peers on screen.
+              Common leveraged-credit rules of thumb, shown for orientation only.
             </dd>
           </div>
           <div>
