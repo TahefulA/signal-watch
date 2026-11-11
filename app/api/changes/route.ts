@@ -5,7 +5,7 @@ import { findBaseline, findReportById, saveChanges, saveReport, tigerEnabled } f
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 /**
  * POST { reportId } and receive newline-delimited JSON. Builds (or reuses) a

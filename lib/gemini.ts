@@ -56,7 +56,9 @@ export interface GenerateOptions {
 export async function generateJson(system: string, prompt: string, schema: Schema, options: GenerateOptions = {}): Promise<unknown> {
   let lastError: GeminiError | null = null;
   // Alternate models: a rate limit on one (429) is often not on the other, and overload (503) passes in seconds.
-  const attempts = options.fast ? [FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL] : [MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL];
+  const attempts = options.fast
+    ? [FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL]
+    : [MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL];
   for (let i = 0; i < attempts.length; i++) {
     try {
       return await callModel(attempts[i], system, prompt, schema, options);
@@ -72,7 +74,9 @@ export async function generateJson(system: string, prompt: string, schema: Schem
       }
       if (error.status === undefined || !RETRYABLE.has(error.status)) throw error;
       lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, Math.min(6_000, 700 * 2 ** Math.floor(i / 2))));
+      // A rate limit (429) is per model, so the other model is tried at once; overload (503) is waited out.
+      if (error.status === 429 && attempts[i + 1] && attempts[i + 1] !== attempts[i]) continue;
+      await new Promise((resolve) => setTimeout(resolve, Math.min(8_000, 1_000 * 2 ** Math.floor(i / 2))));
     }
   }
   throw lastError ?? new GeminiError("Gemini is unavailable", "http");

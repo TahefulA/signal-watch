@@ -28,7 +28,15 @@ const MAX_REJECTED_SHARE = 0.3;
 /** Character budget for the debt notes sent to the capital structure call. */
 const DEBT_NOTE_BUDGET = 90_000;
 
-export class AnalyzeError extends Error {}
+export class AnalyzeError extends Error {
+  /** True when the failure is the model service, not the company: a saved report can stand in. */
+  constructor(
+    message: string,
+    readonly transient = false,
+  ) {
+    super(message);
+  }
+}
 
 /**
  * Bumped when extraction or verification changes, so stored baselines built by
@@ -196,7 +204,10 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
   } catch (error) {
     console.error("Entity extraction failed", error);
     if (error instanceof GeminiError && error.kind === "timeout") {
-      throw new AnalyzeError("Entity extraction took too long. Please try again.");
+      throw new AnalyzeError("Entity extraction took too long. Please try again.", true);
+    }
+    if (error instanceof GeminiError && (error.status === 429 || error.status === 503)) {
+      throw new AnalyzeError("Google's Gemini service is overloaded right now. Please try again in a minute.", true);
     }
     throw new AnalyzeError("We couldn't extract entities from this filing. Please try a different ticker.");
   }

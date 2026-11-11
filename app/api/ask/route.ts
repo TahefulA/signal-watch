@@ -3,7 +3,7 @@ import { findReportById, tigerEnabled } from "@/lib/tiger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 /** POST { reportId, question } and receive { answer } built only from that report. */
 export async function POST(request: Request): Promise<Response> {

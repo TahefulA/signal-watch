@@ -4,7 +4,7 @@ import { findReportById, tigerEnabled, updateReport } from "@/lib/tiger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 90;
+export const maxDuration = 180;
 
 /** POST { reportId } and receive { brief }. The brief is saved on the report for /brief/<id>. */
 export async function POST(request: Request): Promise<Response> {

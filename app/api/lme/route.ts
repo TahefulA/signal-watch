@@ -3,7 +3,7 @@ import { findReportById, tigerEnabled, updateReport } from "@/lib/tiger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 /** POST { reportId } and receive { lme }: the borrower's credit documents read for J.Crew, Chewy and Serta trapdoors. */
 export async function POST(request: Request): Promise<Response> {

@@ -1,11 +1,11 @@
 import type { AnalyzeEvent } from "@/types";
 import { AnalyzeError, analyzeTicker } from "@/lib/analyze";
 import { ensureForecast } from "@/lib/forecast-report";
-import { findRecentReport, saveReport, tigerEnabled, updateReport } from "@/lib/tiger";
+import { findLatestReport, findRecentReport, saveReport, tigerEnabled, updateReport } from "@/lib/tiger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 /** Reports are reused for this long before the filings are read again. */
 const CACHE_HOURS = 12;
@@ -57,6 +57,15 @@ export async function POST(request: Request): Promise<Response> {
         }
         send({ type: "result", report, cached: false });
       } catch (error) {
+        // When the model service is down, the last saved report for the ticker is better than an error.
+        if ((!(error instanceof AnalyzeError) || error.transient) && tigerEnabled() && ticker) {
+          const saved = await findLatestReport(ticker).catch(() => null);
+          if (saved) {
+            console.warn(`Analyze failed for ${ticker}; serving the saved report from ${saved.generatedAt}`, error);
+            send({ type: "result", report: saved, cached: true });
+            return;
+          }
+        }
         const message =
           error instanceof AnalyzeError ? error.message : "Something went wrong while analyzing this ticker. Please try again.";
         if (!(error instanceof AnalyzeError)) console.error("Analyze failed", error);

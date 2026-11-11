@@ -14,7 +14,7 @@ function parseWhatIf(raw: unknown): WhatIf | null {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 /**
  * POST { reportId, question, whatIf? } and receive { record, added }: the

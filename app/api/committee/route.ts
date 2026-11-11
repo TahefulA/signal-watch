@@ -10,7 +10,7 @@ import { findReportById, saveCommittee, tigerEnabled, updateReport } from "@/lib
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 180;
+export const maxDuration = 300;
 
 /**
  * POST { reportId, fresh? } and receive newline-delimited CommitteeEvents: each
