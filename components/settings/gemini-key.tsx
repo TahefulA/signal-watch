@@ -12,7 +12,8 @@ import { useEffect, useRef, useState } from "react";
 
 const STORAGE = "sw-gemini-key";
 const HEADER = "x-gemini-key";
-const SHAPE = /^[A-Za-z0-9_-]{30,64}$/;
+/** Google issues keys as "AIza..." and, newer, "AQ.Ab8..."; letters, digits, dots, dashes and underscores. */
+const SHAPE = /^[A-Za-z0-9._-]{20,200}$/;
 
 function readKey(): string | null {
   try {
@@ -132,7 +133,7 @@ export function GeminiKeyButton() {
                 type="password"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="AIza..."
+                placeholder="AIza... or AQ...."
                 autoComplete="off"
                 spellCheck={false}
                 className="min-w-0 flex-1 rounded-xs border border-zinc-700 bg-zinc-900 px-2 py-1.5 font-mono text-xs text-zinc-100 placeholder:text-zinc-600"

@@ -23,7 +23,8 @@ export class GeminiError extends Error {
 
 /** The header a visitor's own key arrives in; set by the browser from the key saved on that device. */
 export const USER_KEY_HEADER = "x-gemini-key";
-const KEY_SHAPE = /^[A-Za-z0-9_-]{30,64}$/;
+/** Older keys are "AIza...", newer ones "AQ.Ab8..."; anything else is not passed on. */
+const KEY_SHAPE = /^[A-Za-z0-9._-]{20,200}$/;
 
 /**
  * A key the visitor supplied for this request, or null. Read from the request
