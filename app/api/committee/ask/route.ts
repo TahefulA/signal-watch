@@ -1,5 +1,5 @@
 import { patternsFor } from "@/lib/committee/patterns";
-import { MAX_QUESTIONS, askCommittee } from "@/lib/committee/run";
+import { askCommittee } from "@/lib/committee/run";
 import { toIsoDate } from "@/lib/dates";
 import { findReportById, saveCommittee, tigerEnabled } from "@/lib/tiger";
 import { BASE_WHAT_IF, type WhatIf, describeWhatIf, runWhatIf } from "@/lib/what-if";
@@ -33,7 +33,6 @@ export async function POST(request: Request): Promise<Response> {
   if (!tigerEnabled()) return Response.json({ error: "Saved reports are not available." }, { status: 503 });
   const report = await findReportById(typeof body.reportId === "string" ? body.reportId : "").catch(() => null);
   if (!report?.committee) return Response.json({ error: "Run the committee first." }, { status: 404 });
-  if (report.committee.questionsAsked >= MAX_QUESTIONS) return Response.json({ error: "This session has taken a lot of questions. Convene the committee again to start a fresh one." }, { status: 429 });
   const inputs = report.rateStress?.inputs ?? null;
   const w = parseWhatIf(body.whatIf);
   const run = w && inputs ? runWhatIf(inputs, w) : null;

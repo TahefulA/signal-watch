@@ -12,8 +12,6 @@ import { verifyTurn } from "./verify";
  * address, when the borrower has rate exposure.
  */
 
-/** A guard against runaway cost, not a feature: high enough that a reader never meets it in a demo. */
-export const MAX_QUESTIONS = 30;
 const NEWS_AFTER = 4;
 
 export async function runCommittee(report: Report, patterns: PatternResult[], emit: (e: CommitteeEvent) => void): Promise<CommitteeRecord> {
