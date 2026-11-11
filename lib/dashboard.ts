@@ -1,3 +1,4 @@
+import { sponsorContext } from "./contagion/report";
 import type { FeedEvent, Report, WatchCard, WatchItemStatus, WatchReason, WatchStatus } from "@/types";
 import { CASH, CAPEX, OPERATING_CASH, money } from "./capital";
 import { addDays, daysBetween, toIsoDate } from "./dates";
@@ -189,6 +190,15 @@ export async function watchCard(ticker: string, today = toIsoDate(new Date())): 
     else if (distress.band === "high") reasons.push({ tone: "review", text: `Bankruptcy probability ${p} within 12 months (high)`, url: "/proof" });
     if (previous && distress.probability >= previous.probability * 1.5 && distress.probability - previous.probability >= 0.01)
       reasons.push({ tone: "review", text: `Bankruptcy probability rose from ${(previous.probability * 100).toFixed(1)}% to ${p} since ${previous.scoredOn}`, date: today });
+  }
+  const sponsor = await sponsorContext(report.graph.company.cik).catch(() => null);
+  if (sponsor?.trigger && (sponsor.flag === "target" || sponsor.flag === "watch")) {
+    reasons.push({
+      tone: sponsor.flag === "target" ? "act" : "review",
+      text: `${sponsor.sponsors.join(" and ")} sibling ${sponsor.trigger.name} had a ${sponsor.trigger.kind === "bankruptcy" ? "Chapter 11 filing" : "liability management deal"}; ${sponsor.fired.length} of 4 contagion rules fired`,
+      date: sponsor.trigger.date,
+      url: "/contagion",
+    });
   }
   const unanswered = report.committee?.score.unansweredStrong ?? 0;
   if (unanswered) reasons.push({ tone: "review", text: `${unanswered} strong point${unanswered === 1 ? "" : "s"} against the credit went unanswered in committee` });

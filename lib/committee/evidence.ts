@@ -185,6 +185,33 @@ export function buildCards(report: Report, patterns: PatternResult[] = report.de
       });
   }
 
+  // ---- the sponsor's record: a sibling's bankruptcy or liability management deal
+  const sp = report.sponsor;
+  if (sp?.trigger) {
+    const what = sp.trigger.kind === "bankruptcy" ? "filed for Chapter 11" : sp.trigger.kind === "restructuring" ? "signed a restructuring support agreement" : `did a liability management deal (${sp.trigger.term})`;
+    cards.push({
+      id: "d:sponsor",
+      side: "devil",
+      kind: "sponsor",
+      title: `${sp.sponsors.join(" and ")} sibling ${sp.trigger.name} ${what}`,
+      detail: `${company.ticker}'s credit documents name ${sp.sponsors.join(" and ")} as sponsor. ${sp.trigger.name}, owned by the same sponsor, ${what} on ${sp.trigger.date}. Sponsors that have stripped lenders once tend to use the same playbook again. Rules that fired: ${sp.fired.join("; ")}.`,
+      quote: sp.trigger.quote,
+      source: { label: `${sp.trigger.name} 8-K filed ${sp.trigger.date}`, url: sp.trigger.url },
+      strength: sp.flag === "target" ? "strong" : "moderate",
+    });
+  } else if (sp && sp.siblings > 0) {
+    cards.push({
+      id: "a:sponsor",
+      side: "analyst",
+      kind: "sponsor",
+      title: `No sibling under ${sp.sponsors.join(" and ")} has a bankruptcy or liability management deal on EDGAR`,
+      detail: `${company.ticker}'s credit documents name ${sp.sponsors.join(" and ")} as sponsor. None of the ${sp.siblings} other SEC filers under that sponsor has an 8-K naming a bankruptcy or liability management deal since 2016.`,
+      quote: sp.definition.slice(0, 300),
+      source: { label: "Sponsor definition in the credit document", url: sp.documentUrl },
+      strength: "weak",
+    });
+  }
+
   // ---- the credit metrics
   const metric = (key: CapitalMetric["key"]) => report.capital?.metrics.find((m) => m.key === key);
   const capSrc = report.capital ? { label: `${report.capital.sourceType} ${report.capital.fiscalPeriod ?? report.capital.sourceDate}, debt note and XBRL`, url: report.capital.sourceUrl ?? null } : null;

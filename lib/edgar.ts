@@ -456,3 +456,32 @@ export function hitUrl(cik: string, hit: SearchHit): string {
   const [accession, file] = hit.id.split(":");
   return `https://www.sec.gov/Archives/edgar/data/${Number(cik)}/${accession.replace(/-/g, "")}/${file}`;
 }
+
+export interface GlobalHit extends SearchHit {
+  cik: string;
+  /** "Albertsons Companies, Inc.  (ACI)  (CIK 0001646972)". */
+  displayName: string;
+}
+
+/** EDGAR full-text search across every filer, one page of 100 hits, cached for twelve hours. */
+export async function globalFullTextSearch(query: string, from: string, to: string, page = 0, forms?: string): Promise<{ total: number; hits: GlobalHit[] }> {
+  const url = `https://efts.sec.gov/LATEST/search-index?q=${encodeURIComponent(query)}&dateRange=custom&startdt=${from}&enddt=${to}${forms ? `&forms=${forms}` : ""}${page ? `&from=${page * 100}` : ""}`;
+  const body = JSON.parse(await secFetchFresh(url)) as {
+    hits?: {
+      total?: { value: number };
+      hits?: { _id: string; _source: { file_type?: string; form?: string; file_date?: string; file_description?: string; ciks?: string[]; display_names?: string[] } }[];
+    };
+  };
+  return {
+    total: body.hits?.total?.value ?? 0,
+    hits: (body.hits?.hits ?? []).map((h) => ({
+      id: h._id,
+      fileType: h._source.file_type ?? "",
+      form: h._source.form ?? "",
+      filed: h._source.file_date ?? "",
+      description: h._source.file_description ?? "",
+      cik: String(Number(h._source.ciks?.[0] ?? 0)),
+      displayName: h._source.display_names?.[0] ?? "",
+    })),
+  };
+}

@@ -40,7 +40,7 @@ function connectionConfig(): PoolConfig {
   return { connectionString: url.toString(), ssl };
 }
 
-function getPool(): Pool {
+export function getPool(): Pool {
   if (!pool) {
     pool = new Pool({
       ...connectionConfig(),
@@ -228,6 +228,50 @@ CREATE TABLE IF NOT EXISTS committee_turns (
   problems jsonb NOT NULL DEFAULT '[]'
 );
 CREATE INDEX IF NOT EXISTS committee_turns_report ON committee_turns (report_id, n);
+
+-- Sponsor contagion graph: built offline from EDGAR by scripts/build-contagion.ts.
+CREATE TABLE IF NOT EXISTS sponsors (
+  id text PRIMARY KEY,
+  name text NOT NULL,
+  aliases jsonb NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sponsor_companies (
+  cik text PRIMARY KEY,
+  name text NOT NULL,
+  ticker text,
+  active boolean NOT NULL,
+  company_json jsonb NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS sponsor_links (
+  sponsor_id text NOT NULL REFERENCES sponsors (id) ON DELETE CASCADE,
+  cik text NOT NULL REFERENCES sponsor_companies (cik) ON DELETE CASCADE,
+  quote text NOT NULL,
+  document_url text NOT NULL,
+  filed date,
+  PRIMARY KEY (sponsor_id, cik)
+);
+CREATE TABLE IF NOT EXISTS lme_events (
+  id text PRIMARY KEY,
+  cik text NOT NULL REFERENCES sponsor_companies (cik) ON DELETE CASCADE,
+  event_date date NOT NULL,
+  kind text NOT NULL,
+  term text NOT NULL,
+  quote text NOT NULL,
+  url text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS lme_events_cik ON lme_events (cik, event_date);
+CREATE TABLE IF NOT EXISTS contagion_edges (
+  id text PRIMARY KEY,
+  kind text NOT NULL,
+  source text NOT NULL,
+  target text NOT NULL,
+  label text NOT NULL
+);
+CREATE TABLE IF NOT EXISTS contagion_builds (
+  built_at timestamptz PRIMARY KEY,
+  map_json jsonb NOT NULL
+);
 `;
 
 export async function migrate(): Promise<void> {

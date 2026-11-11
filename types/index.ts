@@ -20,6 +20,7 @@ import type { DevilsAdvocate } from "./devils-advocate";
 import type { DistressScore, FilingChange, RateStress } from "./forecast";
 import type { CommitteeRecord } from "./committee";
 import type { LmeScan } from "./lme";
+import type { SponsorContext } from "./contagion";
 
 /** What citation validation and entity resolution did to Gemini's proposals. */
 export interface Validation {
@@ -71,6 +72,8 @@ export interface Report {
   committee?: CommitteeRecord | null;
   /** The credit documents read for liability-management trapdoors, once scanned. */
   lme?: LmeScan | null;
+  /** The sponsor contagion graph's view of this borrower, when it is a sponsor-backed SEC filer. */
+  sponsor?: SponsorContext | null;
 }
 
 export type AnalyzeEvent =
@@ -90,3 +93,4 @@ export interface AskAnswer {
   removed: number;
 }
 export type * from "./lme";
+export type * from "./contagion";

@@ -4,6 +4,7 @@ import { runCommittee } from "@/lib/committee/run";
 import { toIsoDate } from "@/lib/dates";
 import { ensureForecast } from "@/lib/forecast-report";
 import { ensureLme } from "@/lib/lme-report";
+import { ensureSponsor } from "@/lib/contagion/report";
 import { geminiEnabled } from "@/lib/gemini";
 import { findReportById, saveCommittee, tigerEnabled, updateReport } from "@/lib/tiger";
 
@@ -47,8 +48,9 @@ export async function POST(request: Request): Promise<Response> {
         const forecast = await ensureForecast(saved, today);
         send({ type: "trace", text: "Reading the credit documents for trapdoors" });
         const scanned = await ensureLme(forecast.report, today, (text) => send({ type: "trace", text }));
-        const report = scanned.report;
-        if (forecast.changed || scanned.changed) await updateReport(report).catch(() => undefined);
+        const owned = await ensureSponsor(scanned.report);
+        const report = owned.report;
+        if (forecast.changed || scanned.changed || owned.changed) await updateReport(report).catch(() => undefined);
         send({ type: "trace", text: "Running the contradiction checks" });
         const patterns = await patternsFor(report, today);
         const record = await runCommittee(report, patterns, send);

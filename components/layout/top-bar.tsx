@@ -130,6 +130,9 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
             <Presentation className="h-3.5 w-3.5" aria-hidden /> Tour
           </button>
         ) : null}
+        <Link href="/contagion" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="Sponsor contagion: which sponsor-backed borrower could be the next liability management target">
+          Contagion
+        </Link>
         <Link href="/proof" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="The backtest: did the forecast warn before real bankruptcies?">
           Proof
         </Link>

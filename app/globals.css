@@ -587,12 +587,29 @@
   animation: fade-in 200ms ease-out both;
 }
 
+/* A flagged contagion node sends a slow ring out, like a radar return. */
+@keyframes threat-pulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+.threat-pulse {
+  animation: threat-pulse 1.8s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tour-dim,
   .tour-ring {
     transition: none;
   }
   .tour-card,
+  .threat-pulse,
   .chart-bar,
   .chart-line,
   .chart-readout,
