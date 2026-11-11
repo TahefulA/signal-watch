@@ -16,6 +16,7 @@ import { FinancialTab } from "@/components/tabs/financial-tab";
 import { GraphTab } from "@/components/tabs/graph-tab";
 import { MemoTab } from "@/components/tabs/memo-tab";
 import { CommitteeRoom } from "@/components/committee/committee-room";
+import { OwnerTab } from "@/components/contagion/owner-tab";
 import { Toast } from "@/components/ui/toast";
 import { DualVerdictBadge } from "@/components/ui/dual-verdict-badge";
 import { concernCount, stanceWord } from "@/lib/counter-view";
@@ -440,7 +441,7 @@ export default function CompanyPage() {
             active={tab}
             onChange={openTab}
             empty={{ changes: !report.changes }}
-            dot={{ changes: factChanges > 0 && !changesSeen }}
+            dot={{ changes: factChanges > 0 && !changesSeen, owner: report.sponsor?.flag === "watch" || report.sponsor?.flag === "target" }}
           />
           <main className="flex min-h-0 flex-1 flex-col">
             <div className="flex h-6 shrink-0 items-center justify-between gap-4 border-b border-zinc-800 bg-zinc-950 px-4 print:hidden">
@@ -472,6 +473,7 @@ export default function CompanyPage() {
               {tab !== "graph" ? (
                 <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="h-full overflow-y-auto">
                   {tab === "committee" ? <CommitteeRoom report={report} /> : null}
+                  {tab === "owner" ? <OwnerTab report={report} /> : null}
                   {tab === "financial" ? <FinancialTab report={report} timeline={timeline} range={range} devilBusy={devilBusy} /> : null}
                   {tab === "capital" ? <CapitalTab report={report} devilBusy={devilBusy} /> : null}
                   {tab === "changes" ? (

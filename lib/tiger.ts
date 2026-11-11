@@ -272,6 +272,11 @@ CREATE TABLE IF NOT EXISTS contagion_builds (
   built_at timestamptz PRIMARY KEY,
   map_json jsonb NOT NULL
 );
+CREATE TABLE IF NOT EXISTS owner_lookups (
+  cik text PRIMARY KEY,
+  company_json jsonb,
+  checked_at timestamptz NOT NULL DEFAULT NOW()
+);
 `;
 
 export async function migrate(): Promise<void> {

@@ -1,9 +1,10 @@
 "use client";
 
-export type TabKey = "committee" | "graph" | "financial" | "capital" | "changes" | "memo";
+export type TabKey = "committee" | "owner" | "graph" | "financial" | "capital" | "changes" | "memo";
 
 export const TABS: { key: TabKey; label: string }[] = [
   { key: "committee", label: "Committee" },
+  { key: "owner", label: "Owner" },
   { key: "graph", label: "Map" },
   { key: "financial", label: "Financial" },
   { key: "capital", label: "Capital" },
@@ -14,6 +15,7 @@ export const TABS: { key: TabKey; label: string }[] = [
 /** Where each view sits in Gatto's seven-step credit process. */
 export const STEP_LABELS: Record<TabKey, string> = {
   committee: "Distress forecast · Investment committee",
+  owner: "Step 2 · Who owns it, and what the owner has done before",
   graph: "Step 2 · Qualitative Analysis",
   financial: "Step 3a · Profitability",
   capital: "Step 3c · Capital Structure",

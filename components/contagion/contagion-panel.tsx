@@ -5,9 +5,9 @@ import type { ContagionAssessment, ContagionCompany, ContagionMap } from "@/type
 import { TRAPDOOR_LABELS } from "@/lib/lme-labels";
 import { compactMoney } from "@/lib/node-visuals";
 import { BAND_STYLE } from "@/components/distress/distress-card";
-import { FLAG_STYLE } from "./contagion-view";
+import { FLAG_STYLE } from "./language";
 
-const RISK_TEXT = { high: "Door open", medium: "Open, partly blocked", low: "Blocked", not_found: "Not found" } as const;
+const RISK_TEXT = { high: "Open", medium: "Open, partly blocked", low: "Blocked", not_found: "Not found" } as const;
 const RISK_TONE = { high: "text-red-500", medium: "text-amber-500", low: "text-emerald-500", not_found: "text-zinc-500" } as const;
 
 function Label({ children }: { children: React.ReactNode }) {
@@ -55,10 +55,10 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
       <aside className="surface rounded-xs border border-zinc-800 p-4 text-[13px] leading-relaxed text-zinc-400">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Pick a company</p>
         <p className="mt-2">
-          Click a circle to see why it is flagged: the sibling event that reaches it, the trapdoors in its own credit documents, its maturity window and its bankruptcy
-          probability, each with the filing it came from.
+          Click a circle to see why it is flagged: the sister company&apos;s event that reaches it, the loopholes in its own loan documents, the debt coming due and its
+          bankruptcy probability, each with the filing it came from.
         </p>
-        <p className="mt-2 text-zinc-500">A red tag on a circle marks a company that has already had a Chapter 11 filing or a liability management deal.</p>
+        <p className="mt-2 text-zinc-500">A tag on a circle marks a company that has already filed for bankruptcy or squeezed its lenders.</p>
       </aside>
     );
   }
@@ -82,13 +82,13 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
         <div className="mt-3 flex items-start gap-2 rounded-xs border border-red-700/60 bg-red-950/30 p-2 text-xs text-red-300">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
           <span>
-            <span className="font-semibold">Maturity window: before {a.window.slice(0, 7)}.</span> Liability management deals tend to come ahead of a maturity the company cannot
-            refinance on its own terms.
+            <span className="font-semibold">Watch the window before {a.window.slice(0, 7)}.</span> Lender squeezes tend to come ahead of debt the company cannot refinance
+            on its own terms.
           </span>
         </div>
       ) : null}
 
-      <Label>Rules · {a.rules.filter((r) => r.fired).length} of 4 fired</Label>
+      <Label>Warning signs · {a.rules.filter((r) => r.fired).length} of 4 on</Label>
       <ul className="mt-1 space-y-1.5">
         {a.rules.map((r) => (
           <li key={r.key} className="flex gap-2 text-xs leading-snug">
@@ -117,7 +117,7 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
 
       {a.trigger ? (
         <>
-          <Label>The event that reaches it</Label>
+          <Label>The sister company&apos;s event</Label>
           <button type="button" onClick={() => onPick(a.trigger!.cik)} className="mt-1 text-left text-xs font-medium text-zinc-100 underline decoration-zinc-700 underline-offset-2">
             {a.trigger.name}
           </button>
@@ -145,7 +145,7 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
         </>
       ) : null}
 
-      <Label>Trapdoors in its credit documents</Label>
+      <Label>Loopholes in its loan documents</Label>
       {c.lme ? (
         <>
           <div className="mt-1 grid grid-cols-3 gap-1.5">
@@ -167,7 +167,7 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
           ))}
         </>
       ) : (
-        <p className="mt-1 text-xs text-zinc-500">{c.lme === null ? "No indenture or credit agreement found on EDGAR." : "Not scanned: the scan runs on live companies a sibling's event reaches."}</p>
+        <p className="mt-1 text-xs text-zinc-500">{c.lme === null ? "No indenture or credit agreement found on EDGAR." : "Not checked: the check runs on live companies a sister company's event reaches."}</p>
       )}
 
       <Label>Bankruptcy probability</Label>
@@ -183,11 +183,11 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
         <p className="mt-1 text-xs text-zinc-500">No recent balance sheet to score.</p>
       )}
 
-      <Label>Maturity wall</Label>
+      <Label>Debt coming due</Label>
       <MaturityBars c={c} />
       {maturity && !allFired ? <p className="mt-1 text-[11px] text-zinc-500">{maturity.text}</p> : null}
 
-      <Label>Sponsor, as the credit document defines it</Label>
+      <Label>Owner, as its loan document defines it</Label>
       {c.sponsors.map((s) => (
         <div key={s.sponsorId} className="mt-1 text-[11.5px] leading-snug">
           <p className="font-medium text-zinc-200">{sponsorName(s.sponsorId)}</p>
@@ -198,7 +198,7 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
 
       {c.agent ? (
         <>
-          <Label>Administrative agent</Label>
+          <Label>Bank running its loan</Label>
           <p className="mt-1 text-xs text-zinc-300">
             {c.agent.name} <Source href={c.agent.url}>Credit agreement</Source>
           </p>
@@ -206,7 +206,7 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
       ) : null}
 
       {c.ticker && c.active ? (
-        <a href={`/company?ticker=${c.ticker}`} className="mt-5 inline-flex rounded-xs border border-zinc-600 px-3 py-1.5 text-xs text-zinc-200 hover:border-zinc-400">
+        <a href={`/company?ticker=${c.ticker}&tab=owner`} className="mt-5 inline-flex rounded-xs border border-zinc-600 px-3 py-1.5 text-xs text-zinc-200 hover:border-zinc-400">
           Open the full analysis for {c.ticker}
         </a>
       ) : null}

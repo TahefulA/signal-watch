@@ -42,6 +42,25 @@ export async function saveContagion(map: ContagionMap): Promise<void> {
   }
 }
 
+/** "Alight, Inc. / Delaware" is EDGAR's name for the filer; readers know it as Alight, Inc. */
+export function displayName(name: string): string {
+  return name.replace(/\s*\/\s*[A-Z][A-Za-z]+\s*$/, "").trim();
+}
+
+function tidy(map: ContagionMap): ContagionMap {
+  const renamed = map.companies.filter((c) => displayName(c.name) !== c.name);
+  const fix = (text: string) => renamed.reduce((t, c) => t.split(c.name).join(displayName(c.name)), text);
+  return {
+    ...map,
+    companies: map.companies.map((c) => ({ ...c, name: displayName(c.name) })),
+    assessments: map.assessments.map((a) => ({
+      ...a,
+      trigger: a.trigger ? { ...a.trigger, name: displayName(a.trigger.name) } : null,
+      warning: a.warning ? { ...a.warning, sentences: a.warning.sentences.map((s) => ({ ...s, text: fix(s.text) })) } : a.warning,
+    })),
+  };
+}
+
 let snapshot: ContagionMap | null = null;
 let fromDb: { map: ContagionMap; at: number } | null = null;
 /** Builds run offline a few times a week; a server instance rereads at most every ten minutes. */
@@ -53,13 +72,13 @@ export async function loadContagion(): Promise<ContagionMap | null> {
   if (tigerEnabled()) {
     const rows = await queryRows<{ map_json: ContagionMap }>("SELECT map_json FROM contagion_builds ORDER BY built_at DESC LIMIT 1").catch(() => []);
     if (rows[0]) {
-      fromDb = { map: rows[0].map_json, at: Date.now() };
-      return rows[0].map_json;
+      fromDb = { map: tidy(rows[0].map_json), at: Date.now() };
+      return fromDb.map;
     }
   }
   if (!snapshot) {
     const raw = await readFile(path.join(process.cwd(), "data", "contagion.json"), "utf8").catch(() => null);
-    snapshot = raw ? (JSON.parse(raw) as ContagionMap) : null;
+    snapshot = raw ? tidy(JSON.parse(raw) as ContagionMap) : null;
   }
   return snapshot;
 }

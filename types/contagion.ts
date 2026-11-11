@@ -119,3 +119,30 @@ export interface SponsorContext {
   trigger: { name: string; date: string; kind: LmeEventKind; term: string; quote: string; url: string } | null;
   builtAt: string;
 }
+
+/** One company under a sponsor, as the owner view's timeline shows it. */
+export interface FamilyMember {
+  cik: string;
+  name: string;
+  ticker: string | null;
+  active: boolean;
+  lastPeriodic: string | null;
+  /** When the sponsor definition was filed: the earliest the graph can say it owned the company. */
+  since: string | null;
+  flag: ContagionFlag;
+  events: LmeEvent[];
+  self: boolean;
+}
+
+/** A borrower read through its owner: who owns it, what the owner's other companies did, and which warning signs are on. */
+export interface OwnerView {
+  cik: string;
+  /** Null when no sponsor this app follows is named in its credit documents. */
+  company: ContagionCompany | null;
+  assessment: ContagionAssessment | null;
+  families: { sponsorId: string; name: string; members: FamilyMember[] }[];
+  /** True when the owner was read from EDGAR for this request rather than taken from the last build. */
+  live: boolean;
+  builtAt: string;
+  checkedAt: string;
+}

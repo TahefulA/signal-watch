@@ -1,19 +1,18 @@
 "use client";
 
 import { Background, BackgroundVariant, Controls, type Edge, Handle, type Node, type NodeProps, Position, ReactFlow, ReactFlowProvider, useReactFlow } from "@xyflow/react";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowRight, Network } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ContagionAssessment, ContagionCompany, ContagionFlag, ContagionMap } from "@/types";
 import { ContagionPanel } from "./contagion-panel";
+import { FLAG_STYLE, KIND_PLAIN, KIND_SHORT, month, signals } from "./language";
+import { PlaybookTimeline, TimelineLegend, type TimelineRow } from "./playbook-timeline";
+import { SignalPips } from "./signal-gauge";
 import { compactMoney } from "@/lib/node-visuals";
 
-export const FLAG_STYLE: Record<ContagionFlag, { label: string; border: string; text: string; fill: string }> = {
-  target: { label: "Likely next target", border: "border-red-600", text: "text-red-500", fill: "#dc2626" },
-  watch: { label: "Watch", border: "border-amber-500", text: "text-amber-500", fill: "#f59e0b" },
-  clear: { label: "Clear", border: "border-emerald-600", text: "text-emerald-500", fill: "#10b981" },
-  history: { label: "No longer files", border: "border-zinc-600", text: "text-zinc-400", fill: "rgb(var(--zinc-500))" },
-};
+export { FLAG_STYLE };
 
-const EVENT_TEXT = { bankruptcy: "Chapter 11", restructuring: "RSA", lme: "LME" } as const;
+const EVENT_TEXT = KIND_SHORT;
 
 interface CompanyData extends Record<string, unknown> {
   company: ContagionCompany;
@@ -36,7 +35,7 @@ const CompanyBox = memo(function CompanyBox({ data }: NodeProps<CompanyNode>) {
   const style = FLAG_STYLE[a.flag];
   const lastEvent = c.events.at(-1);
   return (
-    <div className="relative flex flex-col items-center" style={{ width: 150 }}>
+    <div className="relative flex flex-col items-center" style={{ width: 150, opacity: a.flag === "history" && !selected ? 0.45 : 1 }}>
       <Handle type="target" position={Position.Top} className={hidden} style={{ top: size / 2 }} />
       <Handle type="source" position={Position.Bottom} className={hidden} style={{ top: size / 2 }} />
       <div className="relative" style={{ width: size, height: size }}>
@@ -89,6 +88,8 @@ function buildGraph(map: ContagionMap, sponsorId: string, selected: string | nul
   const edges: Edge[] = [];
   const sponsor = map.sponsors.find((s) => s.id === sponsorId);
   nodes.push({ id: `sp:${sponsorId}`, type: "sponsor", position: { x: -60, y: -24 }, data: { name: sponsor?.name ?? sponsorId, count: members.length, primary: true }, draggable: false });
+  const lit = selected ? byCik.get(selected)?.a.trigger : null;
+  const path = new Set(selected && lit?.degrees === 1 ? [selected, lit.cik] : []);
   const angleOf = new Map<string, number>();
   order.forEach((c, i) => {
     const angle = (i / order.length) * Math.PI * 2 - Math.PI / 2;
@@ -103,7 +104,14 @@ function buildGraph(map: ContagionMap, sponsorId: string, selected: string | nul
       data: { company: c, assessment: entry.a, size, selected: selected === c.cik },
     });
     const flagged = entry.a.flag === "target" || entry.a.flag === "watch";
-    edges.push({ id: `e:${sponsorId}:${c.cik}`, source: `sp:${sponsorId}`, target: c.cik, style: { stroke: flagged ? FLAG_STYLE[entry.a.flag].fill : "rgb(var(--zinc-600))", strokeWidth: flagged ? 1.6 : 1 } });
+    const onPath = path.has(c.cik);
+    edges.push({
+      id: `e:${sponsorId}:${c.cik}`,
+      source: `sp:${sponsorId}`,
+      target: c.cik,
+      animated: onPath,
+      style: { stroke: onPath ? "#ef4444" : flagged ? FLAG_STYLE[entry.a.flag].fill : "rgb(var(--zinc-600))", strokeWidth: onPath ? 2.5 : flagged ? 1.6 : 1, opacity: path.size && !onPath ? 0.35 : 1 },
+    });
   });
   // Co-sponsors sit on an outer ring beside the companies they share.
   const others = new Map<string, string[]>();
@@ -147,6 +155,24 @@ function Canvas({ nodes, edges, onPick }: { nodes: Node[]; edges: Edge[]; onPick
 }
 
 const RANK: Record<ContagionFlag, number> = { target: 0, watch: 1, clear: 2, history: 3 };
+const CARDS = 6;
+
+function Section({ title, sub, children, id, action }: { title: string; sub?: string; children: React.ReactNode; id?: string; action?: React.ReactNode }) {
+  return (
+    <section id={id} className="mt-12 scroll-mt-6">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+            <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> {title}
+          </h2>
+          {sub ? <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-zinc-400">{sub}</p> : null}
+        </div>
+        {action}
+      </div>
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
 
 export function ContagionView({ map, initial = null }: { map: ContagionMap; initial?: string | null }) {
   const byCik = useMemo(() => {
@@ -157,134 +183,246 @@ export function ContagionView({ map, initial = null }: { map: ContagionMap; init
     }
     return m;
   }, [map]);
+  const today = map.builtAt.slice(0, 10);
 
-  // Start on the sponsor with the most flagged companies.
-  const sponsorsRanked = useMemo(() => {
-    const flagged = (id: string) => map.companies.filter((c) => c.sponsors.some((s) => s.sponsorId === id) && ["target", "watch"].includes(byCik.get(c.cik)?.a.flag ?? "")).length;
-    return [...map.sponsors].map((s) => ({ ...s, flagged: flagged(s.id) })).sort((a, b) => b.flagged - a.flagged || b.events - a.events || b.companies - a.companies);
-  }, [map, byCik]);
+  const sponsorStats = useMemo(
+    () =>
+      map.sponsors
+        .map((s) => {
+          const members = map.companies.filter((c) => c.sponsors.some((l) => l.sponsorId === s.id));
+          const events = members.flatMap((c) => c.events.map((e) => ({ c, e })));
+          return {
+            ...s,
+            members,
+            events,
+            live: members.filter((c) => c.active).length,
+            squeezes: events.filter((x) => x.e.kind !== "bankruptcy").length,
+            bankruptcies: events.filter((x) => x.e.kind === "bankruptcy").length,
+            flagged: members.filter((c) => ["target", "watch"].includes(byCik.get(c.cik)?.a.flag ?? "")).length,
+            last: events.sort((x, y) => y.e.date.localeCompare(x.e.date))[0] ?? null,
+          };
+        })
+        .sort((a, b) => b.flagged - a.flagged || b.events.length - a.events.length || b.members.length - a.members.length),
+    [map, byCik],
+  );
+
+  /** The company the network opens on for an owner: its most flagged live company, so the panel is never empty. */
+  const lead = useCallback(
+    (id: string) =>
+      map.assessments
+        .filter((a) => byCik.get(a.cik)?.c.sponsors.some((s) => s.sponsorId === id))
+        .sort((x, y) => RANK[x.flag] - RANK[y.flag] || y.rules.filter((r) => r.fired).length - x.rules.filter((r) => r.fired).length)[0]?.cik ?? null,
+    [map, byCik],
+  );
   // A shared link opens on one company: /contagion?company=<CIK>.
   const start = initial ? byCik.get(String(Number(initial))) : undefined;
-  const [sponsorId, setSponsorId] = useState(start?.c.sponsors[0].sponsorId ?? sponsorsRanked[0]?.id ?? "");
-  const [selected, setSelected] = useState<string | null>(start?.c.cik ?? null);
+  const [sponsorId, setSponsorId] = useState(start?.c.sponsors[0].sponsorId ?? sponsorStats[0]?.id ?? "");
+  const [selected, setSelected] = useState<string | null>(start?.c.cik ?? lead(sponsorStats[0]?.id ?? ""));
+  const [allCards, setAllCards] = useState(false);
+  const network = useRef<HTMLDivElement>(null);
 
   const graph = useMemo(() => buildGraph(map, sponsorId, selected, byCik), [map, sponsorId, selected, byCik]);
   const pick = useCallback((cik: string) => setSelected(cik), []);
+  const show = useCallback(
+    (cik: string | null, sponsor?: string, scroll = true) => {
+      const c = cik ? byCik.get(cik)?.c : null;
+      const next = sponsor ?? (c && !c.sponsors.some((s) => s.sponsorId === sponsorId) ? c.sponsors[0].sponsorId : sponsorId);
+      setSponsorId(next);
+      setSelected(cik ?? lead(next));
+      if (scroll) network.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+    [byCik, sponsorId, lead],
+  );
+  useEffect(() => {
+    if (start) network.current?.scrollIntoView({ block: "start" });
+    // Only on arrival from a shared link.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const flaggedAll = useMemo(
+  const flagged = useMemo(
     () =>
       map.assessments
         .filter((a) => a.flag === "target" || a.flag === "watch")
-        .sort((x, y) => RANK[x.flag] - RANK[y.flag] || y.rules.filter((r) => r.fired).length - x.rules.filter((r) => r.fired).length),
+        .sort((x, y) => RANK[x.flag] - RANK[y.flag] || y.rules.filter((r) => r.fired).length - x.rules.filter((r) => r.fired).length || (y.trigger?.event.date ?? "").localeCompare(x.trigger?.event.date ?? "")),
     [map],
   );
   const count = (f: ContagionFlag) => map.assessments.filter((a) => a.flag === f).length;
   const events = map.companies.reduce((n, c) => n + c.events.length, 0);
   const current = selected ? byCik.get(selected) : null;
+  const repeaters = sponsorStats.filter((s) => s.events.length >= 2).length;
+
+  const rows: TimelineRow[] = sponsorStats
+    .filter((s) => s.events.length || s.flagged)
+    .map((s) => ({
+      id: s.id,
+      label: s.name,
+      sub: `${s.members.length} companies · ${s.live} still filing`,
+      marks: s.events.map(({ c, e }) => ({ id: e.id, date: e.date, kind: e.kind, title: `${c.name}: ${KIND_SHORT[e.kind]}`, quote: e.quote, url: e.url })),
+      highlight: s.id === sponsorId,
+      tag: s.flagged ? { text: `${s.flagged} on watch`, tone: "amber" as const } : undefined,
+    }));
 
   return (
     <>
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <p className="mt-6 max-w-3xl font-display text-[19px] leading-snug text-zinc-100">
+        {count("target")
+          ? `${count("target")} borrower${count("target") === 1 ? " has" : "s have"} every warning sign on. `
+          : "No borrower has every warning sign on today. "}
+        <span className="text-amber-400">{count("watch")} are on watch</span>: their owner has squeezed lenders or let a company go bankrupt before, and at least one more sign is on.
+      </p>
+      <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3 border-y border-zinc-800 py-3">
         {[
-          ["Sponsor-backed SEC filers", String(map.companies.length), `${map.sponsors.length} sponsors, from the "Sponsor" definition in each company's credit documents`],
-          ["Events on EDGAR", String(events), "Chapter 11 filings and liability management deals in the companies' 8-Ks"],
-          ["Likely next targets", String(count("target")), "All four rules fired"],
-          ["Watch", String(count("watch")), "A sibling's event plus at least one more rule, or three rules"],
-        ].map(([label, value, sub]) => (
-          <div key={label} className="surface rounded-xs border border-zinc-800 p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
-            <p className="mt-1 font-mono text-2xl font-semibold text-zinc-50">{value}</p>
-            <p className="mt-1 text-xs leading-snug text-zinc-500">{sub}</p>
+          [String(map.companies.length), "sponsor-backed SEC filers"],
+          [String(map.sponsors.length), "private equity owners"],
+          [String(events), "bankruptcies and squeezes on EDGAR"],
+          [String(repeaters), "owners that have done it more than once"],
+        ].map(([v, l]) => (
+          <div key={l} className="flex items-baseline gap-2">
+            <dt className="order-2 text-xs text-zinc-500">{l}</dt>
+            <dd className="font-mono text-xl font-semibold text-zinc-50">{v}</dd>
           </div>
         ))}
-      </div>
+      </dl>
 
-      <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Sponsor">
-        {sponsorsRanked.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            role="tab"
-            aria-selected={s.id === sponsorId}
-            onClick={() => {
-              setSponsorId(s.id);
-              setSelected(null);
-            }}
-            className={`rounded-xs border px-2.5 py-1 text-xs ${s.id === sponsorId ? "border-zinc-400 bg-zinc-800 text-zinc-50" : "border-zinc-700 text-zinc-300 hover:border-zinc-500"}`}
-          >
-            {s.name} <span className="font-mono text-zinc-500">{s.companies}</span>
-            {s.flagged ? <span className="ml-1 rounded-xs bg-amber-500/20 px-1 font-mono text-[10px] text-amber-400">{s.flagged}</span> : null}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="surface relative h-[620px] rounded-xs border border-zinc-800">
-          <ReactFlowProvider>
-            <Canvas nodes={graph.nodes} edges={graph.edges} onPick={pick} />
-          </ReactFlowProvider>
-          <div className="pointer-events-none absolute bottom-2 right-2 flex flex-wrap gap-3 rounded-xs bg-zinc-950/80 px-2 py-1 text-[10px] text-zinc-400">
-            {(["target", "watch", "clear", "history"] as ContagionFlag[]).map((f) => (
-              <span key={f} className="flex items-center gap-1">
-                <span className={`h-2.5 w-2.5 rounded-full border-2 ${FLAG_STYLE[f].border}`} aria-hidden /> {FLAG_STYLE[f].label}
-              </span>
-            ))}
-            <span className="flex items-center gap-1">
-              <span className="w-4 border-t border-dashed border-zinc-500" aria-hidden /> Same agent bank
-            </span>
-            <span>Size: total debt</span>
+      <Section
+        title="The playbook repeats"
+        sub="Every bankruptcy and lender squeeze in each owner's public portfolio, by year. Rows that light up again and again are owners that have done this more than once; the tag on the right is how many of their live companies could be next."
+      >
+        <div className="surface rounded-xs border border-zinc-800 p-3">
+          <PlaybookTimeline rows={rows} today={today} onRow={(id) => show(null, id)} labelWidth={170} />
+          <div className="mt-3 border-t border-zinc-800 pt-2">
+            <TimelineLegend />
           </div>
         </div>
-        <ContagionPanel map={map} entry={current ?? null} onPick={(cik) => {
-          const c = byCik.get(cik)?.c;
-          if (c && !c.sponsors.some((s) => s.sponsorId === sponsorId)) setSponsorId(c.sponsors[0].sponsorId);
-          setSelected(cik);
-        }} />
-      </div>
+      </Section>
 
-      <section className="mt-10">
-        <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-          <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> Flagged across every sponsor
-        </h2>
-        {flaggedAll.length ? (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left text-xs">
-              <thead className="text-[10px] uppercase tracking-wider text-zinc-500">
-                <tr>
-                  <th className="py-2 pr-3 font-semibold">Company</th>
-                  <th className="py-2 pr-3 font-semibold">Flag</th>
-                  <th className="py-2 pr-3 font-semibold">Sponsor</th>
-                  <th className="py-2 pr-3 font-semibold">Sibling event</th>
-                  <th className="py-2 pr-3 font-semibold">Rules</th>
-                  <th className="py-2 font-semibold">Maturity window</th>
-                </tr>
-              </thead>
-              <tbody>
-                {flaggedAll.map((a) => {
-                  const c = byCik.get(a.cik)?.c as ContagionCompany;
-                  return (
-                    <tr key={a.cik} className="cursor-pointer border-t border-zinc-800 hover:bg-zinc-900" onClick={() => {
-                      setSponsorId(c.sponsors[0].sponsorId);
-                      setSelected(a.cik);
-                    }}>
-                      <td className="py-2 pr-3 text-zinc-100">
-                        {c.name} {c.ticker ? <span className="font-mono text-zinc-500">{c.ticker}</span> : null}
-                      </td>
-                      <td className={`py-2 pr-3 font-semibold ${FLAG_STYLE[a.flag].text}`}>{FLAG_STYLE[a.flag].label}</td>
-                      <td className="py-2 pr-3 text-zinc-300">{c.sponsors.map((s) => map.sponsors.find((x) => x.id === s.sponsorId)?.name).join(", ")}</td>
-                      <td className="py-2 pr-3 text-zinc-300">{a.trigger ? `${a.trigger.name}, ${a.trigger.event.date.slice(0, 7)}` : "None"}</td>
-                      <td className="py-2 pr-3 font-mono text-zinc-300">{a.rules.filter((r) => r.fired).length} of 4</td>
-                      <td className="py-2 text-zinc-300">{a.window ? `Before ${a.window.slice(0, 7)}` : "None"}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      <Section
+        title={`On watch · ${flagged.length}`}
+        sub="Live borrowers whose owner has done it before, ranked by how many warning signs are on. Willing: the owner squeezed lenders or let a company fail before. Able: a loophole is open in the loan documents. Needs to: debt coming due or a weak balance sheet."
+        action={
+          flagged.length > CARDS && !allCards ? (
+            <button type="button" onClick={() => setAllCards(true)} className="text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100">
+              Show all {flagged.length}
+            </button>
+          ) : null
+        }
+      >
+        {flagged.length ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {(allCards ? flagged : flagged.slice(0, CARDS)).map((a) => {
+              const c = byCik.get(a.cik)?.c as ContagionCompany;
+              const sig = signals(c, a);
+              const owner = c.sponsors.map((s) => map.sponsors.find((x) => x.id === s.sponsorId)?.name).join(" & ");
+              return (
+                <article key={a.cik} className={`surface flex flex-col rounded-xs border p-4 ${a.flag === "target" ? "border-red-700" : "border-zinc-800"}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-[15px] font-semibold text-zinc-50">{c.name}</h3>
+                      <p className="text-[11px] text-zinc-500">
+                        {c.ticker ? <span className="font-mono">{c.ticker} · </span> : null}
+                        {owner}
+                      </p>
+                    </div>
+                    <span className={`shrink-0 text-[10px] font-semibold uppercase tracking-wider ${FLAG_STYLE[a.flag].text}`}>{FLAG_STYLE[a.flag].label}</span>
+                  </div>
+                  {a.trigger ? (
+                    <p className="mt-3 text-[12.5px] leading-snug text-zinc-300">
+                      Sister company <span className="text-zinc-100">{a.trigger.name}</span> had a {KIND_PLAIN[a.trigger.event.kind]} in {month(a.trigger.event.date)}.
+                    </p>
+                  ) : null}
+                  {a.window ? <p className="mt-1 text-[12px] text-zinc-400">Debt coming due before {month(a.window)}.</p> : null}
+                  <div className="mt-auto pt-4">
+                    <SignalPips items={sig} />
+                    <div className="mt-3 flex gap-3 text-xs">
+                      {c.ticker && c.active ? (
+                        <a href={`/company?ticker=${c.ticker}&tab=owner`} className="inline-flex items-center gap-1 text-zinc-200 hover:text-zinc-50">
+                          Full report <ArrowRight className="h-3 w-3" aria-hidden />
+                        </a>
+                      ) : null}
+                      <button type="button" onClick={() => show(a.cik)} className="inline-flex items-center gap-1 text-zinc-400 hover:text-zinc-100">
+                        <Network className="h-3 w-3" aria-hidden /> In the network
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-zinc-400">No live company meets the rules today.</p>
+          <p className="text-sm text-zinc-400">No live company meets the rules today.</p>
         )}
-      </section>
+      </Section>
+
+      <Section title="Owner scorecard" sub="Each owner's public portfolio and what has happened in it since 2016. Click a row to open its network.">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[680px] text-left text-xs">
+            <thead className="text-[10px] uppercase tracking-wider text-zinc-500">
+              <tr>
+                <th className="py-2 pr-3 font-semibold">Owner</th>
+                <th className="py-2 pr-3 text-right font-semibold">Companies</th>
+                <th className="py-2 pr-3 text-right font-semibold">Still filing</th>
+                <th className="py-2 pr-3 text-right font-semibold" title="Lender squeezes and restructuring deals with lenders">Squeezes</th>
+                <th className="py-2 pr-3 text-right font-semibold">Bankruptcies</th>
+                <th className="py-2 pr-3 font-semibold">Most recent</th>
+                <th className="py-2 text-right font-semibold">On watch</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sponsorStats.map((s) => (
+                <tr key={s.id} className={`cursor-pointer border-t border-zinc-800 hover:bg-zinc-900 ${s.id === sponsorId ? "bg-zinc-900" : ""}`} onClick={() => show(null, s.id)}>
+                  <td className="py-2 pr-3 font-medium text-zinc-100">{s.name}</td>
+                  <td className="py-2 pr-3 text-right font-mono text-zinc-300">{s.members.length}</td>
+                  <td className="py-2 pr-3 text-right font-mono text-zinc-300">{s.live}</td>
+                  <td className={`py-2 pr-3 text-right font-mono ${s.squeezes ? "text-red-400" : "text-zinc-600"}`}>{s.squeezes}</td>
+                  <td className={`py-2 pr-3 text-right font-mono ${s.bankruptcies ? "text-zinc-200" : "text-zinc-600"}`}>{s.bankruptcies}</td>
+                  <td className="py-2 pr-3 text-zinc-400">{s.last ? `${s.last.c.name}, ${month(s.last.e.date)}` : "None"}</td>
+                  <td className={`py-2 text-right font-mono ${s.flagged ? "text-amber-400" : "text-zinc-600"}`}>{s.flagged}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+
+      <div ref={network} className="scroll-mt-6">
+        <Section title="Explore the network" sub="One owner at a time: its companies in a ring, sized by debt. Click a company to see the path from its sister company's event and the evidence behind each warning sign.">
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Sponsor">
+            {sponsorStats.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                role="tab"
+                aria-selected={s.id === sponsorId}
+                onClick={() => show(null, s.id, false)}
+                className={`rounded-xs border px-2.5 py-1 text-xs ${s.id === sponsorId ? "border-zinc-400 bg-zinc-800 text-zinc-50" : "border-zinc-700 text-zinc-300 hover:border-zinc-500"}`}
+              >
+                {s.name} <span className="font-mono text-zinc-500">{s.members.length}</span>
+                {s.flagged ? <span className="ml-1 rounded-xs bg-amber-500/20 px-1 font-mono text-[10px] text-amber-400">{s.flagged}</span> : null}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="surface relative h-[620px] rounded-xs border border-zinc-800">
+              <ReactFlowProvider>
+                <Canvas nodes={graph.nodes} edges={graph.edges} onPick={pick} />
+              </ReactFlowProvider>
+              <div className="pointer-events-none absolute bottom-2 right-2 flex flex-wrap gap-3 rounded-xs bg-zinc-950/80 px-2 py-1 text-[10px] text-zinc-400">
+                {(["target", "watch", "clear", "history"] as ContagionFlag[]).map((f) => (
+                  <span key={f} className="flex items-center gap-1">
+                    <span className={`h-2.5 w-2.5 rounded-full border-2 ${FLAG_STYLE[f].border}`} aria-hidden /> {FLAG_STYLE[f].label}
+                  </span>
+                ))}
+                <span className="flex items-center gap-1">
+                  <span className="w-4 border-t border-dashed border-zinc-500" aria-hidden /> Same lending bank
+                </span>
+                <span>Size: total debt</span>
+              </div>
+            </div>
+            <ContagionPanel map={map} entry={current ?? null} onPick={(cik) => show(cik, undefined, false)} />
+          </div>
+        </Section>
+      </div>
 
       <HowItWorks map={map} />
     </>
@@ -305,15 +443,15 @@ function HowItWorks({ map }: { map: ContagionMap }) {
         </li>
         <li>
           <span className="text-zinc-200">What happened.</span> Each company&apos;s 8-Ks are searched for Item 1.03 bankruptcy filings and the language of liability management
-          deals: transaction support agreements, uptiers, drop-downs, non-pro rata exchanges, IPCo transfers. Each event keeps the sentence it was found in.
+          deals, the &ldquo;lender squeezes&rdquo; of this page: transaction support agreements, uptiers, drop-downs, IPCo transfers. Each event keeps the sentence it was found in.
         </li>
         <li>
           <span className="text-zinc-200">The graph.</span> Companies link to their sponsors, and to each other when the same bank agents their credit agreements. A breadth-first search
           walks two steps out from every company with an event.
         </li>
         <li>
-          <span className="text-zinc-200">Four rules, no weights.</span> (1) A sibling under the same sponsor had an event in the last ten years. (2) The trapdoor check found a J.Crew,
-          Chewy or Serta door open in the company&apos;s own credit documents. (3) At least 10% of its debt is due within two years of the balance sheet. (4) The bankruptcy model puts it
+          <span className="text-zinc-200">Four rules, no weights, three questions.</span> Willing: (1) a sister company under the same owner had an event in the last ten years. Able: (2) the
+          loophole check found a J.Crew, Chewy or Serta door open in the company&apos;s own loan documents. Needs to: (3) At least 10% of its debt is due within two years of the balance sheet. (4) The bankruptcy model puts it
           at elevated or worse. All four make a likely next target; a sibling&apos;s event plus one more, or any three, make Watch.
         </li>
         <li>
