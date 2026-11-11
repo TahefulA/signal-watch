@@ -75,3 +75,10 @@ test("CUSUM stays quiet on noise and catches a one-sigma shift within twenty ste
   for (let i = 0; i < 100 && at < 0; i++) if (c.update(normal() + 1) === "up") at = i;
   assert.ok(at >= 0 && at < 20, `detected at ${at}`);
 });
+
+test("a bot filling one size does not make ordinary fills look extreme", () => {
+  const sizes = [...Array(120).fill(50), ...Array(80).fill(0).map((_, i) => 30 + (i % 40))];
+  const logs = sizes.map((s) => Math.log1p(s));
+  assert.ok(robustZ(Math.log1p(300), logs, 0.5) < 3.5, "6x the usual size is not an outlier");
+  assert.ok(robustZ(Math.log1p(2_000), logs, 0.5) > 3.5, "40x the usual size is");
+});

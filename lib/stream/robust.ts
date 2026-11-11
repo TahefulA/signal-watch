@@ -24,11 +24,13 @@ export const MAD_TO_SIGMA = 1.4826;
  * The modified z-score of Iglewicz and Hoaglin: 0.6745 (x - median) / MAD,
  * flagged above 3.5. When more than half the window is one value the MAD is
  * zero; the mean absolute deviation (times 1.2533 to the same scale) stands
- * in, and when that is zero too nothing differs from anything.
+ * in, and when that is zero too nothing differs from anything. `minSpread`
+ * floors the MAD for data where one value dominates (a bot filling the same
+ * size over and over), so ordinary variation does not read as extreme.
  */
-export function robustZ(x: number, values: number[]): number {
+export function robustZ(x: number, values: number[], minSpread = 0): number {
   const m = median(values);
-  const mad = calculateMAD(values, m);
+  const mad = Math.max(calculateMAD(values, m), minSpread);
   if (mad > 0) return (0.6745 * (x - m)) / mad;
   const meanAd = values.reduce((s, v) => s + Math.abs(v - m), 0) / (values.length || 1);
   if (meanAd > 0) return (x - m) / (1.2533 * meanAd);
