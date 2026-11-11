@@ -5,6 +5,7 @@ import Link from "next/link";
 import { type FormEvent, type ReactNode, useState } from "react";
 import { TAGLINE } from "./tab-bar";
 import { ThemeToggle } from "./theme-toggle";
+import { GeminiKeyButton } from "@/components/settings/gemini-key";
 
 interface TopBarProps {
   busy: boolean;
@@ -147,6 +148,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
             </span>
           ) : null}
         </Link>
+        <GeminiKeyButton />
         <ThemeToggle />
       </div>
     </header>

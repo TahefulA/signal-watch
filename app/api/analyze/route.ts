@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 /** Reports are reused for this long before the filings are read again. */
-const CACHE_HOURS = 12;
+/** Filings change at most daily, and the demo tickers are re-run once a day by the warm-up cron. */
+const CACHE_HOURS = 26;
 
 interface AnalyzeBody {
   ticker?: unknown;

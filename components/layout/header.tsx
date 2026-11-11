@@ -2,6 +2,7 @@ import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { TAGLINE } from "./tab-bar";
 import { ThemeToggle } from "./theme-toggle";
+import { GeminiKeyButton } from "@/components/settings/gemini-key";
 
 /** Header for pages outside the report view: the wordmark, Radar, Contagion, Proof, Private company, Lab and the theme switch. */
 type HeaderKey = "radar" | "contagion" | "proof" | "private" | "lab";
@@ -32,6 +33,7 @@ export function Header({ active }: { active?: HeaderKey }) {
         {link("/proof", "Proof", "proof")}
         {link("/private", "Private company", "private")}
         {link("/microstructure", "Lab", "lab")}
+        <GeminiKeyButton />
         <ThemeToggle />
       </nav>
     </header>

@@ -206,6 +206,7 @@ export async function analyzeTicker(rawTicker: string, report: StepReporter, opt
     if (error instanceof GeminiError && error.kind === "timeout") {
       throw new AnalyzeError("Entity extraction took too long. Please try again.", true);
     }
+    if (error instanceof GeminiError && error.kind === "key") throw new AnalyzeError(error.message);
     if (error instanceof GeminiError && (error.status === 429 || error.status === 503)) {
       throw new AnalyzeError("Google's Gemini service is overloaded right now. Please try again in a minute.", true);
     }

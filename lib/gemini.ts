@@ -14,15 +14,37 @@ const TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS ?? 55_000);
 export class GeminiError extends Error {
   constructor(
     message: string,
-    readonly kind: "config" | "http" | "parse" | "timeout",
+    readonly kind: "config" | "http" | "parse" | "timeout" | "key",
     readonly status?: number,
   ) {
     super(message);
   }
 }
 
+/** The header a visitor's own key arrives in; set by the browser from the key saved on that device. */
+export const USER_KEY_HEADER = "x-gemini-key";
+const KEY_SHAPE = /^[A-Za-z0-9_-]{30,64}$/;
+
+/**
+ * A key the visitor supplied for this request, or null. Read from the request
+ * headers through Next's request context, so no route has to pass it along;
+ * outside a request (scripts, builds) there is none. The key is used for the
+ * call and never stored or logged.
+ */
+function userKey(): string | null {
+  try {
+    // Required lazily: scripts import this file outside Next.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { headers } = require("next/headers") as typeof import("next/headers");
+    const key = headers().get(USER_KEY_HEADER)?.trim() ?? "";
+    return KEY_SHAPE.test(key) ? key : null;
+  } catch {
+    return null;
+  }
+}
+
 export function geminiEnabled(): boolean {
-  return Boolean(process.env.GEMINI_API_KEY);
+  return Boolean(userKey() ?? process.env.GEMINI_API_KEY);
 }
 
 /** Gemini's OpenAPI-style response schema. */
@@ -83,7 +105,8 @@ export async function generateJson(system: string, prompt: string, schema: Schem
 }
 
 async function callModel(model: string, system: string, prompt: string, schema: Schema, options: GenerateOptions): Promise<unknown> {
-  const key = process.env.GEMINI_API_KEY;
+  const own = userKey();
+  const key = own ?? process.env.GEMINI_API_KEY;
   if (!key) throw new GeminiError("GEMINI_API_KEY is not set", "config");
 
   const started = Date.now();
@@ -112,7 +135,11 @@ async function callModel(model: string, system: string, prompt: string, schema: 
     throw new GeminiError(timedOut ? "Gemini timed out" : `Gemini request failed: ${String(error)}`, timedOut ? "timeout" : "http");
   }
   if (!response.ok) {
-    console.warn(`Gemini ${model}: HTTP ${response.status} after ${Date.now() - started} ms`);
+    console.warn(`Gemini ${model}: HTTP ${response.status} after ${Date.now() - started} ms${own ? " (visitor key)" : ""}`);
+    // A visitor's key that Google rejects is their problem to fix, not a reason to retry.
+    if (own && (response.status === 400 || response.status === 401 || response.status === 403)) {
+      throw new GeminiError("Google rejected the Gemini key saved in this browser. Check it in Settings, or clear it to use the site's key.", "key", response.status);
+    }
     throw new GeminiError(`Gemini ${response.status}: ${(await response.text()).slice(0, 300)}`, "http", response.status);
   }
   const body = (await response.json()) as GeminiResponse;
