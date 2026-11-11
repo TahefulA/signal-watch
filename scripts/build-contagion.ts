@@ -1,6 +1,6 @@
 /**
  * Builds the sponsor contagion graph from EDGAR, offline:
- *   npx tsx --env-file=.env.local scripts/build-contagion.ts [--scan N] [--no-warn]
+ *   npx tsx --env-file=.env.local scripts/build-contagion.ts [--scan N] [--no-warn | --keep-warn]
  *
  * Every step caches to .cache/contagion, so a rerun only fetches what changed.
  * --scan N runs the trapdoor scanner on up to N companies that a sibling's
@@ -19,6 +19,16 @@ import { tigerEnabled } from "../lib/tiger";
 import { getSubmissions } from "../lib/edgar";
 
 const DIR = ".cache/contagion";
+
+/**
+ * Operating companies that file their own 8-Ks under a parent the graph
+ * reads the sponsor from. J.Crew Group's 8-Ks carry its 2017 exchange and
+ * 2020 bankruptcy; its 2020 Item 1.03 8-K names Chinos as "the direct parent
+ * of the Company", and Chinos's credit documents name the sponsors.
+ */
+const SUBSIDIARY_FILERS: { cik: string; parentCik: string; source: string }[] = [
+  { cik: "1051251", parentCik: "1513842", source: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1051251&type=8-K" },
+];
 
 /** EDGAR lists some filers in capitals: "HERTZ GLOBAL HOLDINGS, INC" reads as "Hertz Global Holdings, Inc". */
 function titleCase(name: string): string {
@@ -63,6 +73,16 @@ async function main(): Promise<void> {
     });
     if (company) companies.push(company);
     if (i % 20 === 19) console.log(`  ${i + 1}/${candidates.length} read, ${companies.length} kept`);
+  }
+
+  for (const sub of SUBSIDIARY_FILERS) {
+    const parent = companies.find((c) => c.cik === sub.parentCik);
+    if (!parent) continue;
+    const found = await cached(`events-${sub.cik}`, () => findEvents(sub.cik, today));
+    for (const e of found.events) if (!parent.events.some((x) => x.id === e.id)) parent.events.push({ ...e, cik: parent.cik, quote: cleanQuote(e.quote) });
+    parent.events.sort((a, b) => a.date.localeCompare(b.date));
+    parent.lastPeriodic = [parent.lastPeriodic, found.lastPeriodic].filter(Boolean).sort().at(-1) ?? null;
+    if (/^Chinos/.test(parent.name)) parent.name = "J.Crew (Chinos Holdings)";
   }
 
   let all = currentOwners(dedupe(companies), today);
@@ -113,7 +133,14 @@ async function main(): Promise<void> {
     note: "Covers companies that file with the SEC and whose credit agreement or indenture names the sponsor. Many sponsor-backed borrowers are private and do not appear.",
   };
 
-  if (!args.includes("--no-warn")) await writeWarnings(map, (t) => console.log(`  ${t}`));
+  if (args.includes("--keep-warn") && existsSync("data/contagion.json")) {
+    // Reuses the last build's notes where a company's rules read exactly as before, so a data fix costs no model calls.
+    const last = JSON.parse(readFileSync("data/contagion.json", "utf8")) as ContagionMap;
+    for (const a of map.assessments) {
+      const old = last.assessments.find((x) => x.cik === a.cik);
+      if (old?.warning && JSON.stringify(old.rules) === JSON.stringify(a.rules)) a.warning = old.warning;
+    }
+  } else if (!args.includes("--no-warn")) await writeWarnings(map, (t) => console.log(`  ${t}`));
 
   writeFileSync("data/contagion.json", JSON.stringify(map));
   if (tigerEnabled()) await saveContagion(map).catch((e: unknown) => console.warn(`  Tiger Data: ${String(e)}`));

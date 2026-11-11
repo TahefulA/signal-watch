@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/layout/header";
 import { AucChart, CalibrationChart, WarningChart } from "@/components/proof/proof-charts";
+import { ContagionProof } from "@/components/proof/contagion-proof";
 import { FEATURE_LABELS, type FeatureName } from "@/lib/features";
 import backtest from "@/model/backtest.json";
 
@@ -18,9 +19,9 @@ function Stat({ label, value, sub }: { label: string; value: string; sub: string
   );
 }
 
-function Section({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
+function Section({ title, note, children, id }: { title: string; note?: string; children: React.ReactNode; id?: string }) {
   return (
-    <section className="mt-12">
+    <section id={id} className="mt-12 scroll-mt-6">
       <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> {title}
       </h2>
@@ -163,6 +164,14 @@ export default function ProofPage() {
             </table>
           </div>
           <p className="mt-2 text-[11px] text-zinc-500">Altman Z&apos;&apos; often warns earlier because it flags most companies: {pct(o.altmanZDistressZone.falseAlarmRate, 0)} of healthy company-quarters sit in its distress zone.</p>
+        </Section>
+
+        <Section
+          id="contagion"
+          title="Sponsor contagion, backtested"
+          note="Did the contagion screen flag the sponsor-backed companies that went on to squeeze their lenders or file for bankruptcy? On each 1 January it was rebuilt from only the 8-Ks and XBRL facts filed before that day, then checked against the next 24 months."
+        >
+          <ContagionProof />
         </Section>
 
         <Section title="Limits">

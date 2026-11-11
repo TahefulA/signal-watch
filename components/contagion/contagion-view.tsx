@@ -461,7 +461,11 @@ function HowItWorks({ map }: { map: ContagionMap }) {
       </ol>
       <p className="mt-4 text-[12px] leading-relaxed text-zinc-500">
         {map.note} The rules are a screen built on documented sponsor behaviour, not a fitted probability: there are too few public liability management deals per sponsor to
-        calibrate one. Built {map.builtAt.slice(0, 10)}.
+        calibrate one. Built {map.builtAt.slice(0, 10)}.{" "}
+        <a href="/proof#contagion" className="text-zinc-300 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-50">
+          See how the screen did on past years
+        </a>
+        .
       </p>
     </section>
   );

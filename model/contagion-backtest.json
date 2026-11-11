@@ -1,0 +1,480 @@
+{
+ "generatedAt": "2026-11-11T16:19:55.667Z",
+ "graphBuiltAt": "2026-11-11T16:19:19.823Z",
+ "method": {
+  "cutoffs": [
+   "2018-01-01",
+   "2019-01-01",
+   "2020-01-01",
+   "2021-01-01",
+   "2022-01-01",
+   "2023-01-01",
+   "2024-01-01"
+  ],
+  "horizonMonths": 24,
+  "flag": "A sister company under the same sponsor had a bankruptcy or lender squeeze in the ten years before the cutoff, and at least 10% of debt was due within two years or the distress model put the company at elevated or worse",
+  "pointInTime": "8-Ks filed before the cutoff; XBRL facts filed before the cutoff (first-reported figures, no later restatements); the distress model as scored from those facts; companies with a 10-K or 10-Q in the 460 days before the cutoff",
+  "leftOut": "The trapdoor rule: the scans read today's credit documents, so they cannot be used for an earlier date without leaking",
+  "outcome": "A bankruptcy filing (8-K Item 1.03) or lender squeeze (8-K) in the 24 months after the cutoff"
+ },
+ "strict": {
+  "companyYears": 86,
+  "companies": 35,
+  "events": 3,
+  "screen": {
+   "flagged": 21,
+   "flaggedEvents": 1,
+   "flaggedRate": 0.047619047619047616,
+   "others": 65,
+   "otherEvents": 2,
+   "otherRate": 0.03076923076923077,
+   "lift": 1.5476190476190474,
+   "pValue": 0.5731874145006858,
+   "recall": 0.3333333333333333
+  },
+  "siblingOnly": {
+   "flagged": 44,
+   "flaggedEvents": 1,
+   "flaggedRate": 0.022727272727272728,
+   "others": 42,
+   "otherEvents": 2,
+   "otherRate": 0.047619047619047616,
+   "lift": 0.4772727272727273,
+   "pValue": 0.8878248974008047,
+   "recall": 0.3333333333333333
+  },
+  "balanceSheetOnly": {
+   "flagged": 38,
+   "flaggedEvents": 3,
+   "flaggedRate": 0.07894736842105263,
+   "others": 48,
+   "otherEvents": 0,
+   "otherRate": 0,
+   "lift": null,
+   "pValue": 0.08243111197967447,
+   "recall": 1
+  },
+  "perCutoff": [
+   {
+    "cutoff": "2018-01-01",
+    "companies": 4,
+    "flagged": 2,
+    "flaggedEvents": 0,
+    "otherEvents": 0
+   },
+   {
+    "cutoff": "2019-01-01",
+    "companies": 6,
+    "flagged": 3,
+    "flaggedEvents": 1,
+    "otherEvents": 0
+   },
+   {
+    "cutoff": "2020-01-01",
+    "companies": 8,
+    "flagged": 2,
+    "flaggedEvents": 0,
+    "otherEvents": 0
+   },
+   {
+    "cutoff": "2021-01-01",
+    "companies": 12,
+    "flagged": 3,
+    "flaggedEvents": 0,
+    "otherEvents": 0
+   },
+   {
+    "cutoff": "2022-01-01",
+    "companies": 17,
+    "flagged": 1,
+    "flaggedEvents": 0,
+    "otherEvents": 1
+   },
+   {
+    "cutoff": "2023-01-01",
+    "companies": 21,
+    "flagged": 5,
+    "flaggedEvents": 0,
+    "otherEvents": 1
+   },
+   {
+    "cutoff": "2024-01-01",
+    "companies": 18,
+    "flagged": 5,
+    "flaggedEvents": 0,
+    "otherEvents": 0
+   }
+  ],
+  "caught": [
+   {
+    "cutoff": "2019-01-01",
+    "name": "EP Energy Corp",
+    "event": "2019-10-04",
+    "kind": "bankruptcy",
+    "url": "https://www.sec.gov/Archives/edgar/data/1584952/000110465919053041/a19-19406_18k.htm",
+    "sibling": {
+     "name": "Caesars Holdings, Inc.",
+     "date": "2016-06-21",
+     "kind": "restructuring"
+    },
+    "maturity": false,
+    "distress": true
+   }
+  ],
+  "missed": [
+   {
+    "cutoff": "2022-01-01",
+    "name": "Party City Holdco Inc.",
+    "event": "2023-01-18",
+    "kind": "bankruptcy",
+    "willing": false,
+    "maturity": true,
+    "distress": true
+   },
+   {
+    "cutoff": "2023-01-01",
+    "name": "Party City Holdco Inc.",
+    "event": "2023-01-18",
+    "kind": "bankruptcy",
+    "willing": false,
+    "maturity": false,
+    "distress": true
+   }
+  ],
+  "falseAlarms": 20,
+  "distinctEvents": 2,
+  "distinctCaught": 1
+ },
+ "lenient": {
+  "companyYears": 239,
+  "companies": 53,
+  "events": 20,
+  "screen": {
+   "flagged": 39,
+   "flaggedEvents": 10,
+   "flaggedRate": 0.2564102564102564,
+   "others": 200,
+   "otherEvents": 10,
+   "otherRate": 0.05,
+   "lift": 5.128205128205128,
+   "pValue": 0.0002455464674158326,
+   "recall": 0.5
+  },
+  "siblingOnly": {
+   "flagged": 113,
+   "flaggedEvents": 14,
+   "flaggedRate": 0.12389380530973451,
+   "others": 126,
+   "otherEvents": 6,
+   "otherRate": 0.047619047619047616,
+   "lift": 2.601769911504425,
+   "pValue": 0.02871590085911082,
+   "recall": 0.7
+  },
+  "balanceSheetOnly": {
+   "flagged": 80,
+   "flaggedEvents": 15,
+   "flaggedRate": 0.1875,
+   "others": 159,
+   "otherEvents": 5,
+   "otherRate": 0.031446540880503145,
+   "lift": 5.9625,
+   "pValue": 0.00008994707332524499,
+   "recall": 0.75
+  },
+  "perCutoff": [
+   {
+    "cutoff": "2018-01-01",
+    "companies": 24,
+    "flagged": 5,
+    "flaggedEvents": 1,
+    "otherEvents": 0
+   },
+   {
+    "cutoff": "2019-01-01",
+    "companies": 26,
+    "flagged": 4,
+    "flaggedEvents": 1,
+    "otherEvents": 2
+   },
+   {
+    "cutoff": "2020-01-01",
+    "companies": 31,
+    "flagged": 3,
+    "flaggedEvents": 0,
+    "otherEvents": 2
+   },
+   {
+    "cutoff": "2021-01-01",
+    "companies": 37,
+    "flagged": 6,
+    "flaggedEvents": 0,
+    "otherEvents": 0
+   },
+   {
+    "cutoff": "2022-01-01",
+    "companies": 43,
+    "flagged": 3,
+    "flaggedEvents": 2,
+    "otherEvents": 1
+   },
+   {
+    "cutoff": "2023-01-01",
+    "companies": 43,
+    "flagged": 8,
+    "flaggedEvents": 3,
+    "otherEvents": 4
+   },
+   {
+    "cutoff": "2024-01-01",
+    "companies": 35,
+    "flagged": 10,
+    "flaggedEvents": 3,
+    "otherEvents": 1
+   }
+  ],
+  "caught": [
+   {
+    "cutoff": "2018-01-01",
+    "name": "EP Energy Corp",
+    "event": "2019-10-04",
+    "kind": "bankruptcy",
+    "url": "https://www.sec.gov/Archives/edgar/data/1584952/000110465919053041/a19-19406_18k.htm",
+    "sibling": {
+     "name": "Caesars Holdings, Inc.",
+     "date": "2016-06-21",
+     "kind": "restructuring"
+    },
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2019-01-01",
+    "name": "EP Energy Corp",
+    "event": "2019-10-04",
+    "kind": "bankruptcy",
+    "url": "https://www.sec.gov/Archives/edgar/data/1584952/000110465919053041/a19-19406_18k.htm",
+    "sibling": {
+     "name": "Caesars Holdings, Inc.",
+     "date": "2016-06-21",
+     "kind": "restructuring"
+    },
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2022-01-01",
+    "name": "ATI Physical Therapy, Inc.",
+    "event": "2023-04-21",
+    "kind": "lme",
+    "url": "https://www.sec.gov/Archives/edgar/data/1815849/000114036123019598/brhc20051613_8k.htm",
+    "sibling": {
+     "name": "Party City Holdco Inc.",
+     "date": "2020-05-29",
+     "kind": "lme"
+    },
+    "maturity": true,
+    "distress": true
+   },
+   {
+    "cutoff": "2022-01-01",
+    "name": "Cyxtera Technologies, Inc.",
+    "event": "2023-06-05",
+    "kind": "bankruptcy",
+    "url": "https://www.sec.gov/Archives/edgar/data/1794905/000119312523160378/d497336d8k.htm",
+    "sibling": {
+     "name": "Intelsat S.A.",
+     "date": "2020-05-14",
+     "kind": "bankruptcy"
+    },
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2023-01-01",
+    "name": "ATI Physical Therapy, Inc.",
+    "event": "2023-04-21",
+    "kind": "lme",
+    "url": "https://www.sec.gov/Archives/edgar/data/1815849/000114036123019598/brhc20051613_8k.htm",
+    "sibling": {
+     "name": "Party City Holdco Inc.",
+     "date": "2020-05-29",
+     "kind": "lme"
+    },
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2023-01-01",
+    "name": "Cyxtera Technologies, Inc.",
+    "event": "2023-06-05",
+    "kind": "bankruptcy",
+    "url": "https://www.sec.gov/Archives/edgar/data/1794905/000119312523160378/d497336d8k.htm",
+    "sibling": {
+     "name": "Intelsat S.A.",
+     "date": "2020-05-14",
+     "kind": "bankruptcy"
+    },
+    "maturity": true,
+    "distress": true
+   },
+   {
+    "cutoff": "2023-01-01",
+    "name": "JOANN Inc.",
+    "event": "2024-03-18",
+    "kind": "bankruptcy",
+    "url": "https://www.sec.gov/Archives/edgar/data/1834585/000119312524069648/d775196d8k.htm",
+    "sibling": {
+     "name": "J.Crew (Chinos Holdings)",
+     "date": "2020-05-04",
+     "kind": "bankruptcy"
+    },
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2024-01-01",
+    "name": "Claritev Corp",
+    "event": "2024-12-26",
+    "kind": "lme",
+    "url": "https://www.sec.gov/Archives/edgar/data/1793229/000110465924131472/tm2431855d1_8k.htm",
+    "sibling": {
+     "name": "J.Crew (Chinos Holdings)",
+     "date": "2020-05-04",
+     "kind": "bankruptcy"
+    },
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2024-01-01",
+    "name": "Container Store Group, Inc.",
+    "event": "2024-12-23",
+    "kind": "bankruptcy",
+    "url": "https://www.sec.gov/Archives/edgar/data/1411688/000110465924131067/tm2431779d1_8k.htm",
+    "sibling": {
+     "name": "J.Crew (Chinos Holdings)",
+     "date": "2020-05-04",
+     "kind": "bankruptcy"
+    },
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2024-01-01",
+    "name": "JOANN Inc.",
+    "event": "2024-03-18",
+    "kind": "bankruptcy",
+    "url": "https://www.sec.gov/Archives/edgar/data/1834585/000119312524069648/d775196d8k.htm",
+    "sibling": {
+     "name": "J.Crew (Chinos Holdings)",
+     "date": "2020-05-04",
+     "kind": "bankruptcy"
+    },
+    "maturity": false,
+    "distress": true
+   }
+  ],
+  "missed": [
+   {
+    "cutoff": "2019-01-01",
+    "name": "Hertz Global Holdings, Inc",
+    "event": "2020-05-26",
+    "kind": "bankruptcy",
+    "willing": true,
+    "maturity": false,
+    "distress": false
+   },
+   {
+    "cutoff": "2019-01-01",
+    "name": "Party City Holdco Inc.",
+    "event": "2020-05-29",
+    "kind": "lme",
+    "willing": false,
+    "maturity": false,
+    "distress": false
+   },
+   {
+    "cutoff": "2020-01-01",
+    "name": "Hertz Global Holdings, Inc",
+    "event": "2020-05-26",
+    "kind": "bankruptcy",
+    "willing": true,
+    "maturity": false,
+    "distress": false
+   },
+   {
+    "cutoff": "2020-01-01",
+    "name": "Party City Holdco Inc.",
+    "event": "2020-05-29",
+    "kind": "lme",
+    "willing": false,
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2022-01-01",
+    "name": "Party City Holdco Inc.",
+    "event": "2023-01-18",
+    "kind": "bankruptcy",
+    "willing": false,
+    "maturity": true,
+    "distress": true
+   },
+   {
+    "cutoff": "2023-01-01",
+    "name": "Claritev Corp",
+    "event": "2024-12-26",
+    "kind": "lme",
+    "willing": true,
+    "maturity": false,
+    "distress": false
+   },
+   {
+    "cutoff": "2023-01-01",
+    "name": "Container Store Group, Inc.",
+    "event": "2024-12-23",
+    "kind": "bankruptcy",
+    "willing": true,
+    "maturity": false,
+    "distress": false
+   },
+   {
+    "cutoff": "2023-01-01",
+    "name": "KLDiscovery Inc.",
+    "event": "2024-07-02",
+    "kind": "lme",
+    "willing": false,
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2023-01-01",
+    "name": "Party City Holdco Inc.",
+    "event": "2023-01-18",
+    "kind": "bankruptcy",
+    "willing": false,
+    "maturity": false,
+    "distress": true
+   },
+   {
+    "cutoff": "2024-01-01",
+    "name": "KLDiscovery Inc.",
+    "event": "2024-07-02",
+    "kind": "lme",
+    "willing": false,
+    "maturity": false,
+    "distress": true
+   }
+  ],
+  "falseAlarms": 29,
+  "distinctEvents": 10,
+  "distinctCaught": 6
+ },
+ "caveats": [
+  "Small sample: a few dozen live sponsor-backed SEC filers a year and a handful of events, so the p-value matters more than the lift.",
+  "The 13 sponsors were chosen knowing which ones have done liability management deals, which favours the sibling rule.",
+  "Strict ownership counts a sponsor only from credit documents filed before the cutoff; lenient uses the documents as they stand today, which can include a sponsor that bought in later.",
+  "Events are found by keyword in 8-Ks; a deal described in other words is missed in both groups."
+ ]
+}
