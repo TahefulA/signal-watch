@@ -3,8 +3,8 @@ import Link from "next/link";
 import { TAGLINE } from "./tab-bar";
 import { ThemeToggle } from "./theme-toggle";
 
-/** Header for pages outside the report view: the wordmark, Radar, Contagion, Proof, Private company and the theme switch. */
-type HeaderKey = "radar" | "contagion" | "proof" | "private";
+/** Header for pages outside the report view: the wordmark, Radar, Contagion, Proof, Private company, Lab and the theme switch. */
+type HeaderKey = "radar" | "contagion" | "proof" | "private" | "lab";
 
 export function Header({ active }: { active?: HeaderKey }) {
   const link = (href: string, label: string, key: HeaderKey) => (
@@ -26,11 +26,12 @@ export function Header({ active }: { active?: HeaderKey }) {
           <span className="mt-1 hidden text-[10px] text-zinc-500 lg:block">{TAGLINE}</span>
         </span>
       </Link>
-      <nav className="ml-auto flex items-center gap-5">
+      <nav className="ml-auto flex items-center gap-4 overflow-x-auto sm:gap-5">
         {link("/", "Radar", "radar")}
         {link("/contagion", "Contagion", "contagion")}
         {link("/proof", "Proof", "proof")}
         {link("/private", "Private company", "private")}
+        {link("/microstructure", "Lab", "lab")}
         <ThemeToggle />
       </nav>
     </header>

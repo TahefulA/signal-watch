@@ -133,6 +133,9 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
         <Link href="/contagion" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="Sponsor contagion: which sponsor-backed borrower could be the next liability management target">
           Contagion
         </Link>
+        <Link href="/microstructure" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="Lab: rolling statistics and anomaly detection on a live order book">
+          Lab
+        </Link>
         <Link href="/proof" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="The backtest: did the forecast warn before real bankruptcies?">
           Proof
         </Link>
