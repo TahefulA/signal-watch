@@ -18,7 +18,7 @@ export async function ensureForecast(report: Report, today = toIsoDate(new Date(
   const company = report.graph.company;
   const needDistress = !report.distress || report.distress.asOf !== today;
   const needChange = report.filingChange === undefined;
-  const needRates = !report.rateStress || report.rateStress.fetchedAt.slice(0, 10) !== today;
+  const needRates = !report.rateStress || report.rateStress.fetchedAt.slice(0, 10) !== today || report.rateStress.inputs === undefined;
   if (!needDistress && !needChange && !needRates) return { report, changed: false };
 
   const book = await fetchFacts(company.cik).catch(() => null);

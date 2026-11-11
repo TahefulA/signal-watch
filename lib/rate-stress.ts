@@ -50,11 +50,24 @@ export function rateStress(capital: CapitalStructure | null | undefined, book: F
       : null,
     fetchedAt: path.fetchedAt,
   };
-  if (!meeting || path.currentUpper === null) return { ...base, scenarios: [], note: "Kalshi's Fed markets did not have enough liquid prices to read a rate path." };
   if (!capital?.asOf || !book) return { ...base, scenarios: [], note: "The report has no financial snapshot to run the cash forecast from." };
-
   const { fcf, cash } = cashHistory(book, capital.asOf);
   const schedule = capital.maturitySchedule?.rows ?? null;
+  const undrawn = (capital.instruments ?? [])
+    .filter((i) => i.kind === "revolver" && i.commitment !== null)
+    .reduce((sum, i) => sum + Math.max(0, (i.commitment ?? 0) - (i.outstanding ?? 0)), 0);
+  const inputs = {
+    fcf,
+    cash,
+    schedule,
+    undrawn,
+    floatingDebt: floating,
+    currentUpper: path.currentUpper,
+    expectedUpper: meeting?.expectedUpper ?? null,
+    stressUpper: meeting?.stressUpper ?? null,
+    meetingDate: meeting?.date ?? null,
+  };
+  if (!meeting || path.currentUpper === null) return { ...base, scenarios: [], note: "Kalshi's Fed markets did not have enough liquid prices to read a rate path.", inputs };
   const current = path.currentUpper;
   const cases: { key: RateScenario["key"]; label: string; upper: number; how: string }[] = [
     { key: "hold", label: "Rates stay where they are", upper: current, how: `upper bound stays at ${current.toFixed(2)}%` },
@@ -99,5 +112,5 @@ export function rateStress(capital: CapitalStructure | null | undefined, book: F
       : fcf.length < 2
         ? "Free cash flow is not tagged for enough quarters to run the forecast."
         : null;
-  return { ...base, scenarios, note };
+  return { ...base, scenarios, note, inputs };
 }

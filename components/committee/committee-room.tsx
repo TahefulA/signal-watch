@@ -1,15 +1,17 @@
 "use client";
 
-import { Gavel, RotateCcw, Send } from "lucide-react";
-import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { Gavel, Lightbulb, RotateCcw, Send } from "lucide-react";
+import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChairSummary, CommitteeEvent, CommitteeRecord, CommitteeTurn, DistressScore, FilingChange, RateStress, Report, Scoreboard } from "@/types";
 import { BAND_STYLE, DistressCard, pctText } from "@/components/distress/distress-card";
 import { RateStressPanel } from "@/components/events/rate-stress-panel";
 import { TurnLine } from "./turn-line";
 import { ArgumentFlow } from "./argument-flow";
 import { LmeScanner } from "./lme-scanner";
+import { WhatIfPanel } from "./what-if";
+import { suggestQuestions } from "@/lib/committee/suggest";
+import type { WhatIf } from "@/lib/what-if";
 
-const MAX_QUESTIONS = 3;
 /** Pause between replayed lines, and before a checked line shows its verdict, so a reader can follow. */
 const REPLAY_MS = 1400;
 const VERDICT_MS = 700;
@@ -240,9 +242,8 @@ export function CommitteeRoom({ report }: { report: Report }) {
     else void run(false);
   }, [report.id, report.committee, replay, run]);
 
-  const ask = async (event: FormEvent) => {
-    event.preventDefault();
-    const q = question.trim();
+  const askText = async (text: string, whatIf: WhatIf | null = null) => {
+    const q = text.trim();
     if (q.length < 5 || asking) return;
     setAsking(true);
     setError(null);
@@ -250,21 +251,27 @@ export function CommitteeRoom({ report }: { report: Report }) {
       const response = await fetch("/api/committee/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportId: report.id, question: q }),
+        body: JSON.stringify({ reportId: report.id, question: q, whatIf }),
       });
       const body = (await response.json()) as { record?: CommitteeRecord; added?: CommitteeTurn[]; error?: string };
       if (!response.ok || !body.record || !body.added) throw new Error(body.error ?? "");
       const added = body.added;
       setRecord(body.record);
       setQuestion("");
+      setView("transcript");
       setTurns((list) => [...list, ...added.map((t) => (t.speaker === "user" ? t : { ...t, status: "pending" as const }))]);
       const t = setTimeout(() => setTurns((list) => list.map((x) => added.find((a) => a.id === x.id) ?? x)), VERDICT_MS);
       timers.current.push(t);
+      setTimeout(() => document.getElementById(`turn-${added[added.length - 1].id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
     } catch (err) {
       setError(err instanceof Error && err.message ? err.message : "The question could not be answered.");
     } finally {
       setAsking(false);
     }
+  };
+  const ask = (event: FormEvent) => {
+    event.preventDefault();
+    void askText(question);
   };
 
   const jump = (id: string) => document.getElementById(`turn-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -275,7 +282,7 @@ export function CommitteeRoom({ report }: { report: Report }) {
   const metric = (key: string) => report.capital?.metrics.find((m) => m.key === key)?.display ?? "n/a";
   const d = forecast.distress;
   const hold = forecast.rateStress?.scenarios.find((s) => s.key === "hold");
-  const asked = record?.questionsAsked ?? 0;
+  const suggestions = useMemo(() => suggestQuestions({ ...report, distress: forecast.distress, rateStress: forecast.rateStress, filingChange: forecast.filingChange }, record), [report, forecast, record]);
   const busy = running || replaying;
 
   return (
@@ -371,19 +378,45 @@ export function CommitteeRoom({ report }: { report: Report }) {
           {chairSummary ? <ChairBox summary={chairSummary} /> : null}
 
           {record && !busy ? (
-            <form onSubmit={(e) => void ask(e)} className="mt-6 flex gap-2">
-              <input
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                disabled={asked >= MAX_QUESTIONS || asking}
-                placeholder={asked >= MAX_QUESTIONS ? "Three questions asked: convene again for more" : `Ask the committee (${MAX_QUESTIONS - asked} left), e.g. "Does the revolver cover the 2027 maturity?"`}
-                className="min-w-0 flex-1 rounded-xs border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
-                maxLength={400}
-              />
-              <button type="submit" disabled={asked >= MAX_QUESTIONS || asking || question.trim().length < 5} className="inline-flex items-center gap-1.5 rounded-xs border border-zinc-600 px-3 text-xs text-zinc-200 hover:border-zinc-400 disabled:opacity-40">
-                <Send className="h-3.5 w-3.5" aria-hidden /> {asking ? "Asking" : "Ask"}
-              </button>
-            </form>
+            <>
+              {suggestions.length ? (
+                <div className="mt-6">
+                  <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                    <Lightbulb className="h-3.5 w-3.5" aria-hidden /> Questions worth asking
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-zinc-500">Picked by code from what the debate left open and what the filings show.</p>
+                  <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                    {suggestions.map((s) => (
+                      <li key={s.question}>
+                        <button
+                          type="button"
+                          disabled={asking}
+                          onClick={() => void askText(s.question)}
+                          className="h-full w-full rounded-xs border border-zinc-800 bg-zinc-900/60 px-3 py-2 text-left hover:border-zinc-600 disabled:opacity-40"
+                        >
+                          <span className="block text-[10px] font-semibold uppercase tracking-wider text-amber-500">{s.why}</span>
+                          <span className="mt-0.5 block text-[13px] leading-snug text-zinc-200">{s.question}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              <form onSubmit={ask} className="mt-4 flex gap-2">
+                <input
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  disabled={asking}
+                  placeholder='Ask the committee anything, e.g. "Does the revolver cover the 2027 maturity?"'
+                  className="min-w-0 flex-1 rounded-xs border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
+                  maxLength={400}
+                />
+                <button type="submit" disabled={asking || question.trim().length < 5} className="inline-flex items-center gap-1.5 rounded-xs border border-zinc-600 px-3 text-xs text-zinc-200 hover:border-zinc-400 disabled:opacity-40">
+                  <Send className="h-3.5 w-3.5" aria-hidden /> {asking ? "Asking" : "Ask"}
+                </button>
+              </form>
+              {forecast.rateStress?.inputs ? <WhatIfPanel inputs={forecast.rateStress.inputs} asking={asking} onAsk={(q, w) => void askText(q, w)} /> : null}
+            </>
           ) : null}
 
           <LmeScanner report={report} />

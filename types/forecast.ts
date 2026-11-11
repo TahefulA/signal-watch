@@ -101,4 +101,20 @@ export interface RateStress {
   fetchedAt: string;
   scenarios: RateScenario[];
   note: string | null;
+  /** What the what-if panel needs to rerun the cash forecast in the browser. */
+  inputs?: ScenarioInputs | null;
+}
+
+/** The filed figures behind the cash forecast, so a reader can change one assumption and rerun it. */
+export interface ScenarioInputs {
+  fcf: { end: string; value: number }[];
+  cash: { end: string; value: number }[];
+  schedule: { period: string; amount: number }[] | null;
+  /** Undrawn revolver commitments from the debt note (an upper bound when the drawn amount is not disclosed). */
+  undrawn: number;
+  floatingDebt: number;
+  currentUpper: number | null;
+  expectedUpper: number | null;
+  stressUpper: number | null;
+  meetingDate: string | null;
 }

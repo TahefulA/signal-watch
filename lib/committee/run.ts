@@ -12,7 +12,8 @@ import { verifyTurn } from "./verify";
  * address, when the borrower has rate exposure.
  */
 
-export const MAX_QUESTIONS = 3;
+/** A guard against runaway cost, not a feature: high enough that a reader never meets it in a demo. */
+export const MAX_QUESTIONS = 30;
 const NEWS_AFTER = 4;
 
 export async function runCommittee(report: Report, patterns: PatternResult[], emit: (e: CommitteeEvent) => void): Promise<CommitteeRecord> {
@@ -126,8 +127,14 @@ export async function askCommittee(
   patterns: PatternResult[],
   record: CommitteeRecord,
   question: string,
+  /** A what-if run by code for this question, given as a card to the side its result supports. */
+  scenario: { text: string; side: "analyst" | "devil" } | null = null,
 ): Promise<{ record: CommitteeRecord; added: CommitteeTurn[] }> {
   const cards = buildCards(report, patterns);
+  const scenarioId = scenario ? `${scenario.side === "devil" ? "d" : "a"}:scenario` : null;
+  if (scenario && scenarioId) {
+    cards.unshift({ id: scenarioId, side: scenario.side, kind: "scenario", title: "What-if scenario run by code", detail: scenario.text, quote: null, source: { label: "Cash forecast rerun from filed figures", url: null }, strength: "strong" });
+  }
   const byId = new Map(cards.map((c) => [c.id, c]));
   const n = record.turns.length + 1;
   const asked: CommitteeTurn = {
@@ -143,7 +150,7 @@ export async function askCommittee(
     problems: [],
   };
   const started = Date.now();
-  const draft = await answerQuestion(report, question, record.turns, cards);
+  const draft = await answerQuestion(report, scenarioId ? `${question} (Code ran this scenario and the ${scenarioId} card holds its numbers. Answer as ${scenario?.side === "devil" ? "the Devil's Advocate" : "the Analyst"}, citing ${scenarioId}, and say what the result means for a lender.)` : question, record.turns, cards);
   const evidence = draft.evidenceId ? byId.get(draft.evidenceId) ?? null : null;
   const answer: CommitteeTurn = {
     id: `t${n + 1}`,
