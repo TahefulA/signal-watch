@@ -35,12 +35,14 @@ export async function GET(request: Request) {
   const origin = new URL(request.url).origin;
 
   const staleList = reports.filter((r) => age(r.report?.generatedAt) > STALE_HOURS).sort((a, b) => age(b.report?.generatedAt) - age(a.report?.generatedAt));
-  // Rotated by the hour, so a ticker that keeps failing does not hold up the rest.
-  const stale = staleList[new Date().getUTCHours() % (staleList.length || 1)];
+  // Rotated by the minute, so a ticker that keeps failing does not hold up the rest.
+  const stale = staleList[Math.floor(Date.now() / 60_000) % (staleList.length || 1)];
   if (stale) {
     const res = await fetch(`${origin}/api/analyze`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ticker: stale.ticker, fresh: true }) });
     const last = await lastEvent(res);
-    return Response.json({ step: "analyze", ticker: stale.ticker, result: last?.type ?? "no response", message: last?.message ?? null });
+    // When Gemini is down the analyze route answers with the saved report (cached: true); that is not a refresh.
+    const refreshed = last?.type === "result" && last.cached === false;
+    return Response.json({ step: "analyze", ticker: stale.ticker, refreshed, message: refreshed ? null : (last?.message ?? "Gemini unavailable; saved report kept") });
   }
 
   const bare = reports.find((r) => r.report && !r.report.committee?.turns.length);
