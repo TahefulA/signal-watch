@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { MicrostructureDetector, type Alert, type AlertKind, type Sample } from "@/lib/stream/detector";
 import { POLYMARKET_WS, parseMessage, recentTrades, type BookEvent, type MarketInfo } from "@/lib/stream/polymarket";
+import { RuleRunner } from "@/lib/alerts/engine";
+import { type LiveQuestion, LiveQuestions } from "./live-questions";
 
 type Mode = "live" | "replay";
 
@@ -31,7 +33,9 @@ const KIND: Record<AlertKind, { label: string; tone: string }> = {
   sustained_move: { label: "Sustained move", tone: "border-sky-600 text-sky-400" },
   depth_shift: { label: "Depth shift", tone: "border-zinc-500 text-zinc-300" },
   combined: { label: "Unusual activity", tone: "border-red-600 text-red-400" },
+  rule: { label: "Your question", tone: "border-emerald-600 text-emerald-400" },
 };
+const QUESTIONS_KEY = "sw-live-questions";
 
 const clock = (t: number) => new Date(t).toLocaleTimeString("en-US", { hour12: false });
 const cents = (p: number | null | undefined) => (p === null || p === undefined || Number.isNaN(p) ? "n/a" : `${(p * 100).toFixed(1)}¢`);
@@ -43,10 +47,21 @@ interface EngineState {
   alerts: Alert[];
   events: number;
   now: number;
+  /** One runner per live question, keyed by its id. */
+  rules: Map<string, RuleRunner>;
 }
 
-function newEngine(): EngineState {
-  return { detector: new MicrostructureDetector(), series: [], alerts: [], events: 0, now: 0 };
+function newEngine(questions: LiveQuestion[] = []): EngineState {
+  return { detector: new MicrostructureDetector(), series: [], alerts: [], events: 0, now: 0, rules: new Map(questions.map((q) => [q.id, new RuleRunner(q.rule)])) };
+}
+
+function loadQuestions(): LiveQuestion[] {
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(QUESTIONS_KEY) ?? "[]") as LiveQuestion[];
+    return Array.isArray(raw) ? raw.slice(0, 8) : [];
+  } catch {
+    return [];
+  }
 }
 
 export function MicrostructureView() {
@@ -59,6 +74,9 @@ export function MicrostructureView() {
   const [paused, setPaused] = useState(false);
   const [status, setStatus] = useState("Starting...");
   const [, setTick] = useState(0);
+  const [questions, setQuestions] = useState<LiveQuestion[]>([]);
+  const questionsRef = useRef<LiveQuestion[]>([]);
+  questionsRef.current = questions;
   const engine = useRef<EngineState>(newEngine());
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
@@ -75,10 +93,48 @@ export function MicrostructureView() {
       e.series.push(sample);
       if (e.series.length > SERIES_MAX) e.series.splice(0, e.series.length - SERIES_MAX);
       e.now = t;
+      for (const [id, runner] of e.rules) {
+        const fire = runner.onSample(sample);
+        const name = questionsRef.current.find((q) => q.id === id)?.rule.name ?? runner.rule.name;
+        if (fire) alerts.push({ t, kind: "rule", text: `${name}: ${fire.text}` });
+      }
       record(alerts);
     },
     [record],
   );
+  /** One feed event through the detectors and every live question. */
+  const feed = useCallback(
+    (ev: BookEvent) => {
+      const e = engine.current;
+      e.events++;
+      for (const runner of e.rules.values()) runner.onEvent(ev);
+      record(e.detector.onEvent(ev));
+    },
+    [record],
+  );
+
+  useEffect(() => {
+    // Saved questions may load after the stream has started: give them runners on the running engine.
+    const list = loadQuestions();
+    for (const q of list) if (!engine.current.rules.has(q.id)) engine.current.rules.set(q.id, new RuleRunner(q.rule));
+    setQuestions(list);
+  }, []);
+  const saveQuestions = (list: LiveQuestion[]) => {
+    setQuestions(list);
+    try {
+      window.localStorage.setItem(QUESTIONS_KEY, JSON.stringify(list));
+    } catch {
+      // Questions still run for this visit.
+    }
+  };
+  const addQuestion = (q: LiveQuestion) => {
+    engine.current.rules.set(q.id, new RuleRunner(q.rule));
+    saveQuestions([...questions, q].slice(-8));
+  };
+  const removeQuestion = (id: string) => {
+    engine.current.rules.delete(id);
+    saveQuestions(questions.filter((q) => q.id !== id));
+  };
 
   useEffect(() => {
     fetch("/api/microstructure/markets")
@@ -105,7 +161,7 @@ export function MicrostructureView() {
     if (mode !== "live" || !marketId) return;
     const market = markets.find((m) => m.id === marketId);
     if (!market) return;
-    engine.current = newEngine();
+    engine.current = newEngine(questionsRef.current);
     let ws: WebSocket | null = null;
     let closed = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
@@ -120,10 +176,7 @@ export function MicrostructureView() {
         setStatus("Live");
       };
       ws.onmessage = (m) => {
-        for (const ev of parseMessage(String(m.data), market.assetId, market.complementId)) {
-          engine.current.events++;
-          record(engine.current.detector.onEvent(ev));
-        }
+        for (const ev of parseMessage(String(m.data), market.assetId, market.complementId)) feed(ev);
       };
       ws.onclose = () => {
         if (closed) return;
@@ -148,12 +201,12 @@ export function MicrostructureView() {
         ws.close();
       }
     };
-  }, [mode, marketId, markets, pushSample, record]);
+  }, [mode, marketId, markets, pushSample, feed]);
 
   // Replay: the recorded events in order on a simulated clock, sampled on the same one-second grid as live.
   useEffect(() => {
     if (mode !== "replay" || !recordingFile) return;
-    engine.current = newEngine();
+    engine.current = newEngine(questionsRef.current);
     let stopped = false;
     let timer: ReturnType<typeof setInterval> | undefined;
     setStatus("Loading recording...");
@@ -170,10 +223,7 @@ export function MicrostructureView() {
         timer = setInterval(() => {
           if (pausedRef.current) return;
           simT += 100 * speedRef.current;
-          while (i < events.length && events[i].t <= simT) {
-            engine.current.events++;
-            record(engine.current.detector.onEvent(events[i++]));
-          }
+          while (i < events.length && events[i].t <= simT) feed(events[i++]);
           while (next <= simT) {
             pushSample(next);
             next += 1_000;
@@ -190,7 +240,7 @@ export function MicrostructureView() {
       stopped = true;
       clearInterval(timer);
     };
-  }, [mode, recordingFile, pushSample, record]);
+  }, [mode, recordingFile, pushSample, feed]);
 
   const e = engine.current;
   const stats = e.detector.stats();
@@ -365,6 +415,8 @@ export function MicrostructureView() {
           ))}
         </Tile>
       </section>
+
+      <LiveQuestions questions={questions} runners={e.rules} onAdd={addQuestion} onRemove={removeQuestion} />
 
       <section className="mt-6" aria-label="Alerts">
         <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">

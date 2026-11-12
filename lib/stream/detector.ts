@@ -25,7 +25,8 @@ import { RollingWindow } from "./rolling-window";
  *   news, a rebalance or one big player look the same.
  */
 
-export type AlertKind = "large_trade" | "sustained_move" | "depth_shift" | "combined";
+/** "rule" is a fire from a compiled live question (lib/alerts), shown in the same feed. */
+export type AlertKind = "large_trade" | "sustained_move" | "depth_shift" | "combined" | "rule";
 
 export interface Alert {
   t: number;

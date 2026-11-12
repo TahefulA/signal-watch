@@ -1,0 +1,622 @@
+{
+  "summary": {
+    "ranAt": "2026-11-12T02:16:24.346Z",
+    "cases": 20,
+    "correct": 19,
+    "compiledValid": 15,
+    "compilable": 16,
+    "refusedCorrectly": 4,
+    "refusals": 4,
+    "retried": 0,
+    "medianCompileMs": 1065,
+    "replayFires": 171,
+    "replayHeld": 103,
+    "replayReversed": 0,
+    "meanEvalUs": 12.97
+  },
+  "results": [
+    {
+      "question": "Alert me if the price rises above 70 cents",
+      "expected": "mid level above",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1067,
+      "rule": {
+        "name": "Price Rises Above 70 Cents",
+        "clauses": [
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "level",
+              "op": "above",
+              "value": 0.7
+            }
+          }
+        ],
+        "persistence": 1,
+        "cooldownSec": 300
+      },
+      "description": "Fires when the price is above 70¢, held for 1 second; then quiet for 300 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 8.44
+        }
+      ]
+    },
+    {
+      "question": "Tell me when the YES price drops below 40%",
+      "expected": "mid level below",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 943,
+      "rule": {
+        "name": "YES Price Drops Below 40",
+        "clauses": [
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "level",
+              "op": "below",
+              "value": 0.4
+            }
+          }
+        ],
+        "persistence": 1,
+        "cooldownSec": 60
+      },
+      "description": "Fires when the price is below 40¢, held for 1 second; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 108,
+          "held": 103,
+          "reversed": 0,
+          "meanEvalUs": 5.33
+        }
+      ]
+    },
+    {
+      "question": "Tell me if the probability starts falling sharply",
+      "expected": "mid change down",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1703,
+      "rule": {
+        "name": "Probability Falling Sharply",
+        "clauses": [
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "change",
+              "direction": "down",
+              "amount": 0.03,
+              "seconds": 300
+            }
+          }
+        ],
+        "persistence": 3,
+        "cooldownSec": 60
+      },
+      "description": "Fires when the price has fallen at least 3¢ in 5 minutes, held for 3 seconds; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 6.33
+        }
+      ]
+    },
+    {
+      "question": "Alert when the price moves up 5 cents within 10 minutes",
+      "expected": "mid change up",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 770,
+      "rule": {
+        "name": "Mid Price Up 5 Cents",
+        "clauses": [
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "change",
+              "direction": "up",
+              "amount": 0.05,
+              "seconds": 600
+            }
+          }
+        ],
+        "persistence": 5,
+        "cooldownSec": 300
+      },
+      "description": "Fires when the price has risen at least 5¢ in 10 minutes, held for 5 seconds; then quiet for 300 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 7.3
+        }
+      ]
+    },
+    {
+      "question": "Let me know if the odds start drifting up",
+      "expected": "mid drift up",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1077,
+      "rule": {
+        "name": "Odds Drifting Up",
+        "clauses": [
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "drift",
+              "direction": "up",
+              "h": 5,
+              "window": 300
+            }
+          }
+        ],
+        "persistence": 3,
+        "cooldownSec": 300
+      },
+      "description": "Fires when the price is drifting up beyond normal noise (CUSUM past 5, noise from the last 300 samples), held for 3 seconds; then quiet for 300 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 22.65
+        }
+      ]
+    },
+    {
+      "question": "Warn me about a sustained downward trend in price",
+      "expected": "mid drift down",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1276,
+      "rule": {
+        "name": "Sustained Downward Price Trend",
+        "clauses": [
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "drift",
+              "direction": "down",
+              "h": 5,
+              "window": 300
+            }
+          }
+        ],
+        "persistence": 3,
+        "cooldownSec": 300
+      },
+      "description": "Fires when the price is drifting down beyond normal noise (CUSUM past 5, noise from the last 300 samples), held for 3 seconds; then quiet for 300 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 23.45
+        }
+      ]
+    },
+    {
+      "question": "Alert me on any unusually large trade",
+      "expected": "trade_size outlier up",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 864,
+      "rule": {
+        "name": "Unusually large trade alert",
+        "clauses": [
+          {
+            "metric": "trade_size",
+            "test": {
+              "kind": "outlier",
+              "direction": "up",
+              "z": 3.5,
+              "window": 200
+            }
+          }
+        ],
+        "persistence": 1,
+        "cooldownSec": 60
+      },
+      "description": "Fires when a fill's size is unusually high (robust z past 3.5 against the last 200), held for 1 second; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 3,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 7.44
+        }
+      ]
+    },
+    {
+      "question": "Notify me if someone fills more than 20,000 shares",
+      "expected": "trade_size level above",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 924,
+      "rule": {
+        "name": "Large trade fill above 20000",
+        "clauses": [
+          {
+            "metric": "trade_size",
+            "test": {
+              "kind": "level",
+              "op": "above",
+              "value": 20000
+            }
+          }
+        ],
+        "persistence": 1,
+        "cooldownSec": 60
+      },
+      "description": "Fires when a fill's size is above 20,000, held for 1 second; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 5
+        }
+      ]
+    },
+    {
+      "question": "Alert if the spread widens beyond 5 cents",
+      "expected": "spread level above",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1122,
+      "rule": {
+        "name": "Spread Widens Beyond Five Cents",
+        "clauses": [
+          {
+            "metric": "spread",
+            "test": {
+              "kind": "level",
+              "op": "above",
+              "value": 0.05
+            }
+          }
+        ],
+        "persistence": 3,
+        "cooldownSec": 60
+      },
+      "description": "Fires when the spread is above 5¢, held for 3 seconds; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 6.73
+        }
+      ]
+    },
+    {
+      "question": "Tell me when the book gets heavily bid, imbalance over 0.6",
+      "expected": "imbalance level above",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 825,
+      "rule": {
+        "name": "Heavy Bid Imbalance Alert",
+        "clauses": [
+          {
+            "metric": "imbalance",
+            "test": {
+              "kind": "level",
+              "op": "above",
+              "value": 0.6
+            }
+          }
+        ],
+        "persistence": 5,
+        "cooldownSec": 60
+      },
+      "description": "Fires when the book imbalance is above 0.60, held for 5 seconds; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 57,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 7.1
+        }
+      ]
+    },
+    {
+      "question": "Alert me if the bids thin out sharply relative to normal",
+      "expected": "imbalance outlier down",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1065,
+      "rule": {
+        "name": "Bids Thinning Sharply",
+        "clauses": [
+          {
+            "metric": "imbalance",
+            "test": {
+              "kind": "outlier",
+              "direction": "down",
+              "z": 3.5,
+              "window": 200
+            }
+          }
+        ],
+        "persistence": 1,
+        "cooldownSec": 60
+      },
+      "description": "Fires when the book imbalance is unusually low (robust z past 3.5 against the last 200), held for 1 second; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 2,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 45.49
+        }
+      ]
+    },
+    {
+      "question": "Tell me if trading activity spikes to more than 20 trades a minute",
+      "expected": "trade_rate level above",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1474,
+      "rule": {
+        "name": "Trading Activity Spike",
+        "clauses": [
+          {
+            "metric": "trade_rate",
+            "test": {
+              "kind": "level",
+              "op": "above",
+              "value": 20
+            }
+          }
+        ],
+        "persistence": 1,
+        "cooldownSec": 60
+      },
+      "description": "Fires when fills per minute is above 20, held for 1 second; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 1,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 8.53
+        }
+      ]
+    },
+    {
+      "question": "Alert me if the price is drifting down while the spread stays tight",
+      "expected": "mid drift down AND spread level below",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1096,
+      "rule": {
+        "name": "Drifting down tight spread",
+        "clauses": [
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "drift",
+              "direction": "down",
+              "h": 5,
+              "window": 300
+            }
+          },
+          {
+            "metric": "spread",
+            "test": {
+              "kind": "level",
+              "op": "below",
+              "value": 0.03
+            }
+          }
+        ],
+        "persistence": 3,
+        "cooldownSec": 60
+      },
+      "description": "Fires when the price is drifting down beyond normal noise (CUSUM past 5, noise from the last 300 samples), and the spread is below 3¢, held for 3 seconds; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 23.65
+        }
+      ]
+    },
+    {
+      "question": "Tell me if a whale buys and the price jumps 3 cents in 5 minutes",
+      "expected": "trade_size outlier up AND mid change up",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1149,
+      "rule": {
+        "name": "Whale Buy And Price Jump",
+        "clauses": [
+          {
+            "metric": "trade_size",
+            "test": {
+              "kind": "outlier",
+              "direction": "up",
+              "z": 3.5,
+              "window": 200
+            }
+          },
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "change",
+              "direction": "up",
+              "amount": 0.03,
+              "seconds": 300
+            }
+          }
+        ],
+        "persistence": 1,
+        "cooldownSec": 60
+      },
+      "description": "Fires when a fill's size is unusually high (robust z past 3.5 against the last 200), and the price has risen at least 3¢ in 5 minutes, held for 1 second; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 10.22
+        }
+      ]
+    },
+    {
+      "question": "Notify me if the price climbs above 0.55 and the book leans to buyers",
+      "expected": "mid level above AND imbalance level above",
+      "ok": true,
+      "correct": true,
+      "attempts": 1,
+      "ms": 783,
+      "rule": {
+        "name": "Price above 55c and buyers leaning",
+        "clauses": [
+          {
+            "metric": "mid",
+            "test": {
+              "kind": "level",
+              "op": "above",
+              "value": 0.55
+            }
+          },
+          {
+            "metric": "imbalance",
+            "test": {
+              "kind": "level",
+              "op": "above",
+              "value": 0
+            }
+          }
+        ],
+        "persistence": 3,
+        "cooldownSec": 60
+      },
+      "description": "Fires when the price is above 55¢, and the book imbalance is above 0.00, held for 3 seconds; then quiet for 60 seconds.",
+      "refusal": null,
+      "replay": [
+        {
+          "file": "will-there-be-no-change-in-fed-interest-rates-after-the-dece.json",
+          "fires": 0,
+          "held": 0,
+          "reversed": 0,
+          "meanEvalUs": 6.82
+        }
+      ]
+    },
+    {
+      "question": "Alert me when there's abnormal trading volume",
+      "expected": "trade_rate outlier up",
+      "ok": false,
+      "correct": false,
+      "attempts": 1,
+      "ms": 942,
+      "rule": null,
+      "description": null,
+      "refusal": "Trading volume over a time period is not supported by the available metrics, which only track trade size and trade rate.",
+      "replay": []
+    },
+    {
+      "question": "Tell me if the Fed rate odds drift up while tech bond spreads widen",
+      "expected": "refuse",
+      "ok": false,
+      "correct": true,
+      "attempts": 1,
+      "ms": 822,
+      "rule": null,
+      "description": null,
+      "refusal": "This request requires monitoring external assets and bonds outside of a single Polymarket order book.",
+      "replay": []
+    },
+    {
+      "question": "Alert me when Reuters publishes news about this market",
+      "expected": "refuse",
+      "ok": false,
+      "correct": true,
+      "attempts": 1,
+      "ms": 981,
+      "rule": null,
+      "description": null,
+      "refusal": "This question requires external news sources which are not part of the order book metrics.",
+      "replay": []
+    },
+    {
+      "question": "Tell me if Apple stock falls 5% today",
+      "expected": "refuse",
+      "ok": false,
+      "correct": true,
+      "attempts": 1,
+      "ms": 706,
+      "rule": null,
+      "description": null,
+      "refusal": "This question requires external stock market data outside of the Polymarket order book.",
+      "replay": []
+    },
+    {
+      "question": "Alert me at 9:30am every day with the price",
+      "expected": "refuse",
+      "ok": false,
+      "correct": true,
+      "attempts": 1,
+      "ms": 1332,
+      "rule": null,
+      "description": null,
+      "refusal": "The question requests a time-of-day alert, which is not supported by the order book metrics.",
+      "replay": []
+    }
+  ]
+}
