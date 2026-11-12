@@ -128,7 +128,7 @@ async function tableBest(report: Report, events: NewsEvent[]): Promise<ScanResul
   if (!record?.turns.length) return null;
   const onTable = new Set(record.turns.filter((t) => t.evidence?.kind === "news").map((t) => t.evidence?.source.url));
   const since = daysBefore(toIsoDate(new Date()), DAYS);
-  const best = events.filter((e) => e.passed && !e.tabledTurn && !onTable.has(e.url) && e.date >= since).sort((a, b) => priority(b) - priority(a))[0];
+  const best = events.filter((e) => e.passed && !onTable.has(e.url) && e.date >= since).sort((a, b) => priority(b) - priority(a))[0];
   if (!best) return null;
   const patterns = await patternsFor(report, toIsoDate(new Date()));
   const result = await tableHeadline(report, patterns, record, best, strengthOf(best));

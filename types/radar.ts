@@ -49,7 +49,7 @@ export interface NewsEvent {
   passed: boolean;
   /** Why it stopped, or why it went through. */
   reason: string;
-  /** The committee line that tabled it, when it was tabled. */
+  /** The committee line that last tabled it. A new committee (a re-run, or a newer report) gets it again; the panel shows "in the debate" only from the current transcript. */
   tabledTurn: string | null;
 }
 
