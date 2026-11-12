@@ -272,6 +272,18 @@ CREATE TABLE IF NOT EXISTS contagion_builds (
   built_at timestamptz PRIMARY KEY,
   map_json jsonb NOT NULL
 );
+CREATE TABLE IF NOT EXISTS news_events (
+  ticker text NOT NULL,
+  url text NOT NULL,
+  published date NOT NULL,
+  seen_at timestamptz NOT NULL DEFAULT NOW(),
+  event_json jsonb NOT NULL,
+  PRIMARY KEY (ticker, url)
+);
+CREATE TABLE IF NOT EXISTS news_scans (
+  ticker text PRIMARY KEY,
+  scanned_at timestamptz NOT NULL DEFAULT NOW()
+);
 CREATE TABLE IF NOT EXISTS owner_lookups (
   cik text PRIMARY KEY,
   company_json jsonb,

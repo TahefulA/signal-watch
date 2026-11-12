@@ -1,6 +1,6 @@
 "use client";
 
-import { Gavel, Lightbulb, Newspaper, RotateCcw, Send } from "lucide-react";
+import { Gavel, Lightbulb, RotateCcw, Send } from "lucide-react";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChairSummary, CommitteeEvent, CommitteeRecord, CommitteeTurn, DistressScore, FilingChange, RateStress, Report, Scoreboard } from "@/types";
 import { BAND_STYLE, DistressCard, pctText } from "@/components/distress/distress-card";
@@ -8,6 +8,7 @@ import { RateStressPanel } from "@/components/events/rate-stress-panel";
 import { TurnLine } from "./turn-line";
 import { ArgumentFlow } from "./argument-flow";
 import { LmeScanner } from "./lme-scanner";
+import { NewsRadar } from "./news-radar";
 import { WhatIfPanel } from "./what-if";
 import { suggestQuestions } from "@/lib/committee/suggest";
 import type { WhatIf } from "@/lib/what-if";
@@ -132,7 +133,6 @@ export function CommitteeRoom({ report }: { report: Report }) {
   const [replaying, setReplaying] = useState(false);
   const [question, setQuestion] = useState("");
   const [asking, setAsking] = useState(false);
-  const [newsNote, setNewsNote] = useState<string | null>(null);
   const [view, setView] = useState<"transcript" | "map">("transcript");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const company = report.graph.company;
@@ -266,32 +266,14 @@ export function CommitteeRoom({ report }: { report: Report }) {
     }
   };
   /** Shows new lines as checking, then their verdicts, and keeps the score and the map in step. */
-  const addTurns = (saved: CommitteeRecord, added: CommitteeTurn[]) => {
+  const addTurns = useCallback((saved: CommitteeRecord, added: CommitteeTurn[]) => {
     setRecord(saved);
     setScore(saved.score);
     setTurns((list) => [...list, ...added.map((t) => (t.speaker === "user" || t.move === "news" ? t : { ...t, status: "pending" as const }))]);
     const t = setTimeout(() => setTurns((list) => list.map((x) => added.find((a) => a.id === x.id) ?? x)), VERDICT_MS);
     timers.current.push(t);
     setTimeout(() => document.getElementById(`turn-${added[added.length - 1].id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
-  };
-  /** Reads the newest headlines into the debate; the map updates with the lines it adds. */
-  const liveNews = async () => {
-    if (asking) return;
-    setAsking(true);
-    setError(null);
-    setNewsNote(null);
-    try {
-      const response = await fetch("/api/committee/news", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reportId: report.id }) });
-      const body = (await response.json()) as { record?: CommitteeRecord; added?: CommitteeTurn[]; message?: string; error?: string };
-      if (!response.ok) throw new Error(body.error ?? "");
-      if (body.record && body.added) addTurns(body.record, body.added);
-      else setNewsNote(body.message ?? "No new headline bears on the credit.");
-    } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : "The news could not be read.");
-    } finally {
-      setAsking(false);
-    }
-  };
+  }, []);
   const ask = (event: FormEvent) => {
     event.preventDefault();
     void askText(question);
@@ -437,22 +419,12 @@ export function CommitteeRoom({ report }: { report: Report }) {
                 <button type="submit" disabled={asking || question.trim().length < 5} className="inline-flex items-center gap-1.5 rounded-xs border border-zinc-600 px-3 text-xs text-zinc-200 hover:border-zinc-400 disabled:opacity-40">
                   <Send className="h-3.5 w-3.5" aria-hidden /> {asking ? "Asking" : "Ask"}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => void liveNews()}
-                  disabled={asking}
-                  title="Read the newest headlines into the debate"
-                  className="inline-flex items-center gap-1.5 rounded-xs border border-amber-600/70 px-3 text-xs text-amber-400 hover:border-amber-400 hover:text-amber-300 disabled:opacity-40"
-                >
-                  <Newspaper className="h-3.5 w-3.5" aria-hidden /> Live news
-                </button>
               </form>
-              <p className="mt-1.5 text-[11px] text-zinc-500">
-                {newsNote ?? "Live news reads the last 14 days of headlines. The one that matters most to lenders goes to the committee, and the argument map updates with the answer."}
-              </p>
               {forecast.rateStress?.inputs ? <WhatIfPanel inputs={forecast.rateStress.inputs} asking={asking} onAsk={(q, w) => void askText(q, w)} /> : null}
             </>
           ) : null}
+
+          {record && !busy ? <NewsRadar ticker={company.ticker} turns={turns} onTabled={addTurns} onJump={openInTranscript} /> : null}
 
           <LmeScanner report={report} />
         </div>

@@ -95,6 +95,102 @@
     {
       "path": "/api/warm",
       "schedule": "7 23 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 0 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 1 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 2 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 3 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 4 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 5 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 6 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 7 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 8 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 9 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 10 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 11 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 12 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 13 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 14 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 15 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 16 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 17 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 18 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 19 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 20 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 21 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 22 * * *"
+    },
+    {
+      "path": "/api/radar",
+      "schedule": "37 23 * * *"
     }
   ]
 }

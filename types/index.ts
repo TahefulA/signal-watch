@@ -9,6 +9,7 @@ export type * from "./timeline";
 export type * from "./devils-advocate";
 export type * from "./forecast";
 export type * from "./committee";
+export type * from "./radar";
 
 import type { EntityGraph, MarketSnapshot, SourceDocument } from "./graph";
 import type { Memo, MemoSpan } from "./memo";
