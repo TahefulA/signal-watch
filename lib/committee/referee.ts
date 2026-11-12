@@ -131,6 +131,8 @@ export class Referee {
     if (turn.evidenceId) this.used.add(turn.evidenceId);
     const strength = turn.evidence?.strength ?? "moderate";
     if (turn.move === "news") {
+      // News that helps the borrower is tabled but is not a point against the credit.
+      if (turn.evidence?.side === "analyst") return;
       this.points.set(turn.id, { turnId: turn.id, strength, status: "open", counters: 0, lastRebuttal: null });
       return;
     }

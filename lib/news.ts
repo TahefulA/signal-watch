@@ -63,12 +63,12 @@ function parseItems(xml: string): NewsItem[] {
  * The most relevant recent headlines from Google News RSS, ranked by publisher
  * credibility and then recency, de-duplicated by headline.
  */
-export async function fetchRecentNews(query: string, limit = 10, days = 45): Promise<NewsItem[]> {
+export async function fetchRecentNews(query: string, limit = 10, days = 45, maxAgeMs = 3 * 3_600_000): Promise<NewsItem[]> {
   const q = encodeURIComponent(`${query} when:${days}d`);
   const xml = await cachedFetchText(`https://news.google.com/rss/search?q=${q}&hl=en-US&gl=US&ceid=US:en`, {
     throttleKey: "google-news",
     minIntervalMs: 500,
-    maxAgeMs: 3 * 3_600_000,
+    maxAgeMs,
     timeoutMs: 15_000,
   });
   const seen = new Set<string>();

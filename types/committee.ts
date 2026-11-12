@@ -13,7 +13,7 @@ export type Strength = "strong" | "moderate" | "weak";
 export interface EvidenceCard {
   id: string;
   side: "analyst" | "devil";
-  kind: "pattern" | "distress" | "filing_change" | "rate" | "metric" | "entity" | "lme" | "scenario" | "sponsor";
+  kind: "pattern" | "distress" | "filing_change" | "rate" | "metric" | "entity" | "lme" | "scenario" | "sponsor" | "news";
   title: string;
   /** The finding, with its figures, as code wrote it. */
   detail: string;
