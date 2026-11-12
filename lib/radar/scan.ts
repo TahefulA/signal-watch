@@ -74,7 +74,9 @@ export async function scanTicker(ticker: string, options: { force?: boolean } = 
   const since = daysBefore(today, DAYS);
   const last = await lastScan(ticker);
   if (!options.force && last && now.getTime() - Date.parse(last) < RESCAN_MS) {
-    return { scan: { ticker, scannedAt: last, fetched: 0, fresh: 0, events: await storedEvents(ticker, since) }, tabled: null, reused: true };
+    // No fetch, but a committee convened since the last scan still gets what that scan passed.
+    const events = await storedEvents(ticker, since);
+    return { scan: { ticker, scannedAt: last, fetched: 0, fresh: 0, events }, tabled: await tableBest(report, events), reused: true };
   }
   await queryRows("INSERT INTO news_scans (ticker, scanned_at) VALUES ($1, NOW()) ON CONFLICT (ticker) DO UPDATE SET scanned_at = NOW()", [ticker]);
 
