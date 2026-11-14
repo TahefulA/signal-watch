@@ -42,7 +42,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
   }
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-4 border-b border-zinc-800 bg-zinc-950 px-4 print:hidden">
+    <header className="flex h-12 shrink-0 items-center gap-3 border-b sm:gap-4 border-zinc-800 bg-zinc-950 px-4 print:hidden">
       <Link
         href="/"
         onClick={(event) => {
@@ -69,23 +69,23 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
           value={value}
           onChange={(e) => setValue(e.target.value.replace(/[^A-Za-z0-9.\-]/g, ""))}
           onFocus={(e) => e.target.select()}
-          placeholder="Enter ticker"
+          placeholder="Ticker"
           autoComplete="off"
           spellCheck={false}
           maxLength={10}
-          className="h-8 w-28 min-w-0 rounded-xs border border-zinc-800 bg-zinc-900 px-3 font-mono text-[13px] uppercase text-zinc-50 placeholder:font-sans placeholder:normal-case placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none sm:w-[200px]"
+          className="h-8 w-24 min-w-0 rounded-xs border border-zinc-800 bg-zinc-900 px-3 font-mono text-[13px] uppercase text-zinc-50 placeholder:font-sans placeholder:normal-case placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none sm:w-[200px]"
         />
         <button
           type="submit"
           disabled={busy || value.trim().length === 0}
           className="h-8 shrink-0 rounded-xs bg-zinc-50 px-4 text-xs font-semibold text-zinc-950 hover:bg-zinc-100 active:bg-zinc-200 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
         >
-          {busy ? "Analyzing" : "Analyze"}
+          {busy ? "…" : "Go"}
         </button>
       </form>
 
       <div className="ml-auto flex shrink-0 items-center gap-3">
-        {verdict}
+        <span className="hidden sm:contents">{verdict}</span>
         {changes > 0 ? (
           <button
             type="button"
@@ -118,7 +118,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
             title={watch.watched ? `${watch.ticker} is on your watchlist; click to stop watching` : `Add ${watch.ticker} to your watchlist`}
           >
             <Star className="h-3 w-3" fill={watch.watched ? "currentColor" : "none"} aria-hidden />
-            {watch.watched ? "Watching" : "Watch"}
+            <span className="hidden sm:inline">{watch.watched ? "Watching" : "Watch"}</span>
           </button>
         ) : null}
         {onTour ? (
@@ -137,15 +137,17 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
         <Link href="/proof" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="The backtest: did the forecast warn before real bankruptcies?">
           Track record
         </Link>
-        <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100" title="The morning radar: which borrowers need you today">
-          Radar
+        <Link href="/" className="hidden items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 sm:inline-flex" title="Home: search, and your watchlist">
+          Home
           {attention > 0 ? (
             <span className="rounded-xs bg-red-600 px-1.5 py-px font-mono text-[11px] font-semibold text-white" aria-label={`${attention} need attention`}>
               {attention}
             </span>
           ) : null}
         </Link>
-        <GeminiKeyButton />
+        <span className="hidden sm:contents">
+          <GeminiKeyButton />
+        </span>
         <ThemeToggle />
       </div>
     </header>

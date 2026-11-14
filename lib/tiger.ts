@@ -290,6 +290,23 @@ CREATE TABLE IF NOT EXISTS visitor_watchlist (
   added_at timestamptz NOT NULL DEFAULT NOW(),
   PRIMARY KEY (visitor, ticker)
 );
+CREATE TABLE IF NOT EXISTS feedback (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  message text NOT NULL,
+  email text,
+  page text,
+  created_at timestamptz NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS alert_subs (
+  token text PRIMARY KEY,
+  email text NOT NULL,
+  ticker text NOT NULL,
+  last_prob double precision,
+  last_event date,
+  last_sent timestamptz,
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+  UNIQUE (email, ticker)
+);
 CREATE TABLE IF NOT EXISTS usage_daily (
   who text NOT NULL,
   bucket text NOT NULL,

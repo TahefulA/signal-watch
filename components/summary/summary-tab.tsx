@@ -3,6 +3,7 @@
 import { ArrowRight, CircleAlert, CircleCheck } from "lucide-react";
 import type { DistressBand, DistressReason, Report } from "@/types";
 import type { TabKey } from "@/components/layout/tab-bar";
+import { AlertSignup } from "./alert-signup";
 import { DistressCard, pctText } from "@/components/distress/distress-card";
 
 /**
@@ -174,6 +175,8 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
           ))}
         </ul>
       ) : null}
+
+      <AlertSignup ticker={report.graph.company.ticker} />
 
       <h2 className="mt-8 text-xs font-semibold uppercase tracking-wider text-zinc-500">Deep dive, for credit analysts</h2>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">

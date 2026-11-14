@@ -660,3 +660,35 @@
     margin: 0.4in;
   }
 }
+
+/* Printing a report tab, or saving it as a PDF: let the scrolling panes run onto
+   paper, in dark ink on white, without the app's bars. */
+@media print {
+  .app-shell,
+  .app-shell main,
+  .app-shell [role="tabpanel"],
+  .app-shell .min-h-0 {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .app-shell * {
+    color: #18181b !important;
+    background: transparent !important;
+    border-color: #d4d4d8 !important;
+    box-shadow: none !important;
+  }
+  .app-shell svg path[stroke] {
+    stroke-opacity: 1;
+  }
+  .app-shell button,
+  .app-shell form,
+  .app-shell textarea,
+  .app-shell input {
+    display: none !important;
+  }
+  .app-shell section,
+  .app-shell li {
+    break-inside: avoid;
+  }
+}

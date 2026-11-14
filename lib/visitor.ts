@@ -36,6 +36,8 @@ export const DAILY_LIMIT = {
   private: 4,
   compile: 20,
   radar: 12,
+  feedback: 10,
+  subscribe: 10,
 } as const;
 export type Bucket = keyof typeof DAILY_LIMIT;
 

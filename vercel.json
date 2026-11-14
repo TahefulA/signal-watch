@@ -191,6 +191,10 @@
     {
       "path": "/api/radar",
       "schedule": "37 23 * * *"
+    },
+    {
+      "path": "/api/alerts/run",
+      "schedule": "30 12 * * *"
     }
   ]
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { FeedbackButton } from "@/components/feedback/feedback-button";
+import { downloadText, reportCsv } from "@/lib/export";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Report } from "@/types";
@@ -61,7 +63,19 @@ export function StatusBar({ report, cached, onWatch, onRefresh }: StatusBarProps
       {dot}
       <span className="text-zinc-600">Source: SEC EDGAR{report.newsAnalyzed ? ", Google News" : ""}, Yahoo Finance</span>
       <span className="ml-auto flex items-center gap-3 pl-4 font-sans">
-        <button type="button" onClick={onWatch} className="text-zinc-400 hover:text-zinc-100">
+        <FeedbackButton className="text-zinc-400" />
+        <button
+          type="button"
+          onClick={() => downloadText(`${report.graph.company.ticker}-signal-watch-${report.generatedAt.slice(0, 10)}.csv`, reportCsv(report))}
+          className="hidden text-zinc-400 hover:text-zinc-100 sm:inline"
+          title="The forecast, credit metrics, debt instruments and maturities, with sources"
+        >
+          Export CSV
+        </button>
+        <button type="button" onClick={() => window.print()} className="hidden text-zinc-400 hover:text-zinc-100 sm:inline" title="Print this tab, or save it as a PDF">
+          Print / PDF
+        </button>
+        <button type="button" onClick={onWatch} className="hidden text-zinc-400 hover:text-zinc-100 sm:inline">
           Add to watchlist
         </button>
         <button type="button" onClick={onRefresh} className="text-zinc-400 hover:text-zinc-100" title={cached ? "This is a saved report" : undefined}>

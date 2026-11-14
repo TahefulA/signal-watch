@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FeedbackButton } from "@/components/feedback/feedback-button";
 
 /** Every page outside the report view ends here: what this is not, and where to read more. */
 export function Footer() {
@@ -12,6 +13,7 @@ export function Footer() {
         <Link href="/proof" className="hover:text-zinc-200">
           Track record
         </Link>
+        <FeedbackButton />
         <span className="sm:ml-auto">Not financial advice. Estimates from public filings; they can be wrong.</span>
       </div>
     </footer>

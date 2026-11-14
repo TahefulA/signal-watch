@@ -413,7 +413,13 @@ export default function CompanyPage() {
   const ready = Boolean(graph && report && status !== "loading");
 
   return (
-    <div className="flex h-[100dvh] flex-col overflow-hidden">
+    <div className="app-shell flex h-[100dvh] flex-col overflow-hidden">
+      {report ? (
+        <p className="hidden pb-3 text-xs print:block">
+          Signal Watch · {report.graph.company.name} ({report.graph.company.ticker}) · report of {report.generatedAt.slice(0, 10)} · printed {new Date().toISOString().slice(0, 10)}. From SEC
+          filings; not financial advice.
+        </p>
+      ) : null}
       <TopBar
         busy={status === "loading"}
         changes={ready ? factChanges : 0}
