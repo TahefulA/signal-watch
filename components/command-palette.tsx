@@ -124,7 +124,7 @@ export function CommandPalette({ open, reportId, ticker, nodes, onClose, onEntit
             autoComplete="off"
             className="h-full min-w-0 flex-1 bg-transparent text-base text-zinc-50 placeholder:text-zinc-600 focus:outline-none"
           />
-          <kbd className="hidden rounded-xs border border-zinc-700 px-1.5 font-mono text-[10px] text-zinc-500 sm:inline">Esc</kbd>
+          <kbd className="hidden rounded-xs border border-zinc-700 px-1.5 font-mono text-[11px] text-zinc-500 sm:inline">Esc</kbd>
         </form>
 
         {busy ? <p className="px-4 py-3 text-sm text-zinc-400">Thinking...</p> : null}
@@ -166,7 +166,7 @@ export function CommandPalette({ open, reportId, ticker, nodes, onClose, onEntit
                 })}
               </div>
             ) : null}
-            <p className="mt-2 text-[11px] text-zinc-500">
+            <p className="mt-2 text-xs text-zinc-500">
               Answered from this report only.{answer.removed ? ` ${answer.removed} sentence${answer.removed > 1 ? "s" : ""} with figures not in the report removed.` : ""}
             </p>
           </div>
@@ -174,7 +174,7 @@ export function CommandPalette({ open, reportId, ticker, nodes, onClose, onEntit
 
         {!busy ? (
           <div className="py-2">
-            <p className="px-4 py-2 text-[11px] uppercase tracking-wider text-zinc-500">{recent.length ? "Recent" : "Try"}</p>
+            <p className="px-4 py-2 text-xs uppercase tracking-wider text-zinc-500">{recent.length ? "Recent" : "Try"}</p>
             <ul>
               {suggestions.map((q) => (
                 <li key={q}>

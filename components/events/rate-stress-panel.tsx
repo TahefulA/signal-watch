@@ -9,7 +9,7 @@ export function RateStressPanel({ stress }: { stress: RateStress }) {
   const m = stress.meeting;
   return (
     <section className="surface rounded-xs border border-zinc-800 p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Prediction market: the Fed rate path</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Prediction market: the Fed rate path</p>
       {m && stress.currentUpper !== null ? (
         <>
           <p className="mt-2 text-[13px] leading-relaxed text-zinc-300">
@@ -46,7 +46,7 @@ export function RateStressPanel({ stress }: { stress: RateStress }) {
         </table>
       ) : null}
       {stress.note ? <p className="mt-2 text-xs text-zinc-500">{stress.note}</p> : null}
-      <p className="mt-3 text-[11px] leading-relaxed text-zinc-500">
+      <p className="mt-3 text-xs leading-relaxed text-zinc-500">
         Probabilities are bid-ask midpoints on Kalshi&rsquo;s KXFED ladder; strikes with a spread above 15 cents are skipped and interpolated
         {m && m.widestGap > 0.25 ? ` (widest gap here: ${m.widestGap.toFixed(2)} points)` : ""}. Runway is the base cash case (average recent quarter repeats) less the extra interest. Read{" "}
         {stress.fetchedAt.slice(0, 10)}.

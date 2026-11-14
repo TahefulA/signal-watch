@@ -111,7 +111,7 @@ export function GeminiKeyButton() {
           <p className="mt-1 text-[12px] leading-relaxed text-zinc-400">
             The site&apos;s shared key is on Google&apos;s free tier and can hit its limits when traffic is high. With your own key, your analyses run on your quota.
           </p>
-          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+          <p className="mt-2 text-xs leading-relaxed text-zinc-500">
             The key stays in this browser and is sent only with this site&apos;s own requests. The server uses it for that request and never saves or logs it.
           </p>
           {saved ? (
@@ -144,12 +144,12 @@ export function GeminiKeyButton() {
               </button>
             </form>
           )}
-          {error ? <p className="mt-2 text-[11px] text-red-400">{error}</p> : null}
+          {error ? <p className="mt-2 text-xs text-red-400">{error}</p> : null}
           <a
             href="https://aistudio.google.com/apikey"
             target="_blank"
             rel="noreferrer"
-            className="mt-3 inline-flex items-center gap-1 text-[11px] text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100"
+            className="mt-3 inline-flex items-center gap-1 text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100"
           >
             Get a free key in Google AI Studio <ExternalLink className="h-3 w-3" aria-hidden />
           </a>

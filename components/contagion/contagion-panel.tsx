@@ -11,12 +11,12 @@ const RISK_TEXT = { high: "Open", medium: "Open, partly blocked", low: "Blocked"
 const RISK_TONE = { high: "text-red-500", medium: "text-amber-500", low: "text-emerald-500", not_found: "text-zinc-500" } as const;
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <p className="mt-4 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{children}</p>;
+  return <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{children}</p>;
 }
 
 function Source({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[11px] text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100">
+    <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100">
       {children} <ExternalLink className="h-3 w-3" aria-hidden />
     </a>
   );
@@ -32,7 +32,7 @@ function MaturityBars({ c }: { c: ContagionCompany }) {
   return (
     <div className="mt-1 space-y-1.5">
       {rows.map((r) => (
-        <div key={r.label} className="text-[11px]">
+        <div key={r.label} className="text-xs">
           <div className="flex justify-between text-zinc-400">
             <span>{r.label}</span>
             <span className="font-mono text-zinc-200">{r.value === null ? "n/a" : compactMoney(r.value)}</span>
@@ -42,7 +42,7 @@ function MaturityBars({ c }: { c: ContagionCompany }) {
           </div>
         </div>
       ))}
-      <p className="text-[10px] text-zinc-500">
+      <p className="text-[11px] text-zinc-500">
         Of {compactMoney(c.debt.value)} total debt, balance sheet {c.due.asOf}. <Source href={c.due.url}>Filing</Source>
       </p>
     </div>
@@ -53,7 +53,7 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
   if (!entry) {
     return (
       <aside className="surface rounded-xs border border-zinc-800 p-4 text-[13px] leading-relaxed text-zinc-400">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Pick a company</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Pick a company</p>
         <p className="mt-2">
           Click a circle to see why it is flagged: the sister company&apos;s event that reaches it, the loopholes in its own loan documents, the debt coming due and its
           bankruptcy probability, each with the filing it came from.
@@ -70,11 +70,11 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
 
   return (
     <aside className="surface max-h-[860px] overflow-y-auto rounded-xs border border-zinc-800 p-4" aria-live="polite">
-      <p className={`text-[10px] font-semibold uppercase tracking-wider ${style.text}`}>{style.label}</p>
+      <p className={`text-[11px] font-semibold uppercase tracking-wider ${style.text}`}>{style.label}</p>
       <h3 className="mt-1 text-base font-semibold text-zinc-50">
         {c.name} {c.ticker ? <span className="font-mono text-sm text-zinc-500">{c.ticker}</span> : null}
       </h3>
-      <p className="text-[11px] text-zinc-500">
+      <p className="text-xs text-zinc-500">
         {c.active ? `Latest 10-K or 10-Q filed ${c.lastPeriodic}` : `No 10-K or 10-Q since ${c.lastPeriodic ?? "before 2016"}`}
       </p>
 
@@ -107,11 +107,11 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
             {a.warning.sentences.map((s, i) => (
               <p key={i} className={s.verified ? "text-zinc-200" : "text-zinc-500 line-through decoration-red-600/70"} title={s.reason}>
                 {s.text}
-                {!s.verified ? <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-red-500 no-underline">Struck</span> : null}
+                {!s.verified ? <span className="ml-1 text-[11px] font-semibold uppercase tracking-wider text-red-500 no-underline">Struck</span> : null}
               </p>
             ))}
           </div>
-          <p className="mt-1 text-[10px] text-zinc-500">Written by Gemini from the graph&apos;s facts; figures checked by code.</p>
+          <p className="mt-1 text-[11px] text-zinc-500">Written by Gemini from the graph&apos;s facts; figures checked by code.</p>
         </>
       ) : null}
 
@@ -121,11 +121,11 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
           <button type="button" onClick={() => onPick(a.trigger!.cik)} className="mt-1 text-left text-xs font-medium text-zinc-100 underline decoration-zinc-700 underline-offset-2">
             {a.trigger.name}
           </button>
-          <p className="text-[11px] text-zinc-500">
+          <p className="text-xs text-zinc-500">
             {a.trigger.degrees} step{a.trigger.degrees === 1 ? "" : "s"} away: {a.trigger.path.join(", then ")}
           </p>
           <blockquote className="mt-1 border-l-2 border-zinc-700 pl-2 text-[11.5px] leading-snug text-zinc-300">&ldquo;{a.trigger.event.quote}&rdquo;</blockquote>
-          <p className="mt-1 text-[10px] text-zinc-500">
+          <p className="mt-1 text-[11px] text-zinc-500">
             8-K filed {a.trigger.event.date}, found by &ldquo;{a.trigger.event.term}&rdquo;. <Source href={a.trigger.event.url}>8-K</Source>
           </p>
         </>
@@ -151,8 +151,8 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
           <div className="mt-1 grid grid-cols-3 gap-1.5">
             {c.lme.verdicts.map((v) => (
               <div key={v.trapdoor} className="rounded-xs border border-zinc-800 px-2 py-1">
-                <p className="text-[10px] text-zinc-500">{TRAPDOOR_LABELS[v.trapdoor]}</p>
-                <p className={`text-[11px] font-semibold ${RISK_TONE[v.risk]}`}>{RISK_TEXT[v.risk]}</p>
+                <p className="text-[11px] text-zinc-500">{TRAPDOOR_LABELS[v.trapdoor]}</p>
+                <p className={`text-xs font-semibold ${RISK_TONE[v.risk]}`}>{RISK_TEXT[v.risk]}</p>
               </div>
             ))}
           </div>
@@ -185,7 +185,7 @@ export function ContagionPanel({ map, entry, onPick }: { map: ContagionMap; entr
 
       <Label>Debt coming due</Label>
       <MaturityBars c={c} />
-      {maturity && !allFired ? <p className="mt-1 text-[11px] text-zinc-500">{maturity.text}</p> : null}
+      {maturity && !allFired ? <p className="mt-1 text-xs text-zinc-500">{maturity.text}</p> : null}
 
       <Label>Owner, as its loan document defines it</Label>
       {c.sponsors.map((s) => (

@@ -9,7 +9,7 @@ export default function MicrostructurePage() {
     <div className="min-h-[100dvh]">
       <Header active="lab" />
       <main className="mx-auto max-w-[1280px] px-4 py-10 lg:px-8">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-red-600">Lab · Order book microstructure</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-red-600">Lab · Order book microstructure</p>
         <h1 className="mt-2 font-display text-[30px] font-bold leading-tight text-zinc-50">Unusual activity in a live order book</h1>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-zinc-400">
           A real level-2 book from Polymarket&apos;s public feed, streamed into the browser, with rolling statistics kept in constant or logarithmic time per update and

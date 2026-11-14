@@ -126,7 +126,7 @@ function Evidence({ entity }: { entity: Entity }) {
   return (
     <Section title="Evidence">
       <blockquote className="border-l-2 border-zinc-600 pl-3 text-sm italic leading-relaxed text-zinc-300">{entity.sourceQuote}</blockquote>
-      <p className="mt-2 font-mono text-[10px] text-zinc-500">
+      <p className="mt-2 font-mono text-[11px] text-zinc-500">
         {citationLine({
           sourceType: entity.fiscalPeriod ? `${entity.sourceType} ${entity.fiscalPeriod}` : entity.sourceType,
           sourceDate: entity.sourceType === "News" ? entity.sourceDate : `filed ${entity.sourceDate}`,
@@ -418,11 +418,11 @@ export function EntityPanel({
                 {entity.name}
               </h2>
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className={`inline-block rounded-xs border px-1.5 py-0.5 text-[11px] text-zinc-300 ${TYPE_BORDER[entity.type]}`}>
+                <span className={`inline-block rounded-xs border px-1.5 py-0.5 text-xs text-zinc-300 ${TYPE_BORDER[entity.type]}`}>
                   {TYPE_LABELS[entity.type]}
                 </span>
                 {entity.change ? (
-                  <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-400">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-zinc-400">
                     <span className={`h-2 w-2 rounded-full ${CHANGE_DOT[entity.change.kind]}`} aria-hidden />
                     {CHANGE_LABEL[entity.change.kind]}
                   </span>

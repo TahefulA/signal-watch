@@ -13,9 +13,9 @@ export function SignalGauge({ items }: { items: Signal[] }) {
           </div>
           <p className="mt-2 flex items-baseline justify-between gap-2">
             <span className={`text-sm font-semibold ${s.on ? "text-zinc-50" : "text-zinc-400"}`}>{s.title}</span>
-            <span className={`text-[10px] font-semibold uppercase tracking-wider ${s.on ? (s.partial ? "text-amber-500" : "text-red-500") : "text-zinc-600"}`}>{s.on ? (s.partial ? "Partly" : "On") : "Off"}</span>
+            <span className={`text-[11px] font-semibold uppercase tracking-wider ${s.on ? (s.partial ? "text-amber-500" : "text-red-500") : "text-zinc-600"}`}>{s.on ? (s.partial ? "Partly" : "On") : "Off"}</span>
           </p>
-          <p className="text-[11px] text-zinc-500">{s.question}</p>
+          <p className="text-xs text-zinc-500">{s.question}</p>
           <ul className="mt-2 space-y-1">
             {s.lines.map((l, i) => (
               <li key={i} className={`text-[12px] leading-snug ${l.on ? "text-zinc-200" : "text-zinc-500"}`}>
@@ -42,7 +42,7 @@ export function SignalPips({ items }: { items: Signal[] }) {
         <span
           key={s.key}
           title={`${s.title}: ${s.on ? (s.partial ? "partly" : "on") : "off"}`}
-          className={`rounded-xs border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+          className={`rounded-xs border px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
             s.on ? (s.partial ? "border-amber-700 text-amber-400" : "border-red-700 bg-red-950/40 text-red-400") : "border-zinc-800 text-zinc-600"
           }`}
         >

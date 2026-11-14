@@ -31,7 +31,7 @@ function ago(iso: string | null): string {
 }
 
 function Chip({ children, tone = "text-zinc-400 border-zinc-800" }: { children: React.ReactNode; tone?: string }) {
-  return <span className={`rounded-xs border px-1.5 py-0.5 font-mono text-[10px] ${tone}`}>{children}</span>;
+  return <span className={`rounded-xs border px-1.5 py-0.5 font-mono text-[11px] ${tone}`}>{children}</span>;
 }
 
 function Row({ e, turnId, onJump }: { e: NewsEvent; turnId: string | null; onJump: (id: string) => void }) {
@@ -40,17 +40,17 @@ function Row({ e, turnId, onJump }: { e: NewsEvent; turnId: string | null; onJum
   return (
     <li className="border-b border-zinc-800/70 py-2.5 last:border-b-0">
       <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
-        {d ? <span className={`shrink-0 rounded-xs border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${d.tone}`}>{d.label}</span> : null}
+        {d ? <span className={`shrink-0 rounded-xs border px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${d.tone}`}>{d.label}</span> : null}
         <a href={e.url} target="_blank" rel="noopener noreferrer" className={`min-w-0 flex-1 text-[13px] leading-snug hover:underline ${e.passed ? "text-zinc-100" : "text-zinc-400"}`}>
           {e.headline} <ExternalLink className="inline h-3 w-3 text-zinc-600" aria-hidden />
         </a>
         {turnId ? (
-          <button type="button" onClick={() => onJump(turnId)} className="shrink-0 rounded-xs border border-amber-600/70 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-400 hover:text-amber-300">
+          <button type="button" onClick={() => onJump(turnId)} className="shrink-0 rounded-xs border border-amber-600/70 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-400 hover:text-amber-300">
             In the debate · {turnId}
           </button>
         ) : null}
       </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-zinc-500">
+      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
         <span>
           {e.publisher || "News"} · {e.date}
         </span>
@@ -66,7 +66,7 @@ function Row({ e, turnId, onJump }: { e: NewsEvent; turnId: string | null; onJum
           </Chip>
         ) : null}
       </div>
-      {!e.passed ? <p className="mt-1 text-[11px] text-zinc-500">{e.reason}</p> : null}
+      {!e.passed ? <p className="mt-1 text-xs text-zinc-500">{e.reason}</p> : null}
     </li>
   );
 }
@@ -145,10 +145,10 @@ export function NewsRadar({
   return (
     <section className="surface mt-6 rounded-xs border border-zinc-800 p-4" aria-label="News radar">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
+        <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-300">
           <Radar className="h-3.5 w-3.5 text-amber-400" aria-hidden /> News radar
         </p>
-        <div className="flex items-center gap-2 text-[11px] text-zinc-500">
+        <div className="flex items-center gap-2 text-xs text-zinc-500">
           <span>Scans hourly · last {ago(scannedAt)}</span>
           <button
             type="button"
@@ -160,12 +160,12 @@ export function NewsRadar({
           </button>
         </div>
       </div>
-      <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">
+      <p className="mt-1 text-xs leading-relaxed text-zinc-500">
         Repeats are dropped in code by word overlap with the past week&apos;s headlines. The model labels only new stories. Those with relevance 0.70 or more and a direction go to the committee, the strongest one per scan,
         where the Chair tables it and the other side must answer. The stock&apos;s move is the check on the model&apos;s label: z is the day&apos;s return over its usual daily move, and 3 or more is a jump.
       </p>
 
-      <ol className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px]" aria-label="Filter funnel">
+      <ol className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs" aria-label="Filter funnel">
         {steps.map(([n, label], i) => (
           <li key={label} className="flex items-center gap-1.5">
             {i ? <span className="text-zinc-700">→</span> : null}
@@ -175,15 +175,15 @@ export function NewsRadar({
         ))}
       </ol>
       {note ? (
-        <p className="mt-2 text-[11px] text-amber-400" role="status">
+        <p className="mt-2 text-xs text-amber-400" role="status">
           {note}
         </p>
       ) : null}
 
       {events === null ? (
-        <p className="mt-3 text-[11px] text-zinc-500">Loading…</p>
+        <p className="mt-3 text-xs text-zinc-500">Loading…</p>
       ) : !list.length ? (
-        <p className="mt-3 text-[11px] text-zinc-500">No headlines scanned yet. Scan now to read the last two weeks.</p>
+        <p className="mt-3 text-xs text-zinc-500">No headlines scanned yet. Scan now to read the last two weeks.</p>
       ) : (
         <>
           {passed.length ? (
@@ -193,11 +193,11 @@ export function NewsRadar({
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-[11px] text-zinc-500">Nothing in the last two weeks passed both filters.</p>
+            <p className="mt-3 text-xs text-zinc-500">Nothing in the last two weeks passed both filters.</p>
           )}
           {filtered.length ? (
             <div className="mt-2">
-              <button type="button" onClick={() => setShowAll((s) => !s)} className="text-[11px] text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100" aria-expanded={showAll}>
+              <button type="button" onClick={() => setShowAll((s) => !s)} className="text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100" aria-expanded={showAll}>
                 {showAll ? "Hide" : "Show"} {filtered.length} filtered out, with the reason
               </button>
               {showAll ? (
@@ -211,7 +211,7 @@ export function NewsRadar({
           ) : null}
         </>
       )}
-      <p className="mt-3 border-t border-zinc-800 pt-2 text-[11px] leading-relaxed text-zinc-500">
+      <p className="mt-3 border-t border-zinc-800 pt-2 text-xs leading-relaxed text-zinc-500">
         News does not move the bankruptcy probability. That would need a weight fitted on past headlines and the defaults that followed, and that history is not in the data, so any weight would be made up.
       </p>
     </section>

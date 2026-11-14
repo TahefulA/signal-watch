@@ -107,7 +107,7 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
               About <span className="font-semibold text-zinc-100">1 in {Math.max(2, Math.round(1 / d.probability)).toLocaleString("en-US")}</span> chance of a bankruptcy filing in the next 12 months ({pctText(d.probability)}). The
               average company in the model&rsquo;s data is 1 in {Math.round(1 / d.baseRate).toLocaleString("en-US")}.
             </p>
-            <p className="mt-2 text-[11px] text-zinc-500">From its SEC filings up to {d.periodEnd}. A model trained on past bankruptcies computes it; no AI guesses the number.</p>
+            <p className="mt-2 text-xs text-zinc-500">From its SEC filings up to {d.periodEnd}. A model trained on past bankruptcies computes it; no AI guesses the number.</p>
           </div>
         </section>
       ) : (
@@ -117,7 +117,7 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
       {d ? (
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <section className="surface rounded-xs border border-zinc-800 p-4">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-red-500">What worries the model</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-red-500">What worries the model</h2>
             {d.reasons.length ? (
               <ul className="mt-2 space-y-2">
                 {d.reasons.map((r) => (
@@ -132,7 +132,7 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
             )}
           </section>
           <section className="surface rounded-xs border border-zinc-800 p-4">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-emerald-500">What&rsquo;s in its favour</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-emerald-500">What&rsquo;s in its favour</h2>
             {d.offsets.length ? (
               <ul className="mt-2 space-y-2">
                 {d.offsets.map((r) => (
@@ -160,7 +160,7 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
         </ul>
       ) : null}
 
-      <h2 className="mt-8 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Deep dive, for credit analysts</h2>
+      <h2 className="mt-8 text-xs font-semibold uppercase tracking-wider text-zinc-500">Deep dive, for credit analysts</h2>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {DEEP.map((x) => (
           <button key={x.tab} type="button" onClick={() => onTab(x.tab)} className="surface group rounded-xs border border-zinc-800 p-3 text-left hover:border-zinc-600">
@@ -171,7 +171,7 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
           </button>
         ))}
       </div>
-      <p className="mt-6 text-[11px] text-zinc-600">Not financial advice.</p>
+      <p className="mt-6 text-xs text-zinc-600">Not financial advice.</p>
     </div>
   );
 }

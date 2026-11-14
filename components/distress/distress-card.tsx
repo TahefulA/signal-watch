@@ -19,10 +19,10 @@ export function DistressCard({ distress }: { distress: DistressScore }) {
   const times = distress.probability / distress.baseRate;
   return (
     <section className="surface rounded-xs border border-zinc-800 p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">12-month bankruptcy probability</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">12-month bankruptcy probability</p>
       <div className="mt-2 flex items-baseline gap-3">
         <span className={`font-mono text-3xl font-bold ${style.text}`}>{pctText(distress.probability)}</span>
-        <span className={`rounded-xs px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white ${style.bg}`}>{style.label}</span>
+        <span className={`rounded-xs px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-white ${style.bg}`}>{style.label}</span>
       </div>
       <p className="mt-1 text-xs text-zinc-500">
         {times >= 1 ? `${times.toFixed(1)} times` : `${(1 / times).toFixed(1)} times below`} the {pctText(distress.baseRate)} average across the training universe.
@@ -30,7 +30,7 @@ export function DistressCard({ distress }: { distress: DistressScore }) {
       </p>
       {distress.reasons.length ? (
         <div className="mt-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-red-500">Pushes it up</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-red-500">Pushes it up</p>
           <ul className="mt-1 space-y-0.5 text-xs text-zinc-300">
             {distress.reasons.map((r) => (
               <li key={r.feature} className="flex justify-between gap-3">
@@ -43,7 +43,7 @@ export function DistressCard({ distress }: { distress: DistressScore }) {
       ) : null}
       {distress.offsets.length ? (
         <div className="mt-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Holds it down</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-500">Holds it down</p>
           <ul className="mt-1 space-y-0.5 text-xs text-zinc-300">
             {distress.offsets.map((r) => (
               <li key={r.feature} className="flex justify-between gap-3">
@@ -54,17 +54,17 @@ export function DistressCard({ distress }: { distress: DistressScore }) {
           </ul>
         </div>
       ) : null}
-      <p className="mt-3 text-[11px] leading-relaxed text-zinc-500">
+      <p className="mt-3 text-xs leading-relaxed text-zinc-500">
         Gradient-boosted trees trained on SEC filings and bankruptcy 8-Ks through {distress.trainedThrough}. Code computes it; the AI only argues over it.{" "}
         <a href="/proof" className="text-zinc-300 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-50">
           See the backtest
         </a>
       </p>
-      <button type="button" onClick={() => setInputs((o) => !o)} className="mt-2 text-[11px] text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100">
+      <button type="button" onClick={() => setInputs((o) => !o)} className="mt-2 text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100">
         {inputs ? "Hide" : "Show"} the {distress.inputs.length} filed figures used {distress.leakFree ? "(all filed before today)" : "(check dates)"}
       </button>
       {inputs ? (
-        <table className="mt-2 w-full text-left text-[11px]">
+        <table className="mt-2 w-full text-left text-xs">
           <thead className="text-zinc-500">
             <tr>
               <th className="py-1 pr-2 font-medium">Figure</th>

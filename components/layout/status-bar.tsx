@@ -18,11 +18,6 @@ export function StatusBar({ report, cached, onWatch, onRefresh }: StatusBarProps
   const ref = useRef<HTMLDivElement>(null);
   const v = report.validation;
   const rejected = v?.rejected.length ?? 0;
-  const nodes = report.graph.nodes.length;
-  // Drawn lines: one from the company to every entity, plus links between entities.
-  const centralId = report.graph.nodes.find((n) => n.isCentral)?.id;
-  const links = report.graph.edges.filter((e) => e.source !== centralId && e.target !== centralId).length;
-  const edges = nodes - 1 + links;
 
   useEffect(() => {
     if (!open) return;
@@ -35,7 +30,7 @@ export function StatusBar({ report, cached, onWatch, onRefresh }: StatusBarProps
 
   const dot = <span className="text-zinc-600">·</span>;
   return (
-    <footer className="flex h-8 shrink-0 items-center gap-2 overflow-x-auto whitespace-nowrap border-t border-zinc-800 bg-zinc-950 px-4 font-mono text-[11px] text-zinc-400 print:hidden">
+    <footer className="flex h-8 shrink-0 items-center gap-2 overflow-x-auto whitespace-nowrap border-t border-zinc-800 bg-zinc-950 px-4 font-mono text-xs text-zinc-400 print:hidden">
       {v ? (
         <div ref={ref} className="relative">
           <button type="button" onClick={() => rejected && setOpen((o) => !o)} className={`inline-flex items-center gap-1.5 ${rejected ? "hover:text-zinc-100" : "cursor-default"}`}>
@@ -44,7 +39,7 @@ export function StatusBar({ report, cached, onWatch, onRefresh }: StatusBarProps
           </button>
           {open ? (
             <div className="fixed bottom-9 left-4 z-50 w-[min(420px,calc(100vw-2rem))] whitespace-normal rounded-xs border border-zinc-800 bg-zinc-900 p-3 font-sans text-xs text-zinc-300">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Rejected entities</p>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Rejected entities</p>
               <ul className="space-y-2">
                 {v.rejected.map((r) => (
                   <li key={`${r.name}-${r.reason}`}>
@@ -62,10 +57,6 @@ export function StatusBar({ report, cached, onWatch, onRefresh }: StatusBarProps
         </div>
       ) : null}
       {v ? dot : null}
-      <span>{nodes} nodes</span>
-      {dot}
-      <span>{edges} edges</span>
-      {dot}
       <span className="text-zinc-600">{report.generatedAt.slice(11, 16)} UTC {report.generatedAt.slice(0, 10)}</span>
       {dot}
       <span className="text-zinc-600">Source: SEC EDGAR{report.newsAnalyzed ? ", Google News" : ""}, Yahoo Finance</span>

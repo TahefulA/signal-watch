@@ -4,7 +4,7 @@ import { TAGLINE } from "./tab-bar";
 import { ThemeToggle } from "./theme-toggle";
 import { GeminiKeyButton } from "@/components/settings/gemini-key";
 
-/** Header for pages outside the report view: the wordmark, Radar, Contagion, Proof, Private company, Lab and the theme switch. */
+/** Header for pages outside the report view: the wordmark, Radar, Contagion, Proof, Private company and the theme switch. The Lab (/microstructure) is a side project and is not linked. */
 type HeaderKey = "radar" | "contagion" | "proof" | "private" | "lab";
 
 export function Header({ active }: { active?: HeaderKey }) {
@@ -24,7 +24,7 @@ export function Header({ active }: { active?: HeaderKey }) {
         <ShieldAlert className="h-[18px] w-[18px] text-red-600" aria-hidden />
         <span className="flex flex-col leading-none">
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-50">Signal Watch</span>
-          <span className="mt-1 hidden text-[10px] text-zinc-500 lg:block">{TAGLINE}</span>
+          <span className="mt-1 hidden text-[11px] text-zinc-500 lg:block">{TAGLINE}</span>
         </span>
       </Link>
       <nav className="ml-auto flex items-center gap-4 overflow-x-auto sm:gap-5">
@@ -32,7 +32,6 @@ export function Header({ active }: { active?: HeaderKey }) {
         {link("/contagion", "Contagion", "contagion")}
         {link("/proof", "Proof", "proof")}
         {link("/private", "Private company", "private")}
-        {link("/microstructure", "Lab", "lab")}
         <GeminiKeyButton />
         <ThemeToggle />
       </nav>

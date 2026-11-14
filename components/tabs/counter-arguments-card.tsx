@@ -22,7 +22,7 @@ interface CounterArgumentsCardProps {
 export function CounterArgumentsCard({ title, items, empty, busy = false }: CounterArgumentsCardProps) {
   return (
     <section className="counter-card mb-8 rounded-xs border border-red-600/70 p-5" style={{ background: "var(--devil-bg)" }}>
-      <h3 className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-red-500">
+      <h3 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-red-500">
         <Sword className="h-3 w-3" aria-hidden /> Devil&rsquo;s advocate &mdash; {title}
       </h3>
       {busy && items.length === 0 ? (
@@ -42,7 +42,7 @@ export function CounterArgumentsCard({ title, items, empty, busy = false }: Coun
                     href={item.source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-1 block font-mono text-[11px] text-zinc-500 hover:text-zinc-200"
+                    className="mt-1 block font-mono text-xs text-zinc-500 hover:text-zinc-200"
                   >
                     {item.source.label}
                   </a>

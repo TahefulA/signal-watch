@@ -46,9 +46,9 @@ function pct(v: number): string {
 function Cell({ label, children, note }: { label: string; children: ReactNode; note?: ReactNode }) {
   return (
     <div className="min-w-0">
-      <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-zinc-500">{label}</p>
-      <div className="mt-1 font-mono text-[13px] font-semibold text-zinc-100">{children}</div>
-      {note ? <div className="mt-0.5 truncate font-mono text-[10px] text-zinc-500">{note}</div> : null}
+      <p className="truncate text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">{label}</p>
+      <div className="mt-1.5 font-mono text-[15px] font-semibold text-zinc-100">{children}</div>
+      {note ? <div className="mt-1 truncate text-xs text-zinc-500">{note}</div> : null}
     </div>
   );
 }
@@ -69,7 +69,7 @@ function FedBanner({ cards }: { cards: WatchCard[] }) {
   const exposed = cards.filter((c) => (c.floatingShare ?? 0) >= 0.25);
   return (
     <div className="surface mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xs border border-zinc-800 px-4 py-3 text-[13px]">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Kalshi · Fed</span>
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Kalshi · Fed</span>
       <span className="text-zinc-200">
         <span className="font-mono text-zinc-50">{Math.round(next.pHike * 100)}%</span> chance the upper bound is above{" "}
         <span className="font-mono">{data.path.currentUpper.toFixed(2)}%</span> after the {next.date} meeting
@@ -123,6 +123,7 @@ function AnalyzeBox() {
 
 function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: string) => void }) {
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
   const s = STATUS[card.status];
   const due = card.watchItems.filter((w) => w.status === "due").length;
   const reread = card.newFilings.length > 0 || due > 0;
@@ -151,20 +152,20 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
   return (
     <article className="queue-row surface relative overflow-hidden rounded-xs border border-zinc-800">
       <span className={`absolute inset-y-0 left-0 w-[3px] ${s.bar}`} aria-hidden />
-      <div className="py-4 pl-6 pr-4">
+      <div className="py-5 pl-7 pr-5 sm:px-8 sm:py-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <Link href={`/company?report=${card.reportId}`} className="font-mono text-[15px] font-bold tracking-wide text-zinc-50 hover:underline">
             {card.ticker}
           </Link>
           <span className="min-w-0 truncate text-sm text-zinc-300">{card.name}</span>
-          <span className={`rounded-xs border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${s.chip}`}>{s.word}</span>
-          <span className="ml-auto font-mono text-[10px] text-zinc-500">
+          <span className={`rounded-xs border px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] ${s.chip}`}>{s.word}</span>
+          <span className="ml-auto font-mono text-[11px] text-zinc-500">
             {card.quarter ? `${card.quarter} · ` : ""}
             {card.basedOn}
           </span>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 xl:grid-cols-6">
+        <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-3">
           <Cell
             label="Bankruptcy, 12 months"
             note={
@@ -207,13 +208,13 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
         </div>
 
         {card.reasons.length ? (
-          <ul className="mt-4 space-y-1.5 border-t border-zinc-800 pt-3">
-            {card.reasons.map((r, i) => (
+          <ul className="mt-5 space-y-2 border-t border-zinc-800 pt-4">
+            {(more ? card.reasons : card.reasons.slice(0, 3)).map((r, i) => (
               <li key={i} className="flex items-start gap-2.5 text-[13px] leading-snug">
                 <span className={`mt-[5px] h-2 w-2 shrink-0 rounded-[1px] ${r.tone === "act" ? "bg-red-600" : "bg-amber-500"}`} aria-hidden />
                 <span className="min-w-0 flex-1 text-zinc-200">
                   {r.text}
-                  {r.date ? <span className="ml-2 font-mono text-[10px] text-zinc-500">{r.date}</span> : null}
+                  {r.date ? <span className="ml-2 font-mono text-[11px] text-zinc-500">{r.date}</span> : null}
                 </span>
                 {r.url ? (
                   <a href={r.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-zinc-500 hover:text-zinc-100" aria-label="Open the source">
@@ -222,12 +223,19 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
                 ) : null}
               </li>
             ))}
+            {card.reasons.length > 3 ? (
+              <li>
+                <button type="button" onClick={() => setMore((v) => !v)} className="pl-[18px] text-xs text-zinc-500 hover:text-zinc-200">
+                  {more ? "Show fewer" : `${card.reasons.length - 3} more`}
+                </button>
+              </li>
+            ) : null}
           </ul>
         ) : (
-          <p className="mt-4 border-t border-zinc-800 pt-3 text-[13px] text-zinc-500">Nothing new: no filing since the report, and no rule applies.</p>
+          <p className="mt-5 border-t border-zinc-800 pt-4 text-[13px] text-zinc-500">Nothing new: no filing since the report, and no rule applies.</p>
         )}
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link href={`/company?report=${card.reportId}`} className="text-xs font-medium text-zinc-200 hover:text-zinc-50">
             Open report &rarr;
           </Link>
@@ -255,11 +263,11 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
           <ol className="mt-3 space-y-2 border-l-2 border-red-600/60 pl-4">
             {card.watchItems.map((w, i) => (
               <li key={i} className="text-[13px] leading-snug">
-                <span className={`mr-2 rounded-xs border px-1.5 py-px font-mono text-[9px] uppercase tracking-wider ${w.status === "due" ? "border-amber-600 text-amber-500" : "border-zinc-700 text-zinc-500"}`}>
+                <span className={`mr-2 rounded-xs border px-1.5 py-px font-mono text-[10px] uppercase tracking-wider ${w.status === "due" ? "border-amber-600 text-amber-500" : "border-zinc-700 text-zinc-500"}`}>
                   {w.status === "due" ? "Ready to check" : "Pending"}
                 </span>
                 <span className="text-zinc-100">{w.item}</span>
-                <span className="mt-0.5 block font-mono text-[10px] text-zinc-500">When: {w.when}</span>
+                <span className="mt-0.5 block font-mono text-[11px] text-zinc-500">When: {w.when}</span>
                 <span className="mt-0.5 block text-xs text-zinc-400">{w.signal}</span>
               </li>
             ))}
@@ -276,9 +284,9 @@ function FeedRow({ event, fresh }: { event: FeedEvent; fresh: boolean }) {
   const Icon = FEED_ICON[event.kind];
   const body = (
     <>
-      <span className="font-mono text-[10px] text-zinc-500">{event.date}</span>
+      <span className="font-mono text-[11px] text-zinc-500">{event.date}</span>
       <span className="flex items-start gap-2">
-        <span className="mt-px w-11 shrink-0 font-mono text-[11px] font-semibold text-zinc-200">{event.ticker}</span>
+        <span className="mt-px w-11 shrink-0 font-mono text-xs font-semibold text-zinc-200">{event.ticker}</span>
         <Icon className={`mt-0.5 h-3 w-3 shrink-0 ${event.tone === "act" ? "text-red-500" : event.tone === "review" ? "text-amber-500" : "text-zinc-500"}`} aria-hidden />
         <span className="min-w-0 flex-1 text-[12px] leading-snug text-zinc-300">{event.text}</span>
         {fresh ? <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-red-600" aria-label="New since your last visit" /> : null}
@@ -306,15 +314,15 @@ function Feed({ feed, lastVisit }: { feed: FeedEvent[]; lastVisit: string | null
   const freshCount = since ? recent.filter((e) => e.date > since).length : 0;
   return (
     <aside className="surface rounded-xs border border-zinc-800 p-4 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
-      <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+      <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> Activity across the watchlist
       </h2>
-      <p className="mt-1 text-[11px] text-zinc-500">
+      <p className="mt-1 text-xs text-zinc-500">
         {since ? (freshCount ? `${freshCount} new since your last visit on ${since}` : `Nothing new since your last visit on ${since}`) : "Filings, 8-Ks, insider trades and debt due dates"}
       </p>
       {upcoming.length ? (
         <>
-          <p className="mt-4 text-[10px] font-semibold uppercase tracking-wider text-red-500">Coming up</p>
+          <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-red-500">Coming up</p>
           <ul className="mt-1">
             {upcoming.map((e, i) => (
               <FeedRow key={`u-${i}`} event={e} fresh={false} />
@@ -322,7 +330,7 @@ function Feed({ feed, lastVisit }: { feed: FeedEvent[]; lastVisit: string | null
           </ul>
         </>
       ) : null}
-      <p className="mt-4 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Recent</p>
+      <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Recent</p>
       {recent.length ? (
         <ul className="mt-1">
           {recent.map((e, i) => (
@@ -346,7 +354,7 @@ function Tile({ status, count, active, onClick }: { status: WatchStatus; count: 
       className={`surface relative overflow-hidden rounded-xs border p-4 text-left transition-colors duration-150 ${active ? "border-zinc-500" : "border-zinc-800 hover:border-zinc-700"}`}
     >
       <span className={`absolute inset-x-0 top-0 h-0.5 ${s.bar}`} aria-hidden />
-      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">{s.word}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">{s.word}</p>
       <p className={`mt-1 font-display text-4xl font-semibold tabular-nums ${count ? s.tile : "text-zinc-700"}`}>{count}</p>
     </button>
   );
@@ -422,7 +430,7 @@ export default function RadarPage() {
       <main className="mx-auto max-w-[1440px] px-6 py-10 lg:px-10">
         <div className="flex flex-wrap items-end justify-between gap-6 border-b border-zinc-800 pb-6">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Morning radar</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">Morning radar</p>
             <h1 className="mt-2 font-display text-[28px] font-semibold leading-tight tracking-[-0.01em] text-zinc-50">Which borrowers need you today, and why</h1>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-400">
               Each borrower gets a 12-month bankruptcy probability from its own filings, checked against EDGAR for new 8-Ks and filings, and against
@@ -432,7 +440,7 @@ export default function RadarPage() {
               </Link>
               .
             </p>
-            <p className="mt-2 text-[11px] text-zinc-500">Ground rules: code does the math · the AI never decides · every claim cites its sentence.</p>
+            <p className="mt-2 text-xs text-zinc-500">Ground rules: code does the math · the AI never decides · every claim cites its sentence.</p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <form onSubmit={submit} className="flex gap-2">
@@ -460,7 +468,7 @@ export default function RadarPage() {
               type="button"
               onClick={() => void load(true)}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 font-mono text-[11px] text-zinc-500 hover:text-zinc-200 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 font-mono text-xs text-zinc-500 hover:text-zinc-200 disabled:opacity-60"
             >
               <RefreshCw className="h-3 w-3" aria-hidden />
               {busy ? "Checking EDGAR..." : checked ? `Checked at ${checked} · check again` : "Check now"}
@@ -516,10 +524,10 @@ export default function RadarPage() {
               ))}
             </div>
 
-            <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-              <section aria-label="Queue" className="min-w-0 space-y-3">
+            <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+              <section aria-label="Queue" className="min-w-0 space-y-5">
                 {filter ? (
-                  <button type="button" onClick={() => setFilter(null)} className="font-mono text-[11px] text-zinc-500 hover:text-zinc-200">
+                  <button type="button" onClick={() => setFilter(null)} className="font-mono text-xs text-zinc-500 hover:text-zinc-200">
                     Showing {STATUS[filter].word} only &middot; show all
                   </button>
                 ) : null}

@@ -21,7 +21,7 @@ export function FilingChangePanel({ report }: { report: Report }) {
 
   return (
     <section className="mb-10">
-      <h3 className="mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+      <h3 className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> What the filing rewrote
       </h3>
       <p className="mb-4 max-w-3xl text-[13px] leading-relaxed text-zinc-400">
@@ -53,7 +53,7 @@ export function FilingChangePanel({ report }: { report: Report }) {
                   <button type="button" onClick={() => setOpen(open === s.section ? null : s.section)} className="grid w-full grid-cols-[minmax(0,1fr)_120px_64px] items-center gap-4 text-left" aria-expanded={open === s.section}>
                     <span className="truncate text-[13px] text-zinc-200">
                       {s.section}
-                      <span className="ml-2 text-[11px] text-zinc-500">
+                      <span className="ml-2 text-xs text-zinc-500">
                         {s.wordsBefore.toLocaleString()} → {s.wordsNow.toLocaleString()} words · {s.added.length ? `${s.added.length}+ new sentences` : "no new sentences"}
                       </span>
                     </span>
@@ -65,13 +65,13 @@ export function FilingChangePanel({ report }: { report: Report }) {
                   {open === s.section ? (
                     <div className="mt-3 grid gap-4 md:grid-cols-2">
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">New in {change.current.form}</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-500">New in {change.current.form}</p>
                         <ul className="mt-1 space-y-1.5 text-xs leading-relaxed text-zinc-300">
                           {s.added.length ? s.added.map((t) => <li key={t}>&ldquo;{t}&rdquo;</li>) : <li className="text-zinc-500">None</li>}
                         </ul>
                       </div>
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-red-500">Dropped since {change.prior.form}</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-red-500">Dropped since {change.prior.form}</p>
                         <ul className="mt-1 space-y-1.5 text-xs leading-relaxed text-zinc-400">
                           {s.removed.length ? s.removed.map((t) => <li key={t}>&ldquo;{t}&rdquo;</li>) : <li className="text-zinc-500">None</li>}
                         </ul>

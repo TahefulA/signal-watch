@@ -27,7 +27,7 @@ export function ForecastPanel({ report, timeline }: { report: Report; timeline: 
 
   return (
     <section data-tour="forecast" className="mb-10">
-      <h3 className="mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+      <h3 className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> Forecast: how long does the cash last?
       </h3>
       <p className="mb-4 max-w-3xl text-[13px] leading-relaxed text-zinc-400">
@@ -63,7 +63,7 @@ export function ForecastPanel({ report, timeline }: { report: Report; timeline: 
           <div className="mt-4 overflow-x-auto rounded-xs border border-zinc-800">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="bg-zinc-900 text-[10px] uppercase tracking-wider text-zinc-500">
+                <tr className="bg-zinc-900 text-[11px] uppercase tracking-wider text-zinc-500">
                   <th scope="col" className="px-4 py-2 font-semibold">Case</th>
                   <th scope="col" className="px-4 py-2 font-semibold">Free cash flow per quarter</th>
                   <th scope="col" className="px-4 py-2 font-semibold">Debt principal due, {forecast.quarters} quarters</th>
@@ -92,7 +92,7 @@ export function ForecastPanel({ report, timeline }: { report: Report; timeline: 
               </tbody>
             </table>
           </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+          <p className="mt-2 text-xs leading-relaxed text-zinc-500">
             Free cash flow is operating cash flow less capital spending, from XBRL; interest paid is already inside operating cash flow. Debt due is the
             debt note&rsquo;s maturity table, spread over the quarters of each year.
             {forecast.undrawn ? ` An undrawn credit line of ${compactMoney(forecast.undrawn)} is not counted; drawing it would add that much cash.` : ""} These

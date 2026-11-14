@@ -15,14 +15,14 @@ export function TabHeader({ title, meta }: { title: string; meta?: string | null
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-2 border-b border-zinc-800 pb-4">
       <h2 className="font-display text-[22px] font-semibold leading-none tracking-[-0.01em] text-zinc-50 first-letter:uppercase">{title}</h2>
-      {meta ? <p className="font-mono text-[11px] text-zinc-500">{meta}</p> : null}
+      {meta ? <p className="font-mono text-xs text-zinc-500">{meta}</p> : null}
     </div>
   );
 }
 
 export function SectionTitle({ children }: { children: string }) {
   return (
-    <h3 className="mb-4 mt-10 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+    <h3 className="mb-4 mt-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
       <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden />
       {children}
     </h3>
@@ -40,9 +40,9 @@ function MetricCard({ metric, delta, deltaTone, spark }: { metric: CapitalMetric
   const missing = metric.display === "Not available" || metric.display === "Not reconciled" || metric.display === "n/m";
   return (
     <div className="surface rounded-xs border border-zinc-800 p-5" title={metric.note}>
-      <p className="text-[11px] uppercase tracking-wider text-zinc-500">{metric.label}</p>
+      <p className="text-xs uppercase tracking-wider text-zinc-500">{metric.label}</p>
       <p className={`mt-2 font-mono text-2xl font-semibold ${missing ? "text-zinc-500" : "text-zinc-50"}`}>{metric.display}</p>
-      {delta ? <p className={`mt-1 font-mono text-[11px] ${deltaTone === "up" ? "text-emerald-500" : deltaTone === "down" ? "text-red-400" : "text-zinc-500"}`}>{delta}</p> : null}
+      {delta ? <p className={`mt-1 font-mono text-xs ${deltaTone === "up" ? "text-emerald-500" : deltaTone === "down" ? "text-red-400" : "text-zinc-500"}`}>{delta}</p> : null}
       {spark ? <div className="mt-3">{spark}</div> : null}
     </div>
   );
@@ -144,7 +144,7 @@ export function FinancialTab({
       <SectionTitle>Quarter by quarter</SectionTitle>
       {history ? (
         <>
-          <p className="-mt-2 mb-4 font-mono text-[11px] text-zinc-500">
+          <p className="-mt-2 mb-4 font-mono text-xs text-zinc-500">
             {windowed ? rangeText : "Last 8 quarters"} · three-month figures from the company&rsquo;s XBRL tags · hover a quarter for its figures and changes
           </p>
           <div data-tour="charts" className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -213,7 +213,7 @@ export function FinancialTab({
           return metric ? <RatioBar key={k} metric={metric} peers={[]} average={k === "current_ratio" ? ratioAvg : null} /> : null;
         })}
       </div>
-      <p className="mt-3 text-[11px] text-zinc-500">
+      <p className="mt-3 text-xs text-zinc-500">
         Bands are common leveraged-credit rules of thumb, for orientation only. White dot: this company now. Tick: its average over the window, where the quarterly history exists. n/m: EBITDA is negative.
       </p>
 
@@ -240,7 +240,7 @@ export function FinancialTab({
             </div>
           )}
           <RatingGauge ratings={ratings} />
-          <p className="mt-3 text-[11px] text-zinc-500">Ratings appear only when a filing or headline states them. Signal Watch does not license rating agency data.</p>
+          <p className="mt-3 text-xs text-zinc-500">Ratings appear only when a filing or headline states them. Signal Watch does not license rating agency data.</p>
         </div>
         <div>
           <SectionTitle>Liquidity</SectionTitle>

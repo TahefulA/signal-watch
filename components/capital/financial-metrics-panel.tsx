@@ -38,7 +38,7 @@ export function multipleOf(display: string): number | null {
 }
 
 function SectionHeader({ children }: { children: string }) {
-  return <h3 className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">{children}</h3>;
+  return <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">{children}</h3>;
 }
 
 export function Sparkline({ points, label, large = false, percent = false }: { points: { end: string; value: number }[]; label: string; large?: boolean; percent?: boolean }) {
@@ -74,7 +74,7 @@ function MetricRow({ metric, spark }: { metric: CapitalMetric; spark?: ReactNode
   const missing = metric.display === "Not available" || metric.display === "Not reconciled";
   return (
     <div className="flex items-center justify-between gap-3 border-b border-zinc-800 py-2 last:border-b-0" title={metric.note}>
-      <span className="min-w-0 text-[11px] leading-snug text-zinc-400">{metric.label}</span>
+      <span className="min-w-0 text-xs leading-snug text-zinc-400">{metric.label}</span>
       <span className="flex shrink-0 items-center gap-3">
         {spark}
         <span className={`whitespace-nowrap text-right font-mono text-sm font-medium ${missing ? "text-zinc-500" : metric.display === "n/m" ? "text-zinc-400" : "text-zinc-100"}`}>
@@ -106,7 +106,7 @@ export function RatioBar({
   return (
     <div className="border-b border-zinc-800 py-2 last:border-b-0" title={metric.note}>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[11px] text-zinc-400">{metric.label}</span>
+        <span className="text-xs text-zinc-400">{metric.label}</span>
         <span className={`font-mono text-sm font-medium ${value === null ? "text-zinc-400" : "text-zinc-100"}`}>{metric.display}</span>
       </div>
       <div className="relative mt-1.5 h-1.5" aria-hidden>
@@ -128,7 +128,7 @@ export function RatioBar({
           <span className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-100" style={{ left: at(value) }} />
         ) : null}
       </div>
-      <div className="mt-1 flex justify-between gap-2 font-mono text-[10px] text-zinc-500">
+      <div className="mt-1 flex justify-between gap-2 font-mono text-[11px] text-zinc-500">
         <span>{value === null ? (metric.display === "n/m" ? "Not meaningful: see note" : "No value") : `${bands.note.replace("Bands: ", "")}`}</span>
         <span>
           {average ? `| avg ${average.value.toFixed(1)}x  ` : ""}
@@ -163,7 +163,7 @@ export function RatingGauge({ ratings }: { ratings: CreditRating[] }) {
           <span key={r.agency} className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-100" style={{ left: at(notch) }} title={`${r.agency} ${r.rating}`} />
         ))}
       </div>
-      <div className="mt-1 flex justify-between font-mono text-[10px] text-zinc-500">
+      <div className="mt-1 flex justify-between font-mono text-[11px] text-zinc-500">
         <span>CCC-</span>
         <span>B</span>
         <span>BB</span>
@@ -231,7 +231,7 @@ export function FinancialMetricsPanel({ capital, company, peers = [] }: Financia
       <h2 id="snapshot-title" className="sr-only">
         Financial snapshot
       </h2>
-      <p className="font-mono text-[10px] leading-snug text-zinc-500">
+      <p className="font-mono text-[11px] leading-snug text-zinc-500">
         As of {capital.fiscalPeriod ?? "the latest filing"} (period ending {capital.asOf ?? "n/a"}) · {capital.sourceType} filed {capital.sourceDate}
       </p>
 
@@ -252,7 +252,7 @@ export function FinancialMetricsPanel({ capital, company, peers = [] }: Financia
           {ratings.length ? (
             ratings.map((r) => (
               <div key={`${r.agency}-${r.rating}`} className="flex items-center justify-between gap-3 border-b border-zinc-800 py-2" title={r.citation.quote}>
-                <span className="text-[11px] text-zinc-400">{r.agency}{r.subject ? `, ${r.subject}` : ""}</span>
+                <span className="text-xs text-zinc-400">{r.agency}{r.subject ? `, ${r.subject}` : ""}</span>
                 <span className="font-mono text-sm font-medium text-zinc-100">
                   {r.rating}
                   {r.outlook ? <span className="text-zinc-400"> {r.outlook}</span> : null}
@@ -261,13 +261,13 @@ export function FinancialMetricsPanel({ capital, company, peers = [] }: Financia
             ))
           ) : (
             <div className="flex items-center justify-between gap-3 border-b border-zinc-800 py-2">
-              <span className="text-[11px] text-zinc-400">Agency rating</span>
+              <span className="text-xs text-zinc-400">Agency rating</span>
               <span className="font-mono text-sm text-zinc-500">Not stated in filings read</span>
             </div>
           )}
           <RatingGauge ratings={ratings} />
           <div className="flex items-center justify-between gap-3 py-2">
-            <span className="text-[11px] text-zinc-400">Bond spread, price</span>
+            <span className="text-xs text-zinc-400">Bond spread, price</span>
             <span className="font-mono text-sm text-zinc-500">No bond price feed</span>
           </div>
         </div>
@@ -283,10 +283,10 @@ export function FinancialMetricsPanel({ capital, company, peers = [] }: Financia
       </div>
 
       <details className="mt-3">
-        <summary className="cursor-pointer list-none text-[11px] text-zinc-400 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-100">
+        <summary className="cursor-pointer list-none text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-100">
           How each figure is built
         </summary>
-        <dl className="mt-2 space-y-1.5 text-[11px] leading-snug">
+        <dl className="mt-2 space-y-1.5 text-xs leading-snug">
           {capital.metrics.map((m) => (
             <div key={m.key}>
               <dt className="inline text-zinc-300">{m.label}: </dt>

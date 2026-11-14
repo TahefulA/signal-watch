@@ -8,7 +8,7 @@ import { RANGE_OPTIONS, type TimeRange, describeWindow, quarterStart } from "@/l
 /** The window selector beside the filter chips. */
 export function RangeSelect({ range, quarters, onChange }: { range: TimeRange; quarters: TimelineQuarter[]; onChange: (r: TimeRange) => void }) {
   return (
-    <label className="inline-flex shrink-0 items-center gap-2 text-[11px] text-zinc-500">
+    <label className="inline-flex shrink-0 items-center gap-2 text-xs text-zinc-500">
       <span className="sr-only">Time range</span>
       <select
         value={range.kind}
@@ -18,7 +18,7 @@ export function RangeSelect({ range, quarters, onChange }: { range: TimeRange; q
             onChange({ kind, start: quarters[Math.max(0, quarters.length - 4)].label, end: quarters[quarters.length - 1].label });
           } else onChange({ kind });
         }}
-        className="h-7 rounded-xs border border-zinc-800 bg-zinc-900 px-2 font-mono text-[11px] text-zinc-200 focus:border-zinc-600 focus:outline-none"
+        className="h-7 rounded-xs border border-zinc-800 bg-zinc-900 px-2 font-mono text-xs text-zinc-200 focus:border-zinc-600 focus:outline-none"
       >
         {RANGE_OPTIONS.map((o) => (
           <option key={o.kind} value={o.kind}>
@@ -115,13 +115,13 @@ export function TimeContextBar({
       <div className="relative mt-1 h-3.5">
         {quarters.map((q, i) =>
           (n - 1 - i) % 2 === 0 ? (
-            <span key={q.label} className="absolute -translate-x-1/2 whitespace-nowrap font-mono text-[10px] text-zinc-500" style={{ left: `${at(i)}%` }}>
+            <span key={q.label} className="absolute -translate-x-1/2 whitespace-nowrap font-mono text-[11px] text-zinc-500" style={{ left: `${at(i)}%` }}>
               {q.label}
             </span>
           ) : null,
         )}
       </div>
-      <p className="mt-1 font-mono text-[11px] text-zinc-400">
+      <p className="mt-1 font-mono text-xs text-zinc-400">
         Showing: {describeWindow(quarters, w)}
         <span className="text-zinc-600"> · bars on each box mark the quarters whose 10-Q or 10-K names it</span>
       </p>
@@ -156,7 +156,7 @@ export function MarketContextStrip({ ticker, quarters, window: w }: { ticker: st
 
   if (!start || !end) return null;
   return (
-    <div className="flex items-center gap-x-5 overflow-x-auto whitespace-nowrap border-t border-zinc-800 px-6 py-1.5 font-mono text-[11px]">
+    <div className="flex items-center gap-x-5 overflow-x-auto whitespace-nowrap border-t border-zinc-800 px-6 py-1.5 font-mono text-xs">
       <span className="text-zinc-500">
         MARKET {start} → {rows?.find((r) => r.end)?.end?.date ?? end}
       </span>

@@ -23,20 +23,20 @@ const MOVE: Record<CommitteeTurn["move"], string> = {
 export function StatusBadge({ status, problems }: { status: CommitteeTurn["status"]; problems: string[] }) {
   if (status === "pending")
     return (
-      <span className="inline-flex items-center gap-1 rounded-xs border border-zinc-700 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+      <span className="inline-flex items-center gap-1 rounded-xs border border-zinc-700 px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
         <Loader2 className="h-3 w-3 animate-spin" aria-hidden /> Checking
       </span>
     );
   if (status === "verified")
     return (
-      <span className="inline-flex items-center gap-1 rounded-xs border border-emerald-700/60 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-500">
+      <span className="inline-flex items-center gap-1 rounded-xs border border-emerald-700/60 px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wider text-emerald-500">
         <Check className="h-3 w-3" aria-hidden /> Verified
       </span>
     );
   return (
     <span
       title={problems.join(" ")}
-      className="inline-flex items-center gap-1 rounded-xs border border-red-700/60 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-red-500"
+      className="inline-flex items-center gap-1 rounded-xs border border-red-700/60 px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wider text-red-500"
     >
       <X className="h-3 w-3" aria-hidden /> Struck
     </span>
@@ -55,14 +55,14 @@ export function TurnLine({ turn, onJump }: { turn: CommitteeTurn; onJump: (id: s
   return (
     <li id={`turn-${turn.id}`} className={`committee-turn border-l-[3px] ${accent} ${align} bg-zinc-900/60 px-4 py-3`} style={side === "devil" ? { background: "var(--devil-bg)" } : undefined}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span className={`text-[11px] font-semibold uppercase tracking-wider ${label}`}>{WHO[turn.speaker]}</span>
-        {turn.speaker !== "user" ? <span className="text-[11px] text-zinc-500">{MOVE[turn.move]}</span> : null}
+        <span className={`text-xs font-semibold uppercase tracking-wider ${label}`}>{WHO[turn.speaker]}</span>
+        {turn.speaker !== "user" ? <span className="text-xs text-zinc-500">{MOVE[turn.move]}</span> : null}
         {turn.replyingTo ? (
-          <button type="button" onClick={() => onJump(turn.replyingTo as string)} className="font-mono text-[10px] text-zinc-500 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-200">
+          <button type="button" onClick={() => onJump(turn.replyingTo as string)} className="font-mono text-[11px] text-zinc-500 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-200">
             &uarr; {turn.replyingTo}
           </button>
         ) : null}
-        <span className="font-mono text-[10px] text-zinc-600">{turn.id}</span>
+        <span className="font-mono text-[11px] text-zinc-600">{turn.id}</span>
         <span className="ml-auto">{turn.speaker === "user" ? null : <StatusBadge status={turn.status} problems={turn.problems} />}</span>
       </div>
       <p className={`mt-1.5 text-[14px] leading-relaxed ${turn.status === "unsupported" ? "text-zinc-500 line-through decoration-red-600/70" : "text-zinc-100"}`}>{turn.text}</p>
@@ -72,13 +72,13 @@ export function TurnLine({ turn, onJump }: { turn: CommitteeTurn; onJump: (id: s
           <button type="button" onClick={() => setOpen((o) => !o)} className="inline-flex max-w-full items-center gap-1.5 text-left text-xs text-zinc-400 hover:text-zinc-100" aria-expanded={open}>
             <span aria-hidden>📎</span>
             <span className="truncate">{ev.title}</span>
-            <span className="shrink-0 text-[10px] uppercase tracking-wider text-zinc-600">{ev.strength}</span>
+            <span className="shrink-0 text-[11px] uppercase tracking-wider text-zinc-600">{ev.strength}</span>
           </button>
           {open ? (
             <div className="mt-2 border-l-2 border-zinc-700 pl-3 text-xs leading-relaxed text-zinc-400">
               <p>{ev.detail}</p>
               {ev.quote ? <blockquote className="mt-2 italic text-zinc-300">&ldquo;{ev.quote}&rdquo;</blockquote> : null}
-              <p className="mt-1.5 font-mono text-[10px] text-zinc-500">
+              <p className="mt-1.5 font-mono text-[11px] text-zinc-500">
                 {ev.source.url ? (
                   <a href={ev.source.url} target={ev.source.url.startsWith("/") ? undefined : "_blank"} rel="noopener noreferrer" className="inline-flex items-center gap-1 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-200">
                     {ev.source.label} <ExternalLink className="h-3 w-3" aria-hidden />

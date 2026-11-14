@@ -44,16 +44,16 @@ const CompanyBox = memo(function CompanyBox({ data }: NodeProps<CompanyNode>) {
           className={`surface flex h-full w-full items-center justify-center rounded-full border-2 ${style.border} ${selected ? "ring-2 ring-zinc-200 ring-offset-2 ring-offset-zinc-950" : ""}`}
           style={{ background: a.flag === "target" ? "var(--devil-bg)" : undefined }}
         >
-          <span className="px-1 text-center font-mono text-[10px] leading-tight text-zinc-300">{c.debt ? compactMoney(c.debt.value) : "n/a"}</span>
+          <span className="px-1 text-center font-mono text-[11px] leading-tight text-zinc-300">{c.debt ? compactMoney(c.debt.value) : "n/a"}</span>
         </div>
         {lastEvent ? (
-          <span className="absolute -right-2 -top-1 rounded-xs bg-zinc-800 px-1 font-mono text-[9px] font-semibold text-red-400" title={`${lastEvent.term}, ${lastEvent.date}`}>
+          <span className="absolute -right-2 -top-1 rounded-xs bg-zinc-800 px-1 font-mono text-[10px] font-semibold text-red-400" title={`${lastEvent.term}, ${lastEvent.date}`}>
             {EVENT_TEXT[lastEvent.kind]} {lastEvent.date.slice(0, 4)}
           </span>
         ) : null}
       </div>
-      <span className="mt-1 line-clamp-2 text-center text-[11px] font-medium leading-tight text-zinc-100">{c.name}</span>
-      <span className={`text-[9px] font-semibold uppercase tracking-wider ${style.text}`}>{style.label}</span>
+      <span className="mt-1 line-clamp-2 text-center text-xs font-medium leading-tight text-zinc-100">{c.name}</span>
+      <span className={`text-[10px] font-semibold uppercase tracking-wider ${style.text}`}>{style.label}</span>
     </div>
   );
 });
@@ -63,8 +63,8 @@ const SponsorBox = memo(function SponsorBox({ data }: NodeProps<SponsorNode>) {
     <div className={`surface flex flex-col items-center justify-center rounded-xs border-2 ${data.primary ? "border-zinc-300 px-4 py-3" : "border-zinc-700 px-2 py-1.5"}`}>
       <Handle type="source" position={Position.Bottom} className={hidden} style={{ top: "50%" }} />
       <Handle type="target" position={Position.Top} className={hidden} style={{ top: "50%" }} />
-      <span className={`${data.primary ? "text-sm" : "text-[11px]"} font-semibold text-zinc-50`}>{data.name}</span>
-      <span className="text-[10px] text-zinc-500">
+      <span className={`${data.primary ? "text-sm" : "text-xs"} font-semibold text-zinc-50`}>{data.name}</span>
+      <span className="text-[11px] text-zinc-500">
         {data.primary ? `${data.count} SEC filer${data.count === 1 ? "" : "s"}` : "co-sponsor"}
       </span>
     </div>
@@ -162,7 +162,7 @@ function Section({ title, sub, children, id, action }: { title: string; sub?: st
     <section id={id} className="mt-12 scroll-mt-6">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+          <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
             <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> {title}
           </h2>
           {sub ? <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-zinc-400">{sub}</p> : null}
@@ -318,12 +318,12 @@ export function ContagionView({ map, initial = null }: { map: ContagionMap; init
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <h3 className="truncate text-[15px] font-semibold text-zinc-50">{c.name}</h3>
-                      <p className="text-[11px] text-zinc-500">
+                      <p className="text-xs text-zinc-500">
                         {c.ticker ? <span className="font-mono">{c.ticker} · </span> : null}
                         {owner}
                       </p>
                     </div>
-                    <span className={`shrink-0 text-[10px] font-semibold uppercase tracking-wider ${FLAG_STYLE[a.flag].text}`}>{FLAG_STYLE[a.flag].label}</span>
+                    <span className={`shrink-0 text-[11px] font-semibold uppercase tracking-wider ${FLAG_STYLE[a.flag].text}`}>{FLAG_STYLE[a.flag].label}</span>
                   </div>
                   {a.trigger ? (
                     <p className="mt-3 text-[12.5px] leading-snug text-zinc-300">
@@ -356,7 +356,7 @@ export function ContagionView({ map, initial = null }: { map: ContagionMap; init
       <Section title="Owner scorecard" sub="Each owner's public portfolio and what has happened in it since 2016. Click a row to open its network.">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[680px] text-left text-xs">
-            <thead className="text-[10px] uppercase tracking-wider text-zinc-500">
+            <thead className="text-[11px] uppercase tracking-wider text-zinc-500">
               <tr>
                 <th className="py-2 pr-3 font-semibold">Owner</th>
                 <th className="py-2 pr-3 text-right font-semibold">Companies</th>
@@ -397,7 +397,7 @@ export function ContagionView({ map, initial = null }: { map: ContagionMap; init
                 className={`rounded-xs border px-2.5 py-1 text-xs ${s.id === sponsorId ? "border-zinc-400 bg-zinc-800 text-zinc-50" : "border-zinc-700 text-zinc-300 hover:border-zinc-500"}`}
               >
                 {s.name} <span className="font-mono text-zinc-500">{s.members.length}</span>
-                {s.flagged ? <span className="ml-1 rounded-xs bg-amber-500/20 px-1 font-mono text-[10px] text-amber-400">{s.flagged}</span> : null}
+                {s.flagged ? <span className="ml-1 rounded-xs bg-amber-500/20 px-1 font-mono text-[11px] text-amber-400">{s.flagged}</span> : null}
               </button>
             ))}
           </div>
@@ -407,7 +407,7 @@ export function ContagionView({ map, initial = null }: { map: ContagionMap; init
               <ReactFlowProvider>
                 <Canvas nodes={graph.nodes} edges={graph.edges} onPick={pick} />
               </ReactFlowProvider>
-              <div className="pointer-events-none absolute bottom-2 right-2 flex flex-wrap gap-3 rounded-xs bg-zinc-950/80 px-2 py-1 text-[10px] text-zinc-400">
+              <div className="pointer-events-none absolute bottom-2 right-2 flex flex-wrap gap-3 rounded-xs bg-zinc-950/80 px-2 py-1 text-[11px] text-zinc-400">
                 {(["target", "watch", "clear", "history"] as ContagionFlag[]).map((f) => (
                   <span key={f} className="flex items-center gap-1">
                     <span className={`h-2.5 w-2.5 rounded-full border-2 ${FLAG_STYLE[f].border}`} aria-hidden /> {FLAG_STYLE[f].label}
@@ -432,7 +432,7 @@ export function ContagionView({ map, initial = null }: { map: ContagionMap; init
 function HowItWorks({ map }: { map: ContagionMap }) {
   return (
     <section className="mt-12 max-w-3xl">
-      <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+      <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> How this works
       </h2>
       <ol className="mt-3 list-decimal space-y-2 pl-5 text-[13px] leading-relaxed text-zinc-400">

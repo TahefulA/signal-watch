@@ -51,7 +51,7 @@ function ChangesTimeline({ report, timeline, onSelectEntity }: { report: Report;
   );
   return (
     <section className="mb-10 rounded-xs border border-zinc-800 bg-zinc-900 px-5 py-4">
-      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Changes timeline</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Changes timeline</h3>
       <div className="relative mx-4 mt-6 h-6">
         <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-zinc-700" aria-hidden />
         {q.map((quarter, i) => (
@@ -69,7 +69,7 @@ function ChangesTimeline({ report, timeline, onSelectEntity }: { report: Report;
       <div className="relative mx-4 h-4">
         {q.map((quarter, i) =>
           (q.length - 1 - i) % 2 === 0 || i === selected ? (
-            <span key={quarter.label} className={`absolute -translate-x-1/2 whitespace-nowrap font-mono text-[10px] ${i === selected ? "text-zinc-100" : "text-zinc-500"}`} style={{ left: `${at(i)}%` }}>
+            <span key={quarter.label} className={`absolute -translate-x-1/2 whitespace-nowrap font-mono text-[11px] ${i === selected ? "text-zinc-100" : "text-zinc-500"}`} style={{ left: `${at(i)}%` }}>
               {quarter.label}
             </span>
           ) : null,
@@ -77,7 +77,7 @@ function ChangesTimeline({ report, timeline, onSelectEntity }: { report: Report;
       </div>
       <div className="mt-4 grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600">
             First named in the {q[selected].label} {q[selected].form} ({firstNamed.length})
           </p>
           <p className="mt-2 leading-relaxed text-zinc-400">
@@ -85,7 +85,7 @@ function ChangesTimeline({ report, timeline, onSelectEntity }: { report: Report;
           </p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-red-600">
+          <p className="text-xs font-semibold uppercase tracking-wider text-red-600">
             Named the filing before, not in this one ({dropped.length})
           </p>
           <p className="mt-2 leading-relaxed text-zinc-400">
@@ -93,7 +93,7 @@ function ChangesTimeline({ report, timeline, onSelectEntity }: { report: Report;
           </p>
         </div>
       </div>
-      <p className="mt-3 text-[11px] text-zinc-500">
+      <p className="mt-3 text-xs text-zinc-500">
         From a search of each filing&rsquo;s text for today&rsquo;s entities. Risk factors are printed in full mostly in 10-Ks, so risks often show only in FY filings.
       </p>
     </section>
@@ -123,14 +123,14 @@ function ChangeCard({ diff, report, bar, onSelectEntity }: { diff: EntityDiff; r
         ) : null}
       </p>
       {latest ? (
-        <p className="mt-2 font-mono text-[11px] text-zinc-600">
+        <p className="mt-2 font-mono text-xs text-zinc-600">
           {latest.sourceType} · {latest.sourceDate}
           {latest.page ? ` · p.${latest.page}` : ""}
         </p>
       ) : null}
       {diff.citations.length ? (
         <details className="mt-2">
-          <summary className="cursor-pointer list-none text-[11px] text-zinc-500 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-200">Evidence</summary>
+          <summary className="cursor-pointer list-none text-xs text-zinc-500 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-200">Evidence</summary>
           {diff.citations.map((c) => (
             <CitationBlock key={`${c.sourceDate}-${c.quote}`} citation={c} compact />
           ))}
@@ -195,7 +195,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
   return (
     <div className="mx-auto max-w-[1000px] px-6 py-8 lg:px-12">
       <div className="mb-6 border-b border-zinc-800 pb-4">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Changes since last filing</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Changes since last filing</h2>
         <p className="mt-2 font-mono text-xs text-zinc-500">
           {describe(changes.baselineFilings)} → {describe(changes.newFilings) || "no new filings"}
         </p>
@@ -203,7 +203,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
       {counterCard}
       {forecastBlock}
       {timelineBlock}
-      <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Latest quarter, full comparison</h3>
+      <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">Latest quarter, full comparison</h3>
 
       {facts.length === 0 ? (
         <p className="py-12 text-center text-sm text-zinc-500">No changes detected since last filing.</p>
@@ -212,7 +212,7 @@ export function ChangesTab({ report, busy, step, error, onCompare, onSelectEntit
           const items = facts.filter((c) => g.kinds.includes(c.kind));
           return (
             <section key={g.title} className="mt-8 first:mt-0">
-              <h3 className={`mb-4 text-[11px] font-semibold uppercase tracking-wider ${g.color}`}>
+              <h3 className={`mb-4 text-xs font-semibold uppercase tracking-wider ${g.color}`}>
                 {g.title} ({items.length})
               </h3>
               {items.length ? (

@@ -70,7 +70,7 @@ export function CapitalTab({ report, devilBusy = false }: { report: Report; devi
   const missing = aggregate ? <span className="text-zinc-600">&mdash;</span> : <span className="text-zinc-600">Not disclosed</span>;
   const xbrlBadge = (i: DebtInstrument, field: "coupon" | "maturity" | "outstanding") =>
     i.xbrlFields?.includes(field) ? (
-      <span className="ml-1.5 rounded-xs border border-zinc-700 px-1 align-middle font-mono text-[9px] text-zinc-400" title="From the filing's inline XBRL tags; the footnote text did not state it">
+      <span className="ml-1.5 rounded-xs border border-zinc-700 px-1 align-middle font-mono text-[10px] text-zinc-400" title="From the filing's inline XBRL tags; the footnote text did not state it">
         XBRL
       </span>
     ) : null;
@@ -99,7 +99,7 @@ export function CapitalTab({ report, devilBusy = false }: { report: Report; devi
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] text-left">
           <thead>
-            <tr className="text-[11px] uppercase tracking-wider text-zinc-500">
+            <tr className="text-xs uppercase tracking-wider text-zinc-500">
               <th className="pb-3 pr-4 font-semibold">{aggregate ? "Category" : "Instrument"}</th>
               {showIssuer ? <th className="pb-3 pr-4 font-semibold">Issuer</th> : null}
               <th className="pb-3 pr-4 text-right font-semibold">Amount</th>
@@ -114,7 +114,7 @@ export function CapitalTab({ report, devilBusy = false }: { report: Report; devi
               <tr key={i.id} className="border-t border-zinc-800 align-top">
                 <td className="py-3 pr-4">
                   <p className="text-[13px] text-zinc-100">{i.name}</p>
-                  <p className="text-[11px] text-zinc-500">
+                  <p className="text-xs text-zinc-500">
                     {KIND[i.kind]}
                     {i.aggregate ? " · category total" : ""}
                     {i.commitment !== null && i.outstanding === null ? " · drawn amount not disclosed" : ""}
@@ -137,7 +137,7 @@ export function CapitalTab({ report, devilBusy = false }: { report: Report; devi
                 <td className="py-3">
                   {i.citations[0] ? (
                     <details>
-                      <summary className="cursor-pointer list-none font-mono text-[11px] text-zinc-400 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-100">
+                      <summary className="cursor-pointer list-none font-mono text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-100">
                         {i.citations[0].sourceType}
                         {i.citations[0].page ? ` p.${i.citations[0].page}` : ""}
                         {i.citations.length > 1 ? ` +${i.citations.length - 1}` : ""}
@@ -155,7 +155,7 @@ export function CapitalTab({ report, devilBusy = false }: { report: Report; devi
             <tr className="border-t border-zinc-700" title={total?.note}>
               <td className="py-3 pr-4 text-[13px] font-semibold text-zinc-50">Total debt</td>
               <td className="py-3 pr-4 text-right font-mono text-[13px] font-semibold text-zinc-50">{total?.display ?? "Not available"}</td>
-              <td colSpan={showIssuer ? 5 : 4} className="py-3 text-[11px] text-zinc-500">
+              <td colSpan={showIssuer ? 5 : 4} className="py-3 text-xs text-zinc-500">
                 {total?.note}
               </td>
             </tr>
@@ -179,7 +179,7 @@ export function CapitalTab({ report, devilBusy = false }: { report: Report; devi
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-[11px] text-zinc-500">
+          <p className="mt-3 text-xs text-zinc-500">
             {!capital.maturitySchedule
               ? "Principal by final maturity year, from the instruments above. The filing has no maturities table."
               : capital.maturitySchedule.source === "text"
@@ -216,7 +216,7 @@ export function CapitalTab({ report, devilBusy = false }: { report: Report; devi
               <span className={`font-mono text-sm font-medium ${/Not|No /.test(row.value) ? "text-zinc-500" : "text-zinc-100"}`}>{row.value}</span>
             </div>
           ))}
-          {wam ? <p className="mt-2 text-[11px] text-zinc-500">Weighted average maturity covers {wam.covered} of {wam.total} instruments.</p> : null}
+          {wam ? <p className="mt-2 text-xs text-zinc-500">Weighted average maturity covers {wam.covered} of {wam.total} instruments.</p> : null}
         </div>
         <div>
           <SectionTitle>Recent changes</SectionTitle>

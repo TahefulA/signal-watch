@@ -128,7 +128,7 @@ export function Tour({ step, onStep, onClose, onTab, activeTab }: TourProps) {
         }}
       >
         <div className="flex items-center justify-between gap-3">
-          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-red-500">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-500">
             <Presentation className="h-3.5 w-3.5" aria-hidden /> Tour &middot; {step + 1} of {TOUR_STEPS.length}
           </p>
           <button type="button" onClick={onClose} className="text-zinc-500 hover:text-zinc-100" aria-label="End the tour">
@@ -149,17 +149,17 @@ export function Tour({ step, onStep, onClose, onTab, activeTab }: TourProps) {
 
         <h2 className="mt-4 font-display text-xl font-semibold leading-snug text-zinc-50">{current.title}</h2>
 
-        <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">What you are looking at</p>
+        <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">What you are looking at</p>
         <p className="mt-1 text-[13px] leading-relaxed text-zinc-300">{current.look}</p>
 
         {current.problem ? (
           <>
-            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-500">The fund&rsquo;s problem it solves</p>
+            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-amber-500">The fund&rsquo;s problem it solves</p>
             <p className="mt-1 text-[13px] leading-relaxed text-zinc-200">{current.problem}</p>
           </>
         ) : null}
 
-        <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">Why it is here</p>
+        <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">Why it is here</p>
         {/^1\. /.test(current.why) ? (
           <ol className="mt-1 space-y-1.5">
             {current.why
@@ -177,7 +177,7 @@ export function Tour({ step, onStep, onClose, onTab, activeTab }: TourProps) {
         )}
 
         <div className="mt-4 border-l-2 border-red-600 pl-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-red-500">Say it like this</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-red-500">Say it like this</p>
           <p className="mt-1 text-[14px] italic leading-relaxed text-zinc-50">&ldquo;{current.say}&rdquo;</p>
         </div>
 
@@ -190,7 +190,7 @@ export function Tour({ step, onStep, onClose, onTab, activeTab }: TourProps) {
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> Back
           </button>
-          <span className="hidden font-mono text-[10px] text-zinc-600 sm:inline">&larr; &rarr; keys &middot; Esc to end</span>
+          <span className="hidden font-mono text-[11px] text-zinc-600 sm:inline">&larr; &rarr; keys &middot; Esc to end</span>
           <button
             type="button"
             onClick={next}

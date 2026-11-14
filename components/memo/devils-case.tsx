@@ -48,13 +48,13 @@ export function Linked({ spans, onEntityClick }: { spans: MemoSpan[]; onEntityCl
 }
 
 function Label({ children }: { children: ReactNode }) {
-  return <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">{children}</p>;
+  return <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-500">{children}</p>;
 }
 
 function Block({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-24 border-t border-zinc-800 pt-8">
-      <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-widest text-red-500">{title}</h3>
+      <h3 className="mb-5 text-xs font-semibold uppercase tracking-widest text-red-500">{title}</h3>
       {children}
     </section>
   );
@@ -70,7 +70,7 @@ export function ExhibitTable({ exhibit }: { exhibit: Exhibit }) {
             href={exhibit.source.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 font-mono text-[10px] text-zinc-500 hover:text-zinc-200"
+            className="inline-flex items-center gap-1 font-mono text-[11px] text-zinc-500 hover:text-zinc-200"
           >
             {exhibit.source.label} <ExternalLink className="h-3 w-3" aria-hidden />
           </a>
@@ -81,7 +81,7 @@ export function ExhibitTable({ exhibit }: { exhibit: Exhibit }) {
           <thead>
             <tr className="bg-zinc-900">
               {exhibit.columns.map((c) => (
-                <th key={c} scope="col" className="whitespace-nowrap border-b border-zinc-800 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                <th key={c} scope="col" className="whitespace-nowrap border-b border-zinc-800 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
                   {c}
                 </th>
               ))}
@@ -103,7 +103,7 @@ export function ExhibitTable({ exhibit }: { exhibit: Exhibit }) {
           </tbody>
         </table>
       </div>
-      {exhibit.note ? <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">{exhibit.note}</p> : null}
+      {exhibit.note ? <p className="mt-2 text-xs leading-relaxed text-zinc-500">{exhibit.note}</p> : null}
     </figure>
   );
 }
@@ -121,7 +121,7 @@ function Sources({ section, onEntityClick }: { section: CaseSection; onEntityCli
                 type="button"
                 onClick={() => onEntityClick(c.entityId as string)}
                 title={c.quote ?? undefined}
-                className="inline-flex items-center gap-1 rounded-xs border border-zinc-700 px-2 py-1 font-mono text-[11px] text-zinc-300 hover:border-zinc-500 hover:text-zinc-50"
+                className="inline-flex items-center gap-1 rounded-xs border border-zinc-700 px-2 py-1 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-zinc-50"
               >
                 {c.source}
               </button>
@@ -131,12 +131,12 @@ function Sources({ section, onEntityClick }: { section: CaseSection; onEntityCli
                 target="_blank"
                 rel="noopener noreferrer"
                 title={c.quote ?? undefined}
-                className="inline-flex items-center gap-1 rounded-xs border border-zinc-700 px-2 py-1 font-mono text-[11px] text-zinc-300 hover:border-zinc-500 hover:text-zinc-50"
+                className="inline-flex items-center gap-1 rounded-xs border border-zinc-700 px-2 py-1 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-zinc-50"
               >
                 {c.source} <ExternalLink className="h-3 w-3" aria-hidden />
               </a>
             ) : (
-              <span className="inline-flex rounded-xs border border-zinc-800 px-2 py-1 font-mono text-[11px] text-zinc-400">{c.source}</span>
+              <span className="inline-flex rounded-xs border border-zinc-800 px-2 py-1 font-mono text-xs text-zinc-400">{c.source}</span>
             )}
           </li>
         ))}
@@ -151,8 +151,8 @@ function SectionView({ section, n, onEntityClick }: { section: CaseSection; n: n
     <article id={`case-${section.theme}`} className="scroll-mt-24 border-t border-zinc-800 pt-10">
       <div className="flex flex-wrap items-center gap-3">
         <span className="font-mono text-xs text-red-500">{String(n).padStart(2, "0")}</span>
-        <span className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">{section.themeLabel}</span>
-        <span className={`rounded-xs border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${strength.className}`}>{strength.word}</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-zinc-500">{section.themeLabel}</span>
+        <span className={`rounded-xs border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider ${strength.className}`}>{strength.word}</span>
       </div>
       <h4 className="mt-3 max-w-4xl font-display text-xl font-semibold leading-snug text-zinc-50">{section.headline}</h4>
 
@@ -212,7 +212,7 @@ function Timeline({ events, today }: { events: CaseEvent[]; today: string }) {
               aria-hidden
             />
             <span className={`font-mono ${upcoming ? "text-red-400" : "text-zinc-400"}`}>{e.date}</span>
-            <span className="text-[10px] uppercase tracking-wider text-zinc-500">
+            <span className="text-[11px] uppercase tracking-wider text-zinc-500">
               {upcoming ? "Upcoming" : EVENT_WORD[e.kind]}
               {e.quarter ? <span className="block font-mono normal-case tracking-normal text-zinc-600">{e.quarter}</span> : null}
             </span>
@@ -237,7 +237,7 @@ export function DevilsCase({ devil, onEntityClick }: DevilsCaseProps) {
   return (
     <div id="devils-case" className="mt-16 scroll-mt-24 space-y-10 border-t-2 border-red-600 pt-10">
       <header>
-        <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-red-500">
+        <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-500">
           <Sword className="h-3.5 w-3.5" aria-hidden /> Devil&rsquo;s advocate &middot; the full case against the memo
         </p>
         {period ? (
@@ -292,7 +292,7 @@ export function DevilsCase({ devil, onEntityClick }: DevilsCaseProps) {
           <div className="overflow-x-auto rounded-xs border border-zinc-800">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="bg-zinc-900 text-[10px] uppercase tracking-wider text-zinc-500">
+                <tr className="bg-zinc-900 text-[11px] uppercase tracking-wider text-zinc-500">
                   <th scope="col" className="px-4 py-2 font-semibold">Check</th>
                   <th scope="col" className="px-4 py-2 font-semibold">When it will be known</th>
                   <th scope="col" className="px-4 py-2 font-semibold">What would confirm or weaken the case</th>
@@ -330,7 +330,7 @@ export function DevilsCase({ devil, onEntityClick }: DevilsCaseProps) {
           <ul className="grid gap-x-10 gap-y-2 md:grid-cols-2">
             {devil.coverage.map((c) => (
               <li key={c.label} className="flex gap-3 text-sm">
-                <span className={`mt-0.5 w-16 shrink-0 font-mono text-[10px] uppercase tracking-wider ${c.read ? "text-emerald-500" : "text-zinc-600"}`}>
+                <span className={`mt-0.5 w-16 shrink-0 font-mono text-[11px] uppercase tracking-wider ${c.read ? "text-emerald-500" : "text-zinc-600"}`}>
                   {c.read ? "Read" : "Not read"}
                 </span>
                 <span>

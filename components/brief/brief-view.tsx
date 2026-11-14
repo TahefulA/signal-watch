@@ -18,14 +18,14 @@ function Evidence({ item }: { item: BriefItem }) {
       {item.citations.map((c) => (
         <p key={c.quote} className="print-muted text-xs leading-relaxed text-zinc-500">
           <span className="italic">&ldquo;{c.quote}&rdquo;</span>{" "}
-          <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-[10px] underline decoration-zinc-700 underline-offset-2">
+          <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-[11px] underline decoration-zinc-700 underline-offset-2">
             {citationLine(c)}
           </a>
         </p>
       ))}
       {item.sources.map((s) => (
         <p key={s.url} className="text-xs text-zinc-500 print:text-zinc-600">
-          <a href={s.url} target="_blank" rel="noopener noreferrer" className="font-mono text-[10px] underline decoration-zinc-700 underline-offset-2">
+          <a href={s.url} target="_blank" rel="noopener noreferrer" className="font-mono text-[11px] underline decoration-zinc-700 underline-offset-2">
             {s.label}
           </a>
         </p>
@@ -48,7 +48,7 @@ export function BriefView({ brief, report }: BriefViewProps) {
           <p className="font-mono text-xs text-zinc-500">{company.ticker} · Meeting brief</p>
           <h2 className="font-display text-2xl font-bold tracking-tight text-zinc-100 print:text-black">{company.name}</h2>
         </div>
-        <p className="font-mono text-[10px] text-zinc-500">
+        <p className="font-mono text-[11px] text-zinc-500">
           Prepared {brief.generatedAt.slice(0, 10)} from {report.filingsAnalyzed} filings and {report.newsAnalyzed} headlines
         </p>
       </header>
@@ -77,7 +77,7 @@ export function BriefView({ brief, report }: BriefViewProps) {
             ))}
           </dl>
           {report.capital ? (
-            <p className="mt-2 font-mono text-[10px] text-zinc-500">
+            <p className="mt-2 font-mono text-[11px] text-zinc-500">
               Debt from the {report.capital.sourceType} filed {report.capital.sourceDate}; EBITDA and cash from XBRL.
             </p>
           ) : null}
@@ -91,7 +91,7 @@ export function BriefView({ brief, report }: BriefViewProps) {
                 <span className="text-zinc-100 print:text-black">{r.name}</span>
                 <span className="ml-2 text-xs text-zinc-500">{r.severity} severity</span>
                 <p className="print-muted mt-0.5 text-xs italic leading-relaxed text-zinc-500 print:line-clamp-2">&ldquo;{r.citation.quote}&rdquo;</p>
-                <a href={r.citation.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-[10px] text-zinc-500 underline decoration-zinc-700 underline-offset-2">
+                <a href={r.citation.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-[11px] text-zinc-500 underline decoration-zinc-700 underline-offset-2">
                   {citationLine(r.citation)}
                 </a>
               </li>
@@ -116,7 +116,7 @@ export function BriefView({ brief, report }: BriefViewProps) {
         )}
       </section>
 
-      <p className="border-t border-zinc-800 pt-3 text-[11px] leading-relaxed text-zinc-500 print:border-zinc-300">
+      <p className="border-t border-zinc-800 pt-3 text-xs leading-relaxed text-zinc-500 print:border-zinc-300">
         The three things to know and the questions are drafted by Gemini from this report; any sentence with a figure not in the report was removed.
         The numbers and risks are taken directly from the report.
       </p>

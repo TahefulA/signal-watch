@@ -21,7 +21,7 @@ export function CitationBlock({ citation, compact = false }: CitationBlockProps)
       >
         {citation.quote}
       </blockquote>
-      <figcaption className="mt-1.5 flex flex-wrap items-center gap-x-2 pl-3.5 font-mono text-[10px] text-zinc-500">
+      <figcaption className="mt-1.5 flex flex-wrap items-center gap-x-2 pl-3.5 font-mono text-[11px] text-zinc-500">
         <span>{citationLine(citation)}</span>
         <a
           href={citation.sourceUrl}

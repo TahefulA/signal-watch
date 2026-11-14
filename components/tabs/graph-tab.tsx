@@ -45,7 +45,7 @@ function Dots({ filled, color, size = 6 }: { filled: number; color: string; size
 function LegendSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{title}</p>
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{title}</p>
       <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs font-medium text-zinc-400">{children}</div>
     </div>
   );
@@ -76,7 +76,7 @@ function LegendPopover({ highConfidenceOnly, onToggleConfidence }: { highConfide
       {open ? (
         <div className="absolute bottom-10 right-0 w-[280px] space-y-4 rounded-xs border border-zinc-800 bg-zinc-900/95 p-4 backdrop-blur-[8px]">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-300">Legend</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-300">Legend</p>
             <button type="button" onClick={() => setOpen(false)} className="text-zinc-500 hover:text-zinc-100" aria-label="Close legend">
               <X className="h-3.5 w-3.5" />
             </button>
@@ -126,7 +126,7 @@ function LegendPopover({ highConfidenceOnly, onToggleConfidence }: { highConfide
               <span className="h-2 w-2 rounded-full bg-amber-600" /> Changed
             </span>
           </LegendSection>
-          <p className="text-[11px] leading-snug text-zinc-500">
+          <p className="text-xs leading-snug text-zinc-500">
             Bar: the box&rsquo;s figure against the largest of its unit on the map, or its disclosed share. Bottom line: share of revenue or of total debt.
           </p>
           <label className="flex cursor-pointer items-center gap-2 border-t border-zinc-800 pt-3 text-xs font-medium text-zinc-300">
@@ -190,7 +190,7 @@ export function GraphTab({
               type="button"
               aria-pressed={on}
               onClick={() => setHidden((h) => (h.includes(t) ? h.filter((x) => x !== t) : [...h, t]))}
-              className={`inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-colors duration-150 ease-out ${
+              className={`inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-medium transition-colors duration-150 ease-out ${
                 on ? "border-zinc-800 bg-zinc-900 text-zinc-200" : "border-zinc-700 bg-zinc-950 text-zinc-500"
               }`}
             >
@@ -208,14 +208,14 @@ export function GraphTab({
               setHidden([]);
               setHighConfidenceOnly(false);
             }}
-            className="ml-2 shrink-0 text-[11px] text-zinc-500 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-200"
+            className="ml-2 shrink-0 text-xs text-zinc-500 underline decoration-zinc-700 underline-offset-4 hover:text-zinc-200"
           >
             Reset
           </button>
         ) : null}
-        {notes.length ? <span className="shrink-0 pl-4 text-[11px] text-amber-500">{notes[0]}</span> : null}
+        {notes.length ? <span className="shrink-0 pl-4 text-xs text-amber-500">{notes[0]}</span> : null}
         <div className="ml-auto flex shrink-0 items-center gap-3 pl-4">
-          {asOf ? <span className="hidden font-mono text-[11px] text-zinc-500 lg:inline">{asOf}</span> : null}
+          {asOf ? <span className="hidden font-mono text-xs text-zinc-500 lg:inline">{asOf}</span> : null}
           <RangeSelect range={range} quarters={timeline?.quarters ?? []} onChange={onRangeChange} />
           <span data-tour="counter" className="inline-flex">
           <DevilsAdvocateToggle enabled={counter && Boolean(devil)} onToggle={setCounter} concernCount={concernCount(devil)} disabled={!devil || devilBusy} />
@@ -230,7 +230,7 @@ export function GraphTab({
             <MarketContextStrip ticker={graph.company.ticker} quarters={timeline.quarters} window={win} />
           </>
         ) : (
-          <p className="px-6 py-3 font-mono text-[11px] text-zinc-500">
+          <p className="px-6 py-3 font-mono text-xs text-zinc-500">
             {timelineError ?? "Reading the last twelve 10-Q and 10-K filings for the timeline. The first time takes up to a minute; after that it is saved with the report."}
           </p>
         )}

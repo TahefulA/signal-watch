@@ -12,12 +12,12 @@ function Compare({ title, sub, g }: { title: string; sub: string; g: Group }) {
   return (
     <div className="surface rounded-xs border border-zinc-800 p-4">
       <p className="text-sm font-semibold text-zinc-50">{title}</p>
-      <p className="text-[11px] text-zinc-500">{sub}</p>
+      <p className="text-xs text-zinc-500">{sub}</p>
       {[
         { label: "Flagged", rate: g.flaggedRate, n: `${g.flaggedEvents} of ${g.flagged}`, color: "#ef4444" },
         { label: "Everyone else", rate: g.otherRate, n: `${g.otherEvents} of ${g.others}`, color: "rgb(var(--zinc-500))" },
       ].map((b) => (
-        <div key={b.label} className="mt-3 text-[11px]">
+        <div key={b.label} className="mt-3 text-xs">
           <div className="flex justify-between text-zinc-400">
             <span>{b.label}</span>
             <span className="font-mono text-zinc-200">
@@ -29,7 +29,7 @@ function Compare({ title, sub, g }: { title: string; sub: string; g: Group }) {
           </div>
         </div>
       ))}
-      <p className="mt-3 font-mono text-[11px] text-zinc-400">
+      <p className="mt-3 font-mono text-xs text-zinc-400">
         {g.lift ? `${g.lift.toFixed(1)}x as likely` : "No events among the others"} · p = {g.pValue < 0.001 ? "<0.001" : g.pValue.toFixed(3)}
       </p>
     </div>
@@ -68,7 +68,7 @@ export function ContagionProof() {
 
       <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-[620px] text-left text-xs">
-          <thead className="text-[10px] uppercase tracking-wider text-zinc-500">
+          <thead className="text-[11px] uppercase tracking-wider text-zinc-500">
             <tr>
               <th className="py-2 pr-3 font-semibold">Event</th>
               <th className="py-2 pr-3 font-semibold">Company</th>
@@ -105,7 +105,7 @@ export function ContagionProof() {
             <li key={c}>{c}</li>
           ))}
         </ul>
-        <p className="mt-2 font-mono text-[10px] text-zinc-500">scripts/backtest-contagion.ts · run {bt.generatedAt.slice(0, 10)}</p>
+        <p className="mt-2 font-mono text-[11px] text-zinc-500">scripts/backtest-contagion.ts · run {bt.generatedAt.slice(0, 10)}</p>
       </div>
     </>
   );

@@ -58,13 +58,13 @@ const TurnBox = memo(function TurnBox({ data }: NodeProps<TurnNode>) {
     >
       <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-zinc-600" />
       <span className="flex items-center gap-1.5">
-        <span className={`text-[10px] font-semibold uppercase tracking-wider ${label}`}>{WHO[turn.speaker]}</span>
-        <span className="text-[10px] text-zinc-500">{turn.speaker === "user" ? "asks" : MOVE[turn.move]}</span>
-        <span className="font-mono text-[10px] text-zinc-600">{turn.id}</span>
-        {point ? <span className={`ml-auto rounded-xs border px-1 text-[9px] font-semibold uppercase tracking-wider ${STATUS_TONE[point.status]}`}>{STATUS_TEXT[point.status]}</span> : null}
+        <span className={`text-[11px] font-semibold uppercase tracking-wider ${label}`}>{WHO[turn.speaker]}</span>
+        <span className="text-[11px] text-zinc-500">{turn.speaker === "user" ? "asks" : MOVE[turn.move]}</span>
+        <span className="font-mono text-[11px] text-zinc-600">{turn.id}</span>
+        {point ? <span className={`ml-auto rounded-xs border px-1 text-[10px] font-semibold uppercase tracking-wider ${STATUS_TONE[point.status]}`}>{STATUS_TEXT[point.status]}</span> : null}
       </span>
       <span className={`mt-1 line-clamp-3 text-[11.5px] leading-snug ${struck ? "text-zinc-500 line-through decoration-red-600/70" : "text-zinc-200"}`}>{turn.text}</span>
-      <span className="mt-1 flex items-center gap-1.5 text-[10px] text-zinc-500">
+      <span className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500">
         {struck ? <span className="font-semibold uppercase tracking-wider text-red-500">Struck</span> : turn.status === "pending" ? <span>Checking</span> : null}
         {turn.evidence ? <span className="truncate">📎 {turn.evidence.title}</span> : null}
         {loadBearing ? <span className="ml-auto shrink-0 font-semibold uppercase tracking-wider text-red-500">Unanswered</span> : null}
@@ -79,9 +79,9 @@ const OutcomeBox = memo(function OutcomeBox({ data }: NodeProps<OutcomeNode>) {
   return (
     <div className="surface rounded-xs border-2 border-zinc-500 px-3 py-2" style={{ width: OUTCOME_W, height: OUTCOME_H }}>
       <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-zinc-600" />
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Bankruptcy in 12 months</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Bankruptcy in 12 months</p>
       <p className={`font-mono text-2xl font-semibold ${d ? BAND_STYLE[d.band].text : "text-zinc-500"}`}>{d ? pctText(d.probability) : "n/a"}</p>
-      <p className="text-[10px] leading-snug text-zinc-500">
+      <p className="text-[11px] leading-snug text-zinc-500">
         {d ? `${BAND_STYLE[d.band].label} · average ${pctText(d.baseRate)}. ` : ""}
         {data.open ? `${data.open} point${data.open === 1 ? "" : "s"} against the credit left open.` : "No point against the credit left open."}
       </p>
@@ -190,7 +190,7 @@ export function ArgumentFlow(props: ArgumentFlowProps) {
           <Flow {...props} />
         </ReactFlowProvider>
       </div>
-      <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-zinc-500">
+      <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
         <span>
           <span className="text-red-500">- - -</span> attacks
         </span>

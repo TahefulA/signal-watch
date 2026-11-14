@@ -50,7 +50,7 @@ function Mark({ kind, size = 12 }: { kind: LmeEventKind; size?: number }) {
 
 export function TimelineLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-zinc-400">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-400">
       {(["lme", "restructuring", "bankruptcy"] as LmeEventKind[]).map((k) => (
         <span key={k} className="flex items-center gap-1.5">
           <Mark kind={k} size={10} /> {KIND_SHORT[k]}
@@ -74,7 +74,7 @@ function Tip({ mark, at }: { mark: TimelineMark; at: number }) {
       <span className="flex items-center gap-1.5 font-semibold text-zinc-50">
         <Mark kind={mark.kind} size={10} /> {mark.title}
       </span>
-      <span className="block font-mono text-[10px] text-zinc-500">{month(mark.date)} · 8-K · click to open</span>
+      <span className="block font-mono text-[11px] text-zinc-500">{month(mark.date)} · 8-K · click to open</span>
       {mark.quote ? <span className="mt-1 line-clamp-4 block text-zinc-300">&ldquo;{mark.quote}&rdquo;</span> : null}
     </span>
   );
@@ -109,7 +109,7 @@ export function PlaybookTimeline({
     <div className="relative">
       <div className="grid" style={{ gridTemplateColumns: `minmax(110px, ${labelWidth}px) minmax(0, 1fr) 84px` }}>
         <div />
-        <div className="relative h-5 text-[10px] text-zinc-500">
+        <div className="relative h-5 text-[11px] text-zinc-500">
           {/* A year too close to today would sit under its label. */}
           {years.filter((y) => x(`${y}-01-01`) < 93).map((y) => (
             <span key={y} className={`absolute -translate-x-1/2 font-mono ${y % 2 ? "hidden sm:block" : ""}`} style={{ left: `${x(`${y}-01-01`)}%` }}>
@@ -140,7 +140,7 @@ export function PlaybookTimeline({
                   {r.highlight ? <span className="mr-1 text-red-500" aria-hidden>&#9656;</span> : null}
                   {r.label}
                 </span>
-                {r.sub ? <span className="block truncate text-[10.5px] text-zinc-500">{r.sub}</span> : null}
+                {r.sub ? <span className="block truncate text-[11.5px] text-zinc-500">{r.sub}</span> : null}
               </span>
               <span className="relative block h-8">
                 {years.map((y) => (
@@ -173,7 +173,7 @@ export function PlaybookTimeline({
                 {hover && hover.row === i ? <Tip mark={hover.mark} at={hover.x} /> : null}
               </span>
               <span className="pl-2 text-right">
-                {r.tag ? <span className={`inline-block whitespace-nowrap rounded-xs border px-1.5 py-0.5 text-[10px] font-semibold ${TAG_TONE[r.tag.tone]}`}>{r.tag.text}</span> : null}
+                {r.tag ? <span className={`inline-block whitespace-nowrap rounded-xs border px-1.5 py-0.5 text-[11px] font-semibold ${TAG_TONE[r.tag.tone]}`}>{r.tag.text}</span> : null}
               </span>
             </div>
           );

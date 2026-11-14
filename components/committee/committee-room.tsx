@@ -3,7 +3,7 @@
 import { Gavel, Lightbulb, RotateCcw, Send } from "lucide-react";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChairSummary, CommitteeEvent, CommitteeRecord, CommitteeTurn, DistressScore, FilingChange, RateStress, Report, Scoreboard } from "@/types";
-import { BAND_STYLE, DistressCard, pctText } from "@/components/distress/distress-card";
+import { BAND_STYLE, pctText } from "@/components/distress/distress-card";
 import { RateStressPanel } from "@/components/events/rate-stress-panel";
 import { TurnLine } from "./turn-line";
 import { ArgumentFlow } from "./argument-flow";
@@ -26,9 +26,9 @@ interface Forecast {
 function Tile({ label, value, tone = "text-zinc-50", sub }: { label: string; value: string; tone?: string; sub?: string }) {
   return (
     <div className="min-w-0 border-r border-zinc-800 px-4 py-2.5 last:border-r-0">
-      <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
+      <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
       <p className={`mt-0.5 truncate font-mono text-lg font-semibold ${tone}`}>{value}</p>
-      {sub ? <p className="truncate text-[10px] text-zinc-500">{sub}</p> : null}
+      {sub ? <p className="truncate text-[11px] text-zinc-500">{sub}</p> : null}
     </div>
   );
 }
@@ -43,8 +43,8 @@ function ScoreRail({ score }: { score: Scoreboard | null }) {
   );
   return (
     <section className="surface rounded-xs border border-zinc-800 p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Scoreboard</p>
-      <p className="mt-1 text-[11px] text-zinc-500">Kept by code from the moves. The agents never score themselves.</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Scoreboard</p>
+      <p className="mt-1 text-xs text-zinc-500">Kept by code from the moves. The agents never score themselves.</p>
       <div className="mt-2 divide-y divide-zinc-800/70">
         {row("Points raised against the credit", s.raised)}
         {row("Rebutted with evidence", s.rebutted, "text-emerald-500")}
@@ -61,7 +61,7 @@ function ChairBox({ summary }: { summary: ChairSummary }) {
   const list = (title: string, items: string[], tone: string) =>
     items.length ? (
       <div>
-        <p className={`text-[10px] font-semibold uppercase tracking-wider ${tone}`}>{title}</p>
+        <p className={`text-[11px] font-semibold uppercase tracking-wider ${tone}`}>{title}</p>
         <ul className="mt-1 space-y-1.5 text-[13px] leading-relaxed text-zinc-300">
           {items.map((t) => (
             <li key={t}>{t}</li>
@@ -71,16 +71,16 @@ function ChairBox({ summary }: { summary: ChairSummary }) {
     ) : null;
   return (
     <section className="surface mt-6 rounded-xs border border-zinc-700 p-5">
-      <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-300">
         <Gavel className="h-3.5 w-3.5" aria-hidden /> The Chair&rsquo;s summary
       </p>
-      <p className="mt-1 text-[11px] text-zinc-500">Summarises the verified lines only. The Chair never votes, rates or recommends.</p>
+      <p className="mt-1 text-xs text-zinc-500">Summarises the verified lines only. The Chair never votes, rates or recommends.</p>
       <div className="mt-3 grid gap-5 md:grid-cols-3">
         {list("Agreed", summary.agreed, "text-emerald-500")}
         {list("Disputed", summary.disputed, "text-red-500")}
         {summary.watch.length ? (
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">What would settle it</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-500">What would settle it</p>
             <ul className="mt-1 space-y-1.5 text-[13px] leading-relaxed text-zinc-300">
               {summary.watch.map((w) => (
                 <li key={w.item}>
@@ -305,7 +305,7 @@ export function CommitteeRoom({ report }: { report: Report }) {
         <Tile label="Liquidity" value={metric("liquidity").replace(/^Up to /, "")} />
         <Tile label="Cash runs out" value={hold ? (hold.runsOutAt ?? "Not in 2 yrs") : "n/a"} tone={hold?.runsOutAt ? "text-red-500" : "text-zinc-50"} sub="Base case, no new money" />
       </div>
-      <p className="mt-2 text-[11px] text-zinc-500">
+      <p className="mt-2 text-xs text-zinc-500">
         Ground rules: code does the math · the AI never decides or recommends a trade · every line cites one piece of evidence and is checked before it counts.
       </p>
 
@@ -334,7 +334,7 @@ export function CommitteeRoom({ report }: { report: Report }) {
               </button>
             </div>
           </div>
-          <div className="mt-1 flex items-center gap-4 text-[11px] text-zinc-500">
+          <div className="mt-1 flex items-center gap-4 text-xs text-zinc-500">
             <span className="text-emerald-500">Analyst: defends the credit</span>
             <span className="text-red-500">Devil&rsquo;s Advocate: attacks it</span>
             {record && !running ? (
@@ -344,7 +344,7 @@ export function CommitteeRoom({ report }: { report: Report }) {
             ) : null}
           </div>
           {trace ? (
-            <p className="mt-3 font-mono text-[11px] text-zinc-400" role="status" aria-live="polite">
+            <p className="mt-3 font-mono text-xs text-zinc-400" role="status" aria-live="polite">
               <span className="mr-2 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-red-600" aria-hidden />
               {trace}
             </p>
@@ -386,10 +386,10 @@ export function CommitteeRoom({ report }: { report: Report }) {
             <>
               {suggestions.length ? (
                 <div className="mt-6">
-                  <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-400">
                     <Lightbulb className="h-3.5 w-3.5" aria-hidden /> Questions worth asking
                   </p>
-                  <p className="mt-0.5 text-[11px] text-zinc-500">Picked by code from what the debate left open and what the filings show.</p>
+                  <p className="mt-0.5 text-xs text-zinc-500">Picked by code from what the debate left open and what the filings show.</p>
                   <ul className="mt-2 grid gap-2 sm:grid-cols-2">
                     {suggestions.map((s) => (
                       <li key={s.question}>
@@ -399,7 +399,7 @@ export function CommitteeRoom({ report }: { report: Report }) {
                           onClick={() => void askText(s.question)}
                           className="h-full w-full rounded-xs border border-zinc-800 bg-zinc-900/60 px-3 py-2 text-left hover:border-zinc-600 disabled:opacity-40"
                         >
-                          <span className="block text-[10px] font-semibold uppercase tracking-wider text-amber-500">{s.why}</span>
+                          <span className="block text-[11px] font-semibold uppercase tracking-wider text-amber-500">{s.why}</span>
                           <span className="mt-0.5 block text-[13px] leading-snug text-zinc-200">{s.question}</span>
                         </button>
                       </li>
@@ -431,7 +431,6 @@ export function CommitteeRoom({ report }: { report: Report }) {
 
         <aside className="space-y-4">
           <ScoreRail score={score} />
-          {d ? <DistressCard distress={d} /> : null}
           {forecast.rateStress ? (
             <div data-tour="rates">
               <RateStressPanel stress={forecast.rateStress} />

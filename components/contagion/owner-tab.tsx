@@ -85,7 +85,7 @@ function OwnerBody({ view, today, all, onAll }: { view: OwnerView; today: string
       <section className="surface rounded-xs border border-zinc-800 p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Owned by</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Owned by</p>
             <h2 className="mt-1 font-display text-[26px] font-bold leading-tight text-zinc-50">{owners.join(" & ")}</h2>
             <p className="mt-1 text-[13px] text-zinc-400">{verdictLine(c, a)}</p>
           </div>
@@ -93,7 +93,7 @@ function OwnerBody({ view, today, all, onAll }: { view: OwnerView; today: string
         </div>
         <figure className="mt-4">
           <blockquote className="border-l-2 border-zinc-600 pl-3 text-[12.5px] italic leading-relaxed text-zinc-300">{link.quote.slice(0, 360)}{link.quote.length > 360 ? "..." : ""}</blockquote>
-          <figcaption className="mt-1 pl-3.5 font-mono text-[10px] text-zinc-500">
+          <figcaption className="mt-1 pl-3.5 font-mono text-[11px] text-zinc-500">
             The sponsor definition in its own loan document, filed {link.filed}.{" "}
             <a href={link.documentUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100">
               EDGAR <ExternalLink className="h-3 w-3" aria-hidden />
@@ -103,7 +103,7 @@ function OwnerBody({ view, today, all, onAll }: { view: OwnerView; today: string
       </section>
 
       <section className="mt-6">
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Would the owner squeeze its lenders?</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Would the owner squeeze its lenders?</h3>
         <p className="mt-1 text-[12px] text-zinc-500">A lender squeeze needs an owner willing to do it, loan documents that allow it, and a reason to.</p>
         <div className="mt-3">
           <SignalGauge items={items} />
@@ -112,7 +112,7 @@ function OwnerBody({ view, today, all, onAll }: { view: OwnerView; today: string
 
       {a.warning?.sentences.some((s) => s.verified) ? (
         <section className="mt-6 max-w-3xl">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Note to the PM</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Note to the PM</h3>
           <div className="mt-2 space-y-1.5 text-[13px] leading-relaxed">
             {a.warning.sentences.map((s, i) => (
               <p key={i} className={s.verified ? "text-zinc-200" : "text-zinc-500 line-through decoration-red-600/70"} title={s.reason}>
@@ -120,7 +120,7 @@ function OwnerBody({ view, today, all, onAll }: { view: OwnerView; today: string
               </p>
             ))}
           </div>
-          <p className="mt-1 text-[10px] text-zinc-500">Written by Gemini from the graph&apos;s facts; a sentence whose figures are not in the filings is struck.</p>
+          <p className="mt-1 text-[11px] text-zinc-500">Written by Gemini from the graph&apos;s facts; a sentence whose figures are not in the filings is struck.</p>
         </section>
       ) : null}
 
@@ -142,7 +142,7 @@ function OwnerBody({ view, today, all, onAll }: { view: OwnerView; today: string
           <section key={f.sponsorId} className="mt-8">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <div>
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">{f.name}&apos;s other companies</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">{f.name}&apos;s other companies</h3>
                 <p className="mt-1 text-[13px] text-zinc-300">
                   {hits.length
                     ? `${hits.length} of ${f.members.length - 1} have squeezed lenders or gone bankrupt since 2016. Most recent: ${last.m.name}, ${KIND_PLAIN[last.e.kind]}, ${month(last.e.date)}.`
@@ -168,7 +168,7 @@ function OwnerBody({ view, today, all, onAll }: { view: OwnerView; today: string
         );
       })}
 
-      <p className="mt-6 text-[11px] leading-relaxed text-zinc-500">
+      <p className="mt-6 text-xs leading-relaxed text-zinc-500">
         {view.live ? `Read from EDGAR ${view.checkedAt.slice(0, 10)}. ` : ""}The sponsor network was built {view.builtAt.slice(0, 10)} from SEC filers only, so private portfolio companies are not
         on the timeline. A screen built on how these owners have behaved, not a fitted probability.
       </p>

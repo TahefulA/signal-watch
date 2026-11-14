@@ -103,7 +103,7 @@ export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, devilBu
     <div className="mx-auto max-w-[1320px] px-6 py-12 lg:px-12">
       <div className="flex items-start justify-between gap-4 border-b border-zinc-800 pb-8">
         <div>
-          <p className="font-display text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Credit memo</p>
+          <p className="font-display text-xs font-semibold uppercase tracking-wider text-zinc-500">Credit memo</p>
           <h2 className="mt-2 font-display text-2xl font-semibold text-zinc-50">
             {company.ticker} · {company.name}
           </h2>
@@ -123,7 +123,7 @@ export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, devilBu
         <div className="memo-column min-w-0">
           {report.signal?.length ? (
             <section className="mt-10">
-              <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Memo &middot; signal summary</h3>
+              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">Memo &middot; signal summary</h3>
               <p className="border-l-[3px] border-red-600 bg-zinc-900 p-6 text-base font-medium leading-[1.7] text-zinc-200">
                 <Spans spans={report.signal} onEntityClick={onEntityClick} />
               </p>
@@ -132,7 +132,7 @@ export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, devilBu
 
           {report.memo.sections.map((s) => (
             <section key={s.key} className="mt-10 border-t border-zinc-800 pt-10">
-              <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{s.title}</h3>
+              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">{s.title}</h3>
               <p className="text-[15px] leading-[1.8] text-zinc-200">
                 <Spans spans={s.spans} onEntityClick={onEntityClick} />
               </p>
@@ -141,7 +141,7 @@ export function MemoTab({ report, briefBusy, briefError, onPrepareBrief, devilBu
 
           <section className="mt-10 border-t border-zinc-800 pt-10">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Meeting prep</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Meeting prep</h3>
               <div className="flex gap-2">
                 {brief ? (
                   <a

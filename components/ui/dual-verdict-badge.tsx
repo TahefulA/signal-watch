@@ -14,7 +14,7 @@ export function DualVerdictBadge({ memoVerdict, concernCount, busy, onClick }: D
     <button
       type="button"
       onClick={onClick}
-      className="verdict-badge hidden items-center gap-2 rounded-xs border border-red-600 px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider transition-colors duration-100 ease-out md:inline-flex"
+      className="verdict-badge hidden items-center gap-2 rounded-xs border border-red-600 px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider transition-colors duration-100 ease-out md:inline-flex"
       title="The memo's stance, as Gemini reads it, and the sourced concerns in the Devil's Advocate"
     >
       {busy && !memoVerdict ? (

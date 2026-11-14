@@ -12,7 +12,7 @@ const pct = (v: number | null | undefined, d = 1) => (v === null || v === undefi
 function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div className="surface rounded-xs border border-zinc-800 p-4">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
       <p className="mt-1 font-mono text-2xl font-semibold text-zinc-50">{value}</p>
       <p className="mt-1 text-xs leading-snug text-zinc-500">{sub}</p>
     </div>
@@ -22,7 +22,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub: string
 function Section({ title, note, children, id }: { title: string; note?: string; children: React.ReactNode; id?: string }) {
   return (
     <section id={id} className="mt-12 scroll-mt-6">
-      <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+      <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> {title}
       </h2>
       {note ? <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-zinc-400">{note}</p> : null}
@@ -42,7 +42,7 @@ export default function ProofPage() {
     <div className="min-h-[100dvh]">
       <Header active="proof" />
       <main className="mx-auto max-w-[1100px] px-4 py-10 lg:px-8">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-red-600">Proof</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-red-600">Proof</p>
         <h1 className="mt-2 font-display text-[30px] font-bold leading-tight text-zinc-50">Did it warn before real bankruptcies?</h1>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-zinc-400">
           Every company-quarter from {o.years[0]} to {o.years[1]} was scored by a model trained only on earlier years, using only the figures filed before
@@ -163,7 +163,7 @@ export default function ProofPage() {
               </tbody>
             </table>
           </div>
-          <p className="mt-2 text-[11px] text-zinc-500">Altman Z&apos;&apos; often warns earlier because it flags most companies: {pct(o.altmanZDistressZone.falseAlarmRate, 0)} of healthy company-quarters sit in its distress zone.</p>
+          <p className="mt-2 text-xs text-zinc-500">Altman Z&apos;&apos; often warns earlier because it flags most companies: {pct(o.altmanZDistressZone.falseAlarmRate, 0)} of healthy company-quarters sit in its distress zone.</p>
         </Section>
 
         <Section
@@ -181,7 +181,7 @@ export default function ProofPage() {
             <li>Precision at the alert line is {pct(o.atAlert.precision)}: most alerts are not followed by a filing within a year. It is a screen for what to read first, not a verdict.</li>
             <li>Stock prices are not inputs: delisted companies drop out of free price data, which would bias the test toward survivors.</li>
           </ul>
-          <p className="mt-4 font-mono text-[11px] text-zinc-600">
+          <p className="mt-4 font-mono text-xs text-zinc-600">
             {backtest.method.model}. Generated {backtest.generatedAt.slice(0, 10)}; data built {String(meta.builtAt).slice(0, 10)}.
           </p>
         </Section>

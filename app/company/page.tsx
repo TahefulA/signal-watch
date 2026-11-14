@@ -5,7 +5,7 @@ import type { AnalyzeEvent, DevilsAdvocate, Entity, MeetingBrief, Report, Timeli
 import { CommandPalette } from "@/components/command-palette";
 import { PIPELINE_STEPS, PipelineProgress } from "@/components/layout/pipeline-progress";
 import { StatusBar } from "@/components/layout/status-bar";
-import { STEP_LABELS, TAGLINE, TabBar, type TabKey, isTab } from "@/components/layout/tab-bar";
+import { TabBar, type TabKey, isTab } from "@/components/layout/tab-bar";
 import { DEFAULT_RANGE, type TimeRange, readRange, saveRange } from "@/lib/time-range";
 import { TopBar } from "@/components/layout/top-bar";
 import { EntityPanel } from "@/components/panel/entity-panel";
@@ -445,10 +445,6 @@ export default function CompanyPage() {
             dot={{ changes: factChanges > 0 && !changesSeen, owner: report.sponsor?.flag === "watch" || report.sponsor?.flag === "target" }}
           />
           <main className="flex min-h-0 flex-1 flex-col">
-            <div className="flex h-6 shrink-0 items-center justify-between gap-4 border-b border-zinc-800 bg-zinc-950 px-4 print:hidden">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">{STEP_LABELS[tab]}</p>
-              {tab === "graph" ? <p className="hidden truncate text-[10px] text-zinc-600 sm:block">{TAGLINE}</p> : null}
-            </div>
             <div className="relative min-h-0 flex-1">
               {graphMounted ? (
                 <div role="tabpanel" id="panel-graph" aria-labelledby="tab-graph" className={`h-full ${tab === "graph" ? "" : "hidden"}`}>

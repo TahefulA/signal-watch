@@ -42,7 +42,7 @@ function Argument({ spans, onEntityClick }: { spans: MemoSpan[]; onEntityClick: 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="border-t border-zinc-800 pt-4">
-      <h4 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-red-500">{title}</h4>
+      <h4 className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-red-500">{title}</h4>
       {children}
     </section>
   );
@@ -73,7 +73,7 @@ export function PatternList({ patterns }: { patterns: PatternResult[] }) {
               <li key={p.id} className="text-xs leading-relaxed">
                 <p>
                   <span
-                    className={`mr-2 font-mono text-[10px] uppercase tracking-wider ${p.status === "fired" ? "text-red-500" : p.status === "clear" ? "text-zinc-500" : "text-zinc-600"}`}
+                    className={`mr-2 font-mono text-[11px] uppercase tracking-wider ${p.status === "fired" ? "text-red-500" : p.status === "clear" ? "text-zinc-500" : "text-zinc-600"}`}
                   >
                     {STATUS_WORD[p.status]}
                   </span>
@@ -84,7 +84,7 @@ export function PatternList({ patterns }: { patterns: PatternResult[] }) {
                   ? p.evidence.slice(0, 2).map((e, i) => !e.url ? (
                       <p key={i} className="mt-1 text-zinc-500">
                         {e.quote ? <span className="italic">&ldquo;{e.quote}&rdquo; </span> : null}
-                        <span className="font-mono text-[10px]">{e.label}</span>
+                        <span className="font-mono text-[11px]">{e.label}</span>
                       </p>
                     ) : (
                       <a
@@ -95,7 +95,7 @@ export function PatternList({ patterns }: { patterns: PatternResult[] }) {
                         className="mt-1 block text-zinc-500 hover:text-zinc-200"
                       >
                         {e.quote ? <span className="italic">&ldquo;{e.quote}&rdquo; </span> : null}
-                        <span className="font-mono text-[10px] not-italic">{e.label}</span>
+                        <span className="font-mono text-[11px] not-italic">{e.label}</span>
                       </a>
                     ))
                   : null}
@@ -114,7 +114,7 @@ function StructuredSummary({ devil, onEntityClick }: { devil: DevilsAdvocate; on
   return (
     <>
       {period?.quarter ? (
-        <p className="font-mono text-[11px] leading-relaxed text-zinc-500">
+        <p className="font-mono text-xs leading-relaxed text-zinc-500">
           {period.quarter}
           {period.periodEnd ? ` · quarter ended ${period.periodEnd}` : ""}
           {period.form && period.filed ? ` · ${period.form} filed ${period.filed}` : ""}
@@ -140,9 +140,9 @@ function StructuredSummary({ devil, onEntityClick }: { devil: DevilsAdvocate; on
             <li key={s.theme}>
               <a href={`#case-${s.theme}`} className="group block">
                 <span className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-[11px] text-red-500">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="text-[10px] uppercase tracking-wider text-zinc-500">{s.themeLabel}</span>
-                  <span className={`rounded-xs border px-1.5 text-[9px] uppercase tracking-wider ${STRENGTH_STYLE[s.strength].className}`}>{s.strength}</span>
+                  <span className="font-mono text-xs text-red-500">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="text-[11px] uppercase tracking-wider text-zinc-500">{s.themeLabel}</span>
+                  <span className={`rounded-xs border px-1.5 text-[10px] uppercase tracking-wider ${STRENGTH_STYLE[s.strength].className}`}>{s.strength}</span>
                 </span>
                 <span className="mt-1 block text-[13px] leading-snug text-zinc-200 group-hover:text-zinc-50 group-hover:underline">{s.headline}</span>
               </a>
@@ -157,7 +157,7 @@ function StructuredSummary({ devil, onEntityClick }: { devil: DevilsAdvocate; on
             {devil.watchList.slice(0, 3).map((w, i) => (
               <li key={i} className="text-[13px] leading-snug text-zinc-200">
                 {w.item}
-                <span className="block font-mono text-[11px] text-zinc-500">{w.when}</span>
+                <span className="block font-mono text-xs text-zinc-500">{w.when}</span>
               </li>
             ))}
           </ul>
@@ -180,7 +180,7 @@ export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick
   return (
     <aside className="counter-column space-y-5 border-l-2 border-red-600 pl-5" aria-label="Devil's advocate">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-red-500">
+        <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-500">
           <Sword className="h-3.5 w-3.5" aria-hidden /> Devil&rsquo;s advocate
         </p>
         <button
@@ -232,7 +232,7 @@ export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick
                   <span
                     key={p.id}
                     title={p.detail}
-                    className={`rounded-xs border px-2 py-0.5 text-[11px] ${devil.patternsUsed.includes(p.name) ? "border-red-600 text-zinc-50" : "border-red-600/40 text-zinc-400"}`}
+                    className={`rounded-xs border px-2 py-0.5 text-xs ${devil.patternsUsed.includes(p.name) ? "border-red-600 text-zinc-50" : "border-red-600/40 text-zinc-400"}`}
                     style={{ background: "var(--devil-bg)" }}
                   >
                     {p.name}
@@ -249,7 +249,7 @@ export function CounterArgumentColumn({ devil, busy, error, onRun, onEntityClick
               <ol className="space-y-2">
                 {devil.citations.map((c, i) => (
                   <li key={i} className="text-[13px] leading-snug">
-                    <span className="mr-2 font-mono text-[11px] text-red-500">{i + 1}</span>
+                    <span className="mr-2 font-mono text-xs text-red-500">{i + 1}</span>
                     {c.entityId ? (
                       <button
                         type="button"

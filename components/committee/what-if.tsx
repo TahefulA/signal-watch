@@ -43,7 +43,7 @@ export function WhatIfPanel({ inputs, onAsk, asking }: { inputs: ScenarioInputs;
 
   return (
     <section className="surface mt-8 rounded-xs border border-zinc-800 p-4" data-tour="what-if">
-      <h3 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+      <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> What if
       </h3>
       <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-zinc-400">
@@ -93,7 +93,7 @@ export function WhatIfPanel({ inputs, onAsk, asking }: { inputs: ScenarioInputs;
                 onChange={(e) => setW({ ...w, upper: Number(e.target.value) === current ? null : Number(e.target.value) })}
                 className="mt-1 w-full accent-red-600"
               />
-              <span className="mt-0.5 block text-[10px] text-zinc-500">
+              <span className="mt-0.5 block text-[11px] text-zinc-500">
                 Today {current.toFixed(2)}%
                 {inputs.expectedUpper !== null ? ` · Kalshi expects ${inputs.expectedUpper.toFixed(2)}%` : ""}
                 {inputs.stressUpper !== null ? ` · stress ${inputs.stressUpper.toFixed(2)}%` : ""}
@@ -114,14 +114,14 @@ export function WhatIfPanel({ inputs, onAsk, asking }: { inputs: ScenarioInputs;
         <div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Cash runs out</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Cash runs out</p>
               <p className={`font-mono text-lg font-semibold ${result.runsOutAt ? "text-red-500" : "text-emerald-500"}`}>{result.runsOutAt ?? `Not in ${result.quarters} qtrs`}</p>
-              <p className="text-[10px] text-zinc-500">{sooner ? `Base case: ${base.runsOutAt ?? `not in ${base.quarters} qtrs`}` : "Same as the base case"}</p>
+              <p className="text-[11px] text-zinc-500">{sooner ? `Base case: ${base.runsOutAt ?? `not in ${base.quarters} qtrs`}` : "Same as the base case"}</p>
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Cash after {result.quarters} quarters</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Cash after {result.quarters} quarters</p>
               <p className={`font-mono text-lg font-semibold ${result.endingCash < 0 ? "text-red-500" : "text-zinc-50"}`}>{compactMoney(result.endingCash)}</p>
-              <p className="text-[10px] text-zinc-500">
+              <p className="text-[11px] text-zinc-500">
                 {compactMoney(result.quarterlyFcf)} a quarter{result.extraInterest ? ` · +${compactMoney(result.extraInterest)}/yr interest` : ""}
               </p>
             </div>
@@ -138,14 +138,14 @@ export function WhatIfPanel({ inputs, onAsk, asking }: { inputs: ScenarioInputs;
               </div>
             ))}
           </div>
-          <p className="mt-1 flex justify-between font-mono text-[10px] text-zinc-500">
+          <p className="mt-1 flex justify-between font-mono text-[11px] text-zinc-500">
             <span>{result.path[0]?.end}</span>
             <span>{result.path.at(-1)?.end}</span>
           </p>
         </div>
       </div>
 
-      <p className="mt-3 text-[11px] leading-relaxed text-zinc-500">{describeWhatIf(result, base)}</p>
+      <p className="mt-3 text-xs leading-relaxed text-zinc-500">{describeWhatIf(result, base)}</p>
       <button
         type="button"
         disabled={asking}

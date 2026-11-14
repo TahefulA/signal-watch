@@ -111,7 +111,7 @@ export default function PrivatePage() {
           <ShieldAlert className="h-[18px] w-[18px] text-red-600" aria-hidden />
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-50">Signal Watch</span>
         </Link>
-        <span className="text-[11px] uppercase tracking-wider text-zinc-500">Private company</span>
+        <span className="text-xs uppercase tracking-wider text-zinc-500">Private company</span>
         <div className="ml-auto">
           <ThemeToggle />
         </div>
@@ -119,7 +119,7 @@ export default function PrivatePage() {
 
       <main className="mx-auto max-w-[1320px] px-6 py-12 lg:px-12">
         <div className="border-b border-zinc-800 pb-8">
-          <p className="font-display text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Devil&rsquo;s advocate &middot; private company</p>
+          <p className="font-display text-xs font-semibold uppercase tracking-wider text-zinc-500">Devil&rsquo;s advocate &middot; private company</p>
           <h1 className="mt-2 font-display text-2xl font-semibold text-zinc-50">No SEC filings? Argue against the thesis from your own documents.</h1>
           <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-zinc-400">
             Add the credit agreement, lender report, offering memorandum or quality-of-earnings report, and write the thesis. The same checks run on the
@@ -134,17 +134,17 @@ export default function PrivatePage() {
           <div className="min-w-0 space-y-6 pt-10">
             <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
               <label className="block">
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Company</span>
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-500">Company</span>
                 <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Acme Holdings LLC" className={field} />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Period (optional)</span>
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-500">Period (optional)</span>
                 <input value={period} onChange={(e) => setPeriod(e.target.value)} placeholder="LTM June 2026" className={field} />
               </label>
             </div>
 
             <label className="block">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Thesis or memo to argue against</span>
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-500">Thesis or memo to argue against</span>
               <textarea
                 value={thesis}
                 onChange={(e) => setThesis(e.target.value)}
@@ -155,7 +155,7 @@ export default function PrivatePage() {
             </label>
 
             <div>
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 Documents ({docs.length}/{MAX_DOCUMENTS})
               </span>
               <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xs border border-dashed border-zinc-700 px-4 py-6 text-sm text-zinc-400 hover:border-zinc-500 hover:text-zinc-100">
@@ -167,10 +167,10 @@ export default function PrivatePage() {
                 <ul className="mt-3 divide-y divide-zinc-800 rounded-xs border border-zinc-800">
                   {docs.map((d, i) => (
                     <li key={`${d.name}-${i}`} className="flex items-center gap-3 px-3 py-2 text-sm">
-                      <span className="w-10 font-mono text-[11px] text-red-500">doc{i + 1}</span>
+                      <span className="w-10 font-mono text-xs text-red-500">doc{i + 1}</span>
                       <FileText className="h-3.5 w-3.5 shrink-0 text-zinc-500" aria-hidden />
                       <span className="min-w-0 flex-1 truncate text-zinc-200">{d.name}</span>
-                      <span className="font-mono text-[11px] text-zinc-500">{words(d.text).toLocaleString("en-US")} words</span>
+                      <span className="font-mono text-xs text-zinc-500">{words(d.text).toLocaleString("en-US")} words</span>
                       <button
                         type="button"
                         onClick={() => setDocs((current) => current.filter((_, j) => j !== i))}

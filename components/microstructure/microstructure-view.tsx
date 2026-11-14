@@ -301,12 +301,12 @@ export function MicrostructureView() {
         <button type="button" onClick={() => setPaused((p) => !p)} className="inline-flex items-center gap-1 rounded-xs border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:border-zinc-500" aria-label={paused ? "Resume" : "Pause"}>
           {paused ? <Play className="h-3 w-3" aria-hidden /> : <Pause className="h-3 w-3" aria-hidden />} {paused ? "Resume" : "Pause"}
         </button>
-        <span className="ml-auto inline-flex items-center gap-1.5 font-mono text-[11px] text-zinc-400">
+        <span className="ml-auto inline-flex items-center gap-1.5 font-mono text-xs text-zinc-400">
           <Radio className={`h-3 w-3 ${status === "Live" || status === "Replaying" ? "text-emerald-500" : "text-zinc-600"}`} aria-hidden />
           {status} · {e.events.toLocaleString()} events{e.now ? ` · ${clock(e.now)}` : ""}
         </span>
       </div>
-      <p className="mt-2 text-[11px] text-zinc-500">
+      <p className="mt-2 text-xs text-zinc-500">
         {mode === "replay" && rec
           ? `Recorded from the live feed ${rec.startedAt.slice(0, 16).replace("T", " ")} to ${rec.endedAt.slice(11, 16)} UTC: ${rec.events.toLocaleString()} book and trade events, replayed in order on the same detectors.`
           : market
@@ -330,7 +330,7 @@ export function MicrostructureView() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <section className="surface rounded-xs border border-zinc-800 p-3" aria-label="Best bid and ask">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Best bid and ask, YES</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Best bid and ask, YES</p>
           <div className="mt-2 h-[300px]">
             {chart.length > 1 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -354,9 +354,9 @@ export function MicrostructureView() {
           </div>
         </section>
 
-        <section className="surface rounded-xs border border-zinc-800 p-3 font-mono text-[11px]" aria-label="Order book">
-          <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Book, best 8 levels</p>
-          <p className="font-sans text-[10px] text-zinc-500">Bars on a square-root scale, so one resting whale does not flatten the rest.</p>
+        <section className="surface rounded-xs border border-zinc-800 p-3 font-mono text-xs" aria-label="Order book">
+          <p className="font-sans text-xs font-semibold uppercase tracking-wider text-zinc-400">Book, best 8 levels</p>
+          <p className="font-sans text-[11px] text-zinc-500">Bars on a square-root scale, so one resting whale does not flatten the rest.</p>
           <div className="mt-2 space-y-px">
             {[...ladder.asks].reverse().map((l) => (
               <div key={`a${l.price}`} className="relative flex justify-between px-1.5 py-0.5">
@@ -405,7 +405,7 @@ export function MicrostructureView() {
               ["down", stats.cusum.neg, "bg-red-500"],
             ] as const
           ).map(([k, v, c]) => (
-            <div key={k} className="mt-1 flex items-center gap-2 text-[11px]">
+            <div key={k} className="mt-1 flex items-center gap-2 text-xs">
               <span className="w-8 text-zinc-500">{k}</span>
               <div className="h-1.5 flex-1 rounded-[2px] bg-zinc-800">
                 <div className={`h-full rounded-[2px] ${c}`} style={{ width: `${Math.min(100, (v / stats.cusum.threshold) * 100)}%` }} />
@@ -419,7 +419,7 @@ export function MicrostructureView() {
       <LiveQuestions questions={questions} runners={e.rules} onAdd={addQuestion} onRemove={removeQuestion} />
 
       <section className="mt-6" aria-label="Alerts">
-        <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+        <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
           <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> Alerts · {e.alerts.length}
         </h2>
         {e.alerts.length ? (
@@ -427,7 +427,7 @@ export function MicrostructureView() {
             {e.alerts.map((a, i) => (
               <li key={`${a.t}-${a.kind}-${i}`} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-2 text-xs">
                 <span className="font-mono text-zinc-500">{clock(a.t)}</span>
-                <span className={`rounded-xs border px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider ${KIND[a.kind].tone}`}>{KIND[a.kind].label}</span>
+                <span className={`rounded-xs border px-1.5 py-px text-[11px] font-semibold uppercase tracking-wider ${KIND[a.kind].tone}`}>{KIND[a.kind].label}</span>
                 <span className="min-w-0 flex-1 text-zinc-200">{a.text}</span>
               </li>
             ))}
@@ -447,9 +447,9 @@ export function MicrostructureView() {
 function Tile({ label, note, children }: { label: string; note: string; children: React.ReactNode }) {
   return (
     <div className="surface rounded-xs border border-zinc-800 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
       {children}
-      <p className="mt-2 text-[10.5px] leading-snug text-zinc-500">{note}</p>
+      <p className="mt-2 text-[11.5px] leading-snug text-zinc-500">{note}</p>
     </div>
   );
 }
@@ -459,7 +459,7 @@ function Pair({ a, b }: { a: [string, string]; b: [string, string] }) {
     <div className="mt-1 flex gap-4">
       {[a, b].map(([k, v]) => (
         <div key={k}>
-          <span className="font-mono text-lg font-semibold text-zinc-50">{v}</span> <span className="text-[10px] text-zinc-500">{k}</span>
+          <span className="font-mono text-lg font-semibold text-zinc-50">{v}</span> <span className="text-[11px] text-zinc-500">{k}</span>
         </div>
       ))}
     </div>
@@ -475,12 +475,12 @@ function HowItWorks() {
   ];
   return (
     <section className="mt-10 max-w-4xl">
-      <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+      <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> How it works
       </h2>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[680px] text-left text-xs">
-          <thead className="text-[10px] uppercase tracking-wider text-zinc-500">
+          <thead className="text-[11px] uppercase tracking-wider text-zinc-500">
             <tr>
               <th className="py-2 pr-3 font-semibold">Statistic</th>
               <th className="py-2 pr-3 font-semibold">Structure</th>

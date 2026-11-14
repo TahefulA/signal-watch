@@ -56,7 +56,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
         <ShieldAlert className="h-[18px] w-[18px] text-red-600" aria-hidden />
         <span className="hidden flex-col leading-none sm:flex">
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-50">Signal Watch</span>
-          <span className="mt-1 hidden text-[10px] text-zinc-500 lg:block">{TAGLINE}</span>
+          <span className="mt-1 hidden text-[11px] text-zinc-500 lg:block">{TAGLINE}</span>
         </span>
       </Link>
 
@@ -90,7 +90,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
           <button
             type="button"
             onClick={onOpenChanges}
-            className="inline-flex items-center gap-1.5 rounded-xs border border-red-600 bg-red-50 px-2 py-1 font-mono text-[11px] font-semibold text-red-700"
+            className="inline-flex items-center gap-1.5 rounded-xs border border-red-600 bg-red-50 px-2 py-1 font-mono text-xs font-semibold text-red-700"
             title={`${changes} change${changes === 1 ? "" : "s"} since the previous quarter`}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-red-600" aria-hidden />
@@ -101,7 +101,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
           <button
             type="button"
             onClick={onOpenPalette}
-            className="hidden rounded-xs border border-zinc-800 bg-zinc-900 px-2 py-1 font-mono text-[11px] text-zinc-400 hover:text-zinc-100 sm:inline-flex"
+            className="hidden rounded-xs border border-zinc-800 bg-zinc-900 px-2 py-1 font-mono text-xs text-zinc-400 hover:text-zinc-100 sm:inline-flex"
             title="Ask a question about this company"
           >
             ⌘K
@@ -112,7 +112,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
             type="button"
             onClick={watch.onToggle}
             aria-pressed={watch.watched}
-            className={`inline-flex items-center gap-1.5 rounded-xs border px-2 py-1 text-[11px] font-medium transition-colors duration-100 ${
+            className={`inline-flex items-center gap-1.5 rounded-xs border px-2 py-1 text-xs font-medium transition-colors duration-100 ${
               watch.watched ? "border-amber-600 text-amber-500 hover:bg-zinc-900" : "border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-50"
             }`}
             title={watch.watched ? `${watch.ticker} is on your watchlist; click to stop watching` : `Add ${watch.ticker} to your watchlist`}
@@ -134,16 +134,13 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
         <Link href="/contagion" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="Sponsor contagion: which sponsor-backed borrower could be the next liability management target">
           Contagion
         </Link>
-        <Link href="/microstructure" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="Lab: rolling statistics and anomaly detection on a live order book">
-          Lab
-        </Link>
         <Link href="/proof" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="The backtest: did the forecast warn before real bankruptcies?">
           Proof
         </Link>
         <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100" title="The morning radar: which borrowers need you today">
           Radar
           {attention > 0 ? (
-            <span className="rounded-xs bg-red-600 px-1.5 py-px font-mono text-[10px] font-semibold text-white" aria-label={`${attention} need attention`}>
+            <span className="rounded-xs bg-red-600 px-1.5 py-px font-mono text-[11px] font-semibold text-white" aria-label={`${attention} need attention`}>
               {attention}
             </span>
           ) : null}
