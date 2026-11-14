@@ -87,6 +87,14 @@ const DEEP: { tab: TabKey; title: string; text: string }[] = [
   { tab: "memo", title: "Credit memo", text: "The full write-up, with sources." },
 ];
 
+/** "1220 days" read as "in about 3.3 years"; anything else is shown as filed. */
+function inTime(display: string): string {
+  const days = display.match(/^(\d+) days?$/)?.[1];
+  if (!days) return `: ${display}`;
+  const n = Number(days);
+  return n < 60 ? `in ${n} days` : n < 730 ? `in about ${Math.round(n / 30.4)} months` : `in about ${(n / 365).toFixed(1)} years`;
+}
+
 export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKey) => void }) {
   const d = report.distress;
   const name = report.graph.company.name;
@@ -96,7 +104,7 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
   const doors = report.lme?.verdicts.filter((v) => v.risk === "high").length ?? null;
 
   const facts: { bad: boolean; text: string }[] = [];
-  if (nextDue && nextDue !== "Not disclosed") facts.push({ bad: false, text: `Next debt due: ${nextDue}.` });
+  if (nextDue && nextDue !== "Not disclosed") facts.push({ bad: false, text: `Its next loan or bond comes due ${inTime(nextDue)}.` });
   if (cash && cash !== "Not available") facts.push({ bad: false, text: `Cash it can reach now: ${cash}.` });
   if (doors !== null) facts.push(doors ? { bad: true, text: `Its loan papers leave ${doors} door${doors === 1 ? "" : "s"} open to moves that can hurt lenders.` } : { bad: false, text: "Its loan papers close the usual doors to moves that hurt lenders." });
 
