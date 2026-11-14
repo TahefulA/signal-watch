@@ -15,6 +15,7 @@ import { ChangesTab } from "@/components/tabs/changes-tab";
 import { FinancialTab } from "@/components/tabs/financial-tab";
 import { GraphTab } from "@/components/tabs/graph-tab";
 import { MemoTab } from "@/components/tabs/memo-tab";
+import { SummaryTab } from "@/components/summary/summary-tab";
 import { CommitteeRoom } from "@/components/committee/committee-room";
 import { OwnerTab } from "@/components/contagion/owner-tab";
 import { Toast } from "@/components/ui/toast";
@@ -26,8 +27,8 @@ type Status = "idle" | "loading" | "ready" | "error";
 /** The saved TeraWulf report used as the worked example in the tour. */
 const EXAMPLE_REPORT_ID = "36e359a9-052f-4e17-8afc-b29d2403f4c1";
 
-/** The committee opens first: the forecast and the argument over it. */
-const DEFAULT_TAB: TabKey = "committee";
+/** The plain-English answer opens first; the committee and the rest are the deep dive. */
+const DEFAULT_TAB: TabKey = "summary";
 
 function isEvent(value: unknown): value is AnalyzeEvent {
   return typeof value === "object" && value !== null && "type" in value;
@@ -472,6 +473,7 @@ export default function CompanyPage() {
               ) : null}
               {tab !== "graph" ? (
                 <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="h-full overflow-y-auto">
+                  {tab === "summary" ? <SummaryTab report={report} onTab={openTab} /> : null}
                   {tab === "committee" ? <CommitteeRoom report={report} /> : null}
                   {tab === "owner" ? <OwnerTab report={report} /> : null}
                   {tab === "financial" ? <FinancialTab report={report} timeline={timeline} range={range} devilBusy={devilBusy} /> : null}

@@ -1,8 +1,9 @@
 "use client";
 
-export type TabKey = "committee" | "owner" | "graph" | "financial" | "capital" | "changes" | "memo";
+export type TabKey = "summary" | "committee" | "owner" | "graph" | "financial" | "capital" | "changes" | "memo";
 
 export const TABS: { key: TabKey; label: string }[] = [
+  { key: "summary", label: "Summary" },
   { key: "committee", label: "Committee" },
   { key: "owner", label: "Owner" },
   { key: "graph", label: "Map" },
@@ -14,6 +15,7 @@ export const TABS: { key: TabKey; label: string }[] = [
 
 /** Where each view sits in Gatto's seven-step credit process. */
 export const STEP_LABELS: Record<TabKey, string> = {
+  summary: "The short answer, in plain English",
   committee: "Distress forecast · Investment committee",
   owner: "Step 2 · Who owns it, and what the owner has done before",
   graph: "Step 2 · Qualitative Analysis",
@@ -45,7 +47,12 @@ export function TabBar({ active, empty, dot, onChange }: TabBarProps) {
       <div role="tablist" className="flex h-full items-stretch gap-1 overflow-x-auto">
         {TABS.map((t) => {
           const selected = t.key === active;
-          return (
+          return [
+            t.key === "committee" ? (
+              <span key="deep" className="ml-2 hidden shrink-0 items-center border-l border-zinc-800 pl-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-600 sm:inline-flex">
+                Deep dive
+              </span>
+            ) : null,
             <button
               key={t.key}
               type="button"
@@ -63,8 +70,8 @@ export function TabBar({ active, empty, dot, onChange }: TabBarProps) {
               {t.label}
               {empty[t.key] && !selected ? <span className="text-zinc-600">&mdash;</span> : null}
               {dot[t.key] ? <span className="h-1.5 w-1.5 rounded-full bg-red-600" aria-label="New" /> : null}
-            </button>
-          );
+            </button>,
+          ];
         })}
       </div>
     </nav>
