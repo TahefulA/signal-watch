@@ -135,7 +135,7 @@ export function TopBar({ busy, changes, onAnalyze, onOpenChanges, onOpenPalette,
           Contagion
         </Link>
         <Link href="/proof" className="hidden text-xs text-zinc-400 hover:text-zinc-100 sm:inline" title="The backtest: did the forecast warn before real bankruptcies?">
-          Proof
+          Track record
         </Link>
         <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100" title="The morning radar: which borrowers need you today">
           Radar

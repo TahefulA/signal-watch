@@ -1,6 +1,7 @@
 "use client";
 
 import { FileText, Lock, ShieldAlert, Upload, X } from "lucide-react";
+import { Footer } from "@/components/layout/footer";
 import Link from "next/link";
 import { type ChangeEvent, useState } from "react";
 import type { DevilsAdvocate } from "@/types";
@@ -220,6 +221,7 @@ export default function PrivatePage() {
 
         {devil?.sections?.length ? <DevilsCase devil={devil} onEntityClick={() => undefined} /> : null}
       </main>
+      <Footer />
     </div>
   );
 }

@@ -50,7 +50,7 @@ export function TabBar({ active, empty, dot, onChange }: TabBarProps) {
           return [
             t.key === "committee" ? (
               <span key="deep" className="ml-2 hidden shrink-0 items-center border-l border-zinc-800 pl-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-600 sm:inline-flex">
-                Deep dive
+                For analysts
               </span>
             ) : null,
             <button

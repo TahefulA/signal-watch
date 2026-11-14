@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { ContagionView } from "@/components/contagion/contagion-view";
 import { loadContagion } from "@/lib/contagion/store";
@@ -24,6 +25,7 @@ export default async function ContagionPage({ searchParams }: { searchParams: { 
           <p className="mt-10 text-sm text-zinc-400">The graph has not been built yet. Run scripts/build-contagion.ts.</p>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

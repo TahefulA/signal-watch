@@ -1,11 +1,13 @@
 "use client";
 
-import { ArrowUpRight, CalendarClock, ChevronDown, FileText, RefreshCw, Sword, UserRound, X } from "lucide-react";
+import { Term } from "@/components/ui/term";
+import { ArrowUpRight, CalendarClock, ChevronDown, FileText, RefreshCw, Search, Sword, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import type { FedPath } from "@/lib/kalshi";
 import type { FeedEvent, WatchCard, WatchStatus, WatchlistResponse } from "@/types";
 import { BAND_STYLE, pctText } from "@/components/distress/distress-card";
+import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { QuarterBars } from "@/components/map/quarter-bars";
 import { compactMoney } from "@/lib/node-visuals";
@@ -46,7 +48,9 @@ function pct(v: number): string {
 function Cell({ label, children, note }: { label: string; children: ReactNode; note?: ReactNode }) {
   return (
     <div className="min-w-0">
-      <p className="truncate text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">{label}</p>
+      <p className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
+        <Term text={label} />
+      </p>
       <div className="mt-1.5 font-mono text-[15px] font-semibold text-zinc-100">{children}</div>
       {note ? <div className="mt-1 truncate text-xs text-zinc-500">{note}</div> : null}
     </div>
@@ -91,33 +95,83 @@ function FedBanner({ cards }: { cards: WatchCard[] }) {
   );
 }
 
-/** Opens any ticker in the company view, watched or not. */
-function AnalyzeBox() {
+/** Drops the 8-K item numbers from a line for reading; the numbers stay in the tooltip for analysts. */
+function plain(text: string): string {
+  return text
+    .replace(/\s*\(items? [\d., ]+\)/g, "")
+    .replace(/^8-K: (\w)/, (_, c: string) => `New 8-K: ${c.toUpperCase()}`);
+}
+
+const EXAMPLES: { ticker: string; note: string }[] = [
+  { ticker: "WULF", note: "Bitcoin miner turned data centers" },
+  { ticker: "CIFR", note: "Heavy borrowing" },
+  { ticker: "AAPL", note: "For contrast" },
+];
+
+const STEPS: { title: string; text: string }[] = [
+  { title: "Reads the filings", text: "Every 10-K, 10-Q and 8-K the company sent the SEC, plus its loan documents and the news." },
+  { title: "Scores the odds", text: "A model trained on real bankruptcies gives the chance of a filing in the next 12 months. Code computes it, not an AI." },
+  { title: "Argues both sides", text: "Two AIs debate the case. Every number they cite is checked against the filings, and you can ask them questions." },
+];
+
+/** The front door: one search for anyone, and how it works in three steps. */
+function Hero() {
   const [ticker, setTicker] = useState("");
+  const go = (t: string) => {
+    const clean = t.trim().toUpperCase();
+    if (clean) window.location.href = `/company?ticker=${encodeURIComponent(clean)}`;
+  };
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        const t = ticker.trim().toUpperCase();
-        if (t) window.location.href = `/company?ticker=${encodeURIComponent(t)}`;
-      }}
-      className="mt-4 flex flex-wrap items-center gap-2 text-xs text-zinc-500"
-    >
-      <span>Or open any company:</span>
-      <input
-        value={ticker}
-        onChange={(e) => setTicker(e.target.value.replace(/[^A-Za-z0-9.\-]/g, ""))}
-        placeholder="Ticker"
-        maxLength={10}
-        className="h-8 w-28 rounded-xs border border-zinc-800 bg-zinc-900 px-2 font-mono text-[12px] uppercase text-zinc-50 placeholder:normal-case placeholder:text-zinc-600 focus:border-zinc-600 focus:outline-none"
-      />
-      <button type="submit" className="h-8 rounded-xs border border-zinc-700 px-3 text-zinc-200 hover:border-zinc-500">
-        Analyze
-      </button>
-      <Link href="/company?ticker=WULF" className="ml-2 text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-100">
-        Example: WULF
-      </Link>
-    </form>
+    <section className="border-b border-zinc-800 pb-12 pt-4 text-center sm:pt-8">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">Free · built on SEC filings · every claim checked</p>
+      <h1 className="mx-auto mt-3 max-w-3xl font-display text-[32px] font-semibold leading-tight tracking-[-0.01em] text-zinc-50 sm:text-[44px]">Could this company go broke?</h1>
+      <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-400">
+        Type any US-listed company. You get the odds of a bankruptcy filing in the next year, the reasons in plain English, and the full analysis behind them.
+      </p>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          go(ticker);
+        }}
+        className="mx-auto mt-7 flex max-w-xl gap-2"
+      >
+        <label htmlFor="hero-ticker" className="sr-only">
+          Company ticker
+        </label>
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" aria-hidden />
+          <input
+            id="hero-ticker"
+            value={ticker}
+            onChange={(e) => setTicker(e.target.value.replace(/[^A-Za-z0-9.\-]/g, ""))}
+            placeholder="Ticker, e.g. WULF"
+            maxLength={10}
+            autoComplete="off"
+            className="h-12 w-full rounded-xs border border-zinc-700 bg-zinc-900 pl-11 pr-3 font-mono text-base uppercase text-zinc-50 placeholder:font-sans placeholder:normal-case placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none"
+          />
+        </div>
+        <button type="submit" disabled={!ticker.trim()} className="h-12 rounded-xs bg-red-600 px-6 text-sm font-semibold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50">
+          Check
+        </button>
+      </form>
+      <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs">
+        <span className="self-center text-zinc-500">Try:</span>
+        {EXAMPLES.map((x) => (
+          <button key={x.ticker} type="button" onClick={() => go(x.ticker)} className="rounded-xs border border-zinc-800 px-3 py-1.5 text-zinc-300 hover:border-zinc-600 hover:text-zinc-50">
+            <span className="font-mono font-semibold">{x.ticker}</span> <span className="text-zinc-500">· {x.note}</span>
+          </button>
+        ))}
+      </div>
+      <ol className="mx-auto mt-12 grid max-w-5xl gap-4 text-left sm:grid-cols-3">
+        {STEPS.map((step, i) => (
+          <li key={step.title} className="surface rounded-xs border border-zinc-800 p-5">
+            <span className="font-mono text-xs text-red-500">0{i + 1}</span>
+            <p className="mt-1 text-[15px] font-semibold text-zinc-100">{step.title}</p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-400">{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
@@ -213,7 +267,7 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
               <li key={i} className="flex items-start gap-2.5 text-[13px] leading-snug">
                 <span className={`mt-[5px] h-2 w-2 shrink-0 rounded-[1px] ${r.tone === "act" ? "bg-red-600" : "bg-amber-500"}`} aria-hidden />
                 <span className="min-w-0 flex-1 text-zinc-200">
-                  {r.text}
+                  <span title={r.text}>{plain(r.text)}</span>
                   {r.date ? <span className="ml-2 font-mono text-[11px] text-zinc-500">{r.date}</span> : null}
                 </span>
                 {r.url ? (
@@ -288,7 +342,9 @@ function FeedRow({ event, fresh }: { event: FeedEvent; fresh: boolean }) {
       <span className="flex items-start gap-2">
         <span className="mt-px w-11 shrink-0 font-mono text-xs font-semibold text-zinc-200">{event.ticker}</span>
         <Icon className={`mt-0.5 h-3 w-3 shrink-0 ${event.tone === "act" ? "text-red-500" : event.tone === "review" ? "text-amber-500" : "text-zinc-500"}`} aria-hidden />
-        <span className="min-w-0 flex-1 text-[12px] leading-snug text-zinc-300">{event.text}</span>
+        <span className="min-w-0 flex-1 text-[12px] leading-snug text-zinc-300" title={event.text}>
+          {plain(event.text)}
+        </span>
         {fresh ? <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-red-600" aria-label="New since your last visit" /> : null}
       </span>
     </>
@@ -427,11 +483,12 @@ export default function RadarPage() {
   return (
     <div className="min-h-screen">
       <Header active="radar" />
-      <main className="mx-auto max-w-[1440px] px-6 py-10 lg:px-10">
-        <div className="flex flex-wrap items-end justify-between gap-6 border-b border-zinc-800 pb-6">
+      <main className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 lg:px-10">
+        <Hero />
+        <div id="watchlist" className="flex scroll-mt-16 flex-wrap items-end justify-between gap-6 pt-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">Morning radar</p>
-            <h1 className="mt-2 font-display text-[28px] font-semibold leading-tight tracking-[-0.01em] text-zinc-50">Which borrowers need you today, and why</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">For credit analysts · your watchlist</p>
+            <h2 className="mt-2 font-display text-[26px] font-semibold leading-tight tracking-[-0.01em] text-zinc-50">Which borrowers need you today, and why</h2>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-400">
               Each borrower gets a 12-month bankruptcy probability from its own filings, checked against EDGAR for new 8-Ks and filings, and against
               Kalshi&rsquo;s Fed odds for rate exposure. Written rules place it in Act now, Review or Quiet, and every reason links to its source.{" "}
@@ -440,7 +497,6 @@ export default function RadarPage() {
               </Link>
               .
             </p>
-            <p className="mt-2 text-xs text-zinc-500">Ground rules: code does the math · the AI never decides · every claim cites its sentence.</p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <form onSubmit={submit} className="flex gap-2">
@@ -477,7 +533,6 @@ export default function RadarPage() {
         </div>
 
         <FedBanner cards={cards} />
-        <AnalyzeBox />
 
         {error ? (
           <p className="mt-4 text-sm text-red-400" role="alert">
@@ -565,6 +620,7 @@ export default function RadarPage() {
           </>
         ) : null}
       </main>
+      <Footer />
     </div>
   );
 }

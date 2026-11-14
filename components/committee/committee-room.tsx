@@ -1,5 +1,6 @@
 "use client";
 
+import { Term } from "@/components/ui/term";
 import { Gavel, Lightbulb, RotateCcw, Send } from "lucide-react";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChairSummary, CommitteeEvent, CommitteeRecord, CommitteeTurn, DistressScore, FilingChange, RateStress, Report, Scoreboard } from "@/types";
@@ -26,7 +27,9 @@ interface Forecast {
 function Tile({ label, value, tone = "text-zinc-50", sub }: { label: string; value: string; tone?: string; sub?: string }) {
   return (
     <div className="min-w-0 border-r border-zinc-800 px-4 py-2.5 last:border-r-0">
-      <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+        <Term text={label} />
+      </p>
       <p className={`mt-0.5 truncate font-mono text-lg font-semibold ${tone}`}>{value}</p>
       {sub ? <p className="truncate text-[11px] text-zinc-500">{sub}</p> : null}
     </div>

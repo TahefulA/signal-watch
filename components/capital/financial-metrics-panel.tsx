@@ -1,5 +1,6 @@
 "use client";
 
+import { Term } from "@/components/ui/term";
 import { type ReactNode, useEffect, useState } from "react";
 import type { CapitalMetric, CapitalStructure, CompanyProfile, CreditRating, Report } from "@/types";
 import type { HistoryResponse } from "@/app/api/history/route";
@@ -74,7 +75,9 @@ function MetricRow({ metric, spark }: { metric: CapitalMetric; spark?: ReactNode
   const missing = metric.display === "Not available" || metric.display === "Not reconciled";
   return (
     <div className="flex items-center justify-between gap-3 border-b border-zinc-800 py-2 last:border-b-0" title={metric.note}>
-      <span className="min-w-0 text-xs leading-snug text-zinc-400">{metric.label}</span>
+      <span className="min-w-0 text-xs leading-snug text-zinc-400">
+        <Term text={metric.label} />
+      </span>
       <span className="flex shrink-0 items-center gap-3">
         {spark}
         <span className={`whitespace-nowrap text-right font-mono text-sm font-medium ${missing ? "text-zinc-500" : metric.display === "n/m" ? "text-zinc-400" : "text-zinc-100"}`}>
@@ -106,7 +109,9 @@ export function RatioBar({
   return (
     <div className="border-b border-zinc-800 py-2 last:border-b-0" title={metric.note}>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-xs text-zinc-400">{metric.label}</span>
+        <span className="text-xs text-zinc-400">
+          <Term text={metric.label} />
+        </span>
         <span className={`font-mono text-sm font-medium ${value === null ? "text-zinc-400" : "text-zinc-100"}`}>{metric.display}</span>
       </div>
       <div className="relative mt-1.5 h-1.5" aria-hidden>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { AucChart, CalibrationChart, WarningChart } from "@/components/proof/proof-charts";
 import { ContagionProof } from "@/components/proof/contagion-proof";
@@ -186,6 +187,7 @@ export default function ProofPage() {
           </p>
         </Section>
       </main>
+      <Footer />
     </div>
   );
 }

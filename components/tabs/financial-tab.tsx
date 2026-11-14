@@ -1,5 +1,6 @@
 "use client";
 
+import { Term } from "@/components/ui/term";
 import type { ReactNode } from "react";
 import type { CapitalMetric, Report, Timeline } from "@/types";
 import { RatingGauge, RatioBar, useHistory } from "@/components/capital/financial-metrics-panel";
@@ -40,7 +41,9 @@ function MetricCard({ metric, delta, deltaTone, spark }: { metric: CapitalMetric
   const missing = metric.display === "Not available" || metric.display === "Not reconciled" || metric.display === "n/m";
   return (
     <div className="surface rounded-xs border border-zinc-800 p-5" title={metric.note}>
-      <p className="text-xs uppercase tracking-wider text-zinc-500">{metric.label}</p>
+      <p className="text-xs uppercase tracking-wider text-zinc-500">
+        <Term text={metric.label} />
+      </p>
       <p className={`mt-2 font-mono text-2xl font-semibold ${missing ? "text-zinc-500" : "text-zinc-50"}`}>{metric.display}</p>
       {delta ? <p className={`mt-1 font-mono text-xs ${deltaTone === "up" ? "text-emerald-500" : deltaTone === "down" ? "text-red-400" : "text-zinc-500"}`}>{delta}</p> : null}
       {spark ? <div className="mt-3">{spark}</div> : null}
@@ -53,7 +56,9 @@ function Row({ metric }: { metric: CapitalMetric | undefined }) {
   const missing = metric.display === "Not available" || metric.display === "n/m";
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-zinc-800 py-3" title={metric.note}>
-      <span className="text-xs text-zinc-400">{metric.label}</span>
+      <span className="text-xs text-zinc-400">
+        <Term text={metric.label} />
+      </span>
       <span className={`font-mono text-sm font-medium ${missing ? "text-zinc-500" : "text-zinc-100"}`}>{metric.display}</span>
     </div>
   );

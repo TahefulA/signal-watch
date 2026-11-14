@@ -3,7 +3,7 @@
 import { ArrowRight, CircleAlert, CircleCheck } from "lucide-react";
 import type { DistressBand, DistressReason, Report } from "@/types";
 import type { TabKey } from "@/components/layout/tab-bar";
-import { pctText } from "@/components/distress/distress-card";
+import { DistressCard, pctText } from "@/components/distress/distress-card";
 
 /**
  * The plain-English answer, first. Every sentence here is chosen by code from
@@ -23,6 +23,14 @@ const VERDICT: Record<DistressBand, string> = {
   elevated: "Some warning signs. Worth keeping an eye on.",
   high: "Several warning signs that past bankruptcies shared.",
   severe: "Looks like companies that filed for bankruptcy within a year.",
+};
+
+/** For a shareholder: what the band means for them, without a buy or sell call. */
+const OWNER: Record<DistressBand, string> = {
+  low: "Nothing in its filings suggests it can't pay its debts. That says nothing about whether the share price will rise.",
+  elevated: "Worth watching. If a company does go bankrupt, shareholders are paid last, after every lender.",
+  high: "In a bankruptcy, lenders are paid first and shareholders often get nothing. Read the debate before deciding anything.",
+  severe: "Companies that looked like this often filed within a year, and shareholders usually lost most or all of their money. Read the debate before deciding anything.",
 };
 
 /** Sentences when a feature pushes the risk up, and when it holds it down. Null where the value's sign must agree first. */
@@ -149,6 +157,13 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
         </div>
       ) : null}
 
+      {d ? (
+        <p className="surface mt-4 rounded-xs border border-zinc-800 px-4 py-3 text-sm leading-relaxed text-zinc-300">
+          <span className="font-semibold text-zinc-100">If you own the stock: </span>
+          {OWNER[d.band]}
+        </p>
+      ) : null}
+
       {facts.length ? (
         <ul className="mt-4 space-y-1 text-sm text-zinc-300">
           {facts.map((f) => (
@@ -171,6 +186,14 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
           </button>
         ))}
       </div>
+      {d ? (
+        <details className="mt-6">
+          <summary className="cursor-pointer text-xs text-zinc-500 hover:text-zinc-200">Model details: every input and the date it was filed</summary>
+          <div className="mt-3">
+            <DistressCard distress={d} />
+          </div>
+        </details>
+      ) : null}
       <p className="mt-6 text-xs text-zinc-600">Not financial advice.</p>
     </div>
   );
