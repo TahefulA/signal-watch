@@ -1,3 +1,4 @@
+import { limited } from "@/lib/visitor";
 import { toIsoDate } from "@/lib/dates";
 import { generateDevilsAdvocate } from "@/lib/devils-advocate";
 import { loadPatternContext } from "@/lib/devils-advocate-patterns";
@@ -17,6 +18,8 @@ export async function POST(request: Request): Promise<Response> {
   }
   if (!tigerEnabled())
     return Response.json({ error: "The counter-argument needs saved reports, and storage is not configured." }, { status: 503 });
+  const over = await limited(request, "devil");
+  if (over) return over;
   const reportId = typeof body.reportId === "string" ? body.reportId : "";
   try {
     const report = await findReportById(reportId);

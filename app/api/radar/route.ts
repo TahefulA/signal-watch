@@ -1,6 +1,7 @@
+import { limited } from "@/lib/visitor";
 import { DEMO_TICKERS } from "@/lib/demo-tickers";
 import { lastScan, scanTicker, storedEvents } from "@/lib/radar/scan";
-import { listWatchlist, tigerEnabled } from "@/lib/tiger";
+import { listAllWatched, tigerEnabled } from "@/lib/tiger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
 
   const secret = process.env.CRON_SECRET;
   if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  const tickers = [...new Set([...DEMO_TICKERS, ...(await listWatchlist().catch(() => []))])];
+  const tickers = [...new Set([...DEMO_TICKERS, ...(await listAllWatched().catch(() => []))])];
   const ages = await Promise.all(tickers.map(async (t) => ({ t, at: (await lastScan(t).catch(() => null)) ?? "" })));
   const order = ages.sort((a, b) => a.at.localeCompare(b.at)).slice(0, MAX_PER_RUN);
   const started = Date.now();
@@ -52,6 +53,8 @@ export async function POST(request: Request) {
   }
   const ticker = typeof body.ticker === "string" ? body.ticker.toUpperCase() : "";
   if (!TICKER.test(ticker)) return Response.json({ error: "Bad ticker" }, { status: 400 });
+  const over = await limited(request, "radar");
+  if (over) return over;
   try {
     const result = await scanTicker(ticker);
     if (!result) return Response.json({ error: "Analyse this ticker first." }, { status: 404 });

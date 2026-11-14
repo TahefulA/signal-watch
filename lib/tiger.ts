@@ -284,6 +284,19 @@ CREATE TABLE IF NOT EXISTS news_scans (
   ticker text PRIMARY KEY,
   scanned_at timestamptz NOT NULL DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS visitor_watchlist (
+  visitor text NOT NULL,
+  ticker text NOT NULL,
+  added_at timestamptz NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (visitor, ticker)
+);
+CREATE TABLE IF NOT EXISTS usage_daily (
+  who text NOT NULL,
+  bucket text NOT NULL,
+  day date NOT NULL,
+  n integer NOT NULL DEFAULT 0,
+  PRIMARY KEY (who, bucket, day)
+);
 CREATE TABLE IF NOT EXISTS owner_lookups (
   cik text PRIMARY KEY,
   company_json jsonb,
@@ -553,6 +566,46 @@ export async function addToWatchlist(ticker: string): Promise<void> {
 
 export async function removeFromWatchlist(ticker: string): Promise<void> {
   await getPool().query("DELETE FROM watchlist WHERE ticker = $1", [ticker]);
+}
+
+/** One visitor's watchlist. A visitor is a random id in a cookie; there are no accounts. */
+export async function listVisitorWatchlist(visitor: string): Promise<string[]> {
+  const rows = await queryRows<{ ticker: string }>("SELECT ticker FROM visitor_watchlist WHERE visitor = $1 ORDER BY added_at", [visitor]);
+  return rows.map((r) => r.ticker);
+}
+
+/** A new visitor starts from the shared demo list, as their own copy. */
+export async function seedVisitorWatchlist(visitor: string): Promise<void> {
+  await getPool().query("INSERT INTO visitor_watchlist (visitor, ticker, added_at) SELECT $1, ticker, added_at FROM watchlist ON CONFLICT DO NOTHING", [visitor]);
+}
+
+export async function addVisitorTicker(visitor: string, ticker: string): Promise<void> {
+  await getPool().query("INSERT INTO visitor_watchlist (visitor, ticker) VALUES ($1, $2) ON CONFLICT DO NOTHING", [visitor, ticker]);
+}
+
+export async function removeVisitorTicker(visitor: string, ticker: string): Promise<void> {
+  await getPool().query("DELETE FROM visitor_watchlist WHERE visitor = $1 AND ticker = $2", [visitor, ticker]);
+}
+
+/** Every ticker anyone watches, most-watched first, for the crons. */
+export async function listAllWatched(limit = 60): Promise<string[]> {
+  const rows = await queryRows<{ ticker: string }>(
+    `SELECT ticker FROM (
+       SELECT ticker, 1000000 AS n FROM watchlist
+       UNION ALL SELECT ticker, COUNT(*) AS n FROM visitor_watchlist GROUP BY ticker
+     ) t GROUP BY ticker ORDER BY SUM(n) DESC, ticker LIMIT $1`,
+    [limit],
+  );
+  return rows.map((r) => r.ticker);
+}
+
+/** Counts one use of a costly action today and returns the new count. */
+export async function countUse(who: string, bucket: string): Promise<number> {
+  const rows = await queryRows<{ n: number }>(
+    "INSERT INTO usage_daily (who, bucket, day, n) VALUES ($1, $2, CURRENT_DATE, 1) ON CONFLICT (who, bucket, day) DO UPDATE SET n = usage_daily.n + 1 RETURNING n",
+    [who, bucket],
+  );
+  return Number(rows[0]?.n ?? 0);
 }
 
 /** The newest current (non-baseline) report for a ticker, at any age. */

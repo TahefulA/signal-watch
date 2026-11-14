@@ -1,3 +1,4 @@
+import { limited } from "@/lib/visitor";
 import { generateBrief } from "@/lib/brief";
 import { toIsoDate } from "@/lib/dates";
 import { findReportById, tigerEnabled, updateReport } from "@/lib/tiger";
@@ -15,6 +16,8 @@ export async function POST(request: Request): Promise<Response> {
     body = {};
   }
   if (!tigerEnabled()) return Response.json({ error: "Meeting prep needs saved reports, and storage is not configured." }, { status: 503 });
+  const over = await limited(request, "brief");
+  if (over) return over;
   const reportId = typeof body.reportId === "string" ? body.reportId : "";
   try {
     const report = await findReportById(reportId);

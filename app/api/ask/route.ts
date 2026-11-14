@@ -1,3 +1,4 @@
+import { limited } from "@/lib/visitor";
 import { answerQuestion } from "@/lib/ask";
 import { findReportById, tigerEnabled } from "@/lib/tiger";
 
@@ -17,6 +18,8 @@ export async function POST(request: Request): Promise<Response> {
   const reportId = typeof body.reportId === "string" ? body.reportId : "";
   if (!question) return Response.json({ error: "Type a question first." }, { status: 400 });
   if (!tigerEnabled()) return Response.json({ error: "Questions need saved reports, and storage is not configured." }, { status: 503 });
+  const over = await limited(request, "ask");
+  if (over) return over;
   try {
     const report = await findReportById(reportId);
     if (!report) return Response.json({ error: "This report is no longer available. Run the analysis again." }, { status: 404 });

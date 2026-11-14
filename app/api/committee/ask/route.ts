@@ -1,3 +1,4 @@
+import { limited } from "@/lib/visitor";
 import { patternsFor } from "@/lib/committee/patterns";
 import { askCommittee } from "@/lib/committee/run";
 import { toIsoDate } from "@/lib/dates";
@@ -30,6 +31,8 @@ export async function POST(request: Request): Promise<Response> {
   }
   const question = typeof body.question === "string" ? body.question.trim() : "";
   if (question.length < 5) return Response.json({ error: "Ask a question of at least a few words." }, { status: 400 });
+  const over = await limited(request, "ask");
+  if (over) return over;
   if (!tigerEnabled()) return Response.json({ error: "Saved reports are not available." }, { status: 503 });
   const report = await findReportById(typeof body.reportId === "string" ? body.reportId : "").catch(() => null);
   if (!report?.committee) return Response.json({ error: "Run the committee first." }, { status: 404 });

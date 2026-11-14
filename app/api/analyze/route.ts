@@ -1,3 +1,4 @@
+import { overLimit } from "@/lib/visitor";
 import type { AnalyzeEvent } from "@/types";
 import { AnalyzeError, analyzeTicker } from "@/lib/analyze";
 import { ensureForecast } from "@/lib/forecast-report";
@@ -41,6 +42,11 @@ export async function POST(request: Request): Promise<Response> {
             send({ type: "result", report: cached, cached: true });
             return;
           }
+        }
+        const over = await overLimit(request, "analyze");
+        if (over) {
+          send({ type: "error", message: over });
+          return;
         }
         let report = await analyzeTicker(ticker, (step) => send({ type: "step", step }));
         if (tigerEnabled()) {

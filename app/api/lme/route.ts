@@ -1,3 +1,4 @@
+import { limited } from "@/lib/visitor";
 import { ensureLme } from "@/lib/lme-report";
 import { findReportById, tigerEnabled, updateReport } from "@/lib/tiger";
 
@@ -14,6 +15,8 @@ export async function POST(request: Request): Promise<Response> {
     body = {};
   }
   if (!tigerEnabled()) return Response.json({ error: "The scan needs saved reports, and storage is not configured." }, { status: 503 });
+  const over = await limited(request, "lme");
+  if (over) return over;
   const report = await findReportById(typeof body.reportId === "string" ? body.reportId : "").catch(() => null);
   if (!report) return Response.json({ error: "This report is no longer available. Run the analysis again." }, { status: 404 });
   const { report: next, changed } = await ensureLme(report);

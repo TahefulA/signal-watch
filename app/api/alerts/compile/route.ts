@@ -1,3 +1,4 @@
+import { limited } from "@/lib/visitor";
 import { compileQuestion } from "@/lib/alerts/compiler";
 import { describe } from "@/lib/alerts/predicate";
 
@@ -15,6 +16,8 @@ export async function POST(request: Request): Promise<Response> {
   }
   const question = typeof body.question === "string" ? body.question.trim() : "";
   if (question.length < 8) return Response.json({ error: "Ask a question of at least a few words." }, { status: 400 });
+  const over = await limited(request, "compile");
+  if (over) return over;
   try {
     const result = await compileQuestion(question);
     if (!result.ok) return Response.json({ error: result.reason, unsupported: result.unsupported, errors: result.errors }, { status: 422 });

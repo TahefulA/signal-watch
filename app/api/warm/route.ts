@@ -1,11 +1,12 @@
-import { DEMO_TICKERS } from "@/lib/demo-tickers";
+import { DEMO_TICKERS, POPULAR_TICKERS } from "@/lib/demo-tickers";
 import { findLatestReport, tigerEnabled } from "@/lib/tiger";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-/** A demo report older than this is analysed again. */
+/** A demo report older than this is analysed again; a popular one, after a week. */
 const STALE_HOURS = 20;
+const POPULAR_STALE_HOURS = 24 * 7;
 
 /** Reads an NDJSON stream to its last event. */
 async function lastEvent(response: Response): Promise<Record<string, unknown> | null> {
@@ -33,12 +34,19 @@ export async function GET(request: Request) {
   const reports = await Promise.all(DEMO_TICKERS.map(async (ticker) => ({ ticker, report: await findLatestReport(ticker).catch(() => null) })));
   const age = (iso: string | undefined) => (iso ? (Date.now() - Date.parse(iso)) / 3_600_000 : Infinity);
   const origin = new URL(request.url).origin;
+  // The cron's own calls are not counted against the visitor limits.
+  const cronAuth: Record<string, string> = secret ? { authorization: `Bearer ${secret}` } : {};
 
-  const staleList = reports.filter((r) => age(r.report?.generatedAt) > STALE_HOURS).sort((a, b) => age(b.report?.generatedAt) - age(a.report?.generatedAt));
+  let staleList = reports.filter((r) => age(r.report?.generatedAt) > STALE_HOURS).sort((a, b) => age(b.report?.generatedAt) - age(a.report?.generatedAt));
+  if (!staleList.length) {
+    // Spare runs keep the popular names no more than a week old, so most searches open instantly.
+    const popular = await Promise.all(POPULAR_TICKERS.map(async (ticker) => ({ ticker, report: await findLatestReport(ticker).catch(() => null) })));
+    staleList = popular.filter((r) => age(r.report?.generatedAt) > POPULAR_STALE_HOURS).sort((a, b) => age(b.report?.generatedAt) - age(a.report?.generatedAt));
+  }
   // Rotated by the minute, so a ticker that keeps failing does not hold up the rest.
   const stale = staleList[Math.floor(Date.now() / 60_000) % (staleList.length || 1)];
   if (stale) {
-    const res = await fetch(`${origin}/api/analyze`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ticker: stale.ticker, fresh: true }) });
+    const res = await fetch(`${origin}/api/analyze`, { method: "POST", headers: { "Content-Type": "application/json", ...cronAuth }, body: JSON.stringify({ ticker: stale.ticker, fresh: true }) });
     const last = await lastEvent(res);
     // When Gemini is down the analyze route answers with the saved report (cached: true); that is not a refresh.
     const refreshed = last?.type === "result" && last.cached === false;
@@ -47,7 +55,7 @@ export async function GET(request: Request) {
 
   const bare = reports.find((r) => r.report && !r.report.committee?.turns.length);
   if (bare?.report) {
-    const res = await fetch(`${origin}/api/committee`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reportId: bare.report.id }) });
+    const res = await fetch(`${origin}/api/committee`, { method: "POST", headers: { "Content-Type": "application/json", ...cronAuth }, body: JSON.stringify({ reportId: bare.report.id }) });
     const last = await lastEvent(res);
     return Response.json({ step: "committee", ticker: bare.ticker, result: last?.type ?? "no response" });
   }

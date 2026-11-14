@@ -1,3 +1,4 @@
+import { overLimit } from "@/lib/visitor";
 import type { CommitteeEvent } from "@/types";
 import { patternsFor } from "@/lib/committee/patterns";
 import { runCommittee } from "@/lib/committee/run";
@@ -41,6 +42,11 @@ export async function POST(request: Request): Promise<Response> {
         }
         if (saved.committee?.turns.length && body.fresh !== true) {
           send({ type: "done", record: saved.committee });
+          return;
+        }
+        const over = await overLimit(request, "committee");
+        if (over) {
+          send({ type: "error", message: over });
           return;
         }
         const today = toIsoDate(new Date());

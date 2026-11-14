@@ -524,14 +524,26 @@ export default function CompanyPage() {
       ) : (
         <main className="min-h-0 flex-1 overflow-y-auto">
           {status === "loading" ? (
-            <div className="px-6 py-6">
+            <div className="px-4 sm:px-6">
               <PipelineProgress step={step} startedAt={startedAt} />
             </div>
           ) : null}
           {status === "error" && error ? (
-            <p className="px-6 py-6 text-sm text-red-400" role="alert">
-              {error}
-            </p>
+            <div className="mx-auto max-w-xl px-4 py-16 text-center" role="alert">
+              <p className="text-lg font-semibold text-zinc-100">We couldn&rsquo;t check that one</p>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-400">{error}</p>
+              <p className="mt-4 text-xs text-zinc-500">Signal Watch covers US-listed companies that file 10-Ks and 10-Qs with the SEC. Funds, ETFs and most foreign companies are not covered.</p>
+              <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs">
+                {["WULF", "CIFR", "AAPL"].map((t) => (
+                  <button key={t} type="button" onClick={() => void analyze(t)} className="rounded-xs border border-zinc-700 px-3 py-1.5 font-mono text-zinc-200 hover:border-zinc-500">
+                    Try {t}
+                  </button>
+                ))}
+                <a href="/" className="rounded-xs border border-zinc-800 px-3 py-1.5 text-zinc-400 hover:text-zinc-100">
+                  Back home
+                </a>
+              </div>
+            </div>
           ) : null}
           {status === "idle" ? (
             <p className="px-6 py-6 text-sm text-zinc-500">

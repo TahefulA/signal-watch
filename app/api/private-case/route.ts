@@ -1,3 +1,4 @@
+import { limited } from "@/lib/visitor";
 import { toIsoDate } from "@/lib/dates";
 import { PRIVATE_LIMITS, type PrivateDocument, generatePrivateCase } from "@/lib/devils-private";
 import { geminiEnabled } from "@/lib/gemini";
@@ -19,6 +20,8 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The request could not be read." }, { status: 400 });
   }
   if (!geminiEnabled()) return Response.json({ error: "The model is not configured." }, { status: 503 });
+  const over = await limited(request, "private");
+  if (over) return over;
   const company = typeof body.company === "string" ? body.company.trim().slice(0, 120) : "";
   const period = typeof body.period === "string" && body.period.trim() ? body.period.trim().slice(0, 60) : null;
   const thesis = typeof body.thesis === "string" ? body.thesis.trim().slice(0, PRIVATE_LIMITS.thesis) : "";

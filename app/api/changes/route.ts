@@ -1,3 +1,4 @@
+import { overLimit } from "@/lib/visitor";
 import type { AnalyzeEvent } from "@/types";
 import { AnalyzeError, PIPELINE_VERSION, analyzeTicker } from "@/lib/analyze";
 import { applyChanges, baselineDate, diffReports } from "@/lib/changes";
@@ -35,6 +36,8 @@ export async function POST(request: Request): Promise<Response> {
         const ticker = current.graph.company.ticker;
         let baseline = await findBaseline(ticker, asOf, PIPELINE_VERSION);
         if (!baseline) {
+          const over = await overLimit(request, "changes");
+          if (over) throw new AnalyzeError(over);
           baseline = await analyzeTicker(ticker, (step) => send({ type: "step", step: `Previous quarter: ${step}` }), { asOf });
           await saveReport(baseline);
         }
