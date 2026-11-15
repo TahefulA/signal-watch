@@ -76,30 +76,21 @@
 @tailwind utilities;
 
 /*
- * Page texture: a fine grain over a faint 48px grid, fixed to the window so
- * it does not scroll. Both sit on the background colour, behind everything.
+ * Page texture: a fine grain, fixed to the window so it does not scroll.
  */
 :root {
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.045 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  --grid-line: rgb(var(--zinc-800) / 0.35);
 }
 
 :root[data-theme="light"] {
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.035 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  --grid-line: rgb(var(--zinc-800) / 0.5);
 }
 
 @layer base {
   body {
     @apply bg-zinc-950 font-sans text-zinc-100 antialiased;
-    background-image:
-      var(--grain),
-      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-    background-size:
-      180px 180px,
-      48px 48px,
-      48px 48px;
+    background-image: var(--grain);
+    background-size: 180px 180px;
     background-attachment: fixed;
   }
 

@@ -53,7 +53,7 @@ const CompanyBox = memo(function CompanyBox({ data }: NodeProps<CompanyNode>) {
         ) : null}
       </div>
       <span className="mt-1 line-clamp-2 text-center text-xs font-medium leading-tight text-zinc-100">{c.name}</span>
-      <span className={`text-[10px] font-semibold uppercase tracking-wider ${style.text}`}>{style.label}</span>
+      <span className={`text-[11px] font-semibold uppercase tracking-wider ${style.text}`}>{style.label}</span>
     </div>
   );
 });

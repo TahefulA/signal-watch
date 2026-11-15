@@ -39,7 +39,7 @@ export function multipleOf(display: string): number | null {
 }
 
 function SectionHeader({ children }: { children: string }) {
-  return <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">{children}</h3>;
+  return <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{children}</h3>;
 }
 
 export function Sparkline({ points, label, large = false, percent = false }: { points: { end: string; value: number }[]; label: string; large?: boolean; percent?: boolean }) {

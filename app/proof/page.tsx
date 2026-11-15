@@ -20,12 +20,14 @@ function Stat({ label, value, sub }: { label: string; value: string; sub: string
   );
 }
 
-function Section({ title, note, children, id }: { title: string; note?: string; children: React.ReactNode; id?: string }) {
+/** plain: the takeaway in one sentence for a reader without the statistics. */
+function Section({ title, plain, note, children, id }: { title: string; plain?: string; note?: string; children: React.ReactNode; id?: string }) {
   return (
     <section id={id} className="mt-12 scroll-mt-6">
       <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
         <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> {title}
       </h2>
+      {plain ? <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-zinc-100">{plain}</p> : null}
       {note ? <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-zinc-400">{note}</p> : null}
       <div className="mt-4">{children}</div>
     </section>
@@ -39,6 +41,7 @@ export default function ProofPage() {
   const meta = backtest.dataset;
   const importance = Object.entries(backtest.importance).sort((a, b) => b[1] - a[1]);
   const cases = w.cases.slice(0, 30);
+  const beatZ = o.perYear.filter((y) => y.auc > y.aucZ).length;
   return (
     <div className="min-h-[100dvh]">
       <Header active="proof" />
@@ -60,6 +63,7 @@ export default function ProofPage() {
 
         <Section
           title="When it says 5%, do about 5% fail?"
+          plain="Mostly yes. Its odds line up with what really happened, except at the very top, where it is too pessimistic."
           note="Filings grouped by predicted probability; each dot is a group. On the dashed line, the stated odds are the real odds. The calibration curve is fitted only on earlier years, like the model. Above 40% it still overstates (60% predicted, 28% filed), on 54 filings."
         >
           <CalibrationChart bins={o.calibration} />
@@ -89,18 +93,22 @@ export default function ProofPage() {
           </table>
         </Section>
 
-        <Section title="Against the published baseline, year by year" note="AUC for each test year: the chance a company that filed within 12 months scored above one that did not. Each year is scored by models trained only on rows whose outcome was known before that year began.">
+        <Section
+          title="Against the published baseline, year by year"
+          plain={`It ranked risky companies better than the textbook Altman Z-score in ${beatZ} of ${o.perYear.length} test years.`}
+          note="AUC for each test year: the chance a company that filed within 12 months scored above one that did not. Each year is scored by models trained only on rows whose outcome was known before that year began.">
           <AucChart years={o.perYear} />
         </Section>
 
         <Section
           title="How early"
+          plain={`Half of the bankruptcies it caught were flagged more than ${w.medianMonths?.toFixed(0)} months before the filing.`}
           note={`For each bankruptcy, the first scored filing from which the score stayed above the alert line until the filing. The alert line for each year is the score that 5% of healthy companies exceeded in earlier years, never set on the year it is tested on. ${w.bankruptcies - w.caught} of ${w.bankruptcies} were not caught this way.`}
         >
           <WarningChart bins={w.histogram} />
         </Section>
 
-        <Section title="Leakage audit" note="What stops the backtest from seeing the future, and how each rule is checked.">
+        <Section title="Leakage audit" plain="Every score used only information that was public on that day, so the results above are not hindsight." note="What stops the backtest from seeing the future, and how each rule is checked.">
           <ul className="space-y-3 text-[13px] leading-relaxed text-zinc-300">
             <li>
               <span className="font-semibold text-zinc-100">Filing dates, never period ends.</span> Each row is scored the day after a 10-K or 10-Q was filed, from facts
@@ -125,7 +133,7 @@ export default function ProofPage() {
           </ul>
         </Section>
 
-        <Section title="What drives it" note="Share of the trees' total split gain by input.">
+        <Section title="What drives it" plain="Size, profits and how much it owes matter most." note="Share of the trees' total split gain by input.">
           <ul className="max-w-xl space-y-1.5">
             {importance.map(([f, v]) => (
               <li key={f} className="grid grid-cols-[220px_1fr_48px] items-center gap-3 text-xs">

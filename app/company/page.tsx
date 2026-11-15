@@ -435,7 +435,6 @@ export default function CompanyPage() {
           <TabBar
             active={tab}
             onChange={openTab}
-            empty={{ changes: !report.changes }}
             dot={{ changes: factChanges > 0 && !changesSeen, owner: report.sponsor?.flag === "watch" || report.sponsor?.flag === "target" }}
           />
           <main className="flex min-h-0 flex-1 flex-col">

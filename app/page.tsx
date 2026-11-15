@@ -148,7 +148,7 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
             {card.ticker}
           </Link>
           <span className="min-w-0 truncate text-sm text-zinc-300">{card.name}</span>
-          <span className={`rounded-xs border px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] ${s.chip}`}>{s.word}</span>
+          <span className={`rounded-xs border px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${s.chip}`}>{s.word}</span>
           <span className="ml-auto font-mono text-[11px] text-zinc-500">
             {card.quarter ? `${card.quarter} · ` : ""}
             {card.basedOn}
@@ -349,7 +349,7 @@ function Tile({ status, count, active, onClick }: { status: WatchStatus; count: 
       className={`surface relative overflow-hidden rounded-xs border p-4 text-left transition-colors duration-150 ${active ? "border-zinc-500" : "border-zinc-800 hover:border-zinc-700"}`}
     >
       <span className={`absolute inset-x-0 top-0 h-0.5 ${s.bar}`} aria-hidden />
-      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">{s.word}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{s.word}</p>
       <p className={`mt-1 font-display text-4xl font-semibold tabular-nums ${count ? s.tile : "text-zinc-700"}`}>{count}</p>
     </button>
   );
