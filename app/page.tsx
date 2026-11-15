@@ -1,10 +1,9 @@
 "use client";
 
 import { Term } from "@/components/ui/term";
-import { ArrowUpRight, CalendarClock, ChevronDown, FileText, RefreshCw, Search, Sword, UserRound, X } from "lucide-react";
+import { ArrowUpRight, CalendarClock, ChevronDown, FileText, RefreshCw, Search, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import type { FedPath } from "@/lib/kalshi";
 import type { FeedEvent, WatchCard, WatchStatus, WatchlistResponse } from "@/types";
 import { BAND_STYLE, pctText } from "@/components/distress/distress-card";
 import { Footer } from "@/components/layout/footer";
@@ -20,8 +19,6 @@ const STATUS: Record<WatchStatus, { word: string; bar: string; chip: string; til
   quiet: { word: "Quiet", bar: "bg-zinc-600", chip: "border-zinc-700 text-zinc-400", tile: "text-zinc-300" },
   unanalyzed: { word: "Not analyzed", bar: "bg-zinc-800", chip: "border-zinc-800 text-zinc-500", tile: "text-zinc-500" },
 };
-
-const STANCE: Record<string, string> = { STABLE: "Stable", CAUTION: "Caution", AT_RISK: "At risk", DISTRESSED: "Distressed" };
 
 const SUGGESTED = ["WULF", "IREN", "CIFR"];
 
@@ -41,10 +38,6 @@ function writeLastVisit(iso: string) {
   }
 }
 
-function pct(v: number): string {
-  return `${v >= 0 ? "+" : ""}${(v * 100).toFixed(1)}%`;
-}
-
 function Cell({ label, children, note }: { label: string; children: ReactNode; note?: ReactNode }) {
   return (
     <div className="min-w-0">
@@ -53,44 +46,6 @@ function Cell({ label, children, note }: { label: string; children: ReactNode; n
       </p>
       <div className="mt-1.5 font-mono text-[15px] font-semibold text-zinc-100">{children}</div>
       {note ? <div className="mt-1 truncate text-xs text-zinc-500">{note}</div> : null}
-    </div>
-  );
-}
-
-/** Kalshi's Fed odds now against the last snapshot, and how many watched borrowers carry floating debt. */
-function FedBanner({ cards }: { cards: WatchCard[] }) {
-  const [data, setData] = useState<{ path: FedPath; previous: { takenOn: string; path: FedPath } | null } | null>(null);
-  useEffect(() => {
-    fetch("/api/events")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((body) => body && setData(body))
-      .catch(() => undefined);
-  }, []);
-  const next = data?.path.meetings.find((m) => m.widestGap <= 0.75) ?? data?.path.meetings[0];
-  if (!data || !next || data.path.currentUpper === null) return null;
-  const before = data.previous?.path.meetings.find((m) => m.event === next.event);
-  const move = before ? Math.round((next.pHike - before.pHike) * 100) : null;
-  const exposed = cards.filter((c) => (c.floatingShare ?? 0) >= 0.25);
-  return (
-    <div className="surface mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xs border border-zinc-800 px-4 py-3 text-[13px]">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Kalshi · Fed</span>
-      <span className="text-zinc-200">
-        <span className="font-mono text-zinc-50">{Math.round(next.pHike * 100)}%</span> chance the upper bound is above{" "}
-        <span className="font-mono">{data.path.currentUpper.toFixed(2)}%</span> after the {next.date} meeting
-        {move !== null && move !== 0 ? (
-          <span className={`ml-2 font-mono text-xs ${move > 0 ? "text-red-400" : "text-emerald-400"}`}>
-            {move > 0 ? "+" : ""}
-            {move} pts since {data.previous?.takenOn}
-          </span>
-        ) : null}
-      </span>
-      <span className="text-zinc-400">
-        {exposed.length
-          ? `${exposed.length} of your ${cards.length} borrowers carry a quarter or more of their debt at floating rates: ${exposed.map((c) => c.ticker).join(", ")}`
-          : cards.length
-            ? `None of your ${cards.length} borrower${cards.length === 1 ? "" : "s"} carries a quarter of its debt at floating rates`
-            : "Watch a borrower to see its floating-rate exposure"}
-      </span>
     </div>
   );
 }
@@ -182,27 +137,8 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
   const due = card.watchItems.filter((w) => w.status === "due").length;
   const reread = card.newFilings.length > 0 || due > 0;
 
-  if (card.status === "unanalyzed") {
-    return (
-      <article className="surface relative flex flex-wrap items-center gap-4 overflow-hidden rounded-xs border border-zinc-800 py-4 pl-6 pr-4">
-        <span className={`absolute inset-y-0 left-0 w-[3px] ${s.bar}`} aria-hidden />
-        <span className="font-mono text-[15px] font-bold text-zinc-200">{card.ticker}</span>
-        <span className="min-w-0 flex-1 truncate text-sm text-zinc-500">{card.name ?? "Not analyzed yet"}</span>
-        <Link
-          href={`/company?ticker=${card.ticker}`}
-          className="rounded-xs border border-zinc-700 px-2.5 py-1 text-xs text-zinc-200 hover:border-zinc-500 hover:text-zinc-50"
-        >
-          Analyze {card.ticker}
-        </Link>
-        <button type="button" onClick={() => onRemove(card.ticker)} className="text-zinc-600 hover:text-zinc-200" aria-label={`Stop watching ${card.ticker}`}>
-          <X className="h-3.5 w-3.5" aria-hidden />
-        </button>
-      </article>
-    );
-  }
-
   const cashNow = card.cash.at(-1)?.value ?? null;
-  const runwayTone = card.runwayQuarters === null ? "text-zinc-100" : card.runwayQuarters < 4 ? "text-red-400" : card.runwayQuarters < 8 ? "text-amber-400" : "text-zinc-100";
+  const runwayTone = card.runwayQuarters === null ? "" : card.runwayQuarters < 4 ? "text-red-400" : card.runwayQuarters < 8 ? "text-amber-400" : "";
   return (
     <article className="queue-row surface relative overflow-hidden rounded-xs border border-zinc-800">
       <span className={`absolute inset-y-0 left-0 w-[3px] ${s.bar}`} aria-hidden />
@@ -232,7 +168,18 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
           >
             {card.distress ? <span className={BAND_STYLE[card.distress.band].text}>{pctText(card.distress.probability)}</span> : "n/a"}
           </Cell>
-          <Cell label="Cash, 8 quarters" note={card.liquidity ? `With credit line: ${card.liquidity}` : null}>
+          <Cell
+            label="Cash, 8 quarters"
+            note={
+              card.runwayQuarters !== null ? (
+                <span className={runwayTone}>{card.runwayQuarters.toFixed(1)} quarters of cash left</span>
+              ) : card.lastFcf !== null && card.lastFcf >= 0 ? (
+                "Generating cash"
+              ) : card.liquidity ? (
+                `With credit line: ${card.liquidity}`
+              ) : null
+            }
+          >
             <div className="flex items-end gap-2">
               <div className="w-20">
                 <QuarterBars points={card.cash} color="#2563eb" height={22} format={compactMoney} label="Quarter-end cash" />
@@ -240,24 +187,8 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
               <span>{cashNow !== null ? compactMoney(cashNow) : "n/a"}</span>
             </div>
           </Cell>
-          <Cell label="Runway" note={card.lastFcf !== null ? `FCF last qtr ${compactMoney(card.lastFcf)}` : "FCF not tagged"}>
-            <span className={runwayTone}>
-              {card.runwayQuarters !== null ? `${card.runwayQuarters.toFixed(1)} qtrs` : card.lastFcf !== null && card.lastFcf >= 0 ? "Cash positive" : "n/a"}
-            </span>
-          </Cell>
           <Cell label="Next debt due" note={card.nextMaturity?.text}>
             {card.nextMaturity?.date ?? "None dated"}
-          </Cell>
-          <Cell label="Stock, 90 days" note={card.benchmarkReturn90d !== null ? `S&P 500 ${pct(card.benchmarkReturn90d)}` : null}>
-            <span className={card.return90d !== null && card.return90d < 0 ? "text-red-400" : "text-emerald-400"}>{card.return90d !== null ? pct(card.return90d) : "n/a"}</span>
-          </Cell>
-          <Cell label="Memo vs the case" note={`${card.moderatePoints} moderate point${card.moderatePoints === 1 ? "" : "s"}`}>
-            <span className="inline-flex items-center gap-1.5">
-              {card.memoStance ? STANCE[card.memoStance] : "n/a"}
-              <span className="text-zinc-600">·</span>
-              <Sword className="h-3 w-3 text-red-500" aria-hidden />
-              <span className={card.strongPoints ? "text-red-400" : "text-zinc-400"}>{card.strongPoints} strong</span>
-            </span>
           </Cell>
         </div>
 
@@ -296,9 +227,9 @@ function QueueRow({ card, onRemove }: { card: WatchCard; onRemove: (ticker: stri
           {reread ? (
             <Link
               href={`/company?ticker=${card.ticker}&fresh=1`}
-              className="inline-flex items-center gap-1.5 rounded-xs border border-amber-600 px-2 py-0.5 text-xs font-medium text-amber-500 hover:bg-amber-600 hover:text-zinc-950"
+              className="inline-flex items-center gap-1.5 text-xs text-amber-500 hover:text-amber-300"
             >
-              <RefreshCw className="h-3 w-3" aria-hidden /> Re-read filings and argue again
+              <RefreshCw className="h-3 w-3" aria-hidden /> Re-read new filings
             </Link>
           ) : null}
           {card.watchItems.length ? (
@@ -363,15 +294,16 @@ function FeedRow({ event, fresh }: { event: FeedEvent; fresh: boolean }) {
 }
 
 function Feed({ feed, lastVisit }: { feed: FeedEvent[]; lastVisit: string | null }) {
+  const [all, setAll] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
-  const upcoming = feed.filter((e) => e.date > today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 8);
+  const upcoming = feed.filter((e) => e.date > today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
   const recent = feed.filter((e) => e.date <= today).slice(0, 40);
   const since = lastVisit?.slice(0, 10) ?? null;
   const freshCount = since ? recent.filter((e) => e.date > since).length : 0;
   return (
-    <aside className="surface rounded-xs border border-zinc-800 p-4 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+    <aside className="surface self-start rounded-xs border border-zinc-800 p-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
       <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-        <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> Activity across the watchlist
+        <span className="h-1.5 w-1.5 rounded-[1px] bg-red-600" aria-hidden /> Recent activity
       </h2>
       <p className="mt-1 text-xs text-zinc-500">
         {since ? (freshCount ? `${freshCount} new since your last visit on ${since}` : `Nothing new since your last visit on ${since}`) : "Filings, 8-Ks, insider trades and debt due dates"}
@@ -389,9 +321,16 @@ function Feed({ feed, lastVisit }: { feed: FeedEvent[]; lastVisit: string | null
       <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Recent</p>
       {recent.length ? (
         <ul className="mt-1">
-          {recent.map((e, i) => (
+          {(all ? recent : recent.slice(0, 8)).map((e, i) => (
             <FeedRow key={`r-${i}`} event={e} fresh={Boolean(since && e.date > since)} />
           ))}
+          {recent.length > 8 ? (
+            <li className="pt-2">
+              <button type="button" onClick={() => setAll((v) => !v)} className="text-xs text-zinc-400 hover:text-zinc-100">
+                {all ? "Show fewer" : `Show all ${recent.length}`}
+              </button>
+            </li>
+          ) : null}
         </ul>
       ) : (
         <p className="mt-2 text-xs text-zinc-500">No filings or insider trades in the last 120 days.</p>
@@ -487,11 +426,11 @@ export default function RadarPage() {
         <Hero />
         <div id="watchlist" className="flex scroll-mt-16 flex-wrap items-end justify-between gap-6 pt-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">For credit analysts · your watchlist</p>
-            <h2 className="mt-2 font-display text-[26px] font-semibold leading-tight tracking-[-0.01em] text-zinc-50">Which borrowers need you today, and why</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">Your watchlist</p>
+            <h2 className="mt-2 font-display text-[26px] font-semibold leading-tight tracking-[-0.01em] text-zinc-50">Which companies need a look today, and why</h2>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-400">
-              Each borrower gets a 12-month bankruptcy probability from its own filings, checked against EDGAR for new 8-Ks and filings, and against
-              Kalshi&rsquo;s Fed odds for rate exposure. Written rules place it in Act now, Review or Quiet, and every reason links to its source.{" "}
+              Each company gets a 12-month bankruptcy probability from its own filings and is re-checked against new SEC filings. Written rules sort it into Act now,
+              Review or Quiet, and every reason links to its source.{" "}
               <Link href="/proof" className="text-zinc-200 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-50">
                 How well the probability has worked
               </Link>
@@ -532,8 +471,6 @@ export default function RadarPage() {
           </div>
         </div>
 
-        <FedBanner cards={cards} />
-
         {error ? (
           <p className="mt-4 text-sm text-red-400" role="alert">
             {error}
@@ -573,8 +510,8 @@ export default function RadarPage() {
 
         {cards.length ? (
           <>
-            <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-              {(["act", "review", "quiet", "unanalyzed"] as WatchStatus[]).map((st) => (
+            <div className="mt-8 grid grid-cols-3 gap-3">
+              {(["act", "review", "quiet"] as WatchStatus[]).map((st) => (
                 <Tile key={st} status={st} count={counts[st]} active={filter === st} onClick={() => setFilter((f) => (f === st ? null : st))} />
               ))}
             </div>
@@ -586,9 +523,28 @@ export default function RadarPage() {
                     Showing {STATUS[filter].word} only &middot; show all
                   </button>
                 ) : null}
-                {shown.map((card) => (
-                  <QueueRow key={card.ticker} card={card} onRemove={(t) => void update(t, "remove")} />
-                ))}
+                {shown
+                  .filter((card) => card.status !== "unanalyzed")
+                  .map((card) => (
+                    <QueueRow key={card.ticker} card={card} onRemove={(t) => void update(t, "remove")} />
+                  ))}
+                {!filter && counts.unanalyzed ? (
+                  <div className="flex flex-wrap items-center gap-2 rounded-xs border border-dashed border-zinc-800 px-5 py-4 text-xs text-zinc-500">
+                    <span className="mr-1">Not checked yet:</span>
+                    {cards
+                      .filter((c) => c.status === "unanalyzed")
+                      .map((c) => (
+                        <span key={c.ticker} className="inline-flex items-center gap-1.5 rounded-xs border border-zinc-800 py-1 pl-2.5 pr-1.5">
+                          <Link href={`/company?ticker=${c.ticker}`} className="font-mono text-zinc-200 hover:text-zinc-50" title={`Check ${c.name ?? c.ticker}`}>
+                            {c.ticker}
+                          </Link>
+                          <button type="button" onClick={() => void update(c.ticker, "remove")} className="text-zinc-600 hover:text-zinc-200" aria-label={`Stop watching ${c.ticker}`}>
+                            <X className="h-3 w-3" aria-hidden />
+                          </button>
+                        </span>
+                      ))}
+                  </div>
+                ) : null}
                 <details className="pt-4 text-xs text-zinc-500">
                   <summary className="cursor-pointer hover:text-zinc-200">How the order is decided</summary>
                   <div className="mt-3 grid gap-6 md:grid-cols-2">
