@@ -715,7 +715,7 @@ export interface CapitalInput {
 /** Reads the debt notes into a capital structure. Every instrument carries at least one verified quote. */
 export async function extractCapitalStructure(input: CapitalInput): Promise<CapitalStructure> {
   const prompt = `Company: ${input.companyName} (${input.ticker}).\n\n${renderCorpus(input.docs)}`;
-  const value = await generateJson(SYSTEM, prompt, SCHEMA, { thinking: "low" });
+  const value = await generateJson(SYSTEM, prompt, SCHEMA, { task: "capital", thinking: "low" });
   const v = (typeof value === "object" && value !== null ? value : {}) as { as_of?: unknown; instruments?: unknown; maturity_schedule?: unknown };
   const byId = new Map(input.docs.map((d) => [d.id, d]));
   const parsed = (Array.isArray(v.instruments) ? v.instruments : [])

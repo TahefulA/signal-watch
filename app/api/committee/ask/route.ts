@@ -4,6 +4,7 @@ import { askCommittee } from "@/lib/committee/run";
 import { toIsoDate } from "@/lib/dates";
 import { findReportById, saveCommittee, tigerEnabled } from "@/lib/tiger";
 import { BASE_WHAT_IF, type WhatIf, describeWhatIf, runWhatIf } from "@/lib/what-if";
+import { traced } from "@/lib/llm-trace";
 
 function parseWhatIf(raw: unknown): WhatIf | null {
   if (!raw || typeof raw !== "object") return null;
@@ -22,7 +23,7 @@ export const maxDuration = 120;
  * question and its verified answer, saved. A what-if is rerun here from the
  * report's filed figures, never taken from the browser as text.
  */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: { reportId?: unknown; question?: unknown; whatIf?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -53,3 +54,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The question could not be answered. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("committee/ask", handlePOST);

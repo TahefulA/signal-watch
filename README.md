@@ -72,6 +72,10 @@ context columns) and `relationships` is the edge store with typed edges such as 
 npx tsx --env-file=.env.local scripts/graph-query.ts CUSTOMER_OF   # customers across every company's latest report
 ```
 
+## Observability
+
+Every Gemini attempt writes a row to `llm_calls`: route, task, model, attempt number, outcome (ok, HTTP status, timeout, parse), latency, input, output and thinking tokens, and cost at list price (`lib/llm-pricing.ts`). Route handlers are wrapped in `traced()` (`lib/llm-trace.ts`), which uses AsyncLocalStorage, so every call in one request, streamed work included, shares a trace id. That makes "cost of one analysis" a `SUM` over a trace. `/ops` shows the last 30 days: cost per user action, p50/p95 latency by task, retry and fallback rate, and outcomes. Set `LLM_TRACE=off` to disable logging.
+
 ## Running it
 
 ```bash

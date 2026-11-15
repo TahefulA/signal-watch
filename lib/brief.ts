@@ -157,7 +157,7 @@ export async function generateBrief(report: Report, today: string): Promise<Meet
     let raw: unknown;
     try {
       const reminder = attempt > 0 ? "\n\nYour previous answer used numbers that are not in the facts, or too few items. Use only numbers in the facts." : "";
-      raw = await generateJson(SYSTEM + reminder, facts, SCHEMA, { thinking: "low" });
+      raw = await generateJson(SYSTEM + reminder, facts, SCHEMA, { task: "brief", thinking: "low" });
     } catch {
       break;
     }

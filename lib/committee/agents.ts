@@ -71,7 +71,7 @@ export async function speak(report: Report, plan: Plan, turns: CommitteeTurn[], 
   ]
     .filter(Boolean)
     .join("\n\n");
-  const raw = (await generateJson(`${ROLE[plan.speaker]}\n\n${RULES}`, prompt, schema, { fast: true, thinking: "low", timeoutMs: 30_000 })) as {
+  const raw = (await generateJson(`${ROLE[plan.speaker]}\n\n${RULES}`, prompt, schema, { task: "committee-turn", fast: true, thinking: "low", timeoutMs: 30_000 })) as {
     move?: string;
     replying_to?: string | null;
     evidence_id?: string;
@@ -112,7 +112,7 @@ export async function chair(report: Report, turns: CommitteeTurn[], cards: Evide
 - disputed: 1 to 3 points still contested, each naming what each side said.
 - watch: 2 to 4 things to check that would settle a disputed point, each with when it will be known (for example "the next 10-Q" or a date that appears in the facts).
 Every number must be copied from the facts. One sentence per item. Never vote, rate, recommend a trade or say whether to lend.`;
-  const raw = (await generateJson(system, facts, CHAIR_SCHEMA, { fast: true, thinking: "low", timeoutMs: 30_000 })) as {
+  const raw = (await generateJson(system, facts, CHAIR_SCHEMA, { task: "committee-chair", fast: true, thinking: "low", timeoutMs: 30_000 })) as {
     agreed?: unknown[];
     disputed?: unknown[];
     watch?: { item?: unknown; when?: unknown }[];
@@ -155,6 +155,7 @@ export async function answerQuestion(report: Report, question: string, turns: Co
     `Answer as the side whose evidence answers the question, citing one card. If no card answers it, set evidence_id to "none" and say in one sentence that the filings and data read do not show it.`,
   ].join("\n\n");
   const raw = (await generateJson(`You answer questions in a credit committee from a fixed set of evidence.\n\n${RULES}`, prompt, schema, {
+    task: "committee-ask",
     fast: true,
     thinking: "low",
     timeoutMs: 30_000,

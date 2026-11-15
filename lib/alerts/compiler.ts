@@ -105,7 +105,7 @@ export async function compileQuestion(question: string): Promise<CompileResult> 
   let prompt = `Question: "${question.slice(0, 400)}"`;
   let errors: string[] = [];
   for (let attempt = 1; attempt <= 2; attempt++) {
-    const raw = (await generateJson(SYSTEM, prompt, SCHEMA, { fast: true, thinking: "low", timeoutMs: 30_000 })) as Raw;
+    const raw = (await generateJson(SYSTEM, prompt, SCHEMA, { task: "alert-compile", fast: true, thinking: "low", timeoutMs: 30_000 })) as Raw;
     if (raw.supported === false) return { ok: false, unsupported: true, reason: raw.reason?.trim() || "The alert language cannot express this question.", errors: [], attempts: attempt, ms: Date.now() - started };
     const rule = toRule(raw);
     errors = validate(rule);

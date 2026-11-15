@@ -3,13 +3,14 @@ import { toIsoDate } from "@/lib/dates";
 import { generateDevilsAdvocate } from "@/lib/devils-advocate";
 import { loadPatternContext } from "@/lib/devils-advocate-patterns";
 import { findReportById, tigerEnabled, updateReport } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 /** POST { reportId } and receive { devil }: the structured case, its evidence and every pattern's result. Saved on the report. */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: { reportId?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -33,3 +34,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The counter-argument could not be written. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("devils-advocate", handlePOST);

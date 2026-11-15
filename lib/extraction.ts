@@ -250,10 +250,10 @@ export async function extractEntities(
     ? `${SYSTEM}\n\nA previous attempt had too many quotes that could not be found in the text. Copy every quote character for character from a single block, and cite that block's id.`
     : SYSTEM;
   try {
-    return parseExtraction(await generateJson(system, prompt, SCHEMA, { thinking: "low" }));
+    return parseExtraction(await generateJson(system, prompt, SCHEMA, { task: "extraction", thinking: "low" }));
   } catch (error) {
     if (!(error instanceof GeminiError) || error.kind !== "parse") throw error;
     const stricter = `${SYSTEM}\n\nYour previous answer could not be used. Return only valid JSON matching the schema, with every required field filled.`;
-    return parseExtraction(await generateJson(stricter, prompt, SCHEMA, { thinking: "low" }));
+    return parseExtraction(await generateJson(stricter, prompt, SCHEMA, { task: "extraction", thinking: "low" }));
   }
 }

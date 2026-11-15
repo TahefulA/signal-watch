@@ -3,6 +3,7 @@ import type { AnalyzeEvent } from "@/types";
 import { AnalyzeError, PIPELINE_VERSION, analyzeTicker } from "@/lib/analyze";
 import { applyChanges, baselineDate, diffReports } from "@/lib/changes";
 import { findBaseline, findReportById, saveChanges, saveReport, tigerEnabled } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ export const maxDuration = 300;
  * baseline from the filings available before the report's newest 10-Q or 10-K,
  * compares the two, and returns the report with change markers.
  */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let reportId = "";
   try {
     const body = (await request.json()) as { reportId?: unknown };
@@ -57,3 +58,5 @@ export async function POST(request: Request): Promise<Response> {
   });
   return new Response(stream, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });
 }
+
+export const POST = traced("changes", handlePOST);

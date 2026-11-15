@@ -1,6 +1,7 @@
 import { buildWatchlist } from "@/lib/dashboard";
 import { emailEnabled, sendEmail, siteUrl } from "@/lib/email";
 import { getPool, queryRows, tigerEnabled } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ type Sub = { token: string; email: string; ticker: string; last_prob: number | n
  * subscription only records where things stand. Without an email key nothing
  * is recorded, so nothing is lost before email is set up.
  */
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!tigerEnabled()) return Response.json({ skipped: "No database" });
@@ -67,3 +68,5 @@ export async function GET(request: Request) {
   }
   return Response.json({ subs: subs.length, tickers: tickers.length, sent, baselined });
 }
+
+export const GET = traced("alerts/run", handleGET);

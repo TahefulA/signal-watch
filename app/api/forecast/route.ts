@@ -1,5 +1,6 @@
 import { ensureForecast } from "@/lib/forecast-report";
 import { findReportById, tigerEnabled, updateReport } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ export const maxDuration = 60;
  * saved before the forecast layer existed get it here the first time they open,
  * and the rate stress is refreshed once a day.
  */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: { reportId?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -29,3 +30,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The forecast could not be computed. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("forecast", handlePOST);

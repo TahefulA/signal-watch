@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { CAPEX, CASH, DEPRECIATION, OPERATING_CASH, OPERATING_INCOME, REVENUE } from "@/lib/capital";
 import { type SeriesPoint, fetchFacts, instantSeries, quarterlySeries } from "@/lib/xbrl";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 
@@ -26,7 +27,7 @@ const QUARTERS = 12;
  * left out: companies switch debt concepts between filings, so a tagged debt
  * history jumps for no real reason.
  */
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const url = new URL(request.url);
   const cik = url.searchParams.get("cik") ?? "";
   const through = url.searchParams.get("through") ?? "";
@@ -73,3 +74,5 @@ export async function GET(request: Request) {
   const body: HistoryResponse = { revenue, ebitda, ebitdaMargin, cash: instantSeries(book, CASH, through, QUARTERS), currentRatio, fcf };
   return NextResponse.json(body, { headers: { "Cache-Control": "public, s-maxage=43200" } });
 }
+
+export const GET = traced("history", handleGET);

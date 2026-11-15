@@ -1,13 +1,14 @@
 import { limited } from "@/lib/visitor";
 import { answerQuestion } from "@/lib/ask";
 import { findReportById, tigerEnabled } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
 /** POST { reportId, question } and receive { answer } built only from that report. */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: { reportId?: unknown; question?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -29,3 +30,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The question could not be answered. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("ask", handlePOST);

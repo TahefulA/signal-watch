@@ -1,5 +1,6 @@
 import { getPool, tigerEnabled } from "@/lib/tiger";
 import { limited } from "@/lib/visitor";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** POST { message, email?, page } saves one piece of feedback. Read it with SQL on the feedback table. */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   if (!tigerEnabled()) return Response.json({ error: "Feedback storage is not configured." }, { status: 503 });
   let body: { message?: unknown; email?: unknown; page?: unknown };
   try {
@@ -30,3 +31,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "It could not be sent. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("feedback", handlePOST);

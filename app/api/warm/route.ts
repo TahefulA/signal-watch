@@ -1,5 +1,6 @@
 import { DEMO_TICKERS, POPULAR_TICKERS } from "@/lib/demo-tickers";
 import { findLatestReport, tigerEnabled } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -26,7 +27,7 @@ async function lastEvent(response: Response): Promise<Record<string, unknown> | 
  * report that has none. Runs through the public routes, so it is the same
  * work a visitor would trigger.
  */
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!tigerEnabled()) return Response.json({ skipped: "No database" });
@@ -61,3 +62,5 @@ export async function GET(request: Request) {
   }
   return Response.json({ step: "none", fresh: DEMO_TICKERS.length });
 }
+
+export const GET = traced("warm", handleGET);

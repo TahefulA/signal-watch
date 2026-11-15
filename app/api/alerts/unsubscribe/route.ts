@@ -1,4 +1,5 @@
 import { getPool, tigerEnabled } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,9 +10,11 @@ const page = (text: string) =>
   });
 
 /** GET ?token=: the link at the bottom of every alert email. */
-export async function GET(request: Request): Promise<Response> {
+async function handleGET(request: Request): Promise<Response> {
   const token = new URL(request.url).searchParams.get("token") ?? "";
   if (!tigerEnabled() || !/^[0-9a-f-]{36}$/.test(token)) return page("That link is not valid.");
   const r = await getPool().query("DELETE FROM alert_subs WHERE token = $1", [token]);
   return page(r.rowCount ? "Done: you won't get these emails any more." : "You were already unsubscribed.");
 }
+
+export const GET = traced("alerts/unsubscribe", handleGET);

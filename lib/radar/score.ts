@@ -65,7 +65,7 @@ export async function scoreHeadlines(company: string, ticker: string, headlines:
 - confidence, 0 to 1: how sure you are of the direction from the headline alone.
 Return one entry per id.`;
   const list = headlines.map((h, i) => `[${i}] ${h.date} ${h.publisher || "Unknown"}: ${h.headline}`).join("\n");
-  const raw = (await generateJson(system, list, SCHEMA, { fast: true, thinking: "low", timeoutMs: 30_000 })) as { scores?: Record<string, unknown>[] };
+  const raw = (await generateJson(system, list, SCHEMA, { task: "radar-score", fast: true, thinking: "low", timeoutMs: 30_000 })) as { scores?: Record<string, unknown>[] };
   for (const s of raw.scores ?? []) {
     const id = s.id;
     const relevance = unit(s.relevance);

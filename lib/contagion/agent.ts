@@ -68,7 +68,7 @@ export function verifyWarning(raw: { text: string; cites: string[] }[], given: F
 export async function warnFor(map: ContagionMap, a: ContagionAssessment): Promise<ContagionWarning> {
   const given = facts(map, a);
   const prompt = given.map((f) => `[${f.id}] ${f.text}`).join("\n");
-  const out = (await generateJson(SYSTEM, prompt, SCHEMA, { thinking: "low" })) as { sentences?: { text: string; cites: string[] }[] };
+  const out = (await generateJson(SYSTEM, prompt, SCHEMA, { task: "contagion", thinking: "low" })) as { sentences?: { text: string; cites: string[] }[] };
   return verifyWarning(out.sentences ?? [], given);
 }
 

@@ -94,7 +94,7 @@ async function extractEvidence(input: PrivateCaseInput, today: string) {
   const figuresOf = input.documents.map((d) => new Set(extractFigures(d.text)));
   let raw: unknown = null;
   try {
-    raw = await generateJson(EXTRACT_SYSTEM, prompt, EXTRACT_SCHEMA, { thinking: "low", timeoutMs: 90_000 });
+    raw = await generateJson(EXTRACT_SYSTEM, prompt, EXTRACT_SCHEMA, { task: "private-case", thinking: "low", timeoutMs: 90_000 });
   } catch (error) {
     console.warn("Private figure extraction failed", error);
   }

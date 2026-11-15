@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { emailEnabled, sendEmail, siteUrl } from "@/lib/email";
 import { getPool, tigerEnabled } from "@/lib/tiger";
 import { limited } from "@/lib/visitor";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TICKER = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
 /** POST { email, ticker }: email me when this company's odds move or it files something that matters. */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   if (!tigerEnabled()) return Response.json({ error: "Alerts need storage, which is not configured." }, { status: 503 });
   let body: { email?: unknown; ticker?: unknown };
   try {
@@ -44,3 +45,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "That did not save. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("alerts/subscribe", handlePOST);

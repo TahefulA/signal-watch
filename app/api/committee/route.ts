@@ -8,6 +8,7 @@ import { ensureLme } from "@/lib/lme-report";
 import { ensureSponsor } from "@/lib/contagion/report";
 import { geminiEnabled } from "@/lib/gemini";
 import { findReportById, saveCommittee, tigerEnabled, updateReport } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export const maxDuration = 300;
  * Chair's summary, then the saved record. A saved committee is replayed
  * unless fresh is true.
  */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: { reportId?: unknown; fresh?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -77,3 +78,5 @@ export async function POST(request: Request): Promise<Response> {
   });
   return new Response(stream, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });
 }
+
+export const POST = traced("committee", handlePOST);

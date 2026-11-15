@@ -85,7 +85,7 @@ export async function answerQuestion(report: Report, question: string): Promise<
   const ids = new Set([...report.graph.nodes.map((n) => n.id), "capital"]);
   const names = new Map<string, string>([...report.graph.nodes.map((n) => [n.id, n.name] as [string, string]), ["capital", "capital structure"]]);
 
-  const raw = await generateJson(SYSTEM, `${facts}\n\nQuestion: ${question}`, SCHEMA, { thinking: "low" });
+  const raw = await generateJson(SYSTEM, `${facts}\n\nQuestion: ${question}`, SCHEMA, { task: "ask", thinking: "low" });
   const r = (typeof raw === "object" && raw !== null ? raw : {}) as { answer?: unknown; cited_ids?: unknown; not_found?: unknown };
   const text = typeof r.answer === "string" ? r.answer : "";
   if (r.not_found === "true" || !text.trim()) return { question, spans: [{ text: NOT_FOUND }], citedIds: [], notFound: true, removed: 0 };

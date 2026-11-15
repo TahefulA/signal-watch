@@ -10,6 +10,8 @@ import type { FedPath } from "./kalshi";
  */
 
 let pool: Pool | null = null;
+/** The schema check started with the pool; migrate() waits on it rather than running a second copy beside it. */
+let schemaCheck: Promise<unknown> | null = null;
 
 /** True when a connection string with credentials is configured. */
 export function tigerEnabled(): boolean {
@@ -49,7 +51,8 @@ export function getPool(): Pool {
       query_timeout: 10_000,
     });
     // Every statement in the schema is idempotent: a new deploy adds its tables on first use.
-    pool.query(SCHEMA_SQL).catch((error: unknown) => console.warn("Schema check failed", error));
+    schemaCheck = pool.query(SCHEMA_SQL);
+    schemaCheck.catch((error: unknown) => console.warn("Schema check failed", error));
   }
   return pool;
 }
@@ -314,6 +317,25 @@ CREATE TABLE IF NOT EXISTS usage_daily (
   n integer NOT NULL DEFAULT 0,
   PRIMARY KEY (who, bucket, day)
 );
+CREATE TABLE IF NOT EXISTS llm_calls (
+  id bigserial PRIMARY KEY,
+  at timestamptz NOT NULL DEFAULT NOW(),
+  trace_id uuid,
+  route text NOT NULL,
+  task text NOT NULL,
+  model text NOT NULL,
+  attempt integer NOT NULL,
+  outcome text NOT NULL,
+  ms integer NOT NULL,
+  input_tokens integer,
+  output_tokens integer,
+  thinking_tokens integer,
+  cost_usd numeric(12, 6),
+  finish_reason text,
+  own_key boolean NOT NULL DEFAULT false
+);
+CREATE INDEX IF NOT EXISTS llm_calls_at ON llm_calls (at);
+CREATE INDEX IF NOT EXISTS llm_calls_trace ON llm_calls (trace_id);
 CREATE TABLE IF NOT EXISTS owner_lookups (
   cik text PRIMARY KEY,
   company_json jsonb,
@@ -321,8 +343,20 @@ CREATE TABLE IF NOT EXISTS owner_lookups (
 );
 `;
 
+/** Applies the schema. Running app instances check the same schema on startup, so a deadlock (40P01) with one of them is retried. */
 export async function migrate(): Promise<void> {
-  await getPool().query(SCHEMA_SQL);
+  getPool();
+  for (let attempt = 1; ; attempt++) {
+    try {
+      // The first attempt is the pool's own check: two copies of the DDL at once deadlock on each other.
+      await (attempt === 1 && schemaCheck ? schemaCheck : getPool().query(SCHEMA_SQL));
+      return;
+    } catch (error) {
+      if ((error as { code?: string }).code !== "40P01" || attempt >= 6) throw error;
+      console.warn(`Schema migration deadlocked; retrying (${attempt}/5)`);
+      await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+    }
+  }
 }
 
 const NODE_LABEL: Record<Entity["type"], string> = {

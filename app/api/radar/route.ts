@@ -2,6 +2,7 @@ import { limited } from "@/lib/visitor";
 import { DEMO_TICKERS } from "@/lib/demo-tickers";
 import { lastScan, scanTicker, storedEvents } from "@/lib/radar/scan";
 import { listAllWatched, tigerEnabled } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,7 +16,7 @@ const MAX_PER_RUN = 20;
  * first. GET ?ticker=X: that borrower's radar as last scanned, without
  * fetching. POST { ticker }: scan now (at most once every ten minutes).
  */
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   if (!tigerEnabled()) return Response.json({ error: "Saved reports are not available." }, { status: 503 });
   const ticker = new URL(request.url).searchParams.get("ticker")?.toUpperCase();
   if (ticker) {
@@ -43,7 +44,7 @@ export async function GET(request: Request) {
   return Response.json({ scanned: out });
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   if (!tigerEnabled()) return Response.json({ error: "Saved reports are not available." }, { status: 503 });
   let body: { ticker?: unknown };
   try {
@@ -64,3 +65,6 @@ export async function POST(request: Request) {
     return Response.json({ error: "The news could not be read. Please try again." }, { status: 500 });
   }
 }
+
+export const GET = traced("radar", handleGET);
+export const POST = traced("radar", handlePOST);

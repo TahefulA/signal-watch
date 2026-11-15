@@ -236,7 +236,7 @@ export async function scanCreditDocuments(cik: string, today: string, trace: (te
       const prompt = mine
         .map((p) => `[${p.id}] ${found[p.doc].doc.title}${p.section ? `, ${p.section}` : ""}\n${texts[p.doc].slice(p.start, p.end).replace(/\s+/g, " ")}`)
         .join("\n\n");
-      const out = (await generateJson(system(t), prompt, SCHEMA, { timeoutMs: 90_000 })) as { clauses?: Omit<RawClause, "trapdoor">[] };
+      const out = (await generateJson(system(t), prompt, SCHEMA, { task: "lme-clauses", timeoutMs: 90_000 })) as { clauses?: Omit<RawClause, "trapdoor">[] };
       return (out.clauses ?? []).map((c) => ({ ...c, trapdoor: t }));
     }),
   );
