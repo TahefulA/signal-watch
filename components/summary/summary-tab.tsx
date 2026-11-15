@@ -72,7 +72,7 @@ function Gauge({ band }: { band: DistressBand }) {
   return (
     <svg viewBox="0 0 200 112" className="w-full max-w-[260px]" role="img" aria-label={`Risk band: ${BANDS[i].label}`}>
       {BANDS.map((b, k) => (
-        <path key={b.band} d={arc(k)} stroke={b.color} strokeWidth={k === i ? 18 : 12} strokeOpacity={k === i ? 1 : 0.35} fill="none" />
+        <path key={b.band} d={arc(k)} stroke={b.color} strokeWidth={k === i ? 18 : 6} strokeOpacity={k === i ? 1 : 0.55} fill="none" />
       ))}
       <line x1="100" y1="100" x2={100 + 62 * Math.cos(needle)} y2={100 - 62 * Math.sin(needle)} stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-zinc-200" />
       <circle cx="100" cy="100" r="5" className="fill-zinc-200" />
@@ -104,6 +104,14 @@ export function SummaryTab({ report, onTab }: { report: Report; onTab: (t: TabKe
   const doors = report.lme?.verdicts.filter((v) => v.risk === "high").length ?? null;
 
   const facts: { bad: boolean; text: string }[] = [];
+  const m = report.market;
+  if (m) {
+    const move = (r: number) => `${r >= 0 ? "up" : "down"} ${Math.abs(r * 100).toFixed(0)}%`;
+    facts.push({
+      bad: m.return90d < -0.2,
+      text: `The stock is $${m.price.toFixed(2)} (${m.priceDate}), ${move(m.return90d)} over 90 days${m.benchmarkReturn90d !== null ? ` while the S&P 500 is ${move(m.benchmarkReturn90d)}` : ""}.`,
+    });
+  }
   if (nextDue && nextDue !== "Not disclosed") facts.push({ bad: false, text: `Its next loan or bond comes due ${inTime(nextDue)}.` });
   if (cash && cash !== "Not available") facts.push({ bad: false, text: `Cash it can reach now: ${cash}.` });
   if (doors !== null) facts.push(doors ? { bad: true, text: `Its loan papers leave ${doors} door${doors === 1 ? "" : "s"} open to moves that can hurt lenders.` } : { bad: false, text: "Its loan papers close the usual doors to moves that hurt lenders." });

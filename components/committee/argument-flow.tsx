@@ -61,7 +61,7 @@ const TurnBox = memo(function TurnBox({ data }: NodeProps<TurnNode>) {
         <span className={`text-[11px] font-semibold uppercase tracking-wider ${label}`}>{WHO[turn.speaker]}</span>
         <span className="text-[11px] text-zinc-500">{turn.speaker === "user" ? "asks" : MOVE[turn.move]}</span>
         <span className="font-mono text-[11px] text-zinc-600">{turn.id}</span>
-        {point ? <span className={`ml-auto rounded-xs border px-1 text-[10px] font-semibold uppercase tracking-wider ${STATUS_TONE[point.status]}`}>{STATUS_TEXT[point.status]}</span> : null}
+        {point ? <span className={`ml-auto rounded-xs border px-1 text-[11px] font-semibold uppercase tracking-wider ${STATUS_TONE[point.status]}`}>{STATUS_TEXT[point.status]}</span> : null}
       </span>
       <span className={`mt-1 line-clamp-3 text-[11.5px] leading-snug ${struck ? "text-zinc-500 line-through decoration-red-600/70" : "text-zinc-200"}`}>{turn.text}</span>
       <span className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500">

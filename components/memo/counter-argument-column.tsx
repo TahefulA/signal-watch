@@ -42,7 +42,7 @@ function Argument({ spans, onEntityClick }: { spans: MemoSpan[]; onEntityClick: 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="border-t border-zinc-800 pt-4">
-      <h4 className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-red-500">{title}</h4>
+      <h4 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-red-500">{title}</h4>
       {children}
     </section>
   );

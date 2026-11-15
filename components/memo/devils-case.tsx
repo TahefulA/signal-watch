@@ -48,7 +48,7 @@ export function Linked({ spans, onEntityClick }: { spans: MemoSpan[]; onEntityCl
 }
 
 function Label({ children }: { children: ReactNode }) {
-  return <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-500">{children}</p>;
+  return <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{children}</p>;
 }
 
 function Block({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
