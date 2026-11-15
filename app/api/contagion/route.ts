@@ -1,9 +1,10 @@
 import { loadContagion } from "@/lib/contagion/store";
+import { traced } from "@/lib/llm-trace";
 
 export const dynamic = "force-dynamic";
 
 /** GET: the newest sponsor contagion build. ?cik= narrows it to one company and its assessment. */
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const map = await loadContagion();
   if (!map) return Response.json({ error: "The contagion graph has not been built" }, { status: 404 });
   const cik = new URL(request.url).searchParams.get("cik");
@@ -13,3 +14,5 @@ export async function GET(request: Request) {
   if (!company) return Response.json({ error: "Not a sponsor-backed SEC filer in the graph" }, { status: 404 });
   return Response.json({ company, assessment: map.assessments.find((a) => a.cik === key), builtAt: map.builtAt });
 }
+
+export const GET = traced("contagion", handleGET);

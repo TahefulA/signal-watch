@@ -2,6 +2,7 @@ import { buildWatchlist } from "@/lib/dashboard";
 import type { WatchlistResponse } from "@/types";
 import { addVisitorTicker, listVisitorWatchlist, removeVisitorTicker, seedVisitorWatchlist, tigerEnabled } from "@/lib/tiger";
 import { newVisitor, readVisitor } from "@/lib/visitor";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,7 +35,7 @@ function withCookie(response: Response, cookie: string | null): Response {
  * GET ?tickers=1: just the watched tickers, for the Watch button.
  * GET ?fresh=1: skip the cache.
  */
-export async function GET(request: Request): Promise<Response> {
+async function handleGET(request: Request): Promise<Response> {
   if (!tigerEnabled()) return Response.json({ error: "The watchlist needs storage, which is not configured." }, { status: 503 });
   const params = new URL(request.url).searchParams;
   try {
@@ -55,7 +56,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 /** POST { ticker, action: "add" | "remove" } */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   if (!tigerEnabled()) return Response.json({ error: "The watchlist needs storage, which is not configured." }, { status: 503 });
   let body: { ticker?: unknown; action?: unknown };
   try {
@@ -75,3 +76,6 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The watchlist could not be updated. Please try again." }, { status: 500 });
   }
 }
+
+export const GET = traced("watchlist", handleGET);
+export const POST = traced("watchlist", handlePOST);

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { closeAt, fetchPrices } from "@/lib/market";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 
@@ -17,7 +18,7 @@ export interface MarketContextRow {
  * price and the S&P 500, from Yahoo Finance. Bond spreads and prices are not
  * included: Signal Watch has no bond price feed.
  */
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const url = new URL(request.url);
   const ticker = (url.searchParams.get("ticker") ?? "").toUpperCase();
   const start = url.searchParams.get("start") ?? "";
@@ -45,3 +46,5 @@ export async function GET(request: Request) {
   );
   return NextResponse.json({ rows }, { headers: { "Cache-Control": "public, s-maxage=3600" } });
 }
+
+export const GET = traced("market-context", handleGET);

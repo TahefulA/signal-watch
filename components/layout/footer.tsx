@@ -13,6 +13,9 @@ export function Footer() {
         <Link href="/proof" className="hover:text-zinc-200">
           Track record
         </Link>
+        <Link href="/ops" className="hover:text-zinc-200">
+          System
+        </Link>
         <FeedbackButton />
         <span className="sm:ml-auto">Not financial advice. Estimates from public filings; they can be wrong.</span>
       </div>

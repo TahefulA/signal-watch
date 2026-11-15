@@ -140,7 +140,7 @@ export async function generateMemo(graph: EntityGraph, market: MarketSnapshot | 
     let raw: unknown;
     try {
       const reminder = attempt > 0 ? "\n\nYour previous draft used numbers that are not in the facts. Use only numbers that appear in the facts." : "";
-      raw = await generateJson(SYSTEM + reminder, facts, SCHEMA, { thinking: "low" });
+      raw = await generateJson(SYSTEM + reminder, facts, SCHEMA, { task: "memo", thinking: "low" });
     } catch {
       break;
     }

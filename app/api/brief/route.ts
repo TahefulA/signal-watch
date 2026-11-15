@@ -2,13 +2,14 @@ import { limited } from "@/lib/visitor";
 import { generateBrief } from "@/lib/brief";
 import { toIsoDate } from "@/lib/dates";
 import { findReportById, tigerEnabled, updateReport } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 180;
 
 /** POST { reportId } and receive { brief }. The brief is saved on the report for /brief/<id>. */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: { reportId?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -30,3 +31,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The brief could not be prepared. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("brief", handlePOST);

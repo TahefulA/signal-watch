@@ -1,12 +1,13 @@
 import { toIsoDate } from "@/lib/dates";
 import { fetchFedPath } from "@/lib/kalshi";
 import { fedSnapshotBefore, saveFedSnapshot, tigerEnabled } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET: Kalshi's Fed rate path now, and the last snapshot before today to measure the move against. Today's is saved. */
-export async function GET(): Promise<Response> {
+async function handleGET(): Promise<Response> {
   try {
     const today = toIsoDate(new Date());
     const path = await fetchFedPath();
@@ -21,3 +22,5 @@ export async function GET(): Promise<Response> {
     return Response.json({ error: "Kalshi's Fed markets could not be read." }, { status: 502 });
   }
 }
+
+export const GET = traced("events", handleGET);

@@ -5,6 +5,8 @@
  * are checked against the facts Gemini was given.
  */
 
+import { recordCall } from "./llm-trace";
+
 const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 /** Used when the primary model is overloaded. */
 const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? "gemini-3.5-flash-lite";
@@ -61,6 +63,7 @@ export interface Schema {
 
 interface GeminiResponse {
   candidates?: { content?: { parts?: { text?: string }[] }; finishReason?: string }[];
+  usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number; thoughtsTokenCount?: number };
 }
 
 /**
@@ -68,6 +71,8 @@ interface GeminiResponse {
  * briefly, then the request moves to the fallback model.
  */
 export interface GenerateOptions {
+  /** What the call is for, e.g. "extraction" or "memo"; the label in llm_calls. */
+  task: string;
   /** Lower reasoning effort for drafting tasks where latency matters more than depth. */
   thinking?: "low" | "high";
   /** Per-call timeout for long outputs; defaults to GEMINI_TIMEOUT_MS. */
@@ -76,7 +81,7 @@ export interface GenerateOptions {
   fast?: boolean;
 }
 
-export async function generateJson(system: string, prompt: string, schema: Schema, options: GenerateOptions = {}): Promise<unknown> {
+export async function generateJson(system: string, prompt: string, schema: Schema, options: GenerateOptions): Promise<unknown> {
   let lastError: GeminiError | null = null;
   // Alternate models: a rate limit on one (429) is often not on the other, and overload (503) passes in seconds.
   const attempts = options.fast
@@ -84,7 +89,7 @@ export async function generateJson(system: string, prompt: string, schema: Schem
     : [MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL, MODEL, FALLBACK_MODEL];
   for (let i = 0; i < attempts.length; i++) {
     try {
-      return await callModel(attempts[i], system, prompt, schema, options);
+      return await callModel(attempts[i], system, prompt, schema, options, i + 1);
     } catch (error) {
       if (!(error instanceof GeminiError)) throw error;
       // A timeout goes straight to the faster fallback model rather than waiting again.
@@ -105,12 +110,14 @@ export async function generateJson(system: string, prompt: string, schema: Schem
   throw lastError ?? new GeminiError("Gemini is unavailable", "http");
 }
 
-async function callModel(model: string, system: string, prompt: string, schema: Schema, options: GenerateOptions): Promise<unknown> {
+async function callModel(model: string, system: string, prompt: string, schema: Schema, options: GenerateOptions, attempt: number): Promise<unknown> {
   const own = userKey();
   const key = own ?? process.env.GEMINI_API_KEY;
   if (!key) throw new GeminiError("GEMINI_API_KEY is not set", "config");
 
   const started = Date.now();
+  const log = (outcome: string, extra: Partial<Parameters<typeof recordCall>[0]> = {}) =>
+    recordCall({ task: options.task, model, attempt, outcome, ms: Date.now() - started, ownKey: Boolean(own), ...extra });
   let response: Response;
   try {
     response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -133,10 +140,12 @@ async function callModel(model: string, system: string, prompt: string, schema: 
   } catch (error) {
     const timedOut = error instanceof Error && error.name === "TimeoutError";
     console.warn(`Gemini ${model}: ${timedOut ? "timed out" : "request failed"} after ${Date.now() - started} ms`);
+    await log(timedOut ? "timeout" : "network");
     throw new GeminiError(timedOut ? "Gemini timed out" : `Gemini request failed: ${String(error)}`, timedOut ? "timeout" : "http");
   }
   if (!response.ok) {
     console.warn(`Gemini ${model}: HTTP ${response.status} after ${Date.now() - started} ms${own ? " (visitor key)" : ""}`);
+    await log(String(response.status));
     // A visitor's key that Google rejects is their problem to fix, not a reason to retry.
     if (own && (response.status === 400 || response.status === 401 || response.status === 403)) {
       throw new GeminiError("Google rejected the Gemini key saved in this browser. Check it in Settings, or clear it to use the site's key.", "key", response.status);
@@ -147,9 +156,19 @@ async function callModel(model: string, system: string, prompt: string, schema: 
   const candidate = body.candidates?.[0];
   const text = candidate?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
   console.info(`Gemini ${model}: ${candidate?.finishReason ?? "no candidate"}, ${text.length} chars in ${Date.now() - started} ms`);
+  const usage = {
+    inputTokens: body.usageMetadata?.promptTokenCount,
+    outputTokens: body.usageMetadata?.candidatesTokenCount,
+    thinkingTokens: body.usageMetadata?.thoughtsTokenCount,
+    finishReason: candidate?.finishReason ?? null,
+  };
   try {
-    return JSON.parse(text);
+    const parsed: unknown = JSON.parse(text);
+    await log("ok", usage);
+    return parsed;
   } catch {
+    // Tokens were billed even though the output is unusable.
+    await log("parse", usage);
     throw new GeminiError(`Gemini returned invalid JSON (${candidate?.finishReason ?? "unknown"})`, "parse");
   }
 }

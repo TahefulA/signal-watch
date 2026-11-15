@@ -2,6 +2,7 @@ import { limited } from "@/lib/visitor";
 import { toIsoDate } from "@/lib/dates";
 import { PRIVATE_LIMITS, type PrivateDocument, generatePrivateCase } from "@/lib/devils-private";
 import { geminiEnabled } from "@/lib/gemini";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ export const maxDuration = 300;
  * { devil }: the case against the thesis, written from the documents' text.
  * Text is extracted in the browser; nothing is saved.
  */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;
@@ -44,3 +45,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The case could not be written. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("private-case", handlePOST);

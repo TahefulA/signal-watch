@@ -34,7 +34,7 @@ export async function generateSignal(graph: EntityGraph, capital: CapitalStructu
   for (let attempt = 0; attempt < 2; attempt++) {
     let raw: unknown;
     try {
-      raw = await generateJson(SYSTEM + (attempt > 0 ? "\n\nYour previous summary used a number or ranking not in the facts." : ""), facts, SCHEMA, { thinking: "low" });
+      raw = await generateJson(SYSTEM + (attempt > 0 ? "\n\nYour previous summary used a number or ranking not in the facts." : ""), facts, SCHEMA, { task: "signal-summary", thinking: "low" });
     } catch {
       return null;
     }

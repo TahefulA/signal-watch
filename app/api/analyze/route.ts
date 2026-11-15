@@ -3,6 +3,7 @@ import type { AnalyzeEvent } from "@/types";
 import { AnalyzeError, analyzeTicker } from "@/lib/analyze";
 import { ensureForecast } from "@/lib/forecast-report";
 import { findLatestReport, findRecentReport, saveReport, tigerEnabled, updateReport } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ interface AnalyzeBody {
  * POST { ticker, fresh? } and receive newline-delimited JSON: step events while
  * the pipeline runs, then one result or error event.
  */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: AnalyzeBody;
   try {
     body = (await request.json()) as AnalyzeBody;
@@ -87,3 +88,5 @@ export async function POST(request: Request): Promise<Response> {
     headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" },
   });
 }
+
+export const POST = traced("analyze", handlePOST);

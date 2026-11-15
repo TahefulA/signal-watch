@@ -209,7 +209,7 @@ export async function generateDevilsAdvocate(
         : "";
     let raw: unknown;
     try {
-      raw = await generateJson(system(ctx.today, privateMode) + reminder, facts, SCHEMA, { thinking: "low", timeoutMs: 120_000 });
+      raw = await generateJson(system(ctx.today, privateMode) + reminder, facts, SCHEMA, { task: "devils-advocate", thinking: "low", timeoutMs: 120_000 });
     } catch (error) {
       if (best) break;
       throw error;

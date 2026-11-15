@@ -1,13 +1,14 @@
 import { limited } from "@/lib/visitor";
 import { ensureLme } from "@/lib/lme-report";
 import { findReportById, tigerEnabled, updateReport } from "@/lib/tiger";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 /** POST { reportId } and receive { lme }: the borrower's credit documents read for J.Crew, Chewy and Serta trapdoors. */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: { reportId?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -24,3 +25,5 @@ export async function POST(request: Request): Promise<Response> {
   if (next.lme === undefined) return Response.json({ error: "The credit documents could not be read. Please try again." }, { status: 502 });
   return Response.json({ lme: next.lme });
 }
+
+export const POST = traced("lme", handlePOST);

@@ -1,13 +1,14 @@
 import { limited } from "@/lib/visitor";
 import { compileQuestion } from "@/lib/alerts/compiler";
 import { describe } from "@/lib/alerts/predicate";
+import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 /** POST { question } and receive { rule, description } or { error, unsupported, errors }. The rule runs in the browser, not here. */
-export async function POST(request: Request): Promise<Response> {
+async function handlePOST(request: Request): Promise<Response> {
   let body: { question?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -27,3 +28,5 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "The question could not be compiled. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = traced("alerts/compile", handlePOST);
