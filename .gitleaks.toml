@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+# Google AI Studio's newer key format, which the default rules do not cover.
+[[rules]]
+id = "google-ai-studio-key"
+description = "Google AI Studio API key (AQ. format)"
+regex = '''AQ\.[A-Za-z0-9_\-]{30,}'''
+keywords = ["AQ."]

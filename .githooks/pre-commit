@@ -1,0 +1,7 @@
+#!/bin/sh
+# Blocks a commit that contains a secret. Install gitleaks: brew install gitleaks
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks not installed (brew install gitleaks); secret scan skipped." >&2
+  exit 0
+fi
+exec gitleaks git --staged --redact --no-banner

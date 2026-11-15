@@ -41,3 +41,8 @@ next-env.d.ts
 
 # training data and logs (rebuilt by scripts/build-dataset.ts)
 /data/
+
+# private notes, never committed
+FULL_QUICK_GUIDE.txt
+SWE_GUIDEBOOK.txt
+all_code.txt
