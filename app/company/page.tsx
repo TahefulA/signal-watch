@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AnalyzeEvent, DevilsAdvocate, Entity, MeetingBrief, Report, Timeline, WatchCard, WatchlistResponse } from "@/types";
 import { CommandPalette } from "@/components/command-palette";
 import { PIPELINE_STEPS, PipelineProgress } from "@/components/layout/pipeline-progress";
-import { StatusBar } from "@/components/layout/status-bar";
+import { CompanyHeader } from "@/components/layout/company-header";
+import { Header } from "@/components/layout/header";
 import { TabBar, type TabKey, isTab } from "@/components/layout/tab-bar";
 import { DEFAULT_RANGE, type TimeRange, readRange, saveRange } from "@/lib/time-range";
-import { TopBar } from "@/components/layout/top-bar";
 import { EntityPanel } from "@/components/panel/entity-panel";
 import { Tour } from "@/components/tour/tour";
 import { CapitalTab } from "@/components/tabs/capital-tab";
@@ -19,7 +19,6 @@ import { SummaryTab } from "@/components/summary/summary-tab";
 import { CommitteeRoom } from "@/components/committee/committee-room";
 import { OwnerTab } from "@/components/contagion/owner-tab";
 import { Toast } from "@/components/ui/toast";
-import { DualVerdictBadge } from "@/components/ui/dual-verdict-badge";
 import { concernCount, stanceWord } from "@/lib/counter-view";
 
 type Status = "idle" | "loading" | "ready" | "error";
@@ -375,7 +374,6 @@ export default function CompanyPage() {
     },
     [watched, loadQueue],
   );
-  const watchCompany = useCallback((ticker: string) => toggleWatch(ticker, true), [toggleWatch]);
 
   // Presentation tour. It always runs on the example report, so its script matches the screen.
   const [tourStep, setTourStep] = useState<number | null>(null);
@@ -420,30 +418,20 @@ export default function CompanyPage() {
           filings; not financial advice.
         </p>
       ) : null}
-      <TopBar
-        busy={status === "loading"}
-        changes={ready ? factChanges : 0}
-        hasReport={ready}
-        onAnalyze={(t) => void analyze(t)}
-        onOpenChanges={() => openTab("changes")}
-        onOpenPalette={() => setPaletteOpen(true)}
-        onHome={goHome}
-        attention={attention}
-        onTour={startTour}
-        watch={
-          ready && report
-            ? { ticker: report.graph.company.ticker, watched: watched.has(report.graph.company.ticker), onToggle: () => void toggleWatch(report.graph.company.ticker) }
-            : null
-        }
-        verdict={
-          ready && report ? (
-            <DualVerdictBadge memoVerdict={stanceWord(report.devil)} concernCount={concernCount(report.devil)} busy={devilBusy} onClick={() => openTab("memo")} />
-          ) : null
-        }
-      />
+      <Header search onAnalyze={(t) => void analyze(t)} busy={status === "loading"} attention={attention} onHome={goHome} />
 
       {ready && graph && report ? (
         <>
+          <CompanyHeader
+            report={report}
+            cached={cached}
+            watched={watched.has(report.graph.company.ticker)}
+            onToggleWatch={() => void toggleWatch(report.graph.company.ticker)}
+            onAsk={() => setPaletteOpen(true)}
+            onRefresh={() => void analyze(report.graph.company.ticker, true)}
+            onTour={startTour}
+            memo={{ verdict: stanceWord(report.devil), concerns: concernCount(report.devil), busy: devilBusy, onOpen: () => openTab("memo") }}
+          />
           <TabBar
             active={tab}
             onChange={openTab}
@@ -511,12 +499,6 @@ export default function CompanyPage() {
           {tourStep !== null && ready ? (
             <Tour step={tourStep} onStep={setTourStep} onClose={() => setTourStep(null)} onTab={openTab} activeTab={tab} />
           ) : null}
-          <StatusBar
-            report={report}
-            cached={cached}
-            onWatch={() => void watchCompany(report.graph.company.ticker)}
-            onRefresh={() => void analyze(report.graph.company.ticker, true)}
-          />
           <CommandPalette
             open={paletteOpen}
             reportId={report.id}
