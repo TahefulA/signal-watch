@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { PRICES } from "@/lib/llm-pricing";
 import { queryRows, tigerEnabled } from "@/lib/tiger";
+import { dailyBudget, spentToday } from "@/lib/visitor";
 
 export const metadata: Metadata = { title: "System · Signal Watch" };
 export const dynamic = "force-dynamic";
@@ -53,7 +54,8 @@ async function load() {
     `SELECT at::date::text AS day, COUNT(*)::int AS calls, SUM(cost_usd) FILTER (WHERE NOT own_key)::float AS cost
        FROM llm_calls WHERE ${WINDOW} GROUP BY 1 ORDER BY 1 DESC LIMIT 14`,
   );
-  return { totals, tasks, routes, outcomes, days };
+  const today = await spentToday();
+  return { totals, tasks, routes, outcomes, days, today };
 }
 
 const usd = (x: number | null, d = 4) => (x === null ? "n/a" : `$${x.toFixed(d)}`);
@@ -123,6 +125,9 @@ export default async function OpsPage() {
               <Stat label="Spend" value={usd(t.cost, 2)} sub={`${int(t.input)} tokens in, ${int(t.output)} out`} />
               <Stat label="Per user action" value={usd(t.cost !== null && t.traces ? t.cost / t.traces : null, 4)} sub="average across every route" />
             </div>
+            <p className="mt-3 text-xs text-zinc-500">
+              Today (UTC): {usd(data.today, 2)} of the {usd(dailyBudget(), 2)} daily budget. At the budget, new AI work pauses until midnight UTC; saved reports keep opening.
+            </p>
 
             <H2 note="One user action is one request: an analysis, a committee run, a question. Retried means at least one call in it needed a second attempt or the fallback model.">Cost per user action</H2>
             <div className="mt-3 overflow-x-auto">
