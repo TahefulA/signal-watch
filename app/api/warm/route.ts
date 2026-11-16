@@ -1,5 +1,5 @@
 import { DEMO_TICKERS, POPULAR_TICKERS } from "@/lib/demo-tickers";
-import { findLatestReport, listAllWatched, tigerEnabled } from "@/lib/tiger";
+import { findLatestReport, listAllWatched, releaseLease, takeLease, tigerEnabled } from "@/lib/tiger";
 import { traced } from "@/lib/llm-trace";
 
 export const dynamic = "force-dynamic";
@@ -42,6 +42,16 @@ async function handleGET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!tigerEnabled()) return Response.json({ skipped: "No database" });
+  // Two overlapping runs would pick the same stale ticker and pay for it twice.
+  if (!(await takeLease("warm", maxDuration))) return Response.json({ skipped: "Another warm-up is running" });
+  try {
+    return await warmStep(request, secret);
+  } finally {
+    await releaseLease("warm").catch(() => undefined);
+  }
+}
+
+async function warmStep(request: Request, secret: string | undefined): Promise<Response> {
 
   const reports = await Promise.all(DEMO_TICKERS.map(async (ticker) => ({ ticker, report: await findLatestReport(ticker).catch(() => null) })));
   const age = (iso: string | undefined) => (iso ? (Date.now() - Date.parse(iso)) / 3_600_000 : Infinity);

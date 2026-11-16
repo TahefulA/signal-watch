@@ -26,6 +26,10 @@ Checked: `POST https://signal-watch-<id>.vercel.app/api/analyze` → `302`; the 
 - The warm-up now also keeps tickers on real users' watchlists under three days old, so its health shows up directly in what users open.
 - To do: an uptime check that alerts when the newest demo report is over a day old.
 
+## Update, same day
+
+The first production run after the fix analysed ALIT twice, 14 seconds apart: two warm-up invocations overlapped, both found ALIT stalest and both paid for a full analysis (traces `289ca37e…` and `c07252d9…`). A `leases` row (`takeLease("warm", 300)`) now lets only one warm-up run at a time; the other returns `skipped`.
+
 ## Lessons
 
 A fallback message ("saved report kept") hid a hard failure for over a month. Fallbacks should log why they fired.

@@ -364,6 +364,10 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at timestamptz NOT NULL
 );
 CREATE INDEX IF NOT EXISTS sessions_user ON sessions (user_id);
+CREATE TABLE IF NOT EXISTS leases (
+  name text PRIMARY KEY,
+  held_until timestamptz NOT NULL
+);
 CREATE TABLE IF NOT EXISTS owner_lookups (
   cik text PRIMARY KEY,
   company_json jsonb,
@@ -676,6 +680,25 @@ export async function listAllWatched(limit = 60): Promise<string[]> {
     [limit],
   );
   return rows.map((r) => r.ticker);
+}
+
+/**
+ * A named lock that expires on its own: true when this caller now holds it.
+ * Serverless instances share nothing else, so overlapping cron runs use this
+ * to avoid doing the same paid work twice.
+ */
+export async function takeLease(name: string, seconds: number): Promise<boolean> {
+  const rows = await queryRows<{ name: string }>(
+    `INSERT INTO leases (name, held_until) VALUES ($1, NOW() + make_interval(secs => $2))
+     ON CONFLICT (name) DO UPDATE SET held_until = EXCLUDED.held_until WHERE leases.held_until < NOW()
+     RETURNING name`,
+    [name, seconds],
+  );
+  return rows.length > 0;
+}
+
+export async function releaseLease(name: string): Promise<void> {
+  await getPool().query("DELETE FROM leases WHERE name = $1", [name]);
 }
 
 /** Counts one use of a costly action today and returns the new count. */
