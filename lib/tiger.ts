@@ -364,6 +364,8 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at timestamptz NOT NULL
 );
 CREATE INDEX IF NOT EXISTS sessions_user ON sessions (user_id);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS watch_alerts boolean NOT NULL DEFAULT false;
+ALTER TABLE alert_subs ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES users (id) ON DELETE CASCADE;
 CREATE TABLE IF NOT EXISTS leases (
   name text PRIMARY KEY,
   held_until timestamptz NOT NULL
