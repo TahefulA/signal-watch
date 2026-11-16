@@ -11,3 +11,4 @@ Copy `TEMPLATE.md` to `YYYY-MM-DD-short-name.md`.
 | 2026-11-14 | [Any visitor could edit the shared watchlist](2026-11-14-shared-watchlist.md) | High |
 | 2026-11-14 | [Schema migration deadlocked against the running app](2026-11-14-migration-deadlock.md) | Low |
 | 2026-11-14 | [Summary showed "next debt due: 1220 days"](2026-11-14-maturity-wording.md) | Low |
+| 2026-11-16 | [Hourly warm-up never reached the analyze route](2026-11-16-warm-cron-blocked.md) | Medium |
