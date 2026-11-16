@@ -1,0 +1,29 @@
+name: Uptime
+
+# Every 30 minutes, ask production whether it is healthy. A failed run is the
+# alert: GitHub emails the repository owner when a scheduled workflow fails.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  health:
+    name: Production health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: GET /api/health
+        run: |
+          for attempt in 1 2 3; do
+            code=$(curl -s -o body.json -w "%{http_code}" --max-time 30 "${SITE_URL}/api/health" || echo 000)
+            cat body.json || true; echo
+            [ "$code" = "200" ] && exit 0
+            echo "Attempt $attempt: HTTP $code"; sleep 20
+          done
+          echo "::error::Production health check failed: HTTP $code"
+          exit 1
+        env:
+          SITE_URL: https://signal-watch-phi.vercel.app

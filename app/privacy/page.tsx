@@ -34,6 +34,10 @@ export default function PrivacyPage() {
           are.
         </li>
         <li>
+          <strong className="text-zinc-100">Error reports:</strong> when a page crashes or a server request fails, the error message, the page path (without its query) and the time,
+          so it can be fixed. Nothing that identifies you.
+        </li>
+        <li>
           <strong className="text-zinc-100">Your own Gemini key</strong>, if you add one, stays in your browser. It is sent with your requests and passed to Google, and never stored or logged
           on the server.
         </li>

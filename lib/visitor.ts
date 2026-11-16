@@ -38,8 +38,11 @@ export const DAILY_LIMIT = {
   radar: 12,
   feedback: 10,
   subscribe: 10,
+  error: 30,
 } as const;
 export type Bucket = keyof typeof DAILY_LIMIT;
+/** Limited against abuse, but they cost no AI, so the budget does not stop them. */
+const FREE_BUCKETS = new Set<Bucket>(["feedback", "subscribe", "error"]);
 
 function who(request: Request): string {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
@@ -76,7 +79,7 @@ export async function overLimit(request: Request, bucket: Bucket): Promise<strin
   if (!tigerEnabled()) return null;
   try {
     // The whole site's spend first: a hard ceiling on the bill, whoever is asking, the crons included.
-    if ((await spentToday()) >= dailyBudget()) return BUDGET_MESSAGE;
+    if (!FREE_BUCKETS.has(bucket) && (await spentToday()) >= dailyBudget()) return BUDGET_MESSAGE;
     const secret = process.env.CRON_SECRET;
     if (secret && request.headers.get("authorization") === `Bearer ${secret}`) return null;
     const n = await countUse(who(request), bucket);

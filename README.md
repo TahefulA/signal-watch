@@ -76,6 +76,8 @@ npx tsx --env-file=.env.local scripts/graph-query.ts CUSTOMER_OF   # customers a
 
 Every Gemini attempt writes a row to `llm_calls`: route, task, model, attempt number, outcome (ok, HTTP status, timeout, parse), latency, input, output and thinking tokens, and cost at list price (`lib/llm-pricing.ts`). Route handlers are wrapped in `traced()` (`lib/llm-trace.ts`), which uses AsyncLocalStorage, so every call in one request, streamed work included, shares a trace id. That makes "cost of one analysis" a `SUM` over a trace. `/ops` shows the last 30 days: cost per user action, p50/p95 latency by task, retry and fallback rate, and outcomes. Set `LLM_TRACE=off` to disable logging.
 
+Errors: inside any `traced()` route, `console.error`, thrown errors and 5xx answers are written to `app_errors` (`lib/errors.ts`), grouped by a fingerprint that masks ids, tickers and numbers; browser crashes arrive through `/api/client-error`. `/api/health` checks the database, the warm-up (stalest demo report under 48 h), the server error rate and the daily budget, and `.github/workflows/uptime.yml` polls it every 30 minutes, so a failed run emails the owner. `DAILY_BUDGET_USD` (default $10) caps the site key's spend per UTC day.
+
 ## Accounts and environments
 
 Sign-in is Google OAuth (authorization code with PKCE and a state check), written by hand in `lib/auth.ts` and `app/api/auth/`. Sessions are random tokens in an HttpOnly cookie; only their SHA-256 is stored. Signed-out visitors keep a cookie-based watchlist, which is carried over on sign-in. Delete account removes the account, its watchlist and its alerts in one transaction. It is off until `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set.
