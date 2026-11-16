@@ -19,6 +19,7 @@ type TaskRow = { task: string; calls: number; ok_rate: number; p50: number | nul
 type RouteRow = { route: string; traces: number; cost_p50: number | null; cost_p95: number | null; calls_avg: number; retried: number };
 type OutcomeRow = { outcome: string; n: number };
 type DayRow = { day: string; calls: number; cost: number | null };
+type ErrorRow = { source: string; where_at: string; message: string; n: number; last: string };
 
 const DAYS = 30;
 const WINDOW = `at > NOW() - INTERVAL '${DAYS} days'`;
@@ -55,7 +56,11 @@ async function load() {
        FROM llm_calls WHERE ${WINDOW} GROUP BY 1 ORDER BY 1 DESC LIMIT 14`,
   );
   const today = await spentToday();
-  return { totals, tasks, routes, outcomes, days, today };
+  const errors = await queryRows<ErrorRow>(
+    `SELECT source, where_at, (ARRAY_AGG(message ORDER BY at DESC))[1] AS message, COUNT(*)::int AS n, MAX(at)::text AS last
+       FROM app_errors WHERE at > NOW() - INTERVAL '7 days' GROUP BY fingerprint, source, where_at ORDER BY MAX(at) DESC LIMIT 25`,
+  ).catch(() => [] as ErrorRow[]);
+  return { totals, tasks, routes, outcomes, days, today, errors };
 }
 
 const usd = (x: number | null, d = 4) => (x === null ? "n/a" : `$${x.toFixed(d)}`);
@@ -219,6 +224,43 @@ export default async function OpsPage() {
                 </table>
               </div>
             </div>
+          </>
+        ) : null}
+
+        {data ? (
+          <>
+            <H2 note="Server errors from every API route and crashes in visitors' browsers, grouped so the same failure on different tickers is one row. Live health: /api/health, checked every 30 minutes.">
+              Errors, last 7 days
+            </H2>
+            {data.errors.length ? (
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full min-w-[640px] text-left text-xs">
+                  <thead className="text-zinc-500">
+                    <tr>
+                      <th className={TH}>Where</th>
+                      <th className={TH}>Latest message</th>
+                      <th className={TH}>Count</th>
+                      <th className={TH}>Last seen</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-zinc-200">
+                    {data.errors.map((e) => (
+                      <tr key={`${e.source}-${e.where_at}-${e.last}`} className="border-t border-zinc-800 align-top">
+                        <td className="py-2 pr-4 font-mono">
+                          {e.source === "client" ? "browser " : "/api/"}
+                          {e.where_at}
+                        </td>
+                        <td className="max-w-[460px] break-words py-2 pr-4">{e.message}</td>
+                        <td className={TD}>{e.n}</td>
+                        <td className={TD}>{e.last.slice(0, 16)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-zinc-400">None recorded.</p>
+            )}
           </>
         ) : null}
       </main>

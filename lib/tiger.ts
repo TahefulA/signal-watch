@@ -366,6 +366,18 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE INDEX IF NOT EXISTS sessions_user ON sessions (user_id);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS watch_alerts boolean NOT NULL DEFAULT false;
 ALTER TABLE alert_subs ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES users (id) ON DELETE CASCADE;
+CREATE TABLE IF NOT EXISTS app_errors (
+  id bigserial PRIMARY KEY,
+  at timestamptz NOT NULL DEFAULT NOW(),
+  source text NOT NULL,
+  where_at text NOT NULL,
+  message text NOT NULL,
+  stack text,
+  fingerprint text NOT NULL,
+  trace_id uuid,
+  status integer
+);
+CREATE INDEX IF NOT EXISTS app_errors_at ON app_errors (at);
 CREATE TABLE IF NOT EXISTS leases (
   name text PRIMARY KEY,
   held_until timestamptz NOT NULL

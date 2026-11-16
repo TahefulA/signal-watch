@@ -1,5 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
+import { describe, recordError } from "./errors";
 import { costUsd } from "./llm-pricing";
 import { queryRows, tigerEnabled } from "./tiger";
 
@@ -13,13 +14,56 @@ import { queryRows, tigerEnabled } from "./tiger";
 interface Trace {
   id: string;
   route: string;
+  /** Set once an error is recorded, so a 500 that follows is not counted twice. */
+  errored?: boolean;
 }
 
 const store = new AsyncLocalStorage<Trace>();
 
-/** Wraps a route handler so every model call inside it, streamed work included, carries the route's name and one trace id. */
+/**
+ * Inside a traced route, console.error also lands in app_errors with the
+ * route and trace id: every route already logs its failures that way, so this
+ * catches them without touching each one. Installed once per instance.
+ */
+function captureConsoleErrors(): void {
+  const g = globalThis as { __swErrorCapture?: boolean };
+  if (g.__swErrorCapture) return;
+  g.__swErrorCapture = true;
+  const original = console.error.bind(console);
+  console.error = (...args: unknown[]) => {
+    original(...args);
+    const t = store.getStore();
+    if (!t) return;
+    t.errored = true;
+    const { message, stack } = describe(args);
+    void recordError({ source: "server", where: t.route, message, stack, traceId: t.id });
+  };
+}
+
+/** Wraps a route handler so every model call inside it, streamed work included, carries the route's name and one trace id. Thrown errors and 5xx answers are recorded. */
 export function traced<A extends unknown[], R>(route: string, handler: (...args: A) => Promise<R>): (...args: A) => Promise<R> {
-  return (...args: A) => store.run({ id: randomUUID(), route }, () => handler(...args));
+  captureConsoleErrors();
+  return (...args: A) => {
+    const trace: Trace = { id: randomUUID(), route };
+    return store.run(trace, async () => {
+      try {
+        const result = await handler(...args);
+        if (result instanceof Response && result.status >= 500 && !trace.errored) {
+          void recordError({ source: "server", where: route, message: `HTTP ${result.status}`, traceId: trace.id, status: result.status });
+        }
+        return result;
+      } catch (error) {
+        const { message, stack } = describe([error]);
+        await recordError({ source: "server", where: route, message: `Unhandled: ${message}`, stack, traceId: trace.id, status: 500 });
+        throw error;
+      }
+    });
+  };
+}
+
+/** The current trace's id, for logs that want to point at it. */
+export function currentTraceId(): string | null {
+  return store.getStore()?.id ?? null;
 }
 
 export interface CallRecord {
