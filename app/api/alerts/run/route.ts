@@ -60,7 +60,7 @@ async function handleGET(request: Request) {
     const ok = await sendEmail(
       sub.email,
       `Signal Watch: ${sub.ticker} ${oddsMoved ? "odds moved" : "filed something new"}`,
-      `${card.name ?? sub.ticker} (${sub.ticker})\n\n${lines.join("\n")}\n\nOpen it: ${siteUrl()}/company?ticker=${sub.ticker}\nStop these emails: ${siteUrl()}/api/alerts/unsubscribe?token=${sub.token}\n\nNot financial advice.`,
+      `${card.name ?? sub.ticker} (${sub.ticker})\n\n${lines.join("\n")}\n\nOpen it: ${siteUrl()}/c/${sub.ticker}\nStop these emails: ${siteUrl()}/api/alerts/unsubscribe?token=${sub.token}\n\nNot investment advice.`,
     ).catch(() => false);
     if (!ok) continue;
     sent++;
