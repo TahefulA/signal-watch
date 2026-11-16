@@ -2,6 +2,7 @@
 
 import { FeedbackButton } from "@/components/feedback/feedback-button";
 import { downloadText, reportCsv } from "@/lib/export";
+import { track } from "@/lib/track";
 import Link from "next/link";
 import { ChevronDown, MessageCircleQuestion, MoreHorizontal, RefreshCw, Share2, Star } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -57,6 +58,7 @@ export function CompanyHeader({ report, cached, watched, onToggleWatch, onAsk, o
   /** The public page for this company, with a link preview; the system share sheet on phones. */
   const share = async () => {
     const url = `${window.location.origin}/c/${encodeURIComponent(company.ticker)}`;
+    track("share", company.ticker);
     try {
       if (navigator.share && window.matchMedia("(pointer: coarse)").matches) await navigator.share({ title: `${company.name} on Signal Watch`, url });
       else {

@@ -34,6 +34,10 @@ export default function PrivacyPage() {
           are.
         </li>
         <li>
+          <strong className="text-zinc-100">Usage events:</strong> which pages are opened and actions like watching a company, under a one-way hash rather than any id, so
+          the site can count visitors and returning users. No third-party tracker is involved.
+        </li>
+        <li>
           <strong className="text-zinc-100">Error reports:</strong> when a page crashes or a server request fails, the error message, the page path (without its query) and the time,
           so it can be fixed. Nothing that identifies you.
         </li>

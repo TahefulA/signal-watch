@@ -2,6 +2,7 @@
 
 import { ExternalLink, KeyRound, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { isInternal } from "@/lib/track";
 
 /**
  * "Use your own Gemini key". The key lives in this browser's localStorage and
@@ -33,9 +34,11 @@ function install(): void {
     const key = readKey();
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
     const own = url.startsWith("/api/") || url.startsWith(`${window.location.origin}/api/`);
-    if (!key || !own) return original(input, init);
+    const owner = isInternal();
+    if ((!key && !owner) || !own) return original(input, init);
     const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
-    headers.set(HEADER, key);
+    if (key) headers.set(HEADER, key);
+    if (owner) headers.set("x-sw-internal", "1");
     return original(input, { ...init, headers });
   };
 }

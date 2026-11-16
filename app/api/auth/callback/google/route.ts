@@ -1,5 +1,6 @@
 import { OAUTH_COOKIE, cookie, googleEnabled, readCookie, safeNext, signIn } from "@/lib/auth";
 import { readVisitor } from "@/lib/visitor";
+import { track } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,6 +59,7 @@ export async function GET(request: Request): Promise<Response> {
 
   try {
     const session = await signIn({ sub: claims.sub, email: claims.email.toLowerCase(), name: claims.name ?? null }, readVisitor(request));
+    await track(request, "sign_in");
     const headers = new Headers({ Location: safeNext(saved.next) });
     headers.append("Set-Cookie", session);
     headers.append("Set-Cookie", cookie(OAUTH_COOKIE, "", 0));

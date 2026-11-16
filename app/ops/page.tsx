@@ -19,6 +19,8 @@ type TaskRow = { task: string; calls: number; ok_rate: number; p50: number | nul
 type RouteRow = { route: string; traces: number; cost_p50: number | null; cost_p95: number | null; calls_avg: number; retried: number };
 type OutcomeRow = { outcome: string; n: number };
 type DayRow = { day: string; calls: number; cost: number | null };
+type Funnel = { visitors: number; viewed: number; ran: number; watched: number; signed: number; returned: number };
+type UsageDay = { day: string; visitors: number; reports: number };
 type ErrorRow = { source: string; where_at: string; message: string; n: number; last: string };
 
 const DAYS = 30;
@@ -60,7 +62,20 @@ async function load() {
     `SELECT source, where_at, (ARRAY_AGG(message ORDER BY at DESC))[1] AS message, COUNT(*)::int AS n, MAX(at)::text AS last
        FROM app_errors WHERE at > NOW() - INTERVAL '7 days' GROUP BY fingerprint, source, where_at ORDER BY MAX(at) DESC LIMIT 25`,
   ).catch(() => [] as ErrorRow[]);
-  return { totals, tasks, routes, outcomes, days, today, errors };
+  const [funnel] = await queryRows<Funnel>(
+    `SELECT COUNT(DISTINCT actor)::int AS visitors,
+            COUNT(DISTINCT actor) FILTER (WHERE name = 'report_view' OR (name = 'page_view' AND path LIKE '/c/%'))::int AS viewed,
+            COUNT(DISTINCT actor) FILTER (WHERE name = 'analysis_run')::int AS ran,
+            COUNT(DISTINCT actor) FILTER (WHERE name = 'watch_add')::int AS watched,
+            COUNT(DISTINCT actor) FILTER (WHERE name = 'sign_in')::int AS signed,
+            (SELECT COUNT(*)::int FROM (SELECT actor FROM product_events WHERE ${WINDOW} GROUP BY actor HAVING COUNT(DISTINCT at::date) > 1) r) AS returned
+       FROM product_events WHERE ${WINDOW}`,
+  ).catch(() => [null]);
+  const usage = await queryRows<UsageDay>(
+    `SELECT at::date::text AS day, COUNT(DISTINCT actor)::int AS visitors, COUNT(*) FILTER (WHERE name = 'report_view')::int AS reports
+       FROM product_events WHERE ${WINDOW} GROUP BY 1 ORDER BY 1 DESC LIMIT 14`,
+  ).catch(() => [] as UsageDay[]);
+  return { totals, tasks, routes, outcomes, days, today, errors, funnel, usage };
 }
 
 const usd = (x: number | null, d = 4) => (x === null ? "n/a" : `$${x.toFixed(d)}`);
@@ -110,9 +125,9 @@ export default async function OpsPage() {
       <Header />
       <main className="mx-auto max-w-[1100px] px-4 py-12 sm:px-6">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-red-500">System</p>
-        <h1 className="mt-2 font-display text-[32px] font-semibold leading-tight text-zinc-50">How the AI runs in production</h1>
+        <h1 className="mt-2 font-display text-[32px] font-semibold leading-tight text-zinc-50">How Signal Watch runs in production</h1>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-zinc-400">
-          Every Gemini call is logged with its feature, model, attempt, outcome, latency and token counts. These are the last {DAYS} days, live from that log. Costs use Google&rsquo;s list prices
+          Who uses it, what breaks, and what the AI costs. Every Gemini call is logged with its feature, model, attempt, outcome, latency and token counts. These are the last {DAYS} days, live from that log. Costs use Google&rsquo;s list prices
           ({Object.entries(PRICES)
             .map(([m, p]) => `${m} $${p.input} in / $${p.output} out per million tokens`)
             .join("; ")}
@@ -120,6 +135,46 @@ export default async function OpsPage() {
         </p>
 
         {error ? <p className="mt-8 text-sm text-amber-400">{error}</p> : null}
+
+        {data?.funnel ? (
+          <>
+            <H2 note="Distinct people in the last 30 days, from anonymous events. Bots and the owner's own browser are left out, so these are real counts, small as they are.">Who uses it</H2>
+            <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-6">
+              {(
+                [
+                  ["Visitors", data.funnel.visitors],
+                  ["Opened a report", data.funnel.viewed],
+                  ["Ran a fresh analysis", data.funnel.ran],
+                  ["Watched a company", data.funnel.watched],
+                  ["Signed in", data.funnel.signed],
+                  ["Came back another day", data.funnel.returned],
+                ] as const
+              ).map(([label, n]) => (
+                <Stat key={label} label={label} value={n.toLocaleString("en-US")} sub={data && data.funnel && data.funnel.visitors && label !== "Visitors" ? pct(n / data.funnel.visitors) + " of visitors" : undefined} />
+              ))}
+            </div>
+            {data.usage.length ? (
+              <table className="mt-4 w-full max-w-md text-left text-xs">
+                <thead className="text-zinc-500">
+                  <tr>
+                    <th className={TH}>Day</th>
+                    <th className={TH}>Visitors</th>
+                    <th className={TH}>Reports opened</th>
+                  </tr>
+                </thead>
+                <tbody className="text-zinc-200">
+                  {data.usage.map((d) => (
+                    <tr key={d.day} className="border-t border-zinc-800">
+                      <td className="py-2 pr-4 font-mono">{d.day}</td>
+                      <td className={TD}>{d.visitors}</td>
+                      <td className={TD}>{d.reports}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : null}
+          </>
+        ) : null}
         {t && t.calls === 0 ? <p className="mt-8 text-sm text-zinc-400">No calls logged yet in this window.</p> : null}
 
         {t && t.calls > 0 && data ? (

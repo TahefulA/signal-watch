@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/react";
 import { ErrorReporter } from "@/components/error-reporter";
+import { PageView } from "@/components/page-view";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Space_Grotesk } from "next/font/google";
@@ -55,6 +56,7 @@ export default function RootLayout({
         {children}
         <Analytics />
         <ErrorReporter />
+        <PageView />
       </body>
     </html>
   );
