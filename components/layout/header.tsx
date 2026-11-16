@@ -4,6 +4,7 @@ import { Menu, Search, ShieldAlert, X } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { TAGLINE } from "./tab-bar";
+import { AccountButton } from "./account-button";
 import { ThemeToggle } from "./theme-toggle";
 import { GeminiKeyButton } from "@/components/settings/gemini-key";
 
@@ -105,6 +106,7 @@ export function Header({ active, search = active !== "radar", onAnalyze, busy = 
           <GeminiKeyButton />
         </span>
         <ThemeToggle />
+        <AccountButton />
         <button type="button" onClick={() => setMenu((m) => !m)} className="text-zinc-400 hover:text-zinc-100 md:hidden" aria-expanded={menu} aria-label="Menu">
           {menu ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
         </button>
