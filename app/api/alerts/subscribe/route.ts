@@ -36,7 +36,7 @@ async function handlePOST(request: Request): Promise<Response> {
       await sendEmail(
         email,
         `Signal Watch: watching ${ticker} for you`,
-        `You'll get an email when ${ticker}'s 12-month bankruptcy odds move noticeably, or when it files something that matters (new debt, a missed payment, an auditor change and the like).\n\nOpen it: ${siteUrl()}/company?ticker=${ticker}\nStop these emails: ${siteUrl()}/api/alerts/unsubscribe?token=${sub.token}\n\nNot financial advice.`,
+        `You'll get an email when ${ticker}'s 12-month bankruptcy odds move noticeably, or when it files something that matters (new debt, a missed payment, an auditor change and the like).\n\nOpen it: ${siteUrl()}/c/${ticker}\nStop these emails: ${siteUrl()}/api/alerts/unsubscribe?token=${sub.token}\n\nNot investment advice.`,
       ).catch(() => false);
     }
     return Response.json({ ok: true, sending: emailEnabled() });

@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import { siteUrl } from "@/lib/email";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 const geistSans = localFont({
@@ -24,6 +25,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: "Signal Watch",
   description:
     "Maps the entities and risks in a company's SEC filings and news, with every box traced to its source, and drafts a credit memo.",

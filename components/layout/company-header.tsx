@@ -3,7 +3,7 @@
 import { FeedbackButton } from "@/components/feedback/feedback-button";
 import { downloadText, reportCsv } from "@/lib/export";
 import Link from "next/link";
-import { ChevronDown, MessageCircleQuestion, MoreHorizontal, RefreshCw, Star } from "lucide-react";
+import { ChevronDown, MessageCircleQuestion, MoreHorizontal, RefreshCw, Share2, Star } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { DistressBand, Report } from "@/types";
 
@@ -43,6 +43,7 @@ function useOutside(open: boolean, close: () => void) {
 
 /** The company's name and standing, where its data came from, and what can be done with the report. */
 export function CompanyHeader({ report, cached, watched, onToggleWatch, onAsk, onRefresh, onTour, memo }: CompanyHeaderProps) {
+  const [copied, setCopied] = useState(false);
   const [checksOpen, setChecksOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const checksRef = useOutside(checksOpen, () => setChecksOpen(false));
@@ -52,6 +53,21 @@ export function CompanyHeader({ report, cached, watched, onToggleWatch, onAsk, o
   const v = report.validation;
   const rejected = v?.rejected.length ?? 0;
   const sources = `SEC filings${report.newsAnalyzed ? ", news" : ""} and market prices`;
+
+  /** The public page for this company, with a link preview; the system share sheet on phones. */
+  const share = async () => {
+    const url = `${window.location.origin}/c/${encodeURIComponent(company.ticker)}`;
+    try {
+      if (navigator.share && window.matchMedia("(pointer: coarse)").matches) await navigator.share({ title: `${company.name} on Signal Watch`, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      // Share sheet dismissed, or clipboard blocked.
+    }
+  };
 
   const action = (label: ReactNode, onClick: () => void, title?: string) => (
     <button type="button" onClick={onClick} title={title} className="inline-flex h-8 items-center gap-1.5 rounded-xs border border-zinc-800 px-3 text-xs font-medium text-zinc-300 hover:border-zinc-600 hover:text-zinc-50">
@@ -125,6 +141,14 @@ export function CompanyHeader({ report, cached, watched, onToggleWatch, onAsk, o
             <Star className="h-3.5 w-3.5" fill={watched ? "currentColor" : "none"} aria-hidden />
             {watched ? "Watching" : "Watch"}
           </button>
+          {action(
+            <>
+              <Share2 className="h-3.5 w-3.5" aria-hidden />
+              <span className="max-sm:sr-only">{copied ? "Link copied" : "Share"}</span>
+            </>,
+            () => void share(),
+            "Copy a link to this company's public page",
+          )}
           <span className="max-sm:hidden">
             {action(
               <>
