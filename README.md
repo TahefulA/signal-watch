@@ -76,11 +76,17 @@ npx tsx --env-file=.env.local scripts/graph-query.ts CUSTOMER_OF   # customers a
 
 Every Gemini attempt writes a row to `llm_calls`: route, task, model, attempt number, outcome (ok, HTTP status, timeout, parse), latency, input, output and thinking tokens, and cost at list price (`lib/llm-pricing.ts`). Route handlers are wrapped in `traced()` (`lib/llm-trace.ts`), which uses AsyncLocalStorage, so every call in one request, streamed work included, shares a trace id. That makes "cost of one analysis" a `SUM` over a trace. `/ops` shows the last 30 days: cost per user action, p50/p95 latency by task, retry and fallback rate, and outcomes. Set `LLM_TRACE=off` to disable logging.
 
+## Accounts and environments
+
+Sign-in is Google OAuth (authorization code with PKCE and a state check), written by hand in `lib/auth.ts` and `app/api/auth/`. Sessions are random tokens in an HttpOnly cookie; only their SHA-256 is stored. Signed-out visitors keep a cookie-based watchlist, which is carried over on sign-in. Delete account removes the account, its watchlist and its alerts in one transaction. It is off until `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set.
+
+`DB_SCHEMA` puts a deployment in its own Postgres schema (`search_path=<schema>,public`). Production uses `public`, Vercel previews use `staging` and local runs use `dev`, so a PR preview never writes production rows.
+
 ## Running it
 
 ```bash
 npm install
-cp .env.example .env.local     # GEMINI_API_KEY is required; DATABASE_URL enables storage
+cp .env.example .env.local     # GEMINI_API_KEY is required; DATABASE_URL enables storage; set DB_SCHEMA=dev
 npx tsx --env-file=.env.local scripts/migrate.ts
 npm run dev
 ```

@@ -16,8 +16,14 @@ export function Footer() {
         <Link href="/ops" className="hover:text-zinc-200">
           System
         </Link>
+        <Link href="/privacy" className="hover:text-zinc-200">
+          Privacy
+        </Link>
+        <Link href="/terms" className="hover:text-zinc-200">
+          Terms
+        </Link>
         <FeedbackButton />
-        <span className="sm:ml-auto">Not financial advice. Estimates from public filings; they can be wrong.</span>
+        <span className="sm:ml-auto">Not investment advice. Estimates from public filings; they can be wrong.</span>
       </div>
     </footer>
   );

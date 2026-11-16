@@ -39,7 +39,20 @@ function connectionConfig(): PoolConfig {
     : isTigerCloud
       ? { ca: TIMESCALE_CA, rejectUnauthorized: true }
       : { rejectUnauthorized: true };
-  return { connectionString: url.toString(), ssl };
+  // DB_SCHEMA keeps previews and local runs in their own schema, so they never touch production rows.
+  const schema = dbSchema();
+  return { connectionString: url.toString(), ssl, ...(schema ? { options: `-c search_path=${schema},public` } : {}) };
+}
+
+/** The schema this deployment writes to: unset means public (production). */
+export function dbSchema(): string | null {
+  const s = process.env.DB_SCHEMA?.trim();
+  return s && /^[a-z_][a-z0-9_]{0,40}$/.test(s) && s !== "public" ? s : null;
+}
+
+function schemaSql(): string {
+  const schema = dbSchema();
+  return schema ? `CREATE SCHEMA IF NOT EXISTS ${schema};\n${SCHEMA_SQL}` : SCHEMA_SQL;
 }
 
 export function getPool(): Pool {
@@ -51,7 +64,7 @@ export function getPool(): Pool {
       query_timeout: 10_000,
     });
     // Every statement in the schema is idempotent: a new deploy adds its tables on first use.
-    schemaCheck = pool.query(SCHEMA_SQL);
+    schemaCheck = pool.query(schemaSql());
     schemaCheck.catch((error: unknown) => console.warn("Schema check failed", error));
   }
   return pool;
@@ -336,6 +349,21 @@ CREATE TABLE IF NOT EXISTS llm_calls (
 );
 CREATE INDEX IF NOT EXISTS llm_calls_at ON llm_calls (at);
 CREATE INDEX IF NOT EXISTS llm_calls_trace ON llm_calls (trace_id);
+CREATE TABLE IF NOT EXISTS users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  google_sub text UNIQUE NOT NULL,
+  email text NOT NULL,
+  name text,
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+  last_seen timestamptz NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS sessions (
+  token_hash text PRIMARY KEY,
+  user_id uuid NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+  expires_at timestamptz NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sessions_user ON sessions (user_id);
 CREATE TABLE IF NOT EXISTS owner_lookups (
   cik text PRIMARY KEY,
   company_json jsonb,
@@ -349,7 +377,7 @@ export async function migrate(): Promise<void> {
   for (let attempt = 1; ; attempt++) {
     try {
       // The first attempt is the pool's own check: two copies of the DDL at once deadlock on each other.
-      await (attempt === 1 && schemaCheck ? schemaCheck : getPool().query(SCHEMA_SQL));
+      await (attempt === 1 && schemaCheck ? schemaCheck : getPool().query(schemaSql()));
       return;
     } catch (error) {
       if ((error as { code?: string }).code !== "40P01" || attempt >= 6) throw error;

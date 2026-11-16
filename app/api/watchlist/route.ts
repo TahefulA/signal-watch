@@ -1,7 +1,8 @@
 import { buildWatchlist } from "@/lib/dashboard";
 import type { WatchlistResponse } from "@/types";
 import { addVisitorTicker, listVisitorWatchlist, removeVisitorTicker, seedVisitorWatchlist, tigerEnabled } from "@/lib/tiger";
-import { newVisitor, readVisitor } from "@/lib/visitor";
+import { newVisitor } from "@/lib/visitor";
+import { watchOwner } from "@/lib/auth";
 import { traced } from "@/lib/llm-trace";
 
 export const runtime = "nodejs";
@@ -14,9 +15,9 @@ const TICKER = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 const CACHE_MS = 5 * 60_000;
 const cache = new Map<string, { at: number; body: WatchlistResponse }>();
 
-/** The visitor's id, minting one (seeded with the demo list) on a first visit. */
+/** The account's list when signed in, else the visitor's, minting a visitor id (seeded with the demo list) on a first visit. */
 async function visitorOf(request: Request): Promise<{ id: string; cookie: string | null }> {
-  const id = readVisitor(request);
+  const id = await watchOwner(request);
   if (id) return { id, cookie: null };
   const v = newVisitor();
   await seedVisitorWatchlist(v.id);
@@ -29,7 +30,7 @@ function withCookie(response: Response, cookie: string | null): Response {
 }
 
 /**
- * Each visitor has their own list, kept by a cookie; a first visit starts from a copy of the demo list.
+ * Each signed-in account, and each signed-out visitor (by cookie), has its own list; a first visit starts from a copy of the demo list.
  * GET: the queue (one card per watched company, in Act now / Review / Quiet
  * order, with reasons), and one activity feed across them.
  * GET ?tickers=1: just the watched tickers, for the Watch button.

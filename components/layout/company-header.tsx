@@ -2,6 +2,7 @@
 
 import { FeedbackButton } from "@/components/feedback/feedback-button";
 import { downloadText, reportCsv } from "@/lib/export";
+import Link from "next/link";
 import { ChevronDown, MessageCircleQuestion, MoreHorizontal, RefreshCw, Star } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { DistressBand, Report } from "@/types";
@@ -67,7 +68,10 @@ export function CompanyHeader({ report, cached, watched, onToggleWatch, onAsk, o
             <span className="font-mono text-[13px] font-medium text-zinc-500">{company.ticker}</span>
           </h1>
           <p className="mt-0.5 text-xs text-zinc-500">
-            From {sources} · checked {report.generatedAt.slice(0, 10)}
+            From {sources} · checked {report.generatedAt.slice(0, 10)} ·{" "}
+            <Link href="/terms" className="hover:text-zinc-300">
+              not investment advice
+            </Link>
             {v ? (
               <span ref={checksRef} className="relative">
                 {" · "}
