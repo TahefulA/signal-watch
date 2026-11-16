@@ -4,7 +4,7 @@ import { LogIn, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-type Me = { user: { email: string; name: string | null } | null; enabled: boolean };
+type Me = { user: { email: string; name: string | null; watchAlerts: boolean } | null; enabled: boolean };
 
 /** Sign in with Google, or the signed-in account's menu. Hidden when sign-in is not configured. */
 export function AccountButton() {
@@ -54,6 +54,13 @@ export function AccountButton() {
     if (window.confirm("Delete your account, your saved watchlist and your email alerts? This cannot be undone.")) void post("/api/auth/delete");
   };
   const label = me.user.name ?? me.user.email;
+  const toggleAlerts = async () => {
+    const on = !me.user?.watchAlerts;
+    setBusy(true);
+    const r = await fetch("/api/auth/alerts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ on }) }).catch(() => null);
+    if (r?.ok && me.user) setMe({ ...me, user: { ...me.user, watchAlerts: on } });
+    setBusy(false);
+  };
 
   return (
     <div ref={panel} className="relative">
@@ -73,6 +80,13 @@ export function AccountButton() {
             <p className="truncate text-zinc-500">{me.user.email}</p>
           </div>
           <p className="px-3 py-2 text-zinc-500">Your watchlist is saved to this account.</p>
+          <label className="flex cursor-pointer items-start gap-2 px-3 py-2 hover:bg-zinc-800">
+            <input type="checkbox" checked={me.user.watchAlerts} disabled={busy} onChange={() => void toggleAlerts()} className="mt-0.5 accent-red-600" />
+            <span>
+              <span className="block text-zinc-200">Email me when my watchlist changes</span>
+              <span className="block text-zinc-500">At most one email a day: new filings that matter, or odds that move.</span>
+            </span>
+          </label>
           <button type="button" disabled={busy} onClick={() => void post("/api/auth/logout")} className="px-3 py-2 text-left hover:bg-zinc-800 hover:text-zinc-50">
             Sign out
           </button>

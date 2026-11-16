@@ -14,7 +14,7 @@ export const SESSION_COOKIE = "sw_session";
 export const OAUTH_COOKIE = "sw_oauth";
 const SESSION_DAYS = 30;
 
-export type User = { id: string; email: string; name: string | null };
+export type User = { id: string; email: string; name: string | null; watch_alerts: boolean };
 
 export function googleEnabled(): boolean {
   return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && tigerEnabled());
@@ -36,7 +36,7 @@ export async function currentUser(request: Request): Promise<User | null> {
   const token = readCookie(request, SESSION_COOKIE);
   if (!token || !tigerEnabled()) return null;
   const [row] = await queryRows<User>(
-    `SELECT u.id, u.email, u.name FROM sessions s JOIN users u ON u.id = s.user_id
+    `SELECT u.id, u.email, u.name, u.watch_alerts FROM sessions s JOIN users u ON u.id = s.user_id
       WHERE s.token_hash = $1 AND s.expires_at > NOW()`,
     [hash(token)],
   );
