@@ -16,6 +16,9 @@ export function Footer() {
         <Link href="/ops" className="hover:text-zinc-200">
           System
         </Link>
+        <Link href="/changelog" className="hover:text-zinc-200">
+          Changelog
+        </Link>
         <Link href="/privacy" className="hover:text-zinc-200">
           Privacy
         </Link>

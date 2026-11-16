@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Footer } from "./footer";
 import { Header } from "./header";
 
-/** The frame for Privacy and Terms: plain headings and paragraphs. */
+/** The frame for Privacy, Terms and the Changelog: plain headings and paragraphs. */
 export function LegalPage({ title, updated, children }: { title: string; updated: string; children: ReactNode }) {
   return (
     <div className="min-h-screen">

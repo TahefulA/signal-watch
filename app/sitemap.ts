@@ -7,7 +7,7 @@ export const revalidate = 86400;
 /** The main pages, and one share page per company with a saved report. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const pages = ["", "/proof", "/about", "/contagion", "/privacy", "/terms"].map((p) => ({ url: `${base}${p}` }));
+  const pages = ["", "/proof", "/about", "/contagion", "/privacy", "/terms", "/changelog"].map((p) => ({ url: `${base}${p}` }));
   if (!tigerEnabled()) return pages;
   const rows = await queryRows<{ ticker: string; last: string }>(
     "SELECT ticker, MAX(generated_at)::text AS last FROM reports WHERE as_of IS NULL GROUP BY ticker ORDER BY ticker",
