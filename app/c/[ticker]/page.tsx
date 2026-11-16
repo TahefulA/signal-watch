@@ -6,7 +6,7 @@ import { cache } from "react";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { Gauge } from "@/components/summary/gauge";
-import { OWNER, VERDICT, bandOf, oneIn, pctText, sentence, summaryFacts } from "@/lib/summary-words";
+import { OWNER, VERDICT, bandOf, displayName, oneIn, pctText, sentence, summaryFacts } from "@/lib/summary-words";
 import { findLatestReport, tigerEnabled } from "@/lib/tiger";
 
 /** Rebuilt at most hourly; the warm-up cron refreshes the reports behind it. */
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: { ticker: string } 
   if (!data) return {};
   const { ticker, report } = data;
   const d = report?.distress;
-  const name = report?.graph.company.name ?? ticker;
+  const name = report ? displayName(report.graph.company.name) : ticker;
   const title = d ? `${name} (${ticker}): ${bandOf(d.band).label.toLowerCase()} bankruptcy risk` : `Could ${name} go bankrupt?`;
   const description = d
     ? `${VERDICT[d.band]} About ${oneIn(d.probability)} chance of a bankruptcy filing in the next 12 months, from its SEC filings up to ${d.periodEnd}.`
@@ -65,7 +65,7 @@ export default async function SharePage({ params }: { params: { ticker: string }
   }
 
   const d = report.distress;
-  const name = report.graph.company.name;
+  const name = displayName(report.graph.company.name);
   const facts = summaryFacts(report);
   const band = d ? bandOf(d.band) : null;
 

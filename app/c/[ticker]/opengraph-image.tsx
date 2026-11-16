@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { bandOf, oneIn } from "@/lib/summary-words";
+import { bandOf, displayName, oneIn } from "@/lib/summary-words";
 import { findLatestReport, tigerEnabled } from "@/lib/tiger";
 
 export const runtime = "nodejs";
@@ -16,7 +16,7 @@ export default async function Image({ params }: { params: { ticker: string } }) 
   const report = TICKER.test(ticker) && tigerEnabled() ? await findLatestReport(ticker).catch(() => null) : null;
   const d = report?.distress;
   const band = d ? bandOf(d.band) : null;
-  const name = report?.graph.company.name ?? ticker;
+  const name = report ? displayName(report.graph.company.name) : ticker;
 
   return new ImageResponse(
     (

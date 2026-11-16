@@ -92,3 +92,8 @@ export function summaryFacts(report: Report): { bad: boolean; text: string }[] {
 
   return facts;
 }
+
+/** SEC names carry the state of incorporation ("Alight, Inc. / Delaware", "ACME CORP /DE/"); people don't say it. */
+export function displayName(name: string): string {
+  return name.replace(/\s*\/\s*[A-Za-z .]*\/?\s*$/, "").trim() || name;
+}
