@@ -20,6 +20,7 @@ import { CommitteeRoom } from "@/components/committee/committee-room";
 import { OwnerTab } from "@/components/contagion/owner-tab";
 import { Toast } from "@/components/ui/toast";
 import { concernCount, stanceWord } from "@/lib/counter-view";
+import { track } from "@/lib/track";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
@@ -121,6 +122,7 @@ export default function CompanyPage() {
   }, []);
 
   const showReport = useCallback((next: Report, wasCached: boolean) => {
+    track("report_view", next.graph.company.ticker);
     setReport(next);
     setCached(wasCached);
     setStatus("ready");

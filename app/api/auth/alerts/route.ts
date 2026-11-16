@@ -1,5 +1,6 @@
 import { currentUser } from "@/lib/auth";
 import { getPool } from "@/lib/tiger";
+import { track } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export async function POST(request: Request): Promise<Response> {
   }
   const on = body.on === true;
   await getPool().query("UPDATE users SET watch_alerts = $2 WHERE id = $1", [user.id, on]);
+  if (on) await track(request, "alerts_on");
   if (!on) await getPool().query("DELETE FROM alert_subs WHERE user_id = $1", [user.id]);
   return Response.json({ watchAlerts: on });
 }

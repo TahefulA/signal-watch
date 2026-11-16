@@ -378,6 +378,15 @@ CREATE TABLE IF NOT EXISTS app_errors (
   status integer
 );
 CREATE INDEX IF NOT EXISTS app_errors_at ON app_errors (at);
+CREATE TABLE IF NOT EXISTS product_events (
+  id bigserial PRIMARY KEY,
+  at timestamptz NOT NULL DEFAULT NOW(),
+  actor text NOT NULL,
+  name text NOT NULL,
+  ticker text,
+  path text
+);
+CREATE INDEX IF NOT EXISTS product_events_at ON product_events (at);
 CREATE TABLE IF NOT EXISTS leases (
   name text PRIMARY KEY,
   held_until timestamptz NOT NULL

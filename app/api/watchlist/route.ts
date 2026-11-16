@@ -4,6 +4,7 @@ import { addVisitorTicker, listVisitorWatchlist, removeVisitorTicker, seedVisito
 import { newVisitor } from "@/lib/visitor";
 import { watchOwner } from "@/lib/auth";
 import { traced } from "@/lib/llm-trace";
+import { track } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -70,7 +71,10 @@ async function handlePOST(request: Request): Promise<Response> {
   try {
     const visitor = await visitorOf(request);
     if (body.action === "remove") await removeVisitorTicker(visitor.id, ticker);
-    else await addVisitorTicker(visitor.id, ticker);
+    else {
+      await addVisitorTicker(visitor.id, ticker);
+      await track(request, "watch_add", { ticker });
+    }
     return withCookie(Response.json({ tickers: await listVisitorWatchlist(visitor.id) }), visitor.cookie);
   } catch (error) {
     console.error("Watchlist update failed", error);

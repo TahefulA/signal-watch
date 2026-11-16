@@ -4,6 +4,7 @@ import { AnalyzeError, analyzeTicker } from "@/lib/analyze";
 import { ensureForecast } from "@/lib/forecast-report";
 import { findLatestReport, findRecentReport, saveReport, tigerEnabled, updateReport } from "@/lib/tiger";
 import { traced } from "@/lib/llm-trace";
+import { track } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,6 +64,7 @@ async function handlePOST(request: Request): Promise<Response> {
           report = forecast.report;
           if (tigerEnabled()) await updateReport(report).catch((error: unknown) => console.error("Tiger Data update failed", error));
         }
+        await track(request, "analysis_run", { ticker });
         send({ type: "result", report, cached: false });
       } catch (error) {
         // When the model service is down, the last saved report for the ticker is better than an error.

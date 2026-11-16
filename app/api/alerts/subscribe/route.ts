@@ -3,6 +3,7 @@ import { emailEnabled, sendEmail, siteUrl } from "@/lib/email";
 import { getPool, tigerEnabled } from "@/lib/tiger";
 import { limited } from "@/lib/visitor";
 import { traced } from "@/lib/llm-trace";
+import { track } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,6 +33,7 @@ async function handlePOST(request: Request): Promise<Response> {
       [token, email, ticker],
     );
     const sub = rows.rows[0];
+    if (sub?.inserted) await track(request, "alert_signup", { ticker });
     if (sub?.inserted) {
       await sendEmail(
         email,
