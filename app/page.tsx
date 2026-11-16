@@ -10,6 +10,7 @@ import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { QuarterBars } from "@/components/map/quarter-bars";
 import { compactMoney } from "@/lib/node-visuals";
+import backtest from "@/model/backtest.json";
 
 const LAST_VISIT_KEY = "sw-watchlist-last-visit";
 
@@ -69,6 +70,77 @@ const STEPS: { title: string; text: string }[] = [
   { title: "Argues both sides", text: "Two AIs debate the case. Every number they cite is checked against the filings, and you can ask them questions." },
 ];
 
+/** The headline results from the out-of-sample test, read from model/backtest.json, misses and false alarms included. */
+function TrackRecord() {
+  const o = backtest.outOfSample;
+  const w = backtest.warning;
+  const beatZ = o.perYear.filter((y) => y.auc > y.aucZ).length;
+  const items = [
+    { value: `${w.caught} of ${w.bankruptcies}`, text: `real bankruptcies flagged ahead of time, a median ${w.medianMonths?.toFixed(0)} months before the filing` },
+    { value: `${beatZ} of ${o.perYear.length}`, text: "test years where it ranked risk better than the textbook Altman Z-score" },
+    { value: `${(o.atAlert.falseAlarmRate * 100).toFixed(0)}%`, text: "of healthy company-quarters set off a false alarm" },
+  ];
+  return (
+    <div className="mx-auto mt-10 max-w-5xl text-left">
+      <p className="text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+        Tested on {o.years[0]}–{o.years[1]}, trained only on earlier years
+      </p>
+      <dl className="mt-3 grid gap-3 sm:grid-cols-3">
+        {items.map((x) => (
+          <div key={x.text} className="rounded-xs border border-zinc-800 px-4 py-3">
+            <dt className="font-mono text-xl font-semibold text-zinc-50">{x.value}</dt>
+            <dd className="mt-1 text-[13px] leading-snug text-zinc-400">{x.text}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-3 text-center text-xs">
+        <Link href="/proof" className="text-zinc-300 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-50">
+          See every result, including the misses
+        </Link>
+      </p>
+    </div>
+  );
+}
+
+/** Shown over a signed-out visitor's list until dismissed: where the starter companies came from, and how to keep the list. */
+function StarterNote() {
+  const KEY = "sw-starter-note";
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    let dismissed = false;
+    try {
+      dismissed = window.localStorage.getItem(KEY) === "1";
+    } catch {
+      // Storage blocked: show it.
+    }
+    if (dismissed) return;
+    fetch("/api/auth/me")
+      .then((r) => r.json() as Promise<{ user: unknown; enabled: boolean }>)
+      .then((me) => setShow(!me.user))
+      .catch(() => setShow(true));
+  }, []);
+  if (!show) return null;
+  const close = () => {
+    setShow(false);
+    try {
+      window.localStorage.setItem(KEY, "1");
+    } catch {
+      // Nothing to keep.
+    }
+  };
+  return (
+    <div className="mt-6 flex items-start gap-3 rounded-xs border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm text-zinc-300">
+      <p className="min-w-0 flex-1">
+        We started your list with example companies. Remove any with &ldquo;Stop watching&rdquo; and add the ones you care about. It&rsquo;s kept in this
+        browser; sign in from the top right to keep it on every device and get an email when something changes.
+      </p>
+      <button type="button" onClick={close} className="shrink-0 text-zinc-500 hover:text-zinc-200" aria-label="Dismiss">
+        <X className="h-4 w-4" aria-hidden />
+      </button>
+    </div>
+  );
+}
+
 /** The front door: one search for anyone, and how it works in three steps. */
 function Hero() {
   const [ticker, setTicker] = useState("");
@@ -126,6 +198,7 @@ function Hero() {
           </li>
         ))}
       </ol>
+      <TrackRecord />
     </section>
   );
 }
@@ -470,6 +543,8 @@ export default function RadarPage() {
             </button>
           </div>
         </div>
+
+        {cards.length ? <StarterNote /> : null}
 
         {error ? (
           <p className="mt-4 text-sm text-red-400" role="alert">
