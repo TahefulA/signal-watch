@@ -349,6 +349,7 @@ CREATE TABLE IF NOT EXISTS llm_calls (
 );
 CREATE INDEX IF NOT EXISTS llm_calls_at ON llm_calls (at);
 CREATE INDEX IF NOT EXISTS llm_calls_trace ON llm_calls (trace_id);
+ALTER TABLE llm_calls ADD COLUMN IF NOT EXISTS prompt_hash text;
 CREATE TABLE IF NOT EXISTS users (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   google_sub text UNIQUE NOT NULL,
