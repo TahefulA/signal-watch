@@ -42,8 +42,16 @@ export function fingerprint(source: string, where: string, message: string): str
   return createHash("sha1").update(`${source}|${where}|${norm}`).digest("hex").slice(0, 16);
 }
 
+/** Next.js signals control flow by throwing (dynamic rendering, redirect, notFound); those are not failures. */
+export function isControlFlow(error: unknown): boolean {
+  const digest = (error as { digest?: unknown } | null)?.digest;
+  const text = typeof digest === "string" ? digest : error instanceof Error ? error.message : "";
+  return /^(DYNAMIC_SERVER_USAGE|NEXT_REDIRECT|NEXT_NOT_FOUND|BAILOUT_TO_CLIENT_SIDE_RENDERING)|Dynamic server usage/.test(text);
+}
+
 export async function recordError(e: ErrorRecord): Promise<void> {
-  if (!tigerEnabled() || process.env.ERROR_LOG === "off") return;
+  // During `next build` routes are probed for static rendering; nothing a user hit.
+  if (!tigerEnabled() || process.env.ERROR_LOG === "off" || process.env.NEXT_PHASE === "phase-production-build") return;
   const now = Date.now();
   if (now - minute.start > 60_000) minute = { start: now, n: 0 };
   if (++minute.n > MAX_PER_MINUTE) return;

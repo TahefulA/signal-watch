@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
-import { describe, recordError } from "./errors";
+import { describe, isControlFlow, recordError } from "./errors";
 import { costUsd } from "./llm-pricing";
 import { queryRows, tigerEnabled } from "./tiger";
 
@@ -53,6 +53,7 @@ export function traced<A extends unknown[], R>(route: string, handler: (...args:
         }
         return result;
       } catch (error) {
+        if (isControlFlow(error)) throw error;
         const { message, stack } = describe([error]);
         await recordError({ source: "server", where: route, message: `Unhandled: ${message}`, stack, traceId: trace.id, status: 500 });
         throw error;
