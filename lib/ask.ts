@@ -2,6 +2,7 @@ import type { AskAnswer, Report } from "@/types";
 import { type Schema, extractFigures, generateJson } from "./gemini";
 import { unsupportedRanking } from "./graph";
 import { dropUnsupported, toSpans } from "./memo";
+import { ASK_SYSTEM as SYSTEM } from "./prompts/ask";
 
 /**
  * Natural-language questions answered only from one report's graph. The model
@@ -10,16 +11,6 @@ import { dropUnsupported, toSpans } from "./memo";
  */
 
 const NOT_FOUND = "This information is not in the current graph. Check the full filing or another source.";
-
-const SYSTEM = `You are a credit analyst's research assistant. Answer the user's question about one company using ONLY the knowledge graph provided.
-
-Rules:
-1. Use no information that is not in the graph. Do not use general knowledge about any company.
-2. If the graph does not answer the question, set not_found to true and leave answer empty.
-3. When you mention an entity, write it as {{entity_id|words as they read in the sentence}}. Use only ids from the graph. Use {{capital|...}} for figures from the capital structure.
-4. cited_ids lists every entity id (and "capital" if used) your answer relies on.
-5. At most 100 words. Use credit language such as concentration risk, coverage, liquidity, exposure.
-6. Every number must appear in the graph exactly as given. No predictions, ratings or scores that are not in the graph.`;
 
 const SCHEMA: Schema = {
   type: "OBJECT",

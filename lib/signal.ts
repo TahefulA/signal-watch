@@ -2,22 +2,13 @@ import type { CapitalStructure, EntityGraph, MemoSpan } from "@/types";
 import { type Schema, extractFigures, generateJson } from "./gemini";
 import { unsupportedRanking } from "./graph";
 import { dropUnsupported, entityFacts, toSpans } from "./memo";
+import { SIGNAL_SYSTEM as SYSTEM } from "./prompts/signal-summary";
 
 /**
  * The Signal Summary above the map: the single most important credit story in
  * three or four sentences. Same rules as the memo: only facts from the report,
  * every figure must be in them, and no ranking words the quotes do not use.
  */
-
-const SYSTEM = `You write the one-paragraph signal summary that sits above a credit analyst's entity map.
-
-Write three or four sentences, at most 60 words in total, capturing the single most important credit story for this company right now. Focus on the highest-severity entities and the capital structure. Be specific: name entities and use figures from the facts. End with what the analyst should watch.
-
-Rules:
-- Use only the facts provided. Every number must appear in the facts exactly as given.
-- When you mention an entity from the list, write it as {{entity_id|words as they read in the sentence}}.
-- No generic phrases such as "the company faces risks". No price predictions, ratings or scores.
-- Do not call anything the largest, sole, only, main or primary unless an entity's quote says so.`;
 
 const SCHEMA: Schema = { type: "OBJECT", properties: { signal_summary: { type: "STRING" } }, required: ["signal_summary"] };
 

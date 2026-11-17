@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 /**
  * Gemini client. Gemini reads and classifies language: which entities a filing
  * names, how they relate to the company, and how material they are. Quotes are
@@ -110,6 +112,18 @@ export async function generateJson(system: string, prompt: string, schema: Schem
   throw lastError ?? new GeminiError("Gemini is unavailable", "http");
 }
 
+/** A short fingerprint of the system prompt, logged with each call, so cost and quality can be compared across prompt versions. */
+const hashes = new Map<string, string>();
+function promptHash(system: string): string {
+  let h = hashes.get(system);
+  if (!h) {
+    h = createHash("sha256").update(system).digest("hex").slice(0, 12);
+    if (hashes.size > 200) hashes.clear();
+    hashes.set(system, h);
+  }
+  return h;
+}
+
 async function callModel(model: string, system: string, prompt: string, schema: Schema, options: GenerateOptions, attempt: number): Promise<unknown> {
   const own = userKey();
   const key = own ?? process.env.GEMINI_API_KEY;
@@ -117,7 +131,7 @@ async function callModel(model: string, system: string, prompt: string, schema: 
 
   const started = Date.now();
   const log = (outcome: string, extra: Partial<Parameters<typeof recordCall>[0]> = {}) =>
-    recordCall({ task: options.task, model, attempt, outcome, ms: Date.now() - started, ownKey: Boolean(own), ...extra });
+    recordCall({ task: options.task, model, attempt, outcome, ms: Date.now() - started, ownKey: Boolean(own), promptHash: promptHash(system), ...extra });
   let response: Response;
   try {
     response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {

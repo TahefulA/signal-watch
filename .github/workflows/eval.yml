@@ -1,0 +1,75 @@
+name: Eval
+
+# Runs the analysis pipeline on evals/golden.json with real Gemini calls.
+# - Pull requests that touch a prompt or the pipeline: the 8 smoke companies,
+#   compared with evals/baseline.json (about $1).
+# - Manual: the full 30 (about $4), or the smoke set only.
+# Results are uploaded as an artifact. Writes only to the "eval" schema.
+# Needs repository secrets GEMINI_API_KEY, DATABASE_URL and SEC_USER_AGENT;
+# without them the job says so and passes, so forks and new clones are not blocked.
+on:
+  pull_request:
+    paths:
+      - "lib/prompts/**"
+      - "lib/extraction.ts"
+      - "lib/memo.ts"
+      - "lib/signal.ts"
+      - "lib/capital.ts"
+      - "lib/analyze.ts"
+      - "lib/gemini.ts"
+      - "evals/**"
+      - "scripts/eval.ts"
+  workflow_dispatch:
+    inputs:
+      smoke:
+        description: "Only the 8 smoke companies"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval:
+    name: Pipeline eval
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+    steps:
+      - name: Check secrets
+        id: secrets
+        run: |
+          if [ -z "$GEMINI_API_KEY" ] || [ -z "$DATABASE_URL" ]; then
+            echo "::warning::Eval skipped: set the GEMINI_API_KEY and DATABASE_URL repository secrets to run it."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.ready == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: steps.secrets.outputs.ready == 'true'
+      - name: Run eval
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          FLAGS=""
+          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ inputs.smoke }}" = "true" ]; then FLAGS="--smoke"; fi
+          if [ -f evals/baseline.json ]; then FLAGS="$FLAGS --compare"; fi
+          npx tsx scripts/eval.ts $FLAGS
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.secrets.outputs.ready == 'true'
+        with:
+          name: eval-results
+          path: evals/results/

@@ -78,6 +78,10 @@ Every Gemini attempt writes a row to `llm_calls`: route, task, model, attempt nu
 
 Errors: inside any `traced()` route, `console.error`, thrown errors and 5xx answers are written to `app_errors` (`lib/errors.ts`), grouped by a fingerprint that masks ids, tickers and numbers; browser crashes arrive through `/api/client-error`. `/api/health` checks the database, the warm-up (stalest demo report under 48 h), the server error rate and the daily budget, and `.github/workflows/uptime.yml` polls it every 30 minutes, so a failed run emails the owner. `DAILY_BUDGET_USD` (default $10) caps the site key's spend per UTC day.
 
+## Prompts and evals
+
+Every system prompt lives in `lib/prompts/`, apart from the code that calls it, and each Gemini call logs the first 12 hex of its prompt's SHA-256 in `llm_calls.prompt_hash`, so cost and failure rates can be compared across prompt versions. `npm run eval` runs the full pipeline on the 30 companies in `evals/golden.json` (mega-caps, airlines, cruise lines, media, bitcoin miners, sponsor-backed and distressed names) and checks what is known to be true: the ticker resolved to the right filer, the debt schedule found the company's notes, the bankruptcy band where it is clear-cut, how many proposed entities survived validation, whether the memo fell back to its template, plus cost and latency per run. `--compare` fails on a regression against `evals/baseline.json`; `.github/workflows/eval.yml` runs the 8-company smoke set on pull requests that change a prompt.
+
 ## Accounts and environments
 
 Sign-in is Google OAuth (authorization code with PKCE and a state check), written by hand in `lib/auth.ts` and `app/api/auth/`. Sessions are random tokens in an HttpOnly cookie; only their SHA-256 is stored. Signed-out visitors keep a cookie-based watchlist, which is carried over on sign-in. Delete account removes the account, its watchlist and its alerts in one transaction. It is off until `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set.

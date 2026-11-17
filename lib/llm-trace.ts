@@ -79,6 +79,8 @@ export interface CallRecord {
   finishReason?: string | null;
   /** Billed to the visitor's own key, not the site's. */
   ownKey: boolean;
+  /** First 12 hex of the system prompt's SHA-256. */
+  promptHash?: string;
 }
 
 export async function recordCall(c: CallRecord): Promise<void> {
@@ -89,8 +91,8 @@ export async function recordCall(c: CallRecord): Promise<void> {
   const output = (c.outputTokens ?? 0) + (c.thinkingTokens ?? 0);
   try {
     await queryRows(
-      `INSERT INTO llm_calls (trace_id, route, task, model, attempt, outcome, ms, input_tokens, output_tokens, thinking_tokens, cost_usd, finish_reason, own_key)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+      `INSERT INTO llm_calls (trace_id, route, task, model, attempt, outcome, ms, input_tokens, output_tokens, thinking_tokens, cost_usd, finish_reason, own_key, prompt_hash)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
       [
         t?.id ?? null,
         t?.route ?? "script",
@@ -105,6 +107,7 @@ export async function recordCall(c: CallRecord): Promise<void> {
         c.outcome === "ok" || c.inputTokens ? costUsd(c.model, input, output) : 0,
         c.finishReason ?? null,
         c.ownKey,
+        c.promptHash ?? null,
       ],
     );
   } catch (error) {
